@@ -1,0 +1,308 @@
+// Email Verification Modal Styles
+// Using Metroprop design tokens
+
+// Colors
+$color-primary: #006aff;
+$color-success: #28a745;
+$color-text-primary: #1e1e1e;
+$color-bg-primary: #ffffff;
+$color-alert-bg: #d9d9d9;
+$color-border: #a6a6a6;
+
+// Typography
+$font-family-body: 'Inter', sans-serif;
+$font-family-heading: 'Montserrat', sans-serif;
+
+.email-verification-modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+// Main Modal Container
+.email-verification-modal { 
+  display: flex;
+  flex-direction: column;
+  background-color: $color-bg-primary;
+  border-radius: 8px;
+  padding: 8px 24px 24px 24px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  animation: slideUp 0.3s ease-out;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    padding: 8px 16px 24px 16px;
+    border-radius: 4px;
+    height: 100vh;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Modal Header
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+// Back Button
+.modal-back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+  color: $color-text-primary;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+}
+
+.modal-chevron-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease;
+}
+
+.modal-back-button:hover .modal-chevron-icon {
+  transform: rotate(-90deg) scale(1.1);
+}
+
+// Close Button
+.modal-close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+}
+
+// Content Container
+.modal-content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  width: 100%;
+  padding: 16px 16px 0 16px;
+}
+
+// Alert Notification
+.modal-alert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $color-alert-bg;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  padding: 15px 16px;
+  width: 100%;
+  min-height: 86px;
+}
+
+.modal-alert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+// Check Icon
+.modal-check-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: $color-success;
+  border-radius: 50%;
+
+  img {
+    display: block;
+  }
+}
+
+// Alert Title
+.modal-alert-title {
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+  color: #000000;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+// Text Button
+.modal-text-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 500;
+  color: #000000;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    text-decoration: underline;
+    color: $color-primary;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Message Section
+.modal-message-section {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  width: 100%;
+}
+
+// Message Container
+.modal-message {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+// Message Title
+.modal-message-title {
+  font-family: $font-family-heading;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 30px;
+  letter-spacing: 0;
+  color: $color-text-primary;
+  margin: 0;
+  padding: 0;
+  font-style: normal;
+}
+
+// Message Text
+.modal-message-text {
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  color: $color-text-primary;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+// Link Button
+.modal-link-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+  color: $color-text-primary;
+  transition: all 0.2s ease;
+  text-decoration: underline;
+
+  &:hover {
+    color: $color-primary;
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .email-verification-modal {
+    padding: 8px 16px 24px 16px;
+    max-width: 100%;
+  }
+
+  .modal-message-title {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .modal-message-text {
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  .modal-alert {
+    min-height: 80px;
+    padding: 12px 16px;
+  }
+}

@@ -1,0 +1,551 @@
+// Header Styles
+// Using Metroprop design tokens
+
+// Colors
+$color-primary: #006aff;
+$color-secondary: #0041d9;
+$color-text-primary: #1e1e1e;
+$color-bg-primary: #ffffff;
+$color-border: #a6a6a6;
+
+// Typography
+$font-family-body: 'Inter', sans-serif;
+$font-family-button: 'Montserrat', sans-serif;
+
+// Main Header Container
+.header-container {
+  background-color: $color-bg-primary;
+  border-bottom: 2px solid $color-border;
+  padding: 16px 24px;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  @media (max-width: 768px) {
+    height: 82px;
+  }
+}
+
+// Header Content Wrapper
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+}
+
+// Navigation Wrapper (includes hamburger button)
+.header-nav-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: auto;
+  }
+}
+
+// Hamburger Button
+.header-hamburger-button {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  background-color: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  gap: 6px;
+  position: relative;
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  &.active {
+    background-color: #ebf2fd;
+
+    span {
+      &:first-child {
+        transform: translateY(11px) rotate(45deg);
+      }
+
+      &:nth-child(2) {
+        opacity: 0;
+      }
+
+      &:last-child {
+        transform: translateY(-11px) rotate(-45deg);
+      }
+    }
+  }
+
+  span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: $color-text-primary;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+}
+
+// Navigation Section
+.header-nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    width: 100vw;
+    margin-left: -24px;
+    padding: 0;
+    background-color: $color-bg-primary;
+    // border-bottom: 2px solid $color-border;
+    // border-top: 1px solid $color-border;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    z-index: 150;
+
+    &.mobile-open {
+      max-height: 500px;
+      padding: 12px 0;
+    }
+  }
+}
+
+// Dropdown Wrapper
+.header-dropdown-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+// Dropdown Toggle Button
+.header-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px;
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 100%;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  &.active {
+    background-color: #ebf2fd;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 0;
+  }
+}
+
+// Dropdown Label
+.header-dropdown-label {
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+  color: $color-text-primary;
+  white-space: nowrap;
+}
+
+// Chevron Icon
+.header-chevron {
+  display: block;  
+  transition: transform 0.3s ease;
+  width: 20px;
+  height: 20px;
+
+  .header-dropdown-toggle.active & {
+    transform: rotate(180deg);
+  }
+}
+
+// Dropdown Menu
+.header-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: $color-bg-primary;
+  border: 1px solid $color-border;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  margin-top: 8px;
+  z-index: 200;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    position: static;
+    border: none;
+    box-shadow: none;
+    background-color: #f5f5f5;
+    border-radius: 0;
+    margin-top: 0;
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &.header-dropdown-menu-grid {
+    display: flex;
+    flex-direction: row;
+    min-width: auto;
+    width: auto;
+    border-radius: 0 0 8px 8px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      border-radius: 0;
+    }
+  }
+}
+
+// Dropdown Column
+.header-dropdown-column {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #d9d9d9;
+  padding: 24px;
+  min-width: 280px;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  @media (max-width: 768px) {
+    border-right: none;
+    border-bottom: 1px solid $color-border;
+    padding: 16px 0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+// Column Title
+.header-dropdown-column-title {
+  font-family: $font-family-body;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 28px;
+  color: $color-text-primary;
+  margin-bottom: 8px;
+  padding: 0 8px;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+    margin-bottom: 12px;
+    padding: 0 16px;
+  }
+}
+
+// Column Items Container
+.header-dropdown-column-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+// Dropdown Items
+.header-dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 8px;
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.32px;
+  color: $color-text-primary;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  height: 48px;
+
+  &:hover {
+    background-color: #ebf2fd;
+    color: $color-primary;
+  }
+
+  &.active {
+    background-color: #ebf2fd;
+  }
+
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+// Logo Section
+.header-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 48px;
+  width: auto;
+
+  img {
+    height: 100%;
+    width: auto;
+    display: block;
+    max-width: 160px;
+  }
+
+  @media (max-width: 768px) {
+    flex-grow: 1;
+  }
+}
+
+// Actions Section
+.header-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  width: 242px;
+
+  @media (max-width: 768px) {
+    width: auto;
+  }
+}
+
+// Primary Button
+.header-button-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 12px 16px;
+  background-color: $color-primary;
+  border: 1px solid $color-primary;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: $font-family-button;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.32px;
+  color: white;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: $color-secondary;
+    border-color: $color-secondary;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 106, 255, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    height: 40px;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
+
+.header-button-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+// Tablet adjustments
+@media (max-width: 1024px) {
+  .header-container {
+    padding: 14px 20px;
+  }
+}
+// Desktop dropdown styles (hide on mobile)
+.header-desktop-dropdown {
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+// Mobile Nested Accordion Styles
+.header-mobile-accordion {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  background-color: #f5f5f5;
+  border-top: 1px solid $color-border;
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+}
+
+// Accordion Subcategory
+.accordion-subcategory {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid $color-border;
+  width: 100%;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// Accordion Subcategory Toggle Button
+.accordion-subcategory-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background-color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  border-bottom: 1px solid $color-border;
+  width: 100%;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  &.active {
+    background-color: #f5f5f5;
+
+    .chevron {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+// Subcategory Label
+.subcategory-label {
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.32px;
+  color: $color-text-primary;
+  text-align: left;
+  flex-grow: 1;
+}
+
+// Chevron in accordion
+.accordion-subcategory-toggle .chevron {
+  width: 24px;
+  height: 24px;
+  display: block;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+// Accordion Items Container
+.accordion-items {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  padding: 0;
+  max-height: 1000px;
+  overflow-y: auto;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+
+// Accordion Individual Item
+.accordion-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.32px;
+  color: $color-text-primary;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #ebf2fd;
+    color: $color-primary;
+  }
+
+  &.active {
+    background-color: #ebf2fd;
+    color: $color-text-primary;
+    font-weight: 600;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}

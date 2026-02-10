@@ -1,0 +1,154 @@
+// Submenu Styles
+// Using Metroprop design tokens
+
+// Colors
+$color-primary: #006aff;
+$color-text-primary: #1e1e1e;
+$color-bg-light: #ebf2fd;
+$color-bg-primary: #ffffff;
+$color-border: #006aff;
+
+// Typography
+$font-family-heading: 'Inter', sans-serif;
+
+// Main Container
+.submenu-container {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: $color-bg-primary;
+  border: 1.3px solid $color-primary;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 358px;
+
+  &.submenu-active {
+    display: flex;
+    height: 100vh;
+    border: none;
+    padding: 24px 16px;
+  }
+
+  @media (min-width: 768px) {
+    max-width: 403px;
+    display: flex;
+  }
+}
+
+.submenu-header-mobile {
+  display: none;
+  color: #000;
+  /* Metroprop/Mobile/H1 */
+  font-family: Inter;
+  font-size: 26px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 34px;
+  letter-spacing: -0.078px;
+  padding-bottom: 8px;
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+// Submenu Item Base
+.submenu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Inactive Item State
+.submenu-item-inactive {
+  background-color: $color-bg-light;
+  border: 1px solid $color-bg-light;
+
+  .submenu-item-label {
+    border-left: none;
+  }
+
+  span {
+    color: $color-primary;
+  }
+}
+
+// Active Item State
+.submenu-item-active {
+  background-color: $color-bg-primary;
+  border: 1.3px solid $color-border;
+
+  .submenu-item-label {
+    border-left: 2px solid $color-border;
+  }
+
+  span {
+    color: $color-primary;
+    font-weight: 600;
+  }
+}
+
+// Item Label
+.submenu-item-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-left: 2px solid transparent;
+  transition: all 0.3s ease;
+
+  span {
+    font-family: $font-family-heading;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 18px;
+    letter-spacing: 0.16px;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+// Chevron Icon
+.submenu-item-chevron {
+  width: 24px;
+  height: 24px;
+  transform: rotate(-90deg);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .submenu-container {
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .submenu-item {
+    padding: 11px 12px;
+  }
+
+  .submenu-item-label {
+    span {
+      font-size: 14px;
+    }
+  }
+}

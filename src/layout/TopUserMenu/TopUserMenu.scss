@@ -1,0 +1,323 @@
+// Colors
+$color-primary: #006aff;
+$color-secondary: #0041d9;
+$color-tertiary: #0132a4;
+$color-text-primary: #1e1e1e;
+$color-bg-primary: #ffffff;
+$color-bg-secondary: #f5f5f5;
+$color-border: #a6a6a6;
+$color-border-light: #d3d3d3;
+$color-logout: #d32f2f;
+
+// Typography
+$font-family-body: 'Inter', sans-serif;
+$font-family-button: 'Montserrat', sans-serif;
+
+// Logged In Menu Styles
+.header-logged-in-menu {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+// Publish Button
+.header-publish-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 12px 16px;
+  background-color: $color-primary;
+  border: 1px solid $color-primary;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: $font-family-button;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.32px;
+  color: white;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: $color-secondary;
+    border-color: $color-secondary;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 106, 255, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+// Notification Button
+.header-notification-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  background-color: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: $color-text-primary;
+
+  img {
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+  }
+}
+
+// Avatar Wrapper
+.header-avatar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+// Avatar Button
+.header-avatar-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background-color: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  @media (max-width: 768px) {
+    padding: 4px 6px;
+  }
+}
+
+// Avatar Circle
+.header-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 100%;
+  background-color: $color-tertiary;
+  color: white;
+  font-family: $font-family-body;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 28px;
+  flex-shrink: 0;
+}
+
+// Avatar Chevron
+.header-avatar-chevron {
+  display: block;
+  transition: transform 0.3s ease;
+  color: $color-text-primary;
+}
+
+// User Dropdown Menu
+.header-user-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: $color-bg-primary;
+  border: 1.3px solid $color-border;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  min-width: 390px;
+  margin-top: 12px;
+  z-index: 200;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    min-width: 340px;
+    right: -16px;
+  }
+}
+
+// Publish Button in Dropdown
+.header-dropdown-publish-wrapper {
+  padding: 24px;
+  background-color: $color-bg-primary;
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.header-dropdown-publish-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 12px 16px;
+  background-color: $color-primary;
+  border: 1.3px solid $color-primary;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: $font-family-button;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #fff;
+  gap: 8px;
+
+  &:hover {
+    background-color: #f0f4ff;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// User Info Header
+.header-dropdown-user-header {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding: 16px;
+  background-color: $color-bg-secondary;
+  border-top: 1.3px solid $color-primary;
+  border-bottom: 1px solid $color-primary;
+  height: 80px;
+}
+
+.header-dropdown-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 44px;
+  padding: 2px 3px;
+  border-radius: 100%;
+  background-color: $color-tertiary;
+  color: white;
+  font-family: $font-family-body;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 28px;
+  flex-shrink: 0;
+}
+
+.header-dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.header-dropdown-user-name {
+  margin: 0;
+  font-family: $font-family-body;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 22px;
+  color: $color-text-primary;
+}
+
+.header-dropdown-user-email {
+  margin: 0;
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.16px;
+  color: $color-text-primary;
+}
+
+// Menu Items
+.header-dropdown-items {
+  display: flex;
+  flex-direction: column;
+  background-color: $color-bg-primary;
+}
+
+.header-dropdown-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px 16px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  &:not(.header-dropdown-logout):hover {
+    background-color: #f5f5f5;
+  }
+}
+
+.header-dropdown-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  flex-shrink: 0;
+
+  img {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.header-dropdown-item-label {
+  font-family: $font-family-body;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.32px;
+  color: $color-text-primary;
+  padding: 14px 8px;
+}
+
+// Logout Item
+.header-dropdown-logout {
+  padding-left: 24px;
+  border-top: 1px solid #00000033;
+  &:hover {
+    .header-dropdown-item-label {
+      color: $color-logout;
+    }
+  }
+
+  .header-dropdown-item-label {
+    color: $color-text-primary;
+    transition: color 0.2s ease;
+  }
+}
