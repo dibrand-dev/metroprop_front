@@ -156,7 +156,9 @@ export default function Header() {
                     {key === 'alquilar' && 'Alquilar'}
                     {key === 'temporal' && 'Temporal'}
                   </span>
-                  <img src={chevronIcon} alt="" className="header-chevron" />
+                  <span className='header-dropdown-icon'>
+                    <img src={chevronIcon} alt="" className="header-chevron" />
+                  </span>
                 </button>
                 
                 {/* Desktop Multi-Column Dropdown */}
@@ -199,7 +201,9 @@ export default function Header() {
                             onClick={() => toggleSubCategory(subcategoryKey)}
                           >
                             <span className="subcategory-label">{column.title}</span>
-                            <img src={chevronIcon} alt="" className="chevron" />
+                            <span className='header-dropdown-icon'>
+                              <img src={chevronIcon} alt="" className="chevron" />
+                            </span>
                           </button>
                           {isSubCategoryOpen && (
                             <div className="accordion-items">
@@ -230,7 +234,7 @@ export default function Header() {
 
         {/* Center Section - Logo */}
         <div className="header-logo">
-          <img src={logoMetroprop} alt="MetroProp" />
+          <a href="/"><img src={logoMetroprop} alt="MetroProp" /></a>
         </div>
 
         {/* Right Section - Login Button or User Menu */}

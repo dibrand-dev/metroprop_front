@@ -30,7 +30,7 @@ export default function TopNavBar({
 
         {/* Logo */}
         <div className="topnavbar-logo">
-          <img src={logoMetroprop} alt="MetroProp Logo" />
+          <a href="/"><img src={logoMetroprop} alt="MetroProp Logo" /></a>
         </div>
         <TopUserMenu />
       </nav>

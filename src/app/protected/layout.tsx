@@ -1,20 +1,19 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export default function ProtectedLayout({
+export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-    const getSession = async () => {
-        const token = await cookies()
-        console.log(token)
-        token.get("session")?.value;
-        if (!token) {
-            redirect("/login");
-        }
-    };
+    const session = await getServerSession(authOptions);
+    const customToken = (await cookies()).get("authToken")?.value;
 
-    getSession();
+    if (!session && !customToken) {
+      redirect("/login");
+    }
+
     return <>{children}</>;
 }

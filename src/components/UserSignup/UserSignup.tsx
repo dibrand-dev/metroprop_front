@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { getSession, signIn } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import './UserSignup.scss';
@@ -25,15 +25,36 @@ export default function UserSignup() {
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState({ email: '', password: '', confirmPassword: '', agreeTerms: '', agreePrivacy: '' });
   const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const hasAutoRegisteredRef = useRef(false);
+
+  const registerUser = async (payload: { email: string; password?: string; name?: string, google?: boolean }) => {
+    const response = await fetch('http://localhost:3000/registration/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      let errorMessage = 'Error en el registro';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch {
+        errorMessage = `Error ${response.status}: ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccessMessage('');
     setFieldErrors({ email: '', password: '', confirmPassword: '', agreeTerms: '', agreePrivacy: '' });
 
     if (!email || !password || !confirmPassword) {
@@ -78,42 +99,7 @@ export default function UserSignup() {
 
     startTransition(async () => {
       try {
-        const response = await fetch('http://localhost:3000/registration/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        });
-
-        if (!response.ok) {
-          let errorMessage = 'Error en el registro';
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.error || errorMessage;
-          } catch {
-            errorMessage = `Error ${response.status}: ${response.statusText}`;
-          }
-          setError(errorMessage);
-          return;
-        }
-        
-        
-        /*        
-        const data = await response.json();
-        setSuccessMessage('¡Registro exitoso! Redirigiendo al login...');
-        console.log('Registration successful:', data);
-
-        // Redirect to login page after 2 seconds
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 2000);
-        */
-
-        
+        await registerUser({ email, password });        
         setShowEmailVerificationModal(true);
 
       } catch (err) {
@@ -127,22 +113,79 @@ export default function UserSignup() {
     startTransition(async () => {
       try {
         setError('');
-        const result = await signIn('google', {
-          redirect: false,
-          callbackUrl: '/',
+        console.log('Starting Google sign up...');
+        
+        await signIn('google', {
+          redirect: true,
+          callbackUrl: '/signup?googleRegister=1',
         });
-
-        if (result?.error) {
-          setError('Error al crear cuenta con Google');
-        } else if (result?.ok) {
-          router.push('/');
-        }
       } catch (err) {
-        setError('Error al crear cuenta con Google');
-        console.error(err);
+        console.error('Google sign up exception:', err);
+        setError('Error al crear cuenta con Google. Por favor intenta de nuevo.');
       }
     });
   };
+
+  useEffect(() => {
+    const shouldAutoRegister = searchParams.get('googleRegister') === '1';
+    if (!shouldAutoRegister || hasAutoRegisteredRef.current) {
+      return;
+    }
+
+    const runGoogleRegistration = async () => {
+      const session:any = await getSession();
+      const sessionEmail = session?.user?.email ?? '';
+      if (!sessionEmail) {
+        return;
+      }
+
+      hasAutoRegisteredRef.current = true;
+      setError('');
+
+      startTransition(async () => {
+        /*try {
+          await registerUser({ email: sessionEmail, name: sessionName || undefined, google: true });
+          setShowEmailVerificationModal(true);
+          router.replace('/signup');
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Error al conectar con el servidor';
+          setError(errorMessage);
+        }*/
+
+        try {
+          const response:any = await fetch('http://localhost:3000/registration/google', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: sessionEmail,
+              name: session?.user?.name ?? undefined,
+              avatar: session?.user?.image ?? undefined,
+              google_id: session?.user?.id
+            }),
+          });
+
+          if (!response.ok) {
+            const errorMessage = 'Error al conectar con el servidor';
+            setError(errorMessage);
+            router.replace('/signup');
+            return;
+          } else {
+            setShowEmailVerificationModal(true);
+            router.replace('/signup');
+          }
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
+          setError(errorMessage);
+        }
+
+
+      });
+    };
+
+    runGoogleRegistration();
+  }, [searchParams, startTransition]);
 
   return (
   <>
@@ -152,7 +195,7 @@ export default function UserSignup() {
     <h1 className="merged-signup-title">Crear cuenta</h1>
 
     {/* Form */}
-    <form onSubmit={handleSubmit} className="merged-signup-form">
+    <form onSubmit={handleSubmit} className="merged-signup-form" autoComplete='off'>
       {/* Email Input */}
       <div className="merged-signup-form-group">
         <InputField2
@@ -256,13 +299,6 @@ export default function UserSignup() {
           error={fieldErrors.agreePrivacy}
         />
       </div>
-
-      {successMessage && (
-        <div className="merged-signup-success-message">
-          {successMessage}
-        </div>
-      )}
-
       {error && (
         <div className="merged-signup-error-message">
           {error}

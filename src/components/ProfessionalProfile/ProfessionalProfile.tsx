@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import './ProfessionalProfile.scss';
-import InputField from '@/ui/InputField/InputField';
+import InputField2 from '@/ui/InputField2/InputField2';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 
 const iconEditPencil = "/icons/pencil.svg";
@@ -12,6 +12,48 @@ const iconArrowBack = "/icons/arrow.svg";
 interface PropertyData {
   [key: string]: string;
 }
+
+const mockProfileData: PropertyData = {
+  email: 'contacto@metroprop.com',
+  nombre: 'Norberto',
+  apellido: 'Gomez',
+  telefono: '1144556677',
+  telefonoAdicional: '1144332211',
+  provincia: 'Buenos Aires',
+  ciudad: 'Palermo',
+  calle: 'Cervino',
+  numero: '4046',
+  descripcion: 'Inmobiliaria especializada en propiedades premium con atencion personalizada.',
+};
+
+const getSessionProfileData = (): Partial<PropertyData> => {
+  if (typeof window === 'undefined') return {};
+
+  try {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) return {};
+    const user = JSON.parse(storedUser);
+    const address = user?.address || {};
+
+    return {
+      email: user?.email,
+      nombre: user?.name || user?.first_name,
+      apellido: user?.last_name || user?.lastname,
+      telefono: user?.phone || user?.phone_number,
+      telefonoAdicional: user?.phone_secondary || user?.secondary_phone,
+      provincia: address?.province || user?.province,
+      ciudad: address?.city || user?.city,
+      calle: address?.street || user?.street,
+      numero: address?.number || user?.street_number,
+      descripcion: user?.description || user?.bio,
+    };
+  } catch (error) {
+    console.error('Failed to read session user data:', error);
+    return {};
+  }
+};
+
+const formatNumeric = (value: string): string => value.replace(/\D/g, '');
 
 export default function ProfessionalProfile() {
   const [activeSection, setActiveSection] = useState<'generales' | 'ubicacion' | 'descripcion'>('generales');
@@ -33,10 +75,27 @@ export default function ProfessionalProfile() {
     descripcion: '',
   });
 
+  useEffect(() => {
+    const sessionData = getSessionProfileData();
+    const merged = { ...mockProfileData };
+    Object.entries(sessionData).forEach(([key, value]) => {
+      if (typeof value === 'string' && value.trim()) {
+        merged[key] = value.trim();
+      }
+    });
+    merged.telefono = formatNumeric(merged.telefono || '');
+    merged.telefonoAdicional = formatNumeric(merged.telefonoAdicional || '');
+    merged.numero = formatNumeric(merged.numero || '');
+    setProperties(merged);
+  }, []);
+
   const handleInputChange = (field: string, value: string) => {
+    const nextValue = ['telefono', 'telefonoAdicional', 'numero'].includes(field)
+      ? formatNumeric(value)
+      : value;
     setProperties(prev => ({
       ...prev,
-      [field]: value
+      [field]: nextValue
     }));
   };
 
@@ -51,7 +110,7 @@ export default function ProfessionalProfile() {
   };
 
   return (
-    <div className="professionalContainer" style={!showMenu ? { background: 'white' } : {}}>
+    <div className={`professionalContainer ${!showMenu ? "activeMenuMobile" : ""}`}>
       <Submenu active={showMenu} />
       <div className={`professional-profile-container ${showMenu ? 'mobile-hidden' : ''}`}>
         {/* Header */}
@@ -63,7 +122,7 @@ export default function ProfessionalProfile() {
         </div>
 
         {/* Main Content */}
-        <div className="professional-profile-content">
+        <div className={`professional-profile-content ${isEditing ? 'is-editing' : ''}`}>
           {/* Generales Section */}
           <section className="professional-profile-section">
             <div className="professional-profile-section-header">
@@ -81,51 +140,49 @@ export default function ProfessionalProfile() {
                 <p className="professional-profile-label">Identificador:</p>
                 <p className="professional-profile-value">300090404</p>
               </div>
-              <div className="professional-profile-identifier-logo">
-                <div className="professional-profile-logo-placeholder"></div>
-              </div>
+              
             </div>
 
             <div className="professional-profile-fields">
-              <InputField
+              <InputField2
                 type="email"
                 placeholder="Correo electrónico"
                 value={properties.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                disabled={!isEditing}
-                label=""
+                disabled={!(isEditing && activeSection === 'generales')}
+                label="Correo electrónico"
               />
-              <InputField
+              <InputField2
                 type="text"
                 placeholder="Nombre"
                 value={properties.nombre}
                 onChange={(e) => handleInputChange('nombre', e.target.value)}
-                disabled={!isEditing}
-                label=""
+                disabled={!(isEditing && activeSection === 'generales')}
+                label="Nombre"
               />
-              <InputField
+              <InputField2
                 type="text"
                 placeholder="Apellido"
                 value={properties.apellido}
                 onChange={(e) => handleInputChange('apellido', e.target.value)}
-                disabled={!isEditing}
-                label=""
+                disabled={!(isEditing && activeSection === 'generales')}
+                label="Apellido"
               />
-              <InputField
+              <InputField2
                 type="tel"
                 placeholder="Teléfono"
                 value={properties.telefono}
                 onChange={(e) => handleInputChange('telefono', e.target.value)}
-                disabled={!isEditing}
-                label=""
+                disabled={!(isEditing && activeSection === 'generales')}
+                label="Teléfono"
               />
-              <InputField
+              <InputField2
                 type="tel"
                 placeholder="Teléfono adicional"
                 value={properties.telefonoAdicional}
                 onChange={(e) => handleInputChange('telefonoAdicional', e.target.value)}
-                disabled={!isEditing}
-                label=""
+                disabled={!(isEditing && activeSection === 'generales')}
+                label="Teléfono adicional"
               />
             </div>
           </section>
@@ -145,37 +202,37 @@ export default function ProfessionalProfile() {
             </div>
 
             <div className="professional-profile-fields">
-              <InputField
+              <InputField2
                 type="text"
                 placeholder="Provincia"
                 value={properties.provincia}
                 onChange={(e) => handleInputChange('provincia', e.target.value)}
-                disabled={!isEditing}
-                label=""
+                disabled={!(isEditing && activeSection === 'ubicacion')}
+                label="Provincia"
               />
-              <InputField
+              <InputField2
                 type="text"
                 placeholder="Ciudad"
                 value={properties.ciudad}
                 onChange={(e) => handleInputChange('ciudad', e.target.value)}
-                disabled={!isEditing}
-                label=""
+                disabled={!(isEditing && activeSection === 'ubicacion')}
+                label="Ciudad"
               />
-              <InputField
+              <InputField2
                 type="text"
                 placeholder="Calle"
                 value={properties.calle}
                 onChange={(e) => handleInputChange('calle', e.target.value)}
-                disabled={!isEditing}
-                label=""
+                disabled={!(isEditing && activeSection === 'ubicacion')}
+                label="Calle"
               />
-              <InputField
+              <InputField2
                 type="text"
                 placeholder="Número"
                 value={properties.numero}
                 onChange={(e) => handleInputChange('numero', e.target.value)}
-                disabled={!isEditing}
-                label=""
+                disabled={!(isEditing && activeSection === 'ubicacion')}
+                label="Número"
               />
             </div>
           </section>
@@ -199,7 +256,7 @@ export default function ProfessionalProfile() {
               placeholder="Descripción"
               value={properties.descripcion}
               onChange={(e) => handleInputChange('descripcion', e.target.value)}
-              disabled={!isEditing}
+              disabled={!(isEditing && activeSection === 'descripcion')}
             ></textarea>
           </section>
 

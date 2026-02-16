@@ -18,6 +18,28 @@ const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
+const formatCuit = (input: string, finalize = false): string => {
+  const digits = input.replace(/\D/g, '').slice(0, 11);
+  if (digits.length <= 2) return digits;
+
+  if (!finalize) {
+    if (digits.length <= 9) {
+      return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+    }
+    return `${digits.slice(0, 2)}-${digits.slice(2, digits.length - 1)}-${digits.slice(-1)}`;
+  }
+
+  if (digits.length === 10) {
+    return `${digits.slice(0, 2)}-${digits.slice(2, 9)}-${digits.slice(9)}`;
+  }
+  if (digits.length === 11) {
+    return `${digits.slice(0, 2)}-${digits.slice(2, 10)}-${digits.slice(10)}`;
+  }
+  return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+};
+
+const formatPhone = (input: string): string => input.replace(/\D/g, '');
+
 export default function ProfessionalSignup() {
   const [userType, setUserType] = useState<string>('');
   const [email, setEmail] = useState<string>('');
@@ -32,7 +54,6 @@ export default function ProfessionalSignup() {
   const [privacyAccepted, setPrivacyAccepted] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [isPending, startTransition] = useTransition();
-  const [successMessage, setSuccessMessage] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState({ userType: '', email: '', password: '', confirmPassword: '', name: '', businessName: '', fiscalCondition: '', cuit: '', phone: '', termsAccepted: '', privacyAccepted: '' });
   const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
   const router = useRouter();
@@ -40,10 +61,9 @@ export default function ProfessionalSignup() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccessMessage('');
     setFieldErrors({ userType: '', email: '', password: '', confirmPassword: '', name: '', businessName: '', fiscalCondition: '', cuit: '', phone: '', termsAccepted: '', privacyAccepted: '' });
 
-    if (!userType || !email || !password || !confirmPassword || !name || !businessName || !fiscalCondition || !cuit || !phone) {
+    if (!userType || !email || !password || !confirmPassword || !name || !businessName || !fiscalCondition || !cuit || !phone || !termsAccepted || !privacyAccepted) {
       setFieldErrors({
         userType: !userType ? 'Por favor selecciona un tipo de usuario' : '',
         email: !email ? 'Por favor ingresa tu correo electrónico' : '',
@@ -134,7 +154,7 @@ export default function ProfessionalSignup() {
           <div className="signup-form-container">
             <h1 className="form-title">Ingresa los datos para crear tu perfil profesional</h1>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} autoComplete='off'>
               {/* User Type Section */}
               <div className="form-section">
                 <h2 className="form-section-title">Tipo de usuario</h2>
@@ -255,7 +275,8 @@ export default function ProfessionalSignup() {
                       type="text"
                       placeholder="CUIT*"
                       value={cuit}
-                      onChange={(e) => setCuit(e.target.value)}
+                      onChange={(e) => setCuit(formatCuit(e.target.value))}
+                      onBlur={(e) => setCuit(formatCuit(e.target.value, true))}
                       id="cuit"
                       name="cuit"
                       error={fieldErrors.cuit}
@@ -268,7 +289,7 @@ export default function ProfessionalSignup() {
                       type="tel"
                       placeholder="Teléfono móvil*"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={(e) => setPhone(formatPhone(e.target.value))}
                       id="phone"
                       name="phone"
                       autoComplete="tel"
@@ -309,12 +330,6 @@ export default function ProfessionalSignup() {
                 size="medium"
                 disabled={isPending}
               />
-
-              {successMessage && (
-                <div className="form-success-message">
-                  {successMessage}
-                </div>
-              )}
 
               {error && (
                 <div className="form-error-message">

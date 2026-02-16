@@ -5,38 +5,110 @@
   gap: 8px;
 
   .input-field-2-container {
+    position: relative;
+    height: 56px;
+    display: flex;
+    align-items: center;
     height: 100%;
     padding: 0 16px;
 
     .input-field-2-input {
         height: 100%;
     }
+
+    
+
+    .input-field-2-label {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 20px;
+      color: #7a7a7a;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 1;
+    }
+
+    .input-field-2-label.is-active {
+      top: 8px;
+      transform: translateY(0);
+      font-size: 12px;
+      line-height: 14px;
+    }
+
+    &.disabled {
+      border: none;
+      background-color: #ebf2fd;
+
+      .input-field-2-label, .input-field-2-input {
+        color: #a6a6a6;
+      }
+    }
+    
+  }
+
+  
+
+  .input-field-2-input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    height: 56px;
+    
+  }
+
+  .input-field-2-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    color: #1e1e1e;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    line-height: 20px;
+    padding: 18px 0 6px 0;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-text-fill-color: #1e1e1e;
+      box-shadow: 0 0 0 1000px #ffffff inset;
+      transition: background-color 9999s ease-out 0s;
+      caret-color: #1e1e1e;
+      font-size: 16px;
+      size: 16px;
+    }
+  }
+
+  .input-field-2-container:has(.input-field-2-input:-webkit-autofill) {
+    background-color: #fff;
+    .input-field-2-label {
+      top: 8px;
+      transform: translateY(0);
+      font-size: 12px;
+      line-height: 14px;
+      color: #7a7a7a;
+    }
   }
 
   &.state-default {
     .input-field-2-container {
       background-color: #f5f5f5;
-      border: 1.3px solid #a6a6a6;      
-      height: 56px;
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-
-      .input-field-2-label {
-        display: none;
-      }
+      border: 1.3px solid #a6a6a6;
 
       .input-field-2-input {
-        font-size: 16px;
         color: #7a7a7a;
-        font-family: 'Inter', sans-serif;
-        font-weight: 400;
-        line-height: 20px;
-        padding: 3px 0 7px 0;
-
-        &::placeholder {
-          color: #7a7a7a;
-        }
       }
     }
   }
@@ -45,26 +117,9 @@
     .input-field-2-container {
       background-color: #ffffff;
       border: 1.3px solid #7a7a7a;
-      padding: 18px 16px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      .input-field-2-label {
-        display: none;
-      }
 
       .input-field-2-input {
-        font-size: 16px;
         color: #1e1e1e;
-        font-family: 'Inter', sans-serif;
-        font-weight: 400;
-        line-height: 20px;
-
-        &::placeholder {
-          color: #1e1e1e;
-        }
       }
     }
   }
@@ -73,67 +128,10 @@
     .input-field-2-container {
       background-color: #ffffff;
       border: 1.3px solid #006aff;
-      padding-top: 3px;
-      padding-bottom: 7px;
-      padding-left: 16px;
-      padding-right: 16px;
-      height: 56px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+    }
 
-      .input-field-2-label {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        font-size: 14px;
-        font-weight: 500;
-        color: #006aff;
-        font-family: 'Inter', sans-serif;
-        line-height: 18px;
-        letter-spacing: 0.035px;
-        margin: 0;
-        padding: 0;
-
-        .input-field-2-required {
-          margin-left: 0;
-        }
-      }
-
-      .input-field-2-input-wrapper {
-        display: flex;
-        align-items: center;
-        position: relative;
-        .input-field-2-icon {
-            margin-top: -14px;
-        }
-      }
-
-      .input-field-2-input {
-        font-size: 16px;
-        color: #1e1e1e;
-        font-family: 'Inter', sans-serif;
-        font-weight: 400;
-        line-height: 20px;
-        flex: 1;
-        background: transparent;
-        border: none;
-
-        &::placeholder {
-          color: transparent;
-        }
-
-        &:focus {
-          outline: none;
-        }
-      }
-
-      .input-field-2-cursor {
-        color: #000000;
-        font-size: 16px;
-        margin-left: 4px;
-        animation: cursor-blink 1s infinite;
-      }
+    .input-field-2-label {
+      color: #006aff;
     }
   }
 
@@ -141,61 +139,19 @@
     .input-field-2-container {
       background-color: #ffffff;
       border: 1.3px solid #006aff;
-      padding-top: 3px;
-      padding-bottom: 7px;
-      padding-left: 16px;
-      padding-right: 16px;
-      height: 56px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
 
-      .input-field-2-label {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        font-size: 14px;
-        font-weight: 500;
-        color: #006aff;
-        font-family: 'Inter', sans-serif;
-        line-height: 18px;
-        letter-spacing: 0.035px;
-        margin: 0;
-        padding: 0;
-
-        .input-field-2-required {
-          margin-left: 0;
-        }
-      }
-
-      .input-field-2-input-wrapper {
-        display: flex;
-        align-items: center;
-        position: relative;
-
-        .input-field-2-icon {
-            margin-top: -14px;
-        }
-      }
-
-      .input-field-2-input {
-        font-size: 16px;
-        color: #006aff;
-        font-family: 'Inter', sans-serif;
-        font-weight: 400;
-        line-height: 20px;
-        flex: 1;
-        background: transparent;
+      &.disabled {
         border: none;
-
-        &::placeholder {
-          color: transparent;
-        }
-
-        &:focus {
-          outline: none;
-        }
+        background-color: #ebf2fd;
       }
+    }
+
+    .input-field-2-label {
+      color: #7a7a7a;
+    }
+
+    .input-field-2-input {
+      color: #1e1e1e;
     }
   }
 

@@ -1,0 +1,141 @@
+.country-code-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 99999;
+}
+
+.country-code-modal {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border: 1px solid #a6a6a6;
+  border-radius: 8px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  padding: 8px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.country-code-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.3px solid #a6a6a6;
+  padding: 8px 0 12px;
+
+  h3 {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 26px;
+    color: #1e1e1e;
+  }
+
+  button {
+    border: none;
+    background: transparent;
+    padding: 8px;
+    cursor: pointer;
+
+    img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.country-code-modal-search {
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border: 1.3px solid #a6a6a6;
+  border-radius: 8px;
+  padding: 0 12px 0 16px;
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    height: 44px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 22px;
+    color: #1e1e1e;
+
+    &::placeholder {
+      color: #7a7a7a;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.country-code-modal-search-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+
+  img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.country-code-modal-list {
+  border: 1px solid #a6a6a6;
+  border-radius: 8px;
+  padding: 8px 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.country-code-modal-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #1e1e1e;
+  cursor: pointer;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  &.selected {
+    background: #f0f4ff;
+  }
+}
+
+.country-code-modal-flag {
+  color: #1e1e1e;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.country-code-modal-empty {
+  padding: 12px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  color: #7a7a7a;
+}

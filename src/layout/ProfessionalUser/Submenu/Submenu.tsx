@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo } from 'react';
+import { usePathname } from 'next/navigation';
 import './Submenu.scss';
 
 const iconChevron = "/icons/chevron-up.svg";
@@ -13,29 +14,24 @@ interface SubmenuItem {
 }
 
 interface SubmenuProps {
-  onItemClick?: (itemId: string) => void;
-  active: boolean,
-  
+  active: boolean;  
 }
 
 const items: SubmenuItem[] = [
   { id: 'datos', label: 'Datos de inmobiliaria', href: "/protected/professionalProfile" },
-  { id: 'ubicacion', label: 'Sucursales', href: "/protected/professionalProfile" },
-  { id: 'destaques', label: 'Destaques', href: "/protected/professionalProfile" },
-  { id: 'colaboradores', label: 'Colaboradores', href: "/protected/professionalProfile" },
+  { id: 'ubicacion', label: 'Sucursales', href: "/protected/branches" },
+  { id: 'destaques', label: 'Destaques', href: "/protected/highlights" },
+  { id: 'colaboradores', label: 'Colaboradores', href: "/protected/collaborators" },
 ];
 
-export default function Submenu({ onItemClick, active }: SubmenuProps) {
-  const [activeItemId, setActiveItemId] = useState<string>("");
-  const handleItemClick = (item: SubmenuItem) => {
-    if (onItemClick) {
-      onItemClick(item.id);
-      setActiveItemId(item.id);
-    }
-    if (item.onClick) {
-      item.onClick();
-    }
-  };
+export default function Submenu({ active }: SubmenuProps) {
+  const pathname = usePathname();
+  const activeItemId = useMemo(() => {
+    if (!pathname) return '';
+    if (pathname.startsWith('/protected/branchForm')) return 'ubicacion';
+    const matched = items.find((item) => item.href === pathname);
+    return matched?.id ?? '';
+  }, [pathname]);
 
   return (
     <div className={`submenu-container ${active ? 'submenu-active' : ''}`}>
@@ -48,7 +44,7 @@ export default function Submenu({ onItemClick, active }: SubmenuProps) {
           <Component
             key={item.id}
             href={item.href}
-            className={`submenu-item ${isActive ? 'submenu-item-active' : 'submenu-item-inactive'}`}           
+            className={`submenu-item ${isActive ? 'submenu-item-active' : 'submenu-item-inactive'}`}
           >
             <div className="submenu-item-label">
               <span>{item.label}</span>

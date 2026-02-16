@@ -1,16 +1,14 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import Image from 'next/image';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { getSession, signIn, signOut } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
 import './UserSignin.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 
-const iconGoogle = "/icons/google.svg";
-
+const iconGoogle = '/icons/google.svg';
 
 // Email validation helper
 const isValidEmail = (email: string): boolean => {
@@ -25,6 +23,37 @@ export default function UserSignin() {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const hasProcessedGoogleLoginRef = useRef(false);
+
+  const storeAuthData = async (data: any) => {
+    if (!(data?.access_token && data?.user)) {
+      return;
+    }
+
+    localStorage.setItem('authToken', data.access_token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    localStorage.setItem('userEmail', data.user.email);
+
+    try {
+      const cookieResponse = await fetch('/api/auth/set-cookie', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: data.access_token }),
+        credentials: 'include',
+      });
+
+      if (!cookieResponse.ok) {
+        console.error('Failed to set cookie:', cookieResponse.status);
+      } else {
+        console.log('Cookie set successfully');
+      }
+    } catch (cookieError) {
+      console.error('Error calling set-cookie API:', cookieError);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +79,6 @@ export default function UserSignin() {
       try {
         setError('');
 
-        // Call backend login endpoint
         const response = await fetch('http://localhost:3000/auth/login', {
           method: 'POST',
           headers: {
@@ -66,35 +94,7 @@ export default function UserSignin() {
         }
 
         const data = await response.json();
-        
-        // Store JWT token and user data in localStorage
-        if (data.access_token && data.user) {
-          localStorage.setItem('authToken', data.access_token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-          localStorage.setItem('userEmail', data.user.email);
-          
-          // Call API route to set secure HttpOnly cookie on server
-          try {
-            const cookieResponse = await fetch('/api/auth/set-cookie', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ token: data.access_token }),
-              credentials: 'include',
-            });
-            
-            if (!cookieResponse.ok) {
-              console.error('Failed to set cookie:', cookieResponse.status);
-            } else {
-              console.log('Cookie set successfully');
-            }
-          } catch (cookieError) {
-            console.error('Error calling set-cookie API:', cookieError);
-          }
-        }
-
-        // Redirect to dashboard or home
+        await storeAuthData(data);
         router.push('/');
       } catch (err) {
         console.error('Login error:', err);
@@ -107,122 +107,187 @@ export default function UserSignin() {
     startTransition(async () => {
       try {
         setError('');
-        const result = await signIn('google', {
-          redirect: false,
-          callbackUrl: '/',
+        await signIn('google', {
+          redirect: true,
+          callbackUrl: '/login?googleLogin=1',
         });
-
-        if (result?.error) {
-          setError('Error al iniciar sesión con Google');
-        } else if (result?.ok) {
-          router.push('/');
-        }
       } catch (err) {
-        setError('Error al iniciar sesión con Google');
-        console.error(err);
+        console.error('Google sign in exception:', err);
+        setError('Error al iniciar sesión con Google. Por favor intenta de nuevo.');
       }
     });
   };
 
-  return (<>
-    <BackButtonLogo />
-    <div className="signin-form-container">
-      {/* Form Title */}
-      <h1 className="form-title">Iniciar sesión</h1>
-      <form onSubmit={handleSubmit}>
-        {/* Email Input */}
-        <div style={{ marginBottom: '24px' }}>
-          <InputField2
-            label="Correo electrónico*"
-            type="text"
-            placeholder="Correo electrónico*"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}                
-            id="email"
-            name="email"
-            autoComplete="email"
-            error={fieldErrors.email}
-          />
-        </div>
+  useEffect(() => {
+    const shouldProcessGoogleLogin = searchParams.get('googleLogin') === '1';
+    if (!shouldProcessGoogleLogin || hasProcessedGoogleLoginRef.current) {
+      return;
+    }
 
-        {/* Password Input */}
-        <div style={{ marginBottom: '24px' }}>
-          <InputField2
-            label="Contraseña*"
-            type="password"
-            placeholder="Contraseña*"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}                
-            id="password"
-            name="password"
-            autoComplete="current-password"
-            error={fieldErrors.password}
-          />
-        </div>
+    const processGoogleLogin = async () => {
+      const session: any = await getSession();
+      const sessionEmail = session?.user?.email ?? '';
+      if (!sessionEmail) {
+        return;
+      }
 
-        {/* Forgot Password */}
-        <a href="/resetPassword" className="create-account-link block" style={{ marginBottom: '24px' }} >
-          Olvidé mi contraseña
-        </a>
+      hasProcessedGoogleLoginRef.current = true;
+      setError('');
 
-        {/* Signin Button */}
-        <div style={{ marginBottom: '24px' }}>
-          <Button
-            label={isPending ? 'Iniciando sesión...' : 'Iniciar sesión'}
-            type="submit"
-            variant="primary"
-            buttonType="2"
-            state="default"
-            disabled={isPending}
-            loading={isPending}
-            fullWidth={true}
-            size="medium"
-          />
-        </div>
+      startTransition(async () => {
+        try {
+          const response:any = await fetch('http://localhost:3000/registration/google', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: sessionEmail,
+              name: session?.user?.name ?? undefined,
+              avatar: session?.user?.image ?? undefined,
+              google_id: session?.user?.id
+            }),
+          });
 
-        {/* Create Account */}
-        <div className="create-account">
-          <span className="create-account-text">¿No tenés cuenta?</span>
-          <a href="/signup" className="create-account-link">
-            Crear una cuenta
-          </a>
-        </div>
+          if (!response.ok) {
+            let errorMessage = 'No encontramos un usuario con Google registrado en el sistema';
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {
+              errorMessage = `Error ${response.status}: ${response.statusText}`;
+            }
 
-        {/* Divider */}
-        <div className="divider-container" style={{ marginTop: '32px', marginBottom: '32px' }}>
-          <div className="divider-line"></div>
-          <span className="divider-text">O iniciar sesión con</span>
-          <div className="divider-line"></div>
-        </div>
+            await signOut({ redirect: false });
+            router.replace('/login');
+            setError(errorMessage);
+            return;
+          } else {
+            const data = await response.json();
+            await storeAuthData(data);
+            router.push('/');
+          }
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
+          setError(errorMessage);
+        }
+      });
+    };
 
-        {/* Google Button */}
-        <div style={{ marginBottom: '24px' }}>         
-          <button
-            type="button"
-            className="merged-signup-google-button"
-            onClick={handleGoogleSignIn}
-            disabled={isPending}
-          >
-            <img src={iconGoogle} alt="" />
-            <span>{isPending ? 'Procesando...' : 'Google'}</span>
-          </button>
-        </div>
+    processGoogleLogin();
+  }, [router, searchParams, startTransition]);
 
-        {error && (
-          <div style={{
-            marginTop: '16px',
-            padding: '12px',
-            backgroundColor: '#fee2e2',
-            border: '1px solid #fca5a5',
-            borderRadius: '4px',
-            color: '#991b1b',
-            fontSize: '14px',
-          }}>
-            {error}
+  useEffect(() => {
+
+   
+    const tmeid = setTimeout(() => {
+      const formElement = document.getElementById('password');
+      formElement?.click();
+      formElement?.focus();
+      const tmeid = setTimeout(() => {
+        const formElement = document.getElementById('email');
+        formElement?.click();
+        formElement?.focus();
+      }, 202)
+    }, 200)
+    
+    return () => {
+      clearTimeout(tmeid);
+    };
+  }, []);
+
+  return (
+    <>
+      <BackButtonLogo />
+      <div className="signin-form-container">
+        <h1 className="form-title">Iniciar sesión</h1>
+        <form id="formSignin" onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '24px' }}>
+            <InputField2
+              label="Correo electrónico*"
+              type="text"
+              placeholder="Correo electrónico*"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              id="email"
+              name="email"
+              error={fieldErrors.email}
+            />
           </div>
-        )}
-      </form>
-    </div>
-  </>
+
+          <div style={{ marginBottom: '24px' }}>
+            <InputField2
+              label="Contraseña*"
+              type="password"
+              placeholder="Contraseña*"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              id="password"
+              name="password"
+              error={fieldErrors.password}
+            />
+          </div>
+
+          <a href="/resetPassword" className="create-account-link block" style={{ marginBottom: '24px' }}>
+            Olvidé mi contraseña
+          </a>
+
+          <div style={{ marginBottom: '24px' }}>
+            <Button
+              label={isPending ? 'Iniciando sesión...' : 'Iniciar sesión'}
+              type="submit"
+              variant="primary"
+              buttonType="2"
+              state="default"
+              disabled={isPending}
+              loading={isPending}
+              fullWidth={true}
+              size="medium"
+            />
+          </div>
+
+          <div className="create-account">
+            <span className="create-account-text">¿No tenés cuenta?</span>
+            <a href="/signup" className="create-account-link">
+              Crear una cuenta
+            </a>
+          </div>
+
+          <div className="divider-container" style={{ marginTop: '32px', marginBottom: '32px' }}>
+            <div className="divider-line"></div>
+            <span className="divider-text">O iniciar sesión con</span>
+            <div className="divider-line"></div>
+          </div>
+
+          <div style={{ marginBottom: '24px' }}>
+            <button
+              type="button"
+              className="merged-signup-google-button"
+              onClick={handleGoogleSignIn}
+              disabled={isPending}
+            >
+              <img src={iconGoogle} alt="" />
+              <span>{isPending ? 'Procesando...' : 'Google'}</span>
+            </button>
+          </div>
+
+          {error && (
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '12px',
+                backgroundColor: '#fee2e2',
+                border: '1px solid #fca5a5',
+                borderRadius: '4px',
+                color: '#991b1b',
+                fontSize: '14px',
+              }}
+            >
+              {error}
+            </div>
+          )}
+        </form>
+      </div>
+    </>
   );
 }

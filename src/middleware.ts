@@ -1,32 +1,27 @@
-// middleware.ts
+import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
 function isProtected(pathname: string) {
   return pathname.startsWith("/protected");
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (!isProtected(pathname)) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get("authToken")?.value;
+  const customToken = req.cookies.get("authToken")?.value;
+  const nextAuthToken = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
 
-  if (!token) {
+  if (!customToken && !nextAuthToken) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
-
-  // Optional: validate JWT signature here
-  // example using jose library
-
-  try {
-    // verifyJwt(token)
-    return NextResponse.next();
-  } catch {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
+  return NextResponse.next();
 }
 
 export const config = {

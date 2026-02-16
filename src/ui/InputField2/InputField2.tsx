@@ -84,35 +84,32 @@ export default function InputField2({
 
   // Default eye icon for password fields
   const displayIcon = icon || (isPasswordField && (
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="black" stroke-opacity="0.5" strokeWidth="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="black" stroke-opacity="0.5" strokeWidth="1.3" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   ));
 
   return (
     <div className={`input-field-2-wrapper state-${stateClass}`}>
-      <div className="input-field-2-container">
-        {(isActive || error) && (
-          <label className="input-field-2-label">
-            {label}
-            {required && <span className="input-field-2-required">*</span>}
-          </label>
-        )}
+      <div className={`input-field-2-container ${disabled ? 'disabled' : ''}`}>
+        <label className={`input-field-2-label ${isActive || error ? 'is-active' : ''}`} htmlFor={id}>
+          {label}
+          {required && <span className="input-field-2-required">*</span>}
+        </label>
         <div className="input-field-2-input-wrapper">
           <input
             id={id}
             name={name}
             type={inputType}
             className="input-field-2-input"
-            placeholder={!isActive ? label : ''}
+            placeholder=""
             value={value}
             onChange={onChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
             disabled={disabled}
             required={required}
-            autoComplete={autoComplete}
           />             
 					{displayIcon && (
 						<button
@@ -126,8 +123,6 @@ export default function InputField2({
 							{displayIcon}
 						</button>
 					)}
-
-
         </div>
       </div>
       {error && <div className="input-field-2-error">{error}</div>}
