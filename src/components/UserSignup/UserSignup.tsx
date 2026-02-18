@@ -8,6 +8,7 @@ import Checkbox from '@/ui/Checkbox/Checkbox';
 import './UserSignup.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import EmailVerificationModal from '../EmailVerificationModal/EmailVerificationModal';
+import { API_BASE_URL } from '@/utils/utils';
 
 const iconGoogle = "/icons/google.svg";
 
@@ -32,7 +33,7 @@ export default function UserSignup() {
   const hasAutoRegisteredRef = useRef(false);
 
   const registerUser = async (payload: { email: string; password?: string; name?: string, google?: boolean }) => {
-    const response = await fetch('http://localhost:3000/registration/', {
+    const response = await fetch(`${API_BASE_URL}/registration/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -153,7 +154,7 @@ export default function UserSignup() {
         }*/
 
         try {
-          const response:any = await fetch('http://localhost:3000/registration/google', {
+          const response:any = await fetch(`${API_BASE_URL}/registration/google`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

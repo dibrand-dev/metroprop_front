@@ -9,6 +9,7 @@ import './ProfessionalSignup.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import EmailVerificationModal from '../EmailVerificationModal/EmailVerificationModal';
 import { useRouter } from 'next/navigation';
+import { API_BASE_URL } from '@/utils/utils';
 
 const heroBgImage = '/images/hero.png';
 
@@ -106,7 +107,7 @@ export default function ProfessionalSignup() {
 
     startTransition(async () => {
       try {
-        const response = await fetch('http://localhost:3000/registration/professional', {
+        const response = await fetch(`${API_BASE_URL}/registration/professional`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -7,6 +7,7 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
 import './UserSignin.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
+import { API_BASE_URL } from '@/utils/utils';
 
 const iconGoogle = '/icons/google.svg';
 
@@ -79,7 +80,7 @@ export default function UserSignin() {
       try {
         setError('');
 
-        const response = await fetch('http://localhost:3000/auth/login', {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -136,7 +137,7 @@ export default function UserSignin() {
 
       startTransition(async () => {
         try {
-          const response:any = await fetch('http://localhost:3000/registration/google', {
+          const response:any = await fetch(`${API_BASE_URL}/registration/google`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
