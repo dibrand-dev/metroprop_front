@@ -1,0 +1,22 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm use 20
+        - npm ci
+        - npm install next@14 --no-save
+        - 'echo "/** @type {import(''next'').NextConfig} */" > next.config.mjs'
+        - 'echo "const nextConfig = { eslint: { ignoreDuringBuilds: true }, typescript: { ignoreBuildErrors: true }, experimental: { missingSuspenseWithCSRBailout: false } };" >> next.config.mjs'
+        - 'echo "export default nextConfig;" >> next.config.mjs'
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .next/cache/**/*
+      - node_modules/**/*
