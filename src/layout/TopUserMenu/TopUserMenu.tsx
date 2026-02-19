@@ -148,7 +148,6 @@ export default function TopUserMenu() {
 
   return !isLoggedIn ? (
     <a className="header-button-primary" href="/login" title="Ingresar">
-      <img src={chevronIcon} alt="" className="header-button-icon" />
       <span>Ingresar</span>
     </a>
   ) : (

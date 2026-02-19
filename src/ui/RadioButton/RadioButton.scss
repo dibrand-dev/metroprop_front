@@ -1,0 +1,126 @@
+.radio-button {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  background-color: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &:hover:not(.disabled) {
+    border-color: rgba(0, 106, 255, 0.3);
+    background-color: rgba(0, 106, 255, 0.02);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+.radio-button-main {
+  display: flex;
+  align-items: center;
+}
+
+.radio-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+
+  &:checked + .radio-label .radio-custom::after {
+    transform: scale(1);
+  }
+
+  &:checked + .radio-label {
+    .radio-custom {
+      border-color: #006AFF;
+      background-color: #FFFFFF;
+    }
+  }
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  user-select: none;
+
+  .disabled & {
+    cursor: not-allowed;
+  }
+}
+
+.radio-custom {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  transition: all 0.2s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #006AFF;
+    transition: transform 0.2s ease;
+  }
+
+  .radio-label:hover & {
+    border-color: #006AFF;
+  }
+}
+
+.radio-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #000000;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+.radio-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 40px;
+
+  @media (max-width: 768px) {
+    margin-left: 32px;
+  }
+}
+
+.radio-description {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.radio-info {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: rgba(0, 0, 0, 0.5);
+}

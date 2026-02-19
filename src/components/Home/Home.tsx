@@ -157,7 +157,22 @@ export default function Home() {
             )}
             <div className="properties-container" ref={visitedPropertiesRef} onScroll={handleVisitedScroll}>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((property) => (
-                <PropertyCard key={property} />
+                <PropertyCard 
+                  key={property} 
+                  property={{
+                    id: `visited-${property}`,
+                    price: 198000,
+                    currency: 'USD',
+                    pricePerSqm: 2100,
+                    title: 'Departamento en venta',
+                    address: 'Juan Francisco Segui 4500',
+                    rooms: 4,
+                    bathrooms: 2,
+                    area: 310,
+                    image: '/images/property-placeholder.png',
+                    isFavorite: false,
+                  }}
+                />
               ))}
             </div>
             {visitedCanScrollRight && (
@@ -190,7 +205,22 @@ export default function Home() {
            
             <div className="properties-container" ref={featuredPropertiesRef} onScroll={handleFeaturedScroll}>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((property) => (
-                <PropertyCard key={property} />
+                <PropertyCard 
+                  key={property} 
+                  property={{
+                    id: `featured-${property}`,
+                    price: 250000,
+                    currency: 'USD',
+                    pricePerSqm: 2500,
+                    title: 'Propiedad destacada',
+                    address: 'Av. Libertador 5000',
+                    rooms: 3,
+                    bathrooms: 2,
+                    area: 100,
+                    image: '/images/property-placeholder.png',
+                    isFavorite: false,
+                  }}
+                />
               ))}
             </div>
             {featuredCanScrollRight && (

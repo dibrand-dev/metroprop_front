@@ -613,7 +613,22 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 onScroll={() => handleSimilarScroll(index)}
               >
                 {Array.from({ length: section.count }).map((_, cardIndex) => (
-                  <PropertyCard key={`${section.title}-${cardIndex}`} />
+                  <PropertyCard 
+                    key={`${section.title}-${cardIndex}`} 
+                    property={{
+                      id: `similar-${section.title}-${cardIndex}`,
+                      price: 180000,
+                      currency: 'USD',
+                      pricePerSqm: 2000,
+                      title: 'Propiedad similar',
+                      address: 'Calle Principal 1234',
+                      rooms: 3,
+                      bathrooms: 2,
+                      area: 90,
+                      image: '/images/property-placeholder.png',
+                      isFavorite: false,
+                    }}
+                  />
                 ))}
               </div>
               {similarCanScrollRight[index] && (

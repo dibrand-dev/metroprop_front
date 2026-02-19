@@ -128,9 +128,6 @@ export default function Footer() {
         <div className="footer-dibrand">
           <img src="/icons/logo_dibrand.png" alt="DIBRAND" className="footer-dibrand-icon" />
         </div>
-        <p className="footer-attribution">
-          Desarrollado por <strong>Dibrand</strong>
-        </p>
       </div>
     </footer>
   );

@@ -8,8 +8,12 @@ const operationOptions = ['Venta', 'Alquiler', 'Temporal', 'Emprendimiento'];
 export default function Publish() {
   const router = useRouter();
 
-  const handleSelect = () => {
-    router.push('/protected/publish/property-type');
+  const handleSelect = (option: string) => {
+    if (option === 'Emprendimiento') {
+      router.push('/protected/publish/emprendimiento');
+    } else {
+      router.push('/protected/publish/property-type');
+    }
   };
 
   return (
@@ -25,7 +29,7 @@ export default function Publish() {
               key={option}
               className="publish-option"
               type="button"
-              onClick={handleSelect}
+              onClick={() => handleSelect(option)}
             >
               {option}
             </button>
