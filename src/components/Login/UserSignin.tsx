@@ -229,7 +229,7 @@ export default function UserSignin() {
             />
           </div>
 
-          <a href="/resetPassword" className="create-account-link block" style={{ marginBottom: '24px' }}>
+          <a href="/forgotPassword" className="create-account-link block" style={{ marginBottom: '24px' }}>
             Olvidé mi contraseña
           </a>
 
