@@ -62,7 +62,7 @@ export const authOptions = {
     async session({ session, token }: any) {
       console.log("🎯 Session Callback triggered");
       console.log("  - Session:", session ? "✅ EXISTS" : "❌ NULL");
-      console.log("  - Token:", token ? "✅ EXISTS" : "❌ NULL");
+      console.log("   - Token:", token ? "✅ EXISTS" : "❌ NULL");
       
       if (session?.user) {
         console.log("👥 Session user before:", {
