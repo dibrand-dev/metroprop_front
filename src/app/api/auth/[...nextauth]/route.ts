@@ -1,6 +1,10 @@
 import NextAuth from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
+
+/* LOGS y mejoras de manejo de errores añadidos para depuración por ahora comment
 console.log("🚀 NEXTAUTH ROUTE - Inicializando...");
 console.log("  NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
 console.log("  NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET ? "✅ SET" : "❌ MISSING");
@@ -61,3 +65,4 @@ const POST = async (request: Request, context: any) => {
 };
 
 export { GET, POST };
+*/
