@@ -13,9 +13,16 @@ export async function middleware(req: NextRequest) {
   }
 
   const customToken = req.cookies.get("authToken")?.value;
+  const secret = process.env.NEXTAUTH_SECRET;
+
+  if (!secret) {
+    console.error("❌ NEXTAUTH_SECRET is not defined in environment variables");
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
   const nextAuthToken = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET,
+    secret,
   });
 
   if (!customToken && !nextAuthToken) {

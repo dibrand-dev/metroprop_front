@@ -9,6 +9,20 @@ console.log("  GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "✅ SET" : "�
 console.log("  GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "✅ SET" : "❌ MISSING");
 console.log("  NODE_ENV:", process.env.NODE_ENV);
 
+// Validate required variables
+if (!process.env.NEXTAUTH_SECRET) {
+  console.error("❌ CRITICAL: NEXTAUTH_SECRET is not defined");
+}
+if (!process.env.NEXTAUTH_URL) {
+  console.error("❌ CRITICAL: NEXTAUTH_URL is not defined");
+}
+if (!process.env.GOOGLE_CLIENT_ID) {
+  console.error("❌ CRITICAL: GOOGLE_CLIENT_ID is not defined");
+}
+if (!process.env.GOOGLE_CLIENT_SECRET) {
+  console.error("❌ CRITICAL: GOOGLE_CLIENT_SECRET is not defined");
+}
+
 export const authOptions = {
   providers: [
     Google({
@@ -62,7 +76,7 @@ export const authOptions = {
     async session({ session, token }: any) {
       console.log("🎯 Session Callback triggered");
       console.log("  - Session:", session ? "✅ EXISTS" : "❌ NULL");
-      console.log("   - Token:", token ? "✅ EXISTS" : "❌ NULL");
+      console.log("  - Token:", token ? "✅ EXISTS" : "❌ NULL");
       
       if (session?.user) {
         console.log("👥 Session user before:", {
