@@ -16,7 +16,7 @@ export async function middleware(req: NextRequest) {
   const secret = process.env.NEXTAUTH_SECRET;
 
   if (!secret) {
-    console.error("❌ NEXTAUTH_SECRET is not defined in environment variables");
+    console.error("❌ NEXTAUTH_SECRET  is not defined in environment variables");
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
