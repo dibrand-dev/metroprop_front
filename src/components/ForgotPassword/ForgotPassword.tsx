@@ -1,14 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import { API_BASE_URL } from '@/utils/utils';
 import './ForgotPassword.scss';
-
-const logoMetroprop = "/images/metropropLogo.png";
 
 // Email validation helper
 const isValidEmail = (email: string): boolean => {
@@ -22,7 +19,6 @@ export default function ForgotPassword() {
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [fieldError, setFieldError] = useState('');
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,62 +69,64 @@ export default function ForgotPassword() {
   return (
     <>
       <BackButtonLogo />
-      <div className="forgot-password-container">
-        <div className="forgot-password-content">
-          <img src={logoMetroprop} alt="Metroprop Logo" width="160" />
+
+      <div className="signin-form-container">
+        <h1 className="form-title">¿Olvidaste tu contraseña?</h1>         
+        <form className="forgot-password-form" onSubmit={handleSubmit}>
+          <p className="forgot-password-subtitle">
+            Ingresá tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.
+          </p>
+          <InputField2
+            label="Correo electrónico*"
+            type="email"
+            placeholder="Correo electrónico*"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            id="email"
+            name="email"
+            error={fieldError}
+          />
           
-          <form className="forgot-password-form" onSubmit={handleSubmit}>
-            <h1 className="forgot-password-title">¿Olvidaste tu contraseña?</h1>
-            
-            <p className="forgot-password-subtitle">
-              Ingresá tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.
-            </p>
-
-            <div className="forgot-password-field-group">
-              <InputField2
-                label="Correo electrónico*"
-                type="email"
-                placeholder="Correo electrónico*"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                id="email"
-                name="email"
-                error={fieldError}
-              />
+          {/* Success Message */}
+          {successMessage && (
+            <div className="forgot-password-success">
+              <p>{successMessage}</p>
             </div>
+          )}
 
-            {/* Success Message */}
-            {successMessage && (
-              <div className="forgot-password-success">
-                <p>{successMessage}</p>
-              </div>
-            )}
+          {/* Error Message */}
+          {error && (
+          <div
+            style={{
+              marginTop: '16px',
+              padding: '12px',
+              backgroundColor: '#fee2e2',
+              border: '1px solid #fca5a5',
+              borderRadius: '4px',
+              color: '#991b1b',
+              fontSize: '14px',
+            }}
+          >
+            <p>{error}</p>
+          </div>)}
 
-            {/* Error Message */}
-            {error && (
-              <div className="forgot-password-error">
-                <p>{error}</p>
-              </div>
-            )}
+          <Button
+            label={isLoading ? 'Enviando...' : 'Enviar'}
+            type="submit"
+            variant="primary"
+            fullWidth={true}
+            size="medium"
+            disabled={isLoading}
+            loading={isLoading}
+          />
 
-            <Button
-              label={isLoading ? 'Enviando...' : 'Enviar'}
-              type="submit"
-              variant="primary"
-              fullWidth={true}
-              size="medium"
-              disabled={isLoading}
-              loading={isLoading}
-            />
-
-            <div className="forgot-password-back-to-login">
-              <span>¿Recordaste tu contraseña?</span>
-              <a href="/login" className="forgot-password-link">
-                Volver al inicio de sesión
-              </a>
-            </div>
-          </form>
-        </div>
+          <div className="forgot-password-back-to-login">
+            <span>¿Recordaste tu contraseña?</span>
+            <a href="/login" className="create-account-link block">
+              Volver al inicio de sesión
+            </a>
+          </div>
+        </form>
       </div>
     </>
   );
