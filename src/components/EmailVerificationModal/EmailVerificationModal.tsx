@@ -1,11 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import './EmailVerificationModal.scss';
 
 const iconClose = "/icons/close.svg";
-const iconChevron = "/icons/chevron-up.svg";
 const iconCheck = "/icons/check.svg";
 
 interface EmailVerificationModalProps {
