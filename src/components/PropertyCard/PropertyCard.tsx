@@ -64,7 +64,7 @@ export default function PropertyCard({
         {/* Price & Logo */}
         <div className="property-card-price-section">
           <p className="property-card-price">
-            {property.currency} {property.price.toLocaleString()}
+            {property.currency} {property.price.toLocaleString('en-US')}
           </p>
           <div className="property-card-logo">
             <img src={property.agencyLogo || remaxLogo} alt="Agency logo" />
@@ -76,7 +76,7 @@ export default function PropertyCard({
           <p className="property-card-address">{property.address}</p>
           {property.pricePerSqm && (
             <p className="property-card-location">
-              {property.currency} {property.pricePerSqm.toLocaleString()} m²
+              {property.currency} {property.pricePerSqm.toLocaleString('en-US')} m²
             </p>
           )}
         </div>
