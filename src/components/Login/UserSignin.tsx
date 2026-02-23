@@ -8,6 +8,7 @@ import Button from '@/ui/Button/Button';
 import './UserSignin.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import { API_BASE_URL } from '@/utils/utils';
+import EmailVerificatedModal from '../EmailVerificatedModal/EmailVerificatedModal';
 
 const iconGoogle = '/icons/google.svg';
 
@@ -23,6 +24,7 @@ export default function UserSignin() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
+  const [showEmailVerificatedModal, setShowEmailVerificatedModal] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const hasProcessedGoogleLoginRef = useRef(false);
@@ -123,10 +125,11 @@ export default function UserSignin() {
     });
   };
 
-  useEffect(() => {
-    console.log("USEEEFFECT GOOGLE searchParams", searchParams)
+  useEffect(() => {    
     const shouldProcessGoogleLogin = searchParams.get('googleLogin') === '1';
-    if (!shouldProcessGoogleLogin || hasProcessedGoogleLoginRef.current) {
+    const shouldProcessValidation = searchParams.get('verifyMailToken') !== null && searchParams.get('verifyMailToken') !== "";
+    console.log("shouldProcessValidation", shouldProcessValidation)
+    if (!shouldProcessValidation && (!shouldProcessGoogleLogin || hasProcessedGoogleLoginRef.current)) {
       return;
     }
 
@@ -185,7 +188,38 @@ export default function UserSignin() {
       });
     };
 
-    processGoogleLogin();
+    const processValidation = async () => {
+      const token = searchParams.get('verifyMailToken') || '';
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/verify-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token
+          })
+        });
+
+        const responseData = await response.json();
+        if (responseData.success) {
+          setShowEmailVerificatedModal(true)
+          setTimeout(() => {
+            setShowEmailVerificatedModal(false);
+          }, 3000);
+        } else {
+          let errorMessage = responseData.message         
+          setError(errorMessage);
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
+        setError(errorMessage);
+      }
+    };
+
+    shouldProcessGoogleLogin && processGoogleLogin();
+    shouldProcessValidation && processValidation()
+
   }, [router, searchParams, startTransition]);
 
   useEffect(() => {
@@ -299,6 +333,7 @@ export default function UserSignin() {
           )}
         </form>
       </div>
+      {showEmailVerificatedModal && <EmailVerificatedModal />}
     </>
   );
 }
