@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import PropertyCard from '../PropertyCard/PropertyCard'; 
 import PropertyCardMapList from './PropertyCardMapList';
 import PropertyCardGridList from './PropertyCardGridList';
 import FilterBar from './FilterBar';
@@ -29,7 +28,7 @@ interface Property {
 
 export default function Results() {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
+  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('list');
   const [sortBy, setSortBy] = useState('relevant');
 
   // Mock data - in production this would come from API/search results
@@ -122,39 +121,35 @@ export default function Results() {
 
         {/* List View - Always visible on desktop, toggle on mobile */}
         <div className={`list-view ${viewMode === 'list' ? 'active' : ''} ${layoutMode === 'grid' ? 'full-width' : ''}`}>
-          <div className="list-header">
-            <div className="results-count">
-              {totalProperties.toLocaleString()} propiedades
-              
-              {/* Grid/List toggle - Desktop only */}
-              <div className="layout-toggle">
-                <button
-                  className={`layout-btn ${layoutMode === 'grid' ? 'active' : ''}`}
-                  onClick={() => setLayoutMode('grid')}
-                  title="Vista de cuadrícula"
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <rect x="3" y="3" width="8" height="8" stroke="currentColor" strokeWidth="2" fill="none" />
-                    <rect x="13" y="3" width="8" height="8" stroke="currentColor" strokeWidth="2" fill="none" />
-                    <rect x="3" y="13" width="8" height="8" stroke="currentColor" strokeWidth="2" fill="none" />
-                    <rect x="13" y="13" width="8" height="8" stroke="currentColor" strokeWidth="2" fill="none" />
-                  </svg>
-                </button>
-                <button
-                  className={`layout-btn ${layoutMode === 'list' ? 'active' : ''}`}
-                  onClick={() => setLayoutMode('list')}
-                  title="Vista de lista"
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <rect x="3" y="5" width="18" height="2" fill="currentColor" />
-                    <rect x="3" y="11" width="18" height="2" fill="currentColor" />
-                    <rect x="3" y="17" width="18" height="2" fill="currentColor" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
+            <div className="list-header">
+                <span className="results-count">{totalProperties.toLocaleString()} propiedades</span>
+                <div className='flex items-center h-full gap-4'>
+                  <SortDropdown value={sortBy} onChange={handleSortChange} />
+                  {/* Grid/List toggle - Desktop only */}
+                  <div className="layout-toggle">
+                    <button
+                      className={`layout-btn ${layoutMode === 'list' ? 'active' : ''}`}
+                      onClick={() => setLayoutMode('list')}
+                      title="Vista de mapa"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M8 3.00001V17.5M15 6.50001V20.5M5.253 4.19601L4.026 4.90801C3.037 5.48101 2.543 5.76801 2.272 6.24501C2 6.72201 2 7.30201 2 8.46401V16.628C2 18.154 2 18.918 2.342 19.342C2.57 19.624 2.889 19.814 3.242 19.877C3.772 19.972 4.422 19.595 5.72 18.842C6.602 18.331 7.45 17.799 8.505 17.944C8.985 18.009 9.442 18.237 10.358 18.692L14.171 20.588C14.996 20.998 15.004 21 15.921 21H18C19.886 21 20.828 21 21.414 20.401C22 19.803 22 18.839 22 16.911V10.171C22 8.24401 22 7.28101 21.414 6.68101C20.828 6.08301 19.886 6.08301 18 6.08301H15.921C15.004 6.08301 14.996 6.08101 14.171 5.67101L10.84 4.01501C9.449 3.32301 8.753 2.97701 8.012 3.00001C7.271 3.02301 6.6 3.41501 5.253 4.19601Z" stroke="#006AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                    <button
+                      className={`layout-btn ${layoutMode === 'grid' ? 'active' : ''}`}
+                      onClick={() => setLayoutMode('grid')}
+                      title="Vista de lista"
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <rect x="3" y="5" width="18" height="2" fill="currentColor" />
+                          <rect x="3" y="11" width="18" height="2" fill="currentColor" />
+                          <rect x="3" y="17" width="18" height="2" fill="currentColor" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+            </div>  
           {/* Grid Layout */}
           {layoutMode === 'grid' && (
             <div className="property-grid">

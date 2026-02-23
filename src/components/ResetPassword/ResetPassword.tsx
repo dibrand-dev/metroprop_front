@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import InputField from '@/ui/InputField/InputField';
+import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
 import { API_BASE_URL } from '@/utils/utils';
 import './ResetPassword.scss';
@@ -195,7 +195,7 @@ export default function ResetPassword() {
 
           {/* New Password Field */}
           <div className="recuperar-contraseña-field-group">
-            <InputField
+            <InputField2
               label="Contraseña nueva"
               type="password"
               placeholder="Contraseña nueva"
@@ -211,7 +211,7 @@ export default function ResetPassword() {
 
           {/* Confirm Password Field */}
           <div className="recuperar-contraseña-field-group">
-            <InputField
+            <InputField2
               label="Repetir contraseña"
               type="password"
               placeholder="Repetir contraseña nueva"
