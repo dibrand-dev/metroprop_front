@@ -31,12 +31,13 @@ export default function UserSignin() {
     if (!(data?.access_token && data?.user)) {
       return;
     }
-
+    console.log("storeAuthData", data);
     localStorage.setItem('authToken', data.access_token);
     localStorage.setItem('user', JSON.stringify(data.user));
     localStorage.setItem('userEmail', data.user.email);
 
     try {
+      console.log("TRY /api/auth/set-cookie");
       const cookieResponse = await fetch('/api/auth/set-cookie', {
         method: 'POST',
         headers: {
@@ -105,9 +106,12 @@ export default function UserSignin() {
   };
 
   const handleGoogleSignIn = () => {
+    console.log("handleGoogleSignIn CLICK")
     startTransition(async () => {
+      console.log("startTransition for Google SignIn")
       try {
         setError('');
+        console.log("await signIn('google'")
         await signIn('google', {
           redirect: true,
           callbackUrl: '/login?googleLogin=1',
@@ -120,6 +124,7 @@ export default function UserSignin() {
   };
 
   useEffect(() => {
+    console.log("USEEEFFECT GOOGLE searchParams", searchParams)
     const shouldProcessGoogleLogin = searchParams.get('googleLogin') === '1';
     if (!shouldProcessGoogleLogin || hasProcessedGoogleLoginRef.current) {
       return;
@@ -127,6 +132,7 @@ export default function UserSignin() {
 
     const processGoogleLogin = async () => {
       const session: any = await getSession();
+      console.log("Google login session:", session);
       const sessionEmail = session?.user?.email ?? '';
       if (!sessionEmail) {
         return;
@@ -134,9 +140,10 @@ export default function UserSignin() {
 
       hasProcessedGoogleLoginRef.current = true;
       setError('');
-
+      console.log("startTransition")
       startTransition(async () => {
         try {
+          console.log("startTransition TRY  await fetch(`${API_BASE_URL}/registration/google`")
           const response:any = await fetch(`${API_BASE_URL}/registration/google`, {
             method: 'POST',
             headers: {
@@ -149,6 +156,8 @@ export default function UserSignin() {
               google_id: session?.user?.id
             }),
           });
+
+          console.log("Google login response:", response);
 
           if (!response.ok) {
             let errorMessage = 'No encontramos un usuario con Google registrado en el sistema';
@@ -169,6 +178,7 @@ export default function UserSignin() {
             router.push('/');
           }
         } catch (err) {
+          console.log("ERROR await fetch(`${API_BASE_URL}/registration/google`", err);
           const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
           setError(errorMessage);
         }
