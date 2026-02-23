@@ -23,11 +23,23 @@ if (!process.env.GOOGLE_CLIENT_SECRET) {
   console.error("❌ CRITICAL: GOOGLE_CLIENT_SECRET is not defined");
 }
 
+const nextAuthSecret = process.env.NEXTAUTH_SECRET || "hvV9Mq98s0KWVJJhEuPaKzoCDFDLMW7XT5Sb0zojYuk=";
+const googleClientId = process.env.GOOGLE_CLIENT_ID || "307220843869-63oehge1v38uk4s08ea6u5ou1ak0vknl.apps.googleusercontent.com";
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET || "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";
+const nextAuthUrl = process.env.NEXTAUTH_URL || "https://www.metroprop.co";
+
+console.log("🚀 AUTH.TS - Using:", {
+  NEXTAUTH_URL: nextAuthUrl,
+  NEXTAUTH_SECRET: nextAuthSecret ? "✅ SET" : "❌ MISSING",
+  GOOGLE_CLIENT_ID: googleClientId ? "✅ SET" : "❌ MISSING",
+  GOOGLE_CLIENT_SECRET: googleClientSecret ? "✅ SET" : "❌ MISSING",
+});
+
 export const authOptions = {
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
       allowDangerousEmailAccountLinking: true,
     }),
   ],
@@ -39,7 +51,7 @@ export const authOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
   trustHost: true,
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: nextAuthSecret,
   callbacks: {
     async jwt({ token, account, user }: any) {
       console.log("🔐 JWT Callback triggered");
