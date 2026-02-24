@@ -1,14 +1,5 @@
 import Google from "next-auth/providers/google";
 
-// 🔍 DEBUG: Verificar variables de entorno al cargar
-console.log("🚀 AUTH.TS - Cargando configuración de autenticación...");
-console.log("📍 Environment variables check:");
-console.log("  NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
-console.log("  NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET ? "✅ SET" : "❌ MISSING");
-console.log("  GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "✅ SET" : "❌ MISSING");
-console.log("  GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "✅ SET" : "❌ MISSING");
-console.log("  NODE_ENV:", process.env.NODE_ENV);
-
 export const authOptions = {
   providers: [
     Google({
@@ -32,7 +23,7 @@ export const authOptions = {
       console.log("  - Token:", token ? "✅ EXISTS" : "❌ NULL");
       console.log("  - Account:", account ? "✅ EXISTS" : "❌ NULL");
       console.log("  - User:", user ? "✅ EXISTS" : "❌ NULL");
-      
+
       if (account) {
         console.log("📝 Account details:", {
           provider: account.provider,
