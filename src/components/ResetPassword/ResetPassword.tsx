@@ -6,7 +6,7 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
 import { API_BASE_URL } from '@/utils/utils';
 import './ResetPassword.scss';
-import SuccessModal from '../EmailVerificatedModal/EmailVerificatedModal';
+import SuccessModal from '../SuccessModal/EmailVerificatedModal';
 
 const logoMetroprop = "/images/metropropLogo.png";
 

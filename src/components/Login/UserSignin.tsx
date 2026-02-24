@@ -8,8 +8,7 @@ import Button from '@/ui/Button/Button';
 import './UserSignin.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import { API_BASE_URL } from '@/utils/utils';
-import EmailVerificatedModal from '../EmailVerificatedModal/EmailVerificatedModal';
-import SuccessModal from '../EmailVerificatedModal/EmailVerificatedModal';
+import SuccessModal from '../SuccessModal/SuccessModal';
 
 const iconGoogle = '/icons/google.svg';
 
@@ -129,14 +128,13 @@ export default function UserSignin() {
   useEffect(() => {    
     const shouldProcessGoogleLogin = searchParams.get('googleLogin') === '1';
     const shouldProcessValidation = searchParams.get('verifyMailToken') !== null && searchParams.get('verifyMailToken') !== "";
-    console.log("shouldProcessValidation", shouldProcessValidation)
+    
     if (!shouldProcessValidation && (!shouldProcessGoogleLogin || hasProcessedGoogleLoginRef.current)) {
       return;
     }
 
     const processGoogleLogin = async () => {
       const session: any = await getSession();
-      console.log("Google login session:", session);
       const sessionEmail = session?.user?.email ?? '';
       if (!sessionEmail) {
         return;
@@ -144,10 +142,8 @@ export default function UserSignin() {
 
       hasProcessedGoogleLoginRef.current = true;
       setError('');
-      console.log("startTransition")
       startTransition(async () => {
         try {
-          console.log("startTransition TRY  await fetch(`${API_BASE_URL}/registration/google`")
           const response:any = await fetch(`${API_BASE_URL}/registration/google`, {
             method: 'POST',
             headers: {
@@ -160,8 +156,6 @@ export default function UserSignin() {
               google_id: session?.user?.id
             }),
           });
-
-          console.log("Google login response:", response);
 
           if (!response.ok) {
             let errorMessage = 'No encontramos un usuario con Google registrado en el sistema';
@@ -182,7 +176,6 @@ export default function UserSignin() {
             router.push('/');
           }
         } catch (err) {
-          console.log("ERROR await fetch(`${API_BASE_URL}/registration/google`", err);
           const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
           setError(errorMessage);
         }

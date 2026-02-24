@@ -9,6 +9,7 @@ import './UserSignup.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import EmailVerificationModal from '../EmailVerificationModal/EmailVerificationModal';
 import { API_BASE_URL } from '@/utils/utils';
+import SuccessModal from '../SuccessModal/SuccessModal';
 
 const iconGoogle = "/icons/google.svg";
 
@@ -28,6 +29,7 @@ export default function UserSignup() {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({ email: '', password: '', confirmPassword: '', agreeTerms: '', agreePrivacy: '' });
   const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const hasAutoRegisteredRef = useRef(false);
@@ -114,8 +116,6 @@ export default function UserSignup() {
     startTransition(async () => {
       try {
         setError('');
-        console.log('Starting Google sign up...');
-        
         await signIn('google', {
           redirect: true,
           callbackUrl: '/signup?googleRegister=1',
@@ -144,15 +144,6 @@ export default function UserSignup() {
       setError('');
 
       startTransition(async () => {
-        /*try {
-          await registerUser({ email: sessionEmail, name: sessionName || undefined, google: true });
-          setShowEmailVerificationModal(true);
-          router.replace('/signup');
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : 'Error al conectar con el servidor';
-          setError(errorMessage);
-        }*/
-
         try {
           const response:any = await fetch(`${API_BASE_URL}/registration/google`, {
             method: 'POST',
@@ -173,15 +164,15 @@ export default function UserSignup() {
             router.replace('/signup');
             return;
           } else {
-            setShowEmailVerificationModal(true);
-            router.replace('/signup');
+            setShowSuccessModal(true);
+            setTimeout(() => {
+              router.replace('/signup');
+            }, 3000);
           }
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
           setError(errorMessage);
         }
-
-
       });
     };
 
@@ -318,6 +309,7 @@ export default function UserSignup() {
     </div>
 
     {showEmailVerificationModal && <EmailVerificationModal email={email} onClose={() => router.push('/')} onResendEmail={() => {}} />}
+    {showSuccessModal && <SuccessModal title="¡Cuenta creada exitosamente!" text="Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión y comenzar a explorar nuestras propiedades." />}
   </>
   );
 }

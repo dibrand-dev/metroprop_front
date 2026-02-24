@@ -1,4 +1,4 @@
-import './EmailVerificatedModal.scss';
+import './SuccessModal.scss';
 
 const iconCheck = "/icons/check.svg";
 

@@ -82,10 +82,10 @@
     &:-webkit-autofill:hover,
     &:-webkit-autofill:focus,
     &:-webkit-autofill:active {
-      -webkit-text-fill-color: #1e1e1e;
+      -webkit-text-fill-color: #006aff;
       box-shadow: 0 0 0 1000px #ffffff inset;
       transition: background-color 9999s ease-out 0s;
-      caret-color: #1e1e1e;
+      caret-color: #006aff;
       font-size: 16px;
       size: 16px;
     }
@@ -98,7 +98,7 @@
       transform: translateY(0);
       font-size: 12px;
       line-height: 14px;
-      color: #7a7a7a;
+      color: #006aff;
     }
   }
 
@@ -147,11 +147,11 @@
     }
 
     .input-field-2-label {
-      color: #7a7a7a;
+      color: #006AFF;
     }
 
     .input-field-2-input {
-      color: #1e1e1e;
+      color: #006AFF;
     }
   }
 
