@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSession, signOut } from 'next-auth/react';
 import './TopUserMenu.scss';
+import Button from '@/ui/Button/Button';
 
 const chevronIcon = "/icons/chevron-up.svg";
 const contactosIcon = "/icons/message.svg";
@@ -146,19 +147,29 @@ export default function TopUserMenu() {
     }
   ];
 
-  return !isLoggedIn ? (
-    <a className="header-button-primary" href="/login" title="Ingresar">
-      <span>Ingresar</span>
-    </a>
+  return !isLoggedIn ? (    
+    <Button
+      label="Ingresar"
+      type="button"
+      variant="primary"
+      buttonType="2"
+      state="default"                 
+      fullWidth={false}
+      size="medium"
+      onClick={() => router.push('/login')}
+    /> 
   ) : (
-    <div className="header-logged-in-menu">
-      <button
-        className="header-publish-button"
+    <div className="header-logged-in-menu">     
+      <Button
+        label="Publicar"
+        type="button"
+        variant="primary"
+        buttonType="2"
+        state="default"                 
+        fullWidth={false}
+        size="medium"
         onClick={handlePublish}
-        title="Publicar propiedad"
-      >
-        <span>Publicar</span>
-      </button>
+      /> 
 
       <button className="header-notification-button" title="Notificaciones">
         <img src="/icons/iconoir_bell.svg" alt="Notificaciones" />

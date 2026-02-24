@@ -9,6 +9,7 @@ import './UserSignin.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import { API_BASE_URL } from '@/utils/utils';
 import EmailVerificatedModal from '../EmailVerificatedModal/EmailVerificatedModal';
+import SuccessModal from '../EmailVerificatedModal/EmailVerificatedModal';
 
 const iconGoogle = '/icons/google.svg';
 
@@ -333,7 +334,7 @@ export default function UserSignin() {
           )}
         </form>
       </div>
-      {showEmailVerificatedModal && <EmailVerificatedModal />}
+      {showEmailVerificatedModal && <SuccessModal title="¡Email verificado!" text="Puedes loguearte con tu email." />}
     </>
   );
 }

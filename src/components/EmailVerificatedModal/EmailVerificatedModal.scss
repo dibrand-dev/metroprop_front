@@ -1,17 +1,8 @@
+@import '../../styles/_variables.scss';
 // Email Verification Modal Styles
 // Using Metroprop design tokens
 
-// Colors
-$color-primary: #006aff;
-$color-success: #28a745;
-$color-text-primary: #1e1e1e;
-$color-bg-primary: #ffffff;
-$color-alert-bg: #d9d9d9;
-$color-border: #a6a6a6;
 
-// Typography
-$font-family-body: 'Inter', sans-serif;
-$font-family-heading: 'Montserrat', sans-serif;
 
 .email-verification-modal-container {
   position: fixed;
@@ -30,7 +21,7 @@ $font-family-heading: 'Montserrat', sans-serif;
 .email-verification-modal { 
   display: flex;
   flex-direction: column;
-  background-color: $color-bg-primary;
+  background-color: $background-color;
   border-radius: 8px;
   padding: 8px 24px 24px 24px;
   width: 100%;
@@ -75,12 +66,12 @@ $font-family-heading: 'Montserrat', sans-serif;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: 0.16px;
-  color: $color-text-primary;
+  color: $text-color;
 
   &:hover {
     opacity: 0.8;
@@ -143,7 +134,7 @@ $font-family-heading: 'Montserrat', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: $color-alert-bg;
+  background-color: $background-color;
   border: 1px solid rgba(0, 0, 0, 0.5);
   border-radius: 4px;
   padding: 15px 16px;
@@ -166,7 +157,7 @@ $font-family-heading: 'Montserrat', sans-serif;
   justify-content: center;
   width: 32px;
   height: 32px;
-  background-color: $color-success;
+  background-color: $success-color;
   border-radius: 50%;
 
   img {
@@ -176,7 +167,7 @@ $font-family-heading: 'Montserrat', sans-serif;
 
 // Alert Title
 .modal-alert-title {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 400;
   line-height: 1;
@@ -195,7 +186,7 @@ $font-family-heading: 'Montserrat', sans-serif;
   border: none;
   padding: 0;
   cursor: pointer;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 500;
   color: #000000;
@@ -203,7 +194,7 @@ $font-family-heading: 'Montserrat', sans-serif;
 
   &:hover:not(:disabled) {
     text-decoration: underline;
-    color: $color-primary;
+    color: $primary-color;
   }
 
   &:disabled {
@@ -233,12 +224,12 @@ $font-family-heading: 'Montserrat', sans-serif;
 
 // Message Title
 .modal-message-title {
-  font-family: $font-family-heading;
+  font-family: $font-family-base;
   font-size: 22px;
   font-weight: 800;
   line-height: 30px;
   letter-spacing: 0;
-  color: $color-text-primary;
+  color: $text-color;
   margin: 0;
   padding: 0;
   font-style: normal;
@@ -246,11 +237,11 @@ $font-family-heading: 'Montserrat', sans-serif;
 
 // Message Text
 .modal-message-text {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 400;
   line-height: 20px;
-  color: $color-text-primary;
+  color: $text-color;
   margin: 0;
   padding: 0;
   white-space: pre-wrap;
@@ -266,17 +257,17 @@ $font-family-heading: 'Montserrat', sans-serif;
   border: none;
   padding: 0;
   cursor: pointer;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: 0.16px;
-  color: $color-text-primary;
+  color: $text-color;
   transition: all 0.2s ease;
   text-decoration: underline;
 
   &:hover {
-    color: $color-primary;
+    color: $primary-color;
   }
 
   &:active {

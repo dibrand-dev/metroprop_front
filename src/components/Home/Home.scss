@@ -16,8 +16,16 @@
     align-items: center;
     text-align: center;
     justify-content: flex-end;
+    max-width: 333px;
+
+    button {
+        width: 167px;
+    }
 }
 
+.properties-title {
+    font-family: "Montserrat", sans-serif;
+}
 
 @media (max-width: 767px) {
     .hero-section {
@@ -128,9 +136,9 @@
     }
 
     .services-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
 
    
@@ -155,7 +163,6 @@
 
 @media (min-width: 768px) {
     .services-grid {
-        max-width: 80rem;
         margin: 0 auto;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -194,8 +201,8 @@
     }
 
     .properties-title {
-    font-size: 1.375rem;
-    margin-bottom: 1rem;
+        font-size: 1.375rem;
+        margin-bottom: 1rem;
     }
 
     .properties-gallery-wrapper {

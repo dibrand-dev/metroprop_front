@@ -3,6 +3,7 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import './Home.scss';
 import { useState, useRef, useEffect } from 'react';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
+import Button from '@/ui/Button/Button';
 
 export default function Home() {
   const services = [
@@ -119,7 +120,7 @@ export default function Home() {
                 </button>
               </div>
               {/* Search Input */}
-             <InputField2 type="text" placeholder="Escribí una ubicación o alguna característica" icon={<img src="/icons/lupa.svg" />}  />
+              <div style={{ boxShadow: "0 4px 4px 0 rgba(0, 0, 0, 0.25)", borderRadius: 8 }}><InputField2 type="text" placeholder="Escribí una ubicación o alguna característica" icon={<img src="/icons/lupa.svg" />}  /></div>
             </div>
           </div>
         </div>
@@ -137,9 +138,15 @@ export default function Home() {
                 <p className="service-description text-[#1e1e1e] leading-[20px]">
                   {service.desc}
                 </p>
-                <button className="px-4 py-2.5 md:py-3 border-2 border-[#0041d9] text-[#0041d9] rounded-lg font-semibold text-sm md:text-base hover:bg-[#f0f4ff] transition">
-                  {service.boton}
-                </button>
+                <Button
+                  label={service.boton}
+                  type="button"
+                  variant="secondary"
+                  buttonType="2"
+                  state="default"                 
+                  fullWidth={false}
+                  size="medium"
+                />               
               </div>
             ))}
           </div>

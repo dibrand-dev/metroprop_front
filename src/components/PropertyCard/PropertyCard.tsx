@@ -26,7 +26,7 @@ export interface PropertyCardProps {
   onFavorite?: () => void;
 }
 
-const heartIcon = "/images/heart-icon.png";
+const heartIcon = "/icons/heart.svg";
 const remaxLogo = "/images/remax.png";
 const defaultImage = "/images/property-placeholder.png";
 
@@ -44,16 +44,15 @@ export default function PropertyCard({
     >
       {/* Image Section */}
       <div className="property-card-image">
-        <img src={property.image || defaultImage} alt={property.title} />
-        {isHovered && (
-          <button 
-            className="property-card-heart"
-            onClick={onFavorite}
-            aria-label="Add to favorites"
-          >
-            <img src={heartIcon} alt="Favorite" />
-          </button>
-        )}
+        <img src={property.image || defaultImage} alt={property.title} />        
+        <button 
+          className="property-card-heart"
+          onClick={onFavorite}
+          aria-label="Add to favorites"
+          style={{ display: 'none' }}
+        >
+          <img src={heartIcon} alt="Favorite" />
+        </button>
       </div>
 
       {/* Info Section */}

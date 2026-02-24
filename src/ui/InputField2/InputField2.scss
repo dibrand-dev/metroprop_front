@@ -1,8 +1,10 @@
+@import '../../styles/variables';
+
 .input-field-2-wrapper {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: $spacing-sm;
 
   .input-field-2-container {
     position: relative;
@@ -10,34 +12,32 @@
     display: flex;
     align-items: center;
     height: 100%;
-    padding: 0 16px;
+    padding: 0 $spacing-md;
 
     .input-field-2-input {
         height: 100%;
     }
 
-    
-
     .input-field-2-label {
       position: absolute;
-      left: 16px;
+      left: $spacing-md;
       top: 50%;
       transform: translateY(-50%);
       margin: 0;
-      font-family: 'Inter', sans-serif;
-      font-size: 16px;
-      font-weight: 400;
+      font-family: $font-family-base;
+      font-size: $font-size-base;
+      font-weight: $font-weight-normal;
       line-height: 20px;
-      color: #7a7a7a;
+      color: $text-color;
       pointer-events: none;
       transition: all 0.2s ease;
       z-index: 1;
     }
 
     .input-field-2-label.is-active {
-      top: 8px;
+      top: $spacing-sm;
       transform: translateY(0);
-      font-size: 12px;
+      font-size: $font-size-sm;
       line-height: 14px;
     }
 

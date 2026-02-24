@@ -1,38 +1,12 @@
 // Button Component Styles
 // Based on Metroprop Design System
 
+// Import global variables
+@import '../../styles/variables';
+
 // Design Tokens
-$color-primary: #006aff;
-$color-primary-dark: #0041d9;
-$color-primary-darker: #0132a4;
-$color-primary-active: #003aa8;
-$color-text-primary: #1e1e1e;
-$color-text-secondary: #7a7a7a;
-$color-bg-primary: #ffffff;
-$color-bg-secondary: #f5f5f5;
-$color-bg-light-blue: #ebf2fd;
-$color-border: #a6a6a6;
-$color-border-disabled: #b0b0b0;
-$color-disabled: #7a7a7a;
-$color-disabled-text: #a6a6a6;
-$color-error: #dc2626;
-$color-error-dark: #991b1b;
-$color-success: #28a745;
 
 // Typography
-$font-family-body: 'Inter', sans-serif;
-$font-family-heading: 'Montserrat', sans-serif;
-
-// Spacing
-$spacing-xs: 4px;
-$spacing-sm: 8px;
-$spacing-md: 12px;
-$spacing-lg: 16px;
-$spacing-xl: 24px;
-
-// Border Radius
-$border-radius-sm: 4px;
-$border-radius-md: 8px;
 
 // Transitions
 $transition-time: 0.2s;
@@ -43,7 +17,7 @@ $transition-time: 0.2s;
   align-items: center;
   justify-content: center;
   gap: $spacing-sm;
-  font-family: $font-family-heading;
+  font-family: $font-family-base;
   font-weight: 600;
   font-size: 16px;
   line-height: 20px;
@@ -57,7 +31,7 @@ $transition-time: 0.2s;
   overflow: hidden;
 
   &:focus {
-    outline: 2px solid $color-primary;
+    outline: 2px solid $primary-color;
     outline-offset: 2px;
   }
 
@@ -73,43 +47,43 @@ $transition-time: 0.2s;
 .btn-primary {
   &.btn-type-1 {
     &.btn-state-default {
-      background-color: $color-primary;
-      border-color: $color-primary;
+      background-color: $primary-color;
+      border-color: $primary-color;
       color: #ffffff;
 
       &:hover:not(:disabled):not(.btn-disabled) {
-        background-color: $color-primary-dark;
-        border-color: $color-primary-dark;
+        background-color: $primary-dark;
+        border-color: $primary-dark;
       }
 
       &:active:not(:disabled):not(.btn-disabled) {
-        background-color: $color-primary-darker;
-        border-color: $color-primary-darker;
+        background-color: $primary-darker;
+        border-color: $primary-darker;
       }
     }
 
     &.btn-state-hover {
-      background-color: $color-bg-light-blue;
-      border-color: $color-primary;
-      color: $color-primary;
+      background-color: $bg-light-blue;
+      border-color: $primary-color;
+      color: $primary-color;
     }
 
     &.btn-state-selected {
-      background-color: $color-primary-dark;
-      border-color: $color-primary;
+      background-color: $primary-color;
+      border-color: $primary-color;
       color: #ffffff;
     }
 
     &.btn-state-click {
-      background-color: $color-bg-secondary;
-      border-color: $color-primary;
-      color: $color-primary;
+      background-color: $background-color;
+      border-color: $primary-color;
+      color: $primary-color;
     }
 
     &.btn-state-disabled {
-      background-color: $color-disabled;
-      border-color: $color-disabled;
-      color: $color-disabled-text;
+      background-color: $disabled;
+      border-color: $disabled;
+      color: $disabled-text;
       cursor: not-allowed;
       opacity: 1;
     }
@@ -117,43 +91,43 @@ $transition-time: 0.2s;
 
   &.btn-type-2 {
     &.btn-state-default {
-      background-color: $color-primary-dark;
-      border-color: $color-primary-dark;
+      background-color: $primary-dark;
+      border-color: $primary-dark;
       color: #ffffff;
 
       &:hover:not(:disabled):not(.btn-disabled) {
-        background-color: $color-primary-darker;
-        border-color: $color-primary-darker;
+        background-color: $primary-darker;
+        border-color: $primary-darker;
       }
 
       &:active:not(:disabled):not(.btn-disabled) {
-        background-color: $color-primary-darker;
-        border-color: $color-primary-darker;
+        background-color: $primary-darker;
+        border-color: $primary-darker;
       }
     }
 
     &.btn-state-hover {
-      background-color: $color-primary-darker;
-      border-color: $color-primary-darker;
+      background-color: $primary-darker;
+      border-color: $primary-darker;
       color: #ffffff;
     }
 
     &.btn-state-selected {
-      background-color: $color-primary-dark;
-      border-color: $color-primary-dark;
+      background-color: $primary-dark;
+      border-color: $primary-dark;
       color: #ffffff;
     }
 
     &.btn-state-click {
-      background-color: $color-bg-secondary;
-      border-color: $color-primary;
-      color: $color-primary;
+      background-color: $bg-secondary;
+      border-color: $primary-color;
+      color: $primary-color;
     }
 
     &.btn-state-disabled {
-      background-color: $color-disabled;
-      border-color: $color-disabled;
-      color: $color-disabled-text;
+      background-color: $disabled;
+      border-color: $disabled;
+      color: $disabled-text;
       cursor: not-allowed;
       opacity: 1;
     }
@@ -166,34 +140,34 @@ $transition-time: 0.2s;
 .btn-secondary {
   &.btn-type-1 {
     &.btn-state-default {
-      background-color: $color-bg-primary;
-      border-color: $color-primary;
+      background-color: $primary-color;
+      border-color: $primary-color;
       border-width: 1.3px;
-      color: $color-primary;
+      color: $primary-color;
     }
 
     &.btn-state-hover {
-      background-color: $color-bg-light-blue;
-      border-color: $color-primary;
-      color: $color-primary;
+      background-color: $bg-light-blue;
+      border-color: $primary-color;
+      color: $primary-color;
     }
 
     &.btn-state-selected {
-      background-color: $color-bg-primary;
-      border-color: $color-primary;
-      color: $color-primary;
+      background-color: $bg-secondary;
+      border-color: $primary-color;
+      color: $primary-color;
     }
 
     &.btn-state-click {
-      background-color: $color-primary-dark;
-      border-color: $color-primary-dark;
+      background-color: $primary-dark;
+      border-color: $primary-dark;
       color: #ffffff;
     }
 
     &.btn-state-disabled {
-      background-color: $color-border-disabled;
-      border-color: $color-disabled;
-      color: $color-disabled;
+      background-color: $disabled;
+      border-color: $disabled;
+      color: $disabled;
       cursor: not-allowed;
       opacity: 1;
     }
@@ -201,34 +175,34 @@ $transition-time: 0.2s;
 
   &.btn-type-2 {
     &.btn-state-default {
-      background-color: $color-bg-primary;
-      border-color: $color-primary-dark;
+      background-color: $bg-secondary;
+      border-color: $primary-dark;
       border-width: 1.3px;
-      color: $color-primary-dark;
+      color: $primary-dark;
     }
 
     &.btn-state-hover {
-      background-color: $color-bg-light-blue;
-      border-color: $color-primary-darker;
-      color: $color-primary-darker;
+      background-color: $bg-light-blue;
+      border-color: $primary-darker;
+      color: $primary-darker;
     }
 
     &.btn-state-selected {
-      background-color: $color-bg-primary;
-      border-color: $color-primary-dark;
-      color: $color-primary-dark;
+      background-color: $bg-secondary;
+      border-color: $primary-dark;
+      color: $primary-dark;
     }
 
     &.btn-state-click {
-      background-color: $color-primary-darker;
-      border-color: $color-primary-darker;
+      background-color: $primary-darker;
+      border-color: $primary-darker;
       color: #ffffff;
     }
 
     &.btn-state-disabled {
-      background-color: $color-border-disabled;
-      border-color: $color-disabled;
-      color: $color-disabled;
+      background-color: $disabled;
+      border-color: $disabled;
+      color: $disabled;
       cursor: not-allowed;
       opacity: 1;
     }
@@ -240,27 +214,27 @@ $transition-time: 0.2s;
 // ============================================
 .btn-tertiary {
   &.btn-state-default {
-    background-color: $color-bg-secondary;
-    border-color: $color-border;
-    color: $color-primary-dark;
+    background-color: $bg-secondary;
+    border-color: $border-color;
+    color: $primary-dark;
   }
 
   &.btn-state-hover {
-    background-color: $color-bg-light-blue;
-    border-color: $color-border;
-    color: $color-primary-dark;
+    background-color: $bg-light-blue;
+    border-color: $border-color;
+    color: $primary-dark;
   }
 
   &.btn-state-click {
-    background-color: $color-primary-dark;
-    border-color: $color-primary-dark;
+    background-color: $primary-dark;
+    border-color: $primary-dark;
     color: #ffffff;
   }
 
   &.btn-state-disabled {
-    background-color: $color-disabled;
-    border-color: $color-disabled;
-    color: $color-disabled-text;
+    background-color: $disabled;
+    border-color: $disabled;
+    color: $disabled-text;
     cursor: not-allowed;
     opacity: 1;
   }
@@ -276,7 +250,7 @@ $transition-time: 0.2s;
   min-height: unset;
   min-width: unset;
   height: auto;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 400;
   line-height: 20px;
@@ -284,49 +258,49 @@ $transition-time: 0.2s;
 
   &.btn-type-1 {
     &.btn-state-default {
-      color: $color-text-primary;
+      color: $text-color;
       border-bottom: none;
 
       &:hover:not(:disabled):not(.btn-disabled) {
-        border-bottom: 2px solid $color-primary;
-        color: $color-primary;
+        border-bottom: 2px solid $primary-color;
+        color: $primary-color;
         padding-bottom: -2px;
       }
     }
 
     &.btn-state-hover {
-      color: $color-primary;
-      border-bottom: 2px solid $color-primary;
+      color: $primary-color;
+      border-bottom: 2px solid $primary-color;
     }
 
     &.btn-state-selected {
-      color: $color-primary-darker;
+      color: $primary-darker;
     }
   }
 
   &.btn-type-2 {
     font-weight: 600;
-    font-family: $font-family-body;
+    font-family: $font-family-base;
     line-height: 18px;
     letter-spacing: 0.16px;
 
     &.btn-state-default {
-      color: $color-text-primary;
+      color: $text-color;
       border-bottom: none;
 
       &:hover:not(:disabled):not(.btn-disabled) {
-        border-bottom: 2px solid $color-primary;
-        color: $color-primary;
+        border-bottom: 2px solid $primary-color;
+        color: $primary-color;
       }
     }
 
     &.btn-state-hover {
-      color: $color-primary;
-      border-bottom: 2px solid $color-primary;
+      color: $primary-color;
+      border-bottom: 2px solid $primary-color;
     }
 
     &.btn-state-selected {
-      color: $color-primary-darker;
+      color: $primary-darker;
     }
   }
 
@@ -337,7 +311,7 @@ $transition-time: 0.2s;
     align-items: center;
     justify-content: center;
     padding: 0;
-    font-family: $font-family-body;
+    font-family: $font-family-base;
     font-weight: 500;
     letter-spacing: 0.32px;
     
@@ -348,7 +322,7 @@ $transition-time: 0.2s;
       width: 32px;
       height: 32px;
       border-radius: 100%;
-      background-color: $color-success;
+      background-color: $success;
       flex-shrink: 0;
 
       svg {
@@ -358,7 +332,7 @@ $transition-time: 0.2s;
     }
 
     .checkbox-label {
-      color: $color-primary;
+      color: $primary-color;
     }
   }
 }
@@ -372,7 +346,7 @@ $transition-time: 0.2s;
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -397,31 +371,31 @@ $transition-time: 0.2s;
   }
 
   &.btn-state-default {
-    color: $color-text-primary;
+    color: $text-color;
   }
 
   &.btn-state-hover {
-    color: $color-primary;
+    color: $primary-color;
     
     .btn-back-icon svg {
-      color: $color-primary;
+      color: $primary-color;
     }
   }
 
   &.btn-state-click {
-    color: $color-primary-darker;
+    color: $primary-darker;
 
     .btn-back-icon svg {
-      color: $color-primary-darker;
+      color: $primary-darker;
     }
   }
 
   &.btn-state-disabled {
-    color: $color-text-secondary;
+    color: $text-secondary;
     cursor: not-allowed;
 
     .btn-back-icon svg {
-      color: $color-text-secondary;
+      color: $text-secondary;
     }
   }
 }
@@ -515,37 +489,38 @@ $transition-time: 0.2s;
 // Legacy variant support (backward compatibility)
 .btn-outline {
   background-color: transparent;
-  border-color: $color-primary;
-  color: $color-primary;
+  border-color: $primary-color;
+  color: $primary-color;
 
   &:hover:not(:disabled):not(.btn-disabled) {
-    background-color: rgba($color-primary, 0.05);
-    border-color: $color-primary-dark;
-    color: $color-primary-dark;
+    background-color: rgba($primary-color, 0.05);
+    border-color: $primary-dark;
+    color: $primary-dark;
   }
 
   &:active:not(:disabled):not(.btn-disabled) {
-    background-color: rgba($color-primary, 0.1);
-    color: $color-primary-darker;
-    border-color: $color-primary-darker;
+    background-color: rgba($primary-color, 0.1);
+    color: $primary-darker;
+    border-color: $primary-darker;
     transform: scale(0.98);
   }
 }
 
 .btn-danger {
-  background-color: $color-error;
-  border-color: $color-error;
+  background-color: $error-color;
+  border-color: $error-color;
   color: #ffffff;
 
   &:hover:not(:disabled):not(.btn-disabled) {
-    background-color: $color-error-dark;
-    border-color: $color-error-dark;
-    box-shadow: 0 4px 12px rgba($color-error, 0.2);
+    background-color: $error-dark;
+    border-color: $error-dark;
+    box-shadow: 0 4px 12px rgba($error-color, 0.2);
   }
 
   &:active:not(:disabled):not(.btn-disabled) {
-    background-color: darken($color-error-dark, 10%);
-    border-color: darken($color-error-dark, 10%);
+    background-color: darken($error-dark, 10%);
+    border-color: darken($error-dark, 10%);
     transform: scale(0.98);
   }
 }
+

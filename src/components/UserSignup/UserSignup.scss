@@ -1,17 +1,8 @@
 // Merged Signup Styles (Mobile & Desktop)
 // Using Metroprop design tokens
 
-// Colors
-$color-primary: #006aff;
-$color-text-primary: #1e1e1e;
-$color-text-secondary: #7a7a7a;
-$color-bg-primary: #ffffff;
-$color-bg-secondary: #f5f5f5;
-$color-border: #a6a6a6;
 
-// Typography
-$font-family-body: 'Inter', sans-serif;
-$font-family-button: 'Montserrat', sans-serif;
+@import '../../styles/variables';
 
 // Main Container
 .merged-signup-container {
@@ -36,17 +27,17 @@ $font-family-button: 'Montserrat', sans-serif;
   width: 40%;
   max-width: 475px;
   padding: 8px 24px 32px 24px;
-  border-right: 1px solid $color-border;
+  border-right: 1px solid $border-color;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-   background: $color-bg-primary;
+  background: $background-color;
 
   @media (max-width: 1024px) {
     width: 100%;
     max-width: 100%;
     border-right: none;
-    border-bottom: 1px solid $color-border;
+    border-bottom: 1px solid $border-color;
     padding: 8px 24px 32px 24px;
   }
 
@@ -57,12 +48,12 @@ $font-family-button: 'Montserrat', sans-serif;
 
 // Title
 .merged-signup-title {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 26px;
   font-weight: 700;
   line-height: 34px;
   letter-spacing: -0.078px;
-  color: $color-text-primary;
+  color: $text-color;
   margin: 0 0 32px 0;
   padding: 0;
 
@@ -92,26 +83,26 @@ $font-family-button: 'Montserrat', sans-serif;
 .merged-signup-input {
   display: flex;
   align-items: center;
-  background-color: $color-bg-secondary;
-  border: 1.3px solid $color-border;
+  background-color: $background-color;
+  border: 1.3px solid $border-color;
   border-radius: 8px;
   padding: 18px 16px;
   width: 100%;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
-  color: $color-text-primary;
+  color: $text-color;
   font-weight: 400;
   line-height: 20px;
   transition: all 0.2s ease;
 
   &::placeholder {
-    color: $color-text-secondary;
+    color: $text-color;
   }
 
   &:focus {
     outline: none;
-    border-color: $color-primary;
-    background-color: $color-bg-primary;
+    border-color: $primary-color;
+    background-color: $background-color;
     box-shadow: 0 0 0 3px rgba(0, 106, 255, 0.1);
   }
 
@@ -126,8 +117,8 @@ $font-family-button: 'Montserrat', sans-serif;
   position: relative;
   display: flex;
   align-items: center;
-  background-color: $color-bg-secondary;
-  border: 1.3px solid $color-border;
+  background-color: $background-color;
+  border: 1.3px solid $border-color;
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.2s ease;
@@ -138,14 +129,14 @@ $font-family-button: 'Montserrat', sans-serif;
     border: none;
     padding: 18px 16px;
     font-size: 16px;
-    color: $color-text-primary;
+    color: $text-color;
     outline: none;
-    font-family: $font-family-body;
+    font-family: $font-family-base;
     font-weight: 400;
     line-height: 20px;
 
     &::placeholder {
-      color: $color-text-secondary;
+      color: $text-color;
     }
 
     @media (max-width: 768px) {
@@ -155,8 +146,8 @@ $font-family-button: 'Montserrat', sans-serif;
   }
 
   &:focus-within {
-    border-color: $color-primary;
-    background-color: $color-bg-primary;
+    border-color: $primary-color;
+    background-color: $background-color;
     box-shadow: 0 0 0 3px rgba(0, 106, 255, 0.1);
   }
 }
@@ -190,13 +181,13 @@ $font-family-button: 'Montserrat', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: $color-primary;
-  border: 1px solid $color-primary;
+  background-color: $primary-color;
+  border: 1px solid $primary-color;
   border-radius: 8px;
   padding: 12px 16px;
   height: 48px;
   width: 100%;
-  font-family: $font-family-button;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 600;
   line-height: 20px;
@@ -233,26 +224,26 @@ $font-family-button: 'Montserrat', sans-serif;
 }
 
 .merged-signup-signin-text {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 400;
   line-height: 20px;
-  color: $color-text-primary;
+  color: $text-color;
 }
 
 .merged-signup-link {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: 0.16px;
-  color: $color-text-primary;
+  color: $text-color;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    color: $color-primary;
+    color: $primary-color;
   }
 }
 
@@ -269,18 +260,18 @@ $font-family-button: 'Montserrat', sans-serif;
 .merged-signup-divider-line {
   flex: 1;
   height: 1px;
-  background-color: $color-border;
+  background-color: $border-color;
 }
 
 .merged-signup-divider-text {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 500;
   line-height: 22px;
   letter-spacing: 0.08px;
-  color: $color-text-primary;
+  color: $text-color;
   white-space: nowrap;
-  background-color: $color-bg-primary;
+  background-color: $primary-color;
   padding: 0 8px;
 }
 
@@ -290,23 +281,23 @@ $font-family-button: 'Montserrat', sans-serif;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: $color-bg-primary;
-  border: 1.3px solid $color-text-primary;
+  background-color: #fff;
+  border: 1.3px solid $text-color;
   border-radius: 4px;
   padding: 12px 16px;
   height: 48px;
   width: 100%;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: 0.16px;
-  color: $color-text-primary;
+  color: $text-color;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: $color-bg-secondary;
+    background-color: $background-color;
   }
 
   &:disabled {
@@ -342,11 +333,11 @@ $font-family-button: 'Montserrat', sans-serif;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 400;
   line-height: 20px;
-  color: $color-text-primary;
+  color: $text-color;
   transition: all 0.2s ease;
 }
 
@@ -355,7 +346,7 @@ $font-family-button: 'Montserrat', sans-serif;
   width: 24px;
   height: 24px;
   cursor: pointer;
-  accent-color: $color-primary;
+  accent-color: $primary-color;
   flex-shrink: 0;
 
   &:hover {
@@ -404,12 +395,12 @@ $font-family-button: 'Montserrat', sans-serif;
   gap: 8px;
   align-items: center;
   padding-top: 24px;
-  border-top: 1px solid $color-border;
+  border-top: 1px solid $border-color;
   margin-top: auto;
 }
 
 .merged-signup-cta-text {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 400;
   line-height: 20px;
@@ -421,18 +412,18 @@ $font-family-button: 'Montserrat', sans-serif;
 }
 
 .merged-signup-cta-link {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: 0.16px;
-  color: $color-text-primary;
+  color: $text-color;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    color: $color-primary;
+    color: $primary-color;
   }
 }
 

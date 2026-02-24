@@ -15,7 +15,7 @@ $font-family-button: 'Montserrat', sans-serif;
 // Main Header Container
 .header-container {
   background-color: $color-bg-primary;
-  border-bottom: 2px solid $color-border;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.25);
   padding: 16px 24px;
   width: 100%;
   position: sticky;

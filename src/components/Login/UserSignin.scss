@@ -1,20 +1,8 @@
 // User Signin Styles
 // Using Metroprop design tokens
 
-// Colors
-$color-primary: #006aff;
-$color-primary-dark: #0041d9;
-$color-text-primary: #1e1e1e;
-$color-text-secondary: #7a7a7a;
-$color-bg-primary: #ffffff;
-$color-bg-secondary: #f5f5f5;
-$color-border: #a6a6a6;
-$color-accent: #ebf2fd;
 
-// Typography
-$font-family-heading: 'Inter', sans-serif;
-$font-family-body: 'Inter', sans-serif;
-$font-family-button: 'Montserrat', sans-serif;
+@import '../../styles/_variables.scss';
 
 // Breakpoints
 $breakpoint-mobile: 768px;
@@ -32,24 +20,24 @@ $breakpoint-mobile: 768px;
 }
 
 @mixin input-base {
-  background-color: $color-bg-secondary;
-  border: 1.3px solid $color-border;
+  background-color: $background-color;
+  border: 1.3px solid $border-color;
   border-radius: 8px;
   padding: 18px 16px;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
-  color: $color-text-primary;
+  color: $text-color;
 
   &::placeholder {
-    color: $color-text-secondary;
+    color: $text-color;
     font-weight: 400;
     line-height: 20px;
   }
 
   &:focus {
     outline: none;
-    border-color: $color-primary;
-    background-color: $color-bg-primary;
+    border-color: $primary-color;
+    background-color: $background-color;
   }
 }
 
@@ -95,7 +83,7 @@ $breakpoint-mobile: 768px;
 
 .signin-left-panel {
   @include flex-column;
-  background: $color-bg-primary;    
+  background: #fff;    
   width: 100%;
   padding: 0 16px;
   @media (max-width: calc($breakpoint-mobile - 1px)) {
@@ -106,7 +94,7 @@ $breakpoint-mobile: 768px;
     width: 40%;
     max-width: 475px;
     padding: 8px 24px 32px 24px;
-    border-right: 1px solid $color-border;
+    border-right: 1px solid $border-color;
     overflow-y: auto;
   }
 }
@@ -124,12 +112,12 @@ $breakpoint-mobile: 768px;
 }
 
 .form-title {
-  font-family: $font-family-heading;
+  font-family: $font-family-base;
   font-size: 26px;
   font-weight: 700;
   line-height: 34px;
   letter-spacing: -0.078px;
-  color: $color-text-primary;
+  color: $text-color;
   margin: 0;
 
   @media (min-width: $breakpoint-mobile) {
@@ -164,12 +152,12 @@ $breakpoint-mobile: 768px;
     border: none;
     padding: 0;
     font-size: 16px;
-    color: $color-text-primary;
+    color: $text-color;
     outline: none;
-    font-family: $font-family-body;
+    font-family: $font-family-base;
 
     &::placeholder {
-      color: $color-text-secondary;
+      color: $text-color;
     }
   }
 }
@@ -187,11 +175,11 @@ $breakpoint-mobile: 768px;
   svg {
     width: 24px;
     height: 24px;
-    stroke: $color-text-secondary;
+    stroke: $text-color;
   }
 
   &:hover svg {
-    stroke: $color-primary;
+    stroke: $primary-color;
   }
 }
 
@@ -200,10 +188,10 @@ $breakpoint-mobile: 768px;
   gap: 8px;
   text-decoration: none;
   cursor: pointer;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 500;
-  color: $color-text-primary;
+  color: $text-color;
   line-height: 22px;
   letter-spacing: 0.5px;
   margin-bottom: 24px;
@@ -212,27 +200,27 @@ $breakpoint-mobile: 768px;
   padding: 0;
 
   &:hover {
-    color: $color-primary;
+    color: $primary-color;
   }
 }
 
 .btn-signin {
   @include button-base;
-  background-color: $color-primary;
-  border: 1px solid $color-primary;
-  color: $color-bg-primary;
-  font-family: $font-family-button;
+  background-color: $primary-color;
+  border: 1px solid $primary-color;
+  color: $background-color;
+  font-family: $font-family-base;
   font-weight: 600;
   line-height: 20px;
   letter-spacing: 0.32px;
   margin-bottom: 24px;
 
   &:hover {
-    background-color: #0050cc;
+    background-color: darken($primary-color, 10%);
   }
 
   &:active {
-    background-color: #003d99;
+    background-color: darken($primary-color, 20%);
   }
 }
 
@@ -244,20 +232,20 @@ $breakpoint-mobile: 768px;
 }
 
 .create-account-text {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 400;
   line-height: 20px;
-  color: $color-text-primary;
+  color: $text-color;
 }
 
 .create-account-link {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: 0.16px;
-  color: $color-text-primary;
+  color: $text-color;
   text-decoration: none;
   cursor: pointer;
   background: none;
@@ -265,7 +253,7 @@ $breakpoint-mobile: 768px;
   padding: 0;
 
   &:hover {
-    color: $color-primary;
+    color: $primary-color;
   }
 }
 
@@ -279,16 +267,16 @@ $breakpoint-mobile: 768px;
 .divider-line {
   flex: 1;
   height: 1px;
-  background-color: $color-border;
+  background-color: $border-color;
 }
 
 .divider-text {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 500;
   line-height: 22px;
   letter-spacing: 0.08px;
-  color: $color-text-primary;
+  color: $text-color;
   white-space: nowrap;
 }
 
@@ -298,23 +286,23 @@ $breakpoint-mobile: 768px;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: $color-bg-primary;
-  border: 1.3px solid $color-text-primary;
+  background-color: #fff;
+  border: 1.3px solid $text-color;
   border-radius: 4px;
   padding: 12px 16px;
   height: 48px;
   width: 100%;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: 0.16px;
-  color: $color-text-primary;
+  color: $text-color;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: $color-bg-secondary;
+    background-color: $background-color;
   }
 
   &:disabled {
@@ -337,7 +325,7 @@ $breakpoint-mobile: 768px;
 .signin-right-panel {
   display: none;
   flex: 1;
-  background: linear-gradient(135deg, $color-accent 0%, #e0e7ff 100%);
+  background: linear-gradient(135deg, $accent-color 0%, #e0e7ff 100%);
   position: relative;
   overflow: hidden;
 

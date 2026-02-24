@@ -1,16 +1,19 @@
+
+@import '../../styles/variables';
+
 .radio-button {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 24px;
-  background-color: #FFFFFF;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
+  background-color: $text-light;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
   transition: all 0.2s ease;
 
   &:hover:not(.disabled) {
-    border-color: rgba(0, 106, 255, 0.3);
-    background-color: rgba(0, 106, 255, 0.02);
+    border-color: rgba($primary-color, 0.3);
+    background-color: rgba($primary-color, 0.02);
   }
 
   &.disabled {
@@ -19,7 +22,7 @@
   }
 
   @media (max-width: 768px) {
-    padding: 16px;
+    padding: $spacing-md;
   }
 }
 

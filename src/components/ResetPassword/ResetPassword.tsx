@@ -6,6 +6,7 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
 import { API_BASE_URL } from '@/utils/utils';
 import './ResetPassword.scss';
+import SuccessModal from '../EmailVerificatedModal/EmailVerificatedModal';
 
 const logoMetroprop = "/images/metropropLogo.png";
 
@@ -24,6 +25,7 @@ export default function ResetPassword() {
   const [tokenValid, setTokenValid] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [tokenError, setTokenError] = useState('');
+  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get('token');
@@ -104,10 +106,11 @@ export default function ResetPassword() {
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
-        // Éxito - redirigir al login con mensaje
-        alert('¡Contraseña actualizada correctamente! Ahora puedes iniciar sesión con tu nueva contraseña.');
-        router.push('/login');
+      if (response.ok && data.success) {       
+        setShowResetPasswordModal(true)
+        setTimeout(() => {
+          router.push('/login');
+        }, 3000);
       } else {
         setError(data.message || 'Error al actualizar la contraseña');
       }
@@ -251,6 +254,7 @@ export default function ResetPassword() {
           />
         </form>
       </div>
+      {showResetPasswordModal && <SuccessModal title="¡Contraseña actualizada!" text="Ahora puedes iniciar sesión con tu nueva contraseña." />}
     </div>
   );
 }

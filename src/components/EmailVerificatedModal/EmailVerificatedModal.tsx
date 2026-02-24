@@ -2,7 +2,12 @@ import './EmailVerificatedModal.scss';
 
 const iconCheck = "/icons/check.svg";
 
-export default function EmailVerificatedModal() {
+interface SuccessModalProps {
+  title: string;
+  text: string;
+}
+
+export default function SuccessModal({ title, text }: SuccessModalProps) {
   return (
   <div className="email-verification-modal-container">
     <div className="email-verification-modal">
@@ -21,10 +26,10 @@ export default function EmailVerificatedModal() {
         <div className="modal-message-section">
           <div className="modal-message">
             <h2 className="modal-message-title">
-              ¡Email verificado!
+              {title}
             </h2>
             <p className="modal-message-text">
-              Puedes loguearte con tu email.
+              {text}
             </p>
           </div>
         </div>

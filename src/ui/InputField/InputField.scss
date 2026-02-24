@@ -1,24 +1,6 @@
 
-$color-primary: #006aff;
-$color-primary-dark: #0041d9;
-$color-text-primary: #1e1e1e;
-$color-text-secondary: #7a7a7a;
-$color-bg-primary: #ffffff;
-$color-bg-secondary: #f5f5f5;
-$color-border: #a6a6a6;
-$color-error: #dc2626;
-$color-error-bg: #fee2e2;
-$color-error-border: #fca5a5;
 
-$font-family-body: 'Inter', sans-serif;
-
-$spacing-sm: 8px;
-$spacing-md: 16px;
-$spacing-lg: 24px;
-
-$border-radius: 8px;
-
-$transition-time: 0.2s;
+@import '../../styles/variables';
 
 // Container
 .input-field-container {
@@ -37,11 +19,11 @@ $transition-time: 0.2s;
 
 // Label
 .input-field-label {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 16px;
   font-weight: 400;
   line-height: 20px;
-  color: $color-text-secondary;
+  color: $text-secondary;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -50,14 +32,14 @@ $transition-time: 0.2s;
   transition: color $transition-time ease;
 
   &:hover {
-    color: $color-text-primary;
+    color: $text-color;
   }
 }
 
 // Input Wrapper
 .input-field-wrapper {
-  background-color: $color-bg-secondary;
-  border: 1.3px solid $color-border;
+  background-color: $bg-secondary;
+  border: 1.3px solid $border-color;
   border-radius: $border-radius;
   padding: 18px 16px;
   display: flex;
@@ -68,24 +50,24 @@ $transition-time: 0.2s;
 
   &:focus-within {
     outline: none;
-    border-color: $color-primary;
-    background-color: $color-bg-primary;
+    border-color: $primary-color;
+    background-color: $bg-secondary;
   }
 
   &.error {
-    border-color: $color-error;
+    border-color: $error-color;
     background-color: #fff;
 
     &:focus-within {
-      border-color: $color-error;
+      border-color: $error-color;
     }
     
     & input::placeholder {
-      color: $color-error;     
+      color: $error-color;     
     }
 
     & .input-field-icon-button svg {
-      stroke: $color-error;
+      stroke: $error-color;
     }
   }
 
@@ -104,24 +86,24 @@ $transition-time: 0.2s;
   font-size: 16px;
   font-weight: 400;
   line-height: 20px;
-  color: $color-text-primary;
+  color: $text-color;
   outline: none;
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   min-width: 0; 
 
   &::placeholder {
-    color: $color-text-secondary;
+    color: $text-secondary;
     font-weight: 400;
     line-height: 20px;
   }
 
   &:disabled {
     background: transparent;
-    color: $color-text-secondary;
+    color: $text-secondary;
     cursor: not-allowed;
 
     &::placeholder {
-      color: $color-border;
+      color: $border-color;
     }
   }
 
@@ -193,7 +175,7 @@ $transition-time: 0.2s;
   svg {
     width: 24px;
     height: 24px;
-    stroke: $color-text-secondary;
+    stroke: $text-secondary;
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-width: 2;
@@ -207,7 +189,7 @@ $transition-time: 0.2s;
 
   &:hover:not(:disabled) {
     svg {
-      stroke: $color-primary;
+      stroke: $primary-color;
     }
 
     img {
@@ -225,7 +207,7 @@ $transition-time: 0.2s;
   }
 
   &:focus {
-    outline: 2px solid $color-primary;
+    outline: 2px solid $primary-color;
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -233,11 +215,11 @@ $transition-time: 0.2s;
 
 // Error Message
 .input-field-error {
-  font-family: $font-family-body;
+  font-family: $font-family-base;
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
-  color: $color-error;
+  color: $error-color;
   margin: 0;
   padding: 0;
 }
