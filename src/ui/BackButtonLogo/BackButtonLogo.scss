@@ -15,6 +15,7 @@ $breakpoint-mobile: 768px;
   @include flex-center;
   justify-content: space-between;  
   height: 64px;
+  margin-bottom: 32px;
   
   @media (min-width: $breakpoint-mobile) {
     padding: 8px 0 0 0;  

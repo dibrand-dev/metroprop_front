@@ -6,7 +6,8 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
 import { API_BASE_URL } from '@/utils/utils';
 import './ResetPassword.scss';
-import SuccessModal from '../SuccessModal/EmailVerificatedModal';
+import SuccessModal from '../SuccessModal/SuccessModal';
+import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 
 const logoMetroprop = "/images/metropropLogo.png";
 
@@ -129,11 +130,11 @@ export default function ResetPassword() {
   // Estado de cargando validación
   if (isValidatingToken) {
     return (
-      <div className="recuperar-contraseña-container">
-        <div className="recuperar-contraseña-content">
-          <img src={logoMetroprop} alt="Metroprop Logo" width="160" />
-          <h1 className="recuperar-contraseña-title">Verificando enlace...</h1>
-          <p style={{ textAlign: 'center', color: '#666', margin: '20px 0' }}>
+      <div className="recuperar-contrasena-container" style={{ minHeight: 534, alignItems: 'flex-start' }}>
+        <div className="recuperar-contrasena-content">
+          <BackButtonLogo />
+          <h1 className="recuperar-contrasena-title">Verificando enlace...</h1>
+          <p className='recuperar-contrasena-subtitle'>
             Por favor espera mientras verificamos tu enlace de recuperación.
           </p>
         </div>
@@ -144,10 +145,10 @@ export default function ResetPassword() {
   // Token inválido o expirado
   if (!tokenValid) {
     return (
-      <div className="recuperar-contraseña-container">
-        <div className="recuperar-contraseña-content">
-          <img src={logoMetroprop} alt="Metroprop Logo" width="160" />
-          <h1 className="recuperar-contraseña-title">Enlace no válido</h1>
+      <div className="recuperar-contrasena-container">
+        <div className="recuperar-contrasena-content">
+          <BackButtonLogo />
+          <h1 className="recuperar-contrasena-title">Enlace no válido</h1>
           <div style={{
             padding: '16px',
             backgroundColor: '#fee2e2',
@@ -174,30 +175,18 @@ export default function ResetPassword() {
 
   // Formulario de reset (token válido)
   return (
-    <div className="recuperar-contraseña-container">
-      <div className="recuperar-contraseña-content">
-        <img src={logoMetroprop} alt="Metroprop Logo" width="160" />
-        <form className="recuperar-contraseña-form" onSubmit={handleSubmit}>
+    <div className="recuperar-contrasena-container">
+      <div className="recuperar-contrasena-content">
+        <BackButtonLogo />
+        <form className="recuperar-contrasena-form" onSubmit={handleSubmit}>
           {/* Title */}
-          <h1 className="recuperar-contraseña-title">Reestablecer contraseña</h1>
+          <h1 className="recuperar-contrasena-title">Reestablecer contraseña</h1>
           
-          {/* User Info */}
-          {userInfo && (
-            <div style={{ 
-              padding: '16px', 
-              backgroundColor: '#f0f9ff', 
-              border: '1px solid #0369a1', 
-              borderRadius: '8px', 
-              marginBottom: '24px' 
-            }}>
-              <p style={{ color: '#0369a1', margin: 0, fontSize: '14px' }}>
-                Cambiando contraseña para: <strong>{userInfo.email}</strong>
-              </p>
-            </div>
-          )}
-
+          <p className="recuperar-contrasena-subtitle">
+            Contraseña nueva
+          </p>
           {/* New Password Field */}
-          <div className="recuperar-contraseña-field-group">
+          <div className="recuperar-contrasena-field-group">
             <InputField2
               label="Contraseña nueva"
               type="password"
@@ -209,11 +198,11 @@ export default function ResetPassword() {
               autoComplete="new-password"
               error={fieldErrors.newPassword}
             />
-            <p className="recuperar-contraseña-hint">Usa de 6 a 10 caracteres</p>
+            <p className="recuperar-contrasena-hint">Usa de 6 a 10 caracteres</p>
           </div>
 
           {/* Confirm Password Field */}
-          <div className="recuperar-contraseña-field-group">
+          <div className="recuperar-contrasena-field-group">
             <InputField2
               label="Repetir contraseña"
               type="password"

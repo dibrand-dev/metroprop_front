@@ -70,10 +70,7 @@
   }
 
   &.selected {
-    border-color: $primary-color;
-    .select-display {
-      color: $primary-color;
-    }
+    border-color: $primary-color;    
   }
 }
 
@@ -81,7 +78,6 @@
 .select-display {
   flex: 1;
   text-align: left;
-  color: $primary-color;
   font-family: $font-family-base;
   font-size: 16px;
   font-weight: 400;
@@ -176,7 +172,6 @@
 
   &.selected {
     background-color: rgba($primary-color, 0.1);
-    color: $primary-color;
     font-weight: 500;
   }
 

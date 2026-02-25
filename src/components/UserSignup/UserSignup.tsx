@@ -233,26 +233,17 @@ export default function UserSignup() {
           error={fieldErrors.confirmPassword}
         />
       </div>
-
-      {/* Submit Button       <button type="submit" className="merged-signup-button" disabled={isPending}>
-        {isPending ? 'Registrando...' : 'Crear cuenta'}
-      </button>*/}
-
-
-         <div style={{ marginBottom: '24px' }}>
-            <Button
-              label={isPending ? 'Registrando...' : 'Crear cuenta'}
-              type="submit"
-              variant="primary"
-              buttonType="1"
-              state="default"
-              disabled={isPending}
-              loading={isPending}
-              fullWidth={true}
-              size="medium"
-            />
-          </div>
-
+      <Button
+        label={isPending ? 'Registrando...' : 'Crear cuenta'}
+        type="submit"
+        variant="primary"
+        buttonType="1"
+        state="default"
+        disabled={isPending}
+        loading={isPending}
+        fullWidth={true}
+        size="medium"
+      />
       {/* Sign In/Up Link */}
       <div className="merged-signup-signin-link">
         <span className="merged-signup-signin-text">

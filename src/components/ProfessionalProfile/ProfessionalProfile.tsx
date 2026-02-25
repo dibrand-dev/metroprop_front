@@ -121,6 +121,8 @@ export default function ProfessionalProfile() {
           </button>
         </div>
 
+        <h1 className='professional-profile-title'>Datos de inmobiliaria</h1>
+
         {/* Main Content */}
         <div className={`professional-profile-content ${isEditing ? 'is-editing' : ''}`}>
           {/* Generales Section */}
@@ -140,7 +142,6 @@ export default function ProfessionalProfile() {
                 <p className="professional-profile-label">Identificador:</p>
                 <p className="professional-profile-value">300090404</p>
               </div>
-              
             </div>
 
             <div className="professional-profile-fields">
@@ -240,7 +241,7 @@ export default function ProfessionalProfile() {
           <hr className="professional-profile-divider" />
 
           {/* Descripción Section */}
-          <section className="professional-profile-section">
+          <section className="professional-profile-section descripcion">
             <div className="professional-profile-section-header">
               <h2 className="professional-profile-section-title">Descripción</h2>
               <button
@@ -251,13 +252,15 @@ export default function ProfessionalProfile() {
               </button>
             </div>
 
-            <textarea
-              className="professional-profile-textarea"
+            <InputField2
+              multiline={true}
+              rows={5}
               placeholder="Descripción"
               value={properties.descripcion}
               onChange={(e) => handleInputChange('descripcion', e.target.value)}
               disabled={!(isEditing && activeSection === 'descripcion')}
-            ></textarea>
+              label="Descripción"
+            />
           </section>
 
           {/* Save Button */}

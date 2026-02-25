@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import './Submenu.scss';
 
-const iconChevron = "/icons/chevron-up.svg";
+const iconChevron = "/icons/chevron_blue.svg";
 
 interface SubmenuItem {
   id: string;

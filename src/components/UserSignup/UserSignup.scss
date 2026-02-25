@@ -218,7 +218,6 @@
   align-items: center;
   gap: 8px;
   justify-content: center;
-  margin-top: 16px;
 }
 
 .merged-signup-signin-text {
@@ -250,7 +249,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  margin: 32px 0;
+  margin: 8px 0;
   width: 100%;
   position: relative;
 }
@@ -319,9 +318,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 16px;
-  padding-top: 16px;
   border-top: none;
+  margin:0;
+  padding: 0;
 }
 
 // Checkbox Label
@@ -391,9 +390,6 @@
   flex-direction: column;
   gap: 8px;
   align-items: center;
-  padding-top: 24px;
-  border-top: 1px solid $border-color;
-  margin-top: auto;
 }
 
 .merged-signup-cta-text {
@@ -462,7 +458,4 @@
     gap: 20px;
   }
 
-  .merged-signup-professional-cta {
-    margin-top: 32px;
-  }
 }

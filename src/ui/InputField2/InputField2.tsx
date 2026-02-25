@@ -7,9 +7,9 @@ interface InputField2Props {
   type?: string;
   placeholder?: string;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   disabled?: boolean;
   required?: boolean;
   error?: string;
@@ -20,6 +20,8 @@ interface InputField2Props {
 	onIconClick?: () => void;
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
+  multiline?: boolean;
+  rows?: number;
 }
 
 export default function InputField2({
@@ -39,6 +41,8 @@ export default function InputField2({
   icon,
 	onIconClick,
   iconPosition = 'right',
+  multiline = false,
+  rows = 4,
 }: InputField2Props) {
   const [isFocused, setIsFocused] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
@@ -57,12 +61,12 @@ export default function InputField2({
     stateClass = 'disabled';
   }
 
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setIsFocused(true);
     onFocus?.(e);
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setIsFocused(false);
     onBlur?.(e);
   };
@@ -79,7 +83,7 @@ export default function InputField2({
     }
   };
 
-	const isPasswordField = type === 'password';
+	const isPasswordField = type === 'password' && !multiline;
   const inputType = isPasswordField && showPassword ? 'text' : type;
 
   // Default eye icon for password fields
@@ -98,19 +102,36 @@ export default function InputField2({
           {required && <span className="input-field-2-required">*</span>}
         </label>
         <div className="input-field-2-input-wrapper">
-          <input
-            id={id}
-            name={name}
-            type={inputType}
-            className="input-field-2-input"
-            placeholder=""
-            value={value}
-            onChange={onChange}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            disabled={disabled}
-            required={required}
-          />             
+          {multiline ? (
+            <textarea
+              id={id}
+              name={name}
+              className="input-field-2-input"
+              placeholder=""
+              value={value}
+              onChange={onChange}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              disabled={disabled}
+              required={required}
+              rows={rows}
+            />
+          ) : (
+            <input
+              id={id}
+              name={name}
+              type={inputType}
+              className="input-field-2-input"
+              placeholder=""
+              value={value}
+              onChange={onChange}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              disabled={disabled}
+              required={required}
+              autoComplete={autoComplete}
+            />
+          )}             
 					{displayIcon && (
 						<button
 							type="button"

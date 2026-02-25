@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
-import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import { API_BASE_URL } from '@/utils/utils';
 import './ForgotPassword.scss';
+import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
+
+const logoMetroprop = "/images/metropropLogo.png";
 
 // Email validation helper
 const isValidEmail = (email: string): boolean => {
@@ -67,14 +69,15 @@ export default function ForgotPassword() {
   };
 
   return (
-    <>
-      <BackButtonLogo />
+    <div className="recuperar-contraseña-container">
+      <div className="recuperar-contraseña-content">
+        <BackButtonLogo />
+        <form className="recuperar-contraseña-form" onSubmit={handleSubmit}>
+          {/* Title */}
+          <h1 className="recuperar-contraseña-title">¿Olvidaste tu contraseña?</h1>
 
-      <div className="signin-form-container">
-        <h1 className="form-title">¿Olvidaste tu contraseña?</h1>         
-        <form className="forgot-password-form" onSubmit={handleSubmit}>
           <p className="forgot-password-subtitle">
-            Ingresá tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.
+            Ingresá tu correo electrónico
           </p>
           <InputField2
             label="Correo electrónico*"
@@ -119,15 +122,8 @@ export default function ForgotPassword() {
             disabled={isLoading}
             loading={isLoading}
           />
-
-          <div className="forgot-password-back-to-login">
-            <span>¿Recordaste tu contraseña?</span>
-            <a href="/login" className="create-account-link block">
-              Volver al inicio de sesión
-            </a>
-          </div>
         </form>
       </div>
-    </>
+    </div>
   );
 }
