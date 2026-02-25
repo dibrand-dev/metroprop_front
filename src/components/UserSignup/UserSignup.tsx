@@ -10,6 +10,7 @@ import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import EmailVerificationModal from '../EmailVerificationModal/EmailVerificationModal';
 import { API_BASE_URL } from '@/utils/utils';
 import SuccessModal from '../SuccessModal/SuccessModal';
+import Button from '@/ui/Button/Button';
 
 const iconGoogle = "/icons/google.svg";
 
@@ -233,10 +234,24 @@ export default function UserSignup() {
         />
       </div>
 
-      {/* Submit Button */}
-      <button type="submit" className="merged-signup-button" disabled={isPending}>
+      {/* Submit Button       <button type="submit" className="merged-signup-button" disabled={isPending}>
         {isPending ? 'Registrando...' : 'Crear cuenta'}
-      </button>
+      </button>*/}
+
+
+         <div style={{ marginBottom: '24px' }}>
+            <Button
+              label={isPending ? 'Registrando...' : 'Crear cuenta'}
+              type="submit"
+              variant="primary"
+              buttonType="1"
+              state="default"
+              disabled={isPending}
+              loading={isPending}
+              fullWidth={true}
+              size="medium"
+            />
+          </div>
 
       {/* Sign In/Up Link */}
       <div className="merged-signup-signin-link">

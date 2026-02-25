@@ -43,7 +43,10 @@ $breakpoint-mobile: 768px;
   }
 
   &:hover {
-    opacity: 0.8;
+    color: $primary-color;
+  }
+  &:active {
+    color: #0041d9;
   }
 }
 

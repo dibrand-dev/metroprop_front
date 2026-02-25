@@ -31,7 +31,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  background: $background-color;
+  background: $bg-primary;
 
   @media (max-width: 1024px) {
     width: 100%;
@@ -200,8 +200,6 @@
   &:hover {
     background-color: #0050cc;
     border-color: #0050cc;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 106, 255, 0.3);
   }
 
   &:active {

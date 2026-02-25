@@ -276,7 +276,7 @@ export default function UserSignin() {
               label={isPending ? 'Iniciando sesión...' : 'Iniciar sesión'}
               type="submit"
               variant="primary"
-              buttonType="2"
+              buttonType="1"
               state="default"
               disabled={isPending}
               loading={isPending}

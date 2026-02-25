@@ -97,7 +97,7 @@ export default function Home() {
           
           <div>
             <h1 className="hero-title font-extrabold drop-shadow-lg">
-              Encontrá tu espacio ideal.
+              <span className="h1-first">Encontrá</span> tu espacio ideal.
             </h1>
             {/* Search and Filters Card */}
             <div className="search-card bg-white rounded-lg p-4 shadow-lg w-full">
@@ -114,7 +114,7 @@ export default function Home() {
                 </button>
               </div>
               {/* Search Input */}
-              <div style={{ boxShadow: "0 4px 4px 0 rgba(0, 0, 0, 0.25)", borderRadius: 8 }}><InputField2 type="text" placeholder="Escribí una ubicación o alguna característica" icon={<img src="/icons/lupa.svg" />}  /></div>
+              <div className="search-input-wrapper"><InputField2 type="text" placeholder="Escribí una ubicación o alguna característica" icon={<img src="/icons/lupa.svg" />}  /></div>
             </div>
           </div>
         </div>

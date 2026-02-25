@@ -22,7 +22,7 @@ $transition-time: 0.2s;
   font-size: 16px;
   line-height: 20px;
   letter-spacing: 0.32px;
-  border: 1.3px solid transparent;
+  border: 1.5px solid transparent;
   border-radius: $border-radius-md;
   cursor: pointer;
   transition: all $transition-time ease;
@@ -47,18 +47,20 @@ $transition-time: 0.2s;
 .btn-primary {
   &.btn-type-1 {
     &.btn-state-default {
-      background-color: $primary-color;
-      border-color: $primary-color;
+      background-color: $button-type-1-default;
+      border-color: $button-type-1-default;
       color: #ffffff;
 
       &:hover:not(:disabled):not(.btn-disabled) {
-        background-color: $primary-dark;
-        border-color: $primary-dark;
+        background-color: $button-type-1-hover;
+        border-color: $button-type-1-default;
+        color: $button-type-1-default;
       }
 
       &:active:not(:disabled):not(.btn-disabled) {
-        background-color: $primary-darker;
-        border-color: $primary-darker;
+        background-color: $button-type-1-selected;
+        border-color: $button-type-1-selected;
+        color: #ffffff;
       }
     }
 
@@ -91,13 +93,13 @@ $transition-time: 0.2s;
 
   &.btn-type-2 {
     &.btn-state-default {
-      background-color: $primary-dark;
-      border-color: $primary-dark;
+      background-color: $button-type-2-default;
+      border-color: $button-type-2-default;
       color: #ffffff;
 
       &:hover:not(:disabled):not(.btn-disabled) {
-        background-color: $primary-darker;
-        border-color: $primary-darker;
+        background-color: $button-type-2-hover;
+        border-color: $button-type-2-hover;
       }
 
       &:active:not(:disabled):not(.btn-disabled) {
@@ -107,8 +109,8 @@ $transition-time: 0.2s;
     }
 
     &.btn-state-hover {
-      background-color: $primary-darker;
-      border-color: $primary-darker;
+      background-color: $button-type-2-hover;
+      border-color: $button-type-2-hover;
       color: #ffffff;
     }
 
@@ -142,7 +144,7 @@ $transition-time: 0.2s;
     &.btn-state-default {
       background-color: $primary-color;
       border-color: $primary-color;
-      border-width: 1.3px;
+      border-width: 1.5px;
       color: $primary-color;
     }
 
@@ -177,7 +179,7 @@ $transition-time: 0.2s;
     &.btn-state-default {
       background-color: $bg-secondary;
       border-color: $primary-dark;
-      border-width: 1.3px;
+      border-width: 1.5px;
       color: $primary-dark;
     }
 
