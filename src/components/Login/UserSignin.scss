@@ -119,12 +119,13 @@ $breakpoint-mobile: 768px;
   letter-spacing: -0.078px;
   color: $text-color;
   margin: 0;
-
+/*
   @media (min-width: $breakpoint-mobile) {
-    font-size: 32px;
-    line-height: 40px;
+    font-size: 26px;
+    line-height: px;
     letter-spacing: -0.32px;
   }
+*/
 }
 
 .form-group {

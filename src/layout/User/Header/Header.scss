@@ -77,7 +77,7 @@ $font-family-button: 'Montserrat', sans-serif;
   }
 
   &:hover {
-    background-color: #f5f5f5;
+    background-color: #ebf2fd;
   }
 
   &.active {
@@ -339,11 +339,11 @@ $font-family-button: 'Montserrat', sans-serif;
 
   &:hover {
     background-color: #ebf2fd;
-    color: $color-primary;
   }
 
   &.active {
     background-color: #ebf2fd;
+    color: $color-primary;
   }
 
   @media (max-width: 768px) {
