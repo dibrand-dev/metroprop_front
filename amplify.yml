@@ -3,6 +3,12 @@ frontend:
   phases:
     preBuild:
       commands:
+        - echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env
+        - echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> .env
+        - echo "NEXTAUTH_SECRET=$NEXTAUTH_SECRET" >> .env
+        - echo "NEXTAUTH_URL=$NEXTAUTH_URL" >> .env
+        - echo "API_URL=$API_URL" >> .env
+        - echo "CORS_ORIGINS=$CORS_ORIGINS" >> .env
         - nvm use 20
         - npm ci
         - npm install next@14 --no-save
