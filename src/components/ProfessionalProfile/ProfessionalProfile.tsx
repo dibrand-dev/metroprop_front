@@ -108,7 +108,7 @@ export default function ProfessionalProfile() {
     setActiveSection(section);
     setIsEditing(true);
   };
-
+ 
   return (
     <div className={`professionalContainer ${!showMenu ? "activeMenuMobile" : ""}`}>
       <Submenu active={showMenu} />
