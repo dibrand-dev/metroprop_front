@@ -168,7 +168,9 @@ export default function Home() {
                   property={{
                     id: `visited-${property}`,
                     price: 198000,
+                    rent: 1222,
                     currency: 'USD',
+                    currencyRent: '$',
                     pricePerSqm: 2100,
                     title: 'Departamento en venta',
                     address: 'Juan Francisco Segui 4500',
@@ -215,8 +217,10 @@ export default function Home() {
                   key={property} 
                   property={{
                     id: `featured-${property}`,
+                    rent: 2345,
                     price: 250000,
                     currency: 'USD',
+                    currencyRent: '$',
                     pricePerSqm: 2500,
                     title: 'Propiedad destacada',
                     address: 'Av. Libertador 5000',

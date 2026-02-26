@@ -1,4 +1,4 @@
-import PublishFinalReview from '@/components/Publish/PublishFinalReview';
+import PublishFinalReview from '@/app/protected/publish/Publish/PublishFinalReview';
 
 export default function PublishFinalReviewPage() {
   return <PublishFinalReview />;

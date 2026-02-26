@@ -103,7 +103,7 @@ export default function TopUserMenu() {
   };
 
   const handlePublish = () => {
-    router.push('/create-listing');
+    router.push('/protected/publish');
   };
 
   const menuItems: MenuItemType[] = [

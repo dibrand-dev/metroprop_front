@@ -1,4 +1,4 @@
-import PropertyDetail from '@/components/PropertyDetail/PropertyDetail';
+import PropertyDetail from '@/app/propertyDetail/[id]/PropertyDetail/PropertyDetail';
 
 interface PropertyDetailPageProps {
   params: { id: string };

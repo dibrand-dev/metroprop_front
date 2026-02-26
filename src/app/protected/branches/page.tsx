@@ -1,4 +1,4 @@
-import Branches from '@/components/Branches/Branches';
+import Branches from '@/app/protected/branches/Branches/Branches';
 
 export default function BranchesPage() {
   return <Branches />;

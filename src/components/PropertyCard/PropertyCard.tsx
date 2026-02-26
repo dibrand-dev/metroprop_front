@@ -5,7 +5,9 @@ import './PropertyCard.scss';
 export interface Property {
   id: string;
   price: number;
+  rent: number;
   currency: 'USD' | 'ARS' | 'EUR';
+  currencyRent: string;
   pricePerSqm?: number;
   title: string;
   address: string;
@@ -62,9 +64,14 @@ export default function PropertyCard({
 
         {/* Price & Logo */}
         <div className="property-card-price-section">
-          <p className="property-card-price">
-            {property.currency} {property.price.toLocaleString('en-US')}
-          </p>
+          <div>
+            <p className="property-card-price">
+              {property.currency}{property.price.toLocaleString('en-US')}
+            </p>
+            {property.rent && <p className="property-card-rent">
+              Expensas {property.currencyRent} {property.rent.toLocaleString('en-US')}
+            </p>}
+          </div>
           <div className="property-card-logo">
             <img src={property.agencyLogo || remaxLogo} alt="Agency logo" />
           </div>

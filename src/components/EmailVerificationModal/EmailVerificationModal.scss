@@ -11,7 +11,6 @@ $color-border: #a6a6a6;
 
 // Typography
 $font-family-body: 'Inter', sans-serif;
-$font-family-heading: 'Montserrat', sans-serif;
 
 .email-verification-modal-container {
   position: fixed;
@@ -232,12 +231,12 @@ $font-family-heading: 'Montserrat', sans-serif;
 }
 
 // Message Title
-.modal-message-title {
-  font-family: $font-family-heading;
-  font-size: 22px;
-  font-weight: 800;
+.modal-message-title {  
+  font-size: 24px;
+  font-weight: 600;
   line-height: 30px;
   letter-spacing: 0;
+  font-family: $font-family-body;
   color: $color-text-primary;
   margin: 0;
   padding: 0;

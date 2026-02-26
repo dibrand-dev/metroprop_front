@@ -1,4 +1,4 @@
-import BranchForm from '@/components/BranchForm/BranchForm';
+import BranchForm from '@/app/protected/branchForm/BranchForm/BranchForm';
 
 interface BranchFormEditPageProps {
   params: { id: string };

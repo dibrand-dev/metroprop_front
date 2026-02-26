@@ -1,4 +1,4 @@
-import BranchForm from '@/components/BranchForm/BranchForm';
+import BranchForm from '@/app/protected/branchForm/BranchForm/BranchForm';
 
 export default function BranchFormPage() {
   return <BranchForm />;

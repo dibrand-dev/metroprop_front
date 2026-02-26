@@ -1,0 +1,134 @@
+.topnavbar-menu-items {
+  visibility: hidden;
+}
+
+.publish-page {
+  position: relative;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 120px 24px 140px;
+  background: url('/images/cielo.png') center/cover no-repeat;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 106, 255, 0.2) 56.875%,
+      rgba(0, 64, 153, 0) 100%
+    );
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    min-height: calc(100vh - 72px);
+    padding: 64px 16px 120px;
+  }
+}
+
+.publish-card {
+  position: relative;
+  width: min(982px, 100%);
+  padding: 64px;
+  border-radius: 16px;
+  background: rgba(245, 245, 245, 0.3);
+  backdrop-filter: blur(2px);
+  box-shadow: 4px 4px 6.8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 84px;
+  z-index: 1;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 40px 24px;
+    gap: 32px;
+  }
+}
+
+.publish-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+
+  h1 {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 52px;
+    letter-spacing: -1px;
+    color: #ffffff;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.25);
+
+    @media (max-width: 768px) {
+      font-size: 32px;
+      line-height: 36px;
+    }
+  }
+
+  p {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 22px;
+    color: #ffffff;
+
+    @media (max-width: 768px) {
+      font-size: 16px;
+      line-height: 20px;
+    }
+  }
+}
+
+.publish-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.publish-option {
+  background: none;
+  border: none;
+  padding: 2px;
+  font-family: 'Inter', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 43px;
+  letter-spacing: 0.18px;
+  color: #ebf2fd;
+  cursor: pointer;
+  transition: color 0.2s ease, text-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    color: #ffffff;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.25);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: 768px) {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 28px;
+    letter-spacing: 1px;
+  }
+}

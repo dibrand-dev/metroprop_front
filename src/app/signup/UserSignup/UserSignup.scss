@@ -1,0 +1,461 @@
+// Merged Signup Styles (Mobile & Desktop)
+// Using Metroprop design tokens
+
+
+@import '../../styles/variables';
+
+// Main Container
+.merged-signup-container {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background-image: url('/images/hero.png');
+  background-size: cover;
+  background-position: center;
+  
+  @media (max-width: 768px) {
+      background-image: none;
+  }
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+  }
+}
+
+// Left Panel
+.merged-signup-left-panel {
+  width: 40%;
+  max-width: 475px;
+  padding: 8px 24px 32px 24px;
+  border-right: 1px solid $border-color;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: $bg-primary;
+
+  @media (max-width: 1024px) {
+    width: 100%;
+    max-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid $border-color;
+    padding: 8px 24px 32px 24px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px 16px 32px 16px;
+  }
+}
+
+// Title
+.merged-signup-title {
+  font-family: $font-family-base;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 34px;
+  letter-spacing: -0.078px;
+  color: $text-color;
+  margin: 0 0 32px 0;
+  padding: 0;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+    line-height: 32px;
+    margin-bottom: 24px;
+  }
+}
+
+// Form
+.merged-signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+// Form Group
+.merged-signup-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+// Input
+.merged-signup-input {
+  display: flex;
+  align-items: center;
+  background-color: $background-color;
+  border: 1.3px solid $border-color;
+  border-radius: 8px;
+  padding: 18px 16px;
+  width: 100%;
+  font-family: $font-family-base;
+  font-size: 16px;
+  color: $text-color;
+  font-weight: 400;
+  line-height: 20px;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: $text-color;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    background-color: $background-color;
+    box-shadow: 0 0 0 3px rgba(0, 106, 255, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px 16px;
+    font-size: 15px;
+  }
+}
+
+// Input Wrapper
+.merged-signup-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: $background-color;
+  border: 1.3px solid $border-color;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+
+  input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 18px 16px;
+    font-size: 16px;
+    color: $text-color;
+    outline: none;
+    font-family: $font-family-base;
+    font-weight: 400;
+    line-height: 20px;
+
+    &::placeholder {
+      color: $text-color;
+    }
+
+    @media (max-width: 768px) {
+      padding: 16px 16px;
+      font-size: 15px;
+    }
+  }
+
+  &:focus-within {
+    border-color: $primary-color;
+    background-color: $background-color;
+    box-shadow: 0 0 0 3px rgba(0, 106, 255, 0.1);
+  }
+}
+
+// Toggle Button
+.merged-signup-toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  img {
+    width: 24px;
+    height: 24px;
+    opacity: 0.6;
+  }
+
+  &:hover img {
+    opacity: 1;
+  }
+}
+
+// Submit Button
+.merged-signup-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $primary-color;
+  border: 1px solid $primary-color;
+  border-radius: 8px;
+  padding: 12px 16px;
+  height: 48px;
+  width: 100%;
+  font-family: $font-family-base;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.32px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+
+  &:hover {
+    background-color: #0050cc;
+    border-color: #0050cc;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    height: 44px;
+    font-size: 15px;
+  }
+}
+
+// Sign In Link
+.merged-signup-signin-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.merged-signup-signin-text {
+  font-family: $font-family-base;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  color: $text-color;
+}
+
+.merged-signup-link {
+  font-family: $font-family-base;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+  color: $text-color;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+// Divider
+.merged-signup-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0;
+  width: 100%;
+  position: relative;
+}
+
+.merged-signup-divider-line {
+  flex: 1;
+  height: 1px;
+  background-color: $border-color;
+}
+
+.merged-signup-divider-text {
+  font-family: $font-family-base;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  letter-spacing: 0.08px;
+  color: $text-color;
+  white-space: nowrap;
+  padding: 0 8px;
+}
+
+// Google Button
+.merged-signup-google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #fff;
+  border: 1.3px solid $text-color;
+  border-radius: 4px;
+  padding: 12px 16px;
+  height: 48px;
+  width: 100%;
+  font-family: $font-family-base;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+  color: $text-color;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: $background-color;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    height: 44px;
+    font-size: 15px;
+  }
+}
+
+// Terms Section
+.merged-signup-terms-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: none;
+  margin:0;
+  padding: 0;
+}
+
+// Checkbox Label
+.merged-signup-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: $font-family-base;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  color: $text-color;
+  transition: all 0.2s ease;
+}
+
+// Checkbox
+.merged-signup-checkbox {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: $primary-color;
+  flex-shrink: 0;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// Checkbox Text
+.merged-signup-checkbox-text {
+  display: inline;
+}
+
+// Checkbox Error Message
+.merged-signup-checkbox-error {
+  color: #991b1b;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+  display: block;
+  margin-left: 32px;
+}
+
+// Checkbox with Error
+.merged-signup-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+// Error Message
+.merged-signup-error-message {
+  padding: 12px 16px;
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  color: #991b1b;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 16px;
+}
+
+// Professional CTA
+.merged-signup-professional-cta {
+  display: flex;
+  flex-direction: column;
+  gap:  12px;
+  align-items: center;
+}
+
+.merged-signup-cta-text {
+  font-family: $font-family-base;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #000000;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+}
+
+.merged-signup-cta-link {
+  font-family: $font-family-base;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+  color: $text-color;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+// Right Panel
+.merged-signup-right-panel {
+  flex: 1;
+  display: flex;
+  background: linear-gradient(135deg, #ebf2fd 0%, #e0e7ff 100%);
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
+}
+
+.merged-signup-hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// Mobile adjustments
+@media (max-width: 768px) {
+  .merged-signup-container {
+    flex-direction: column;
+  }
+
+  .merged-signup-left-panel {
+    width: 100%;
+    border-right: none;
+  }
+
+  .merged-signup-logo {
+    margin-bottom: 24px;
+  }
+
+  .merged-signup-form {
+    gap: 20px;
+  }
+
+}

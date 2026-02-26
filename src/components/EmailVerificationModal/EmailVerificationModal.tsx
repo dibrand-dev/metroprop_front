@@ -7,16 +7,17 @@ const iconClose = "/icons/close.svg";
 const iconCheck = "/icons/check.svg";
 
 interface EmailVerificationModalProps {
-  email: string;
+  title: string;
+  text: string;
   onClose?: () => void;
   onBack?: () => void;
   onResendEmail?: () => void;
 }
 
 export default function EmailVerificationModal({
-  email,
   onClose,
-  onBack,
+  title,
+  text,
   onResendEmail,
 }: EmailVerificationModalProps) {
   const [isResending, setIsResending] = useState(false);
@@ -53,12 +54,11 @@ export default function EmailVerificationModal({
         {/* Message Section */}
         <div className="modal-message-section">
           <div className="modal-message">
-            <h2 className="modal-message-title">
-              ¡Te enviamos un e-mail para validar tu cuenta!
-            </h2>
+            <h3 className="modal-message-title">
+              {title}
+            </h3>
             <p className="modal-message-text">
-              Ingresa a tu casilla de mail <br />
-              {email} para continuar.
+              {text}
             </p>
           </div>
 

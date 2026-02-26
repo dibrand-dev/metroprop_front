@@ -1,4 +1,4 @@
-import PublishPropertyType from '@/components/Publish/PublishPropertyType';
+import PublishPropertyType from '@/app/protected/publish/Publish/PublishPropertyType';
 
 export default function PublishPropertyTypePage() {
   return <PublishPropertyType />;

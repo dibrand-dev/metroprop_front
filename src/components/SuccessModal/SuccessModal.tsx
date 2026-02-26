@@ -25,9 +25,9 @@ export default function SuccessModal({ title, text }: SuccessModalProps) {
         {/* Message Section */}
         <div className="modal-message-section">
           <div className="modal-message">
-            <h2 className="modal-message-title">
+            <h3 className="modal-message-title">
               {title}
-            </h2>
+            </h3>
             <p className="modal-message-text">
               {text}
             </p>
