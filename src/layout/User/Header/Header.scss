@@ -361,11 +361,30 @@ $font-family-button: 'Montserrat', sans-serif;
   height: 48px;
   width: auto;
 
-  img {
+  img.metroLogoDesktop {
     height: 100%;
     width: auto;
     display: block;
     max-width: 160px;
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  img.metroLogoMobile {
+    height: 100%;
+    width: auto;
+    display: none;
+    max-width: 120px;
+
+    @media (max-width: 768px) {
+      display: block;
+    }
+  }
+
+   @media (max-width: 768px) {
+    flex-grow: 1;
   }
 
   @media (max-width: 768px) {
@@ -380,7 +399,6 @@ $font-family-button: 'Montserrat', sans-serif;
   align-items: center;
   flex-shrink: 0;
   justify-content: flex-end;
-  width: 242px;
 
   @media (max-width: 768px) {
     width: auto;

@@ -9,7 +9,7 @@ interface SelectOption {
 }
 
 interface SelectProps {
-  label: string;
+  label?: string;
   options: SelectOption[];
   value?: string;
   onChange?: (value: string) => void;
@@ -38,7 +38,7 @@ export default function Select({
   const selectRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === selectedValue);
-  const displayLabel = selectedOption?.label || placeholder || label;
+  const displayLabel = selectedOption?.label || placeholder;
 
   // Close select when clicking outside
   useEffect(() => {
@@ -70,6 +70,7 @@ export default function Select({
       className={`select-container ${error ? 'error' : ''}`}
       ref={selectRef}
     >
+      {label && <label htmlFor={id}>{label}</label>}
       <button
         id={id}
         className={`select-trigger ${isOpen ? 'open' : ''} ${selectedValue ? 'selected' : ''}`}

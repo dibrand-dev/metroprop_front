@@ -281,6 +281,26 @@ $font-family-body: 'Inter', sans-serif;
   &:active {
     opacity: 0.8;
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Resend Message (countdown)
+.modal-resend-message {
+  font-family: $font-family-body;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #666666;
+  text-align: center;
+  margin: 8px 0 0 0;
+  padding: 8px 16px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border-left: 3px solid #ffc107;
 }
 
 // Responsive

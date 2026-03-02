@@ -82,9 +82,9 @@ $transition-time: 0.2s;
       color: $primary-color;
     }
 
-    &.btn-state-disabled {
-      background-color: $disabled;
-      border-color: $disabled;
+    &.btn-state-disabled, &:disabled {
+      background-color: $button-type-1-disabled;
+      border-color: $button-type-1-disabled;
       color: $disabled-text;
       cursor: not-allowed;
       opacity: 1;

@@ -107,6 +107,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  margin-bottom: 32px;
 
   h1 {
     margin: 0;
@@ -137,7 +138,7 @@
 .publish-step-field {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 32px;
 }
 
 .publish-step-field-label {
@@ -148,6 +149,10 @@
   line-height: 18px;
   letter-spacing: 0.16px;
   color: #1e1e1e;
+  margin-bottom: 32px;
+  &.propiedad {
+    margin: 0;
+  }
 }
 
 .publish-chip-grid {
@@ -178,30 +183,7 @@
   }
 }
 
-.publish-chip {
-  border: 1.3px solid #7a7a7a;
-  border-radius: 8px;
-  padding: 13px 8px;
-  background: #ffffff;
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 22px;
-  letter-spacing: 0.08px;
-  color: #1e1e1e;
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
 
-  &:hover {
-    border-color: #006aff;
-    color: #006aff;
-  }
-}
-
-.publish-chip-active {
-  border-color: #006aff;
-  color: #006aff;
-}
 
 .publish-more {
   align-self: flex-end;
@@ -247,13 +229,13 @@
   font-weight: 600;
   line-height: 18px;
   letter-spacing: 0.16px;
-  color: #7a7a7a;
+  color: #1E1E1E;
   cursor: pointer;
 
   img {
-    width: 16px;
-    height: 16px;
-    transform: rotate(-90deg);
+    width: 24px;
+    height: 24px;
+    transform: rotate(90deg);
   }
 }
 

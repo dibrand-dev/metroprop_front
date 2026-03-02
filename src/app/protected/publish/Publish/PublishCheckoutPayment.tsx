@@ -1,6 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import './PublishCheckoutPayment.scss';
+import InputField from '@/ui/InputField/InputField';
+import Select from '@/ui/Select/Select';
+import Checkbox from '@/ui/Checkbox/Checkbox';
 
 interface PublishCheckoutPaymentProps {
   wizardData: any;
@@ -9,7 +13,7 @@ interface PublishCheckoutPaymentProps {
   onBack: () => void;
 }
 
-const iconBack = '/icons/arrow.svg';
+const iconChevron = '/icons/chevron-up.svg';
 
 const summaryItems = [
   { label: '1 Destacada', value: '$20.000,25' },
@@ -22,6 +26,39 @@ export default function PublishCheckoutPayment({
   onNext,
   onBack,
 }: PublishCheckoutPaymentProps) {
+  const [cardHolder, setCardHolder] = useState(wizardData.checkoutPayment?.cardHolder || '');
+  const [email, setEmail] = useState(wizardData.checkoutPayment?.email || '');
+  const [areaCode, setAreaCode] = useState(wizardData.checkoutPayment?.areaCode || '');
+  const [phone, setPhone] = useState(wizardData.checkoutPayment?.phone || '');
+  const [documentType, setDocumentType] = useState(wizardData.checkoutPayment?.documentType || '');
+  const [documentNumber, setDocumentNumber] = useState(wizardData.checkoutPayment?.documentNumber || '');
+  const [cardNumber, setCardNumber] = useState(wizardData.checkoutPayment?.cardNumber || '');
+  const [expiryDate, setExpiryDate] = useState(wizardData.checkoutPayment?.expiryDate || '');
+  const [securityCode, setSecurityCode] = useState(wizardData.checkoutPayment?.securityCode || '');
+  const [acceptTerms, setAcceptTerms] = useState(wizardData.checkoutPayment?.acceptTerms || true);
+
+  const documentOptions = [
+    { value: 'dni', label: 'DNI' },
+    { value: 'pasaporte', label: 'Pasaporte' },
+  ];
+
+  // Update wizard data when checkout payment data changes
+  useEffect(() => {
+    updateWizardData({
+      checkoutPayment: {
+        cardHolder,
+        email,
+        areaCode,
+        phone,
+        documentType,
+        documentNumber,
+        cardNumber,
+        expiryDate,
+        securityCode,
+        acceptTerms,
+      },
+    });
+  }, [cardHolder, email, areaCode, phone, documentType, documentNumber, cardNumber, expiryDate, securityCode, acceptTerms, updateWizardData]);
   const handleBack = () => {
     onBack();
   };
@@ -36,13 +73,13 @@ export default function PublishCheckoutPayment({
         <div className="publish-payment-card">
           <div className="publish-payment-back">
             <button type="button" onClick={handleBack}>
-              <img src={iconBack} alt="" />
+              <img src={iconChevron} alt="" />
               Seleccion de planes
             </button>
           </div>
 
           <div className="publish-checkout-stepper">
-            <div className="publish-checkout-step is-active">
+            <div className="publish-checkout-step is-completed">
               <span>1</span>
               <p>Detalle de compra</p>
             </div>
@@ -54,7 +91,7 @@ export default function PublishCheckoutPayment({
               <span>3</span>
               <p>Listo</p>
             </div>
-            <div className="publish-checkout-line" />
+            <div className="publish-checkout-line half" />
           </div>
 
           <div className="publish-payment-body">
@@ -77,55 +114,104 @@ export default function PublishCheckoutPayment({
                   <span>Todos los campos son obligatorios</span>
                 </div>
                 <div className="publish-payment-field">
-                  <label>Titular de la tarjeta</label>
-                  <input type="text" placeholder="Nombre y apellido de titular" />
+                  <InputField
+                    label="Titular de la tarjeta"
+                    value={cardHolder}
+                    onChange={(e) => setCardHolder(e.target.value)}
+                    placeholder="Nombre y apellido de titular"
+                    required
+                  />
                 </div>
                 <div className="publish-payment-field">
-                  <label>Email</label>
-                  <input type="text" placeholder="Email" />
+                  <InputField
+                    label="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    type="email"
+                    required
+                  />
                 </div>
                 <div className="publish-payment-row">
                   <div className="publish-payment-field">
-                    <label>Cod. de area</label>
-                    <input type="text" placeholder="Cod. de area" />
+                    <InputField
+                      label="Cod. de area"
+                      value={areaCode}
+                      onChange={(e) => setAreaCode(e.target.value)}
+                      placeholder="Cod. de area"
+                      type="number"
+                      required
+                    />
                   </div>
                   <div className="publish-payment-field">
-                    <label>Telefono</label>
-                    <input type="text" placeholder="Numero de telefono" />
+                    <InputField
+                      label="Telefono"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Numero de telefono"
+                      type="tel"
+                      required
+                    />
                   </div>
                 </div>
                 <div className="publish-payment-row">
                   <div className="publish-payment-field">
-                    <label>Documento</label>
-                    <select>
-                      <option>Seleccionar</option>
-                      <option>DNI</option>
-                      <option>Pasaporte</option>
-                    </select>
+                    <Select
+                      label="Documento"
+                      options={documentOptions}
+                      value={documentType}
+                      onChange={(value) => setDocumentType(value)}
+                      placeholder="Seleccionar"
+                      required
+                    />
                   </div>
                   <div className="publish-payment-field">
-                    <label>Numero de documento</label>
-                    <input type="text" placeholder="Numero de documento" />
+                    <InputField
+                      label="Numero de documento"
+                      value={documentNumber}
+                      onChange={(e) => setDocumentNumber(e.target.value)}
+                      placeholder="Numero de documento"
+                      type="number"
+                      required
+                    />
                   </div>
                 </div>
                 <div className="publish-payment-field">
-                  <label>Numero de tarjeta</label>
-                  <input type="text" placeholder="Ej. 1234 4568 4587" />
+                  <InputField
+                    label="Numero de tarjeta"
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(e.target.value)}
+                    placeholder="Ej. 1234 4568 4587"
+                    required
+                  />
                 </div>
                 <div className="publish-payment-row">
                   <div className="publish-payment-field">
-                    <label>Vencimiento</label>
-                    <input type="text" placeholder="MM/AA" />
+                    <InputField
+                      label="Vencimiento"
+                      value={expiryDate}
+                      onChange={(e) => setExpiryDate(e.target.value)}
+                      placeholder="MM/AA"
+                      required
+                    />
                   </div>
                   <div className="publish-payment-field">
-                    <label>Cod. de seguridad</label>
-                    <input type="text" placeholder="Ej. 123" />
+                    <InputField
+                      label="Cod. de seguridad"
+                      value={securityCode}
+                      onChange={(e) => setSecurityCode(e.target.value)}
+                      placeholder="Ej. 123"
+                      type="number"
+                      required
+                    />
                   </div>
                 </div>
-                <label className="publish-payment-checkbox">
-                  <input type="checkbox" defaultChecked />
-                  <span>Acepto Terminos y condiciones de uso</span>
-                </label>
+                <Checkbox
+                  label="Acepto Terminos y condiciones de uso"
+                  checked={acceptTerms}
+                  onChange={(checked) => setAcceptTerms(checked)}
+                  required
+                />
               </div>
             </div>
 

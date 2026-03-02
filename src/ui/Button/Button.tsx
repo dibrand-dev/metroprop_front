@@ -4,10 +4,8 @@ import { ReactNode } from 'react';
 import './Button.scss';
 
 type ButtonVariant = 
-  | 'primary' 
-  | 'secondary' 
-  | 'outline' 
-  | 'danger'
+  | 'primary'
+  | 'secondary'
   | 'tertiary'
   | 'text'
   | 'back';

@@ -1,13 +1,49 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import './PublishLocation.scss';
 import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
+import Select from '@/ui/Select/Select';
+import InputField from '@/ui/InputField/InputField';
+import { API_BASE_URL } from '@/utils/utils';
 
 const iconChevron = '/icons/chevron-up.svg';
-const iconBack = '/icons/arrow.svg';
 const iconClose = '/icons/close.svg';
 const mapImage = '/images/mapa_google.png';
+
+// API service functions
+const fetchCountries = async () => {
+  const response = await fetch(`${API_BASE_URL}/location/countries`);
+  if (!response.ok) {
+    throw new Error('Error fetching countries');
+  }
+  return response.json();
+};
+
+const fetchCountryStates = async (countryId: number) => {
+  const response = await fetch(`${API_BASE_URL}/location/getCountryStates?countryId=${countryId}`);
+  if (!response.ok) {
+    throw new Error('Error fetching states');
+  }
+  return response.json();
+};
+
+const fetchStateLocations = async (stateId: number) => {
+  const response = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${stateId}`);
+  if (!response.ok) {
+    throw new Error('Error fetching locations');
+  }
+  return response.json();
+};
+
+const fetchLocationChildren = async (locationId: number) => {
+  const response = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${locationId}`);
+  if (!response.ok) {
+    throw new Error('Error fetching location children');
+  }
+  return response.json();
+};
 
 interface PublishLocationProps {
   wizardData: any;
@@ -23,43 +59,112 @@ export default function PublishLocation({
   onBack,
 }: PublishLocationProps) {
   const [address, setAddress] = useState(wizardData.location?.address || '');
-  const [province, setProvince] = useState<string | null>(wizardData.location?.province || null);
-  const [city, setCity] = useState<string | null>(wizardData.location?.city || null);
-  const [district, setDistrict] = useState<string | null>(wizardData.location?.district || null);
-  const [zone, setZone] = useState<string | null>(wizardData.location?.zone || null);
+  const [countryId, setCountryId] = useState<number | null>(wizardData.location?.countryId || null);
+  const [provinceId, setProvinceId] = useState<number | null>(wizardData.location?.provinceId || null);
+  const [localidadId, setLocalidadId] = useState<number | null>(wizardData.location?.localidadId || null);
+  const [zoneId, setZoneId] = useState<number | null>(wizardData.location?.zoneId || null);
   const [postalCode, setPostalCode] = useState(wizardData.location?.postalCode || '');
   const [showExactLocation, setShowExactLocation] = useState(
     wizardData.location?.showExactLocation !== undefined ? wizardData.location.showExactLocation : true
   );
 
+  // Query for countries (loads on component mount)
+  const { data: countries = [], isLoading: loadingCountries } = useQuery({
+    queryKey: ['countries'],
+    queryFn: fetchCountries,
+  });
+
+  // Query for states/provinces (loads when country is selected)
+  const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
+    queryKey: ['provinces', countryId],
+    queryFn: () => fetchCountryStates(countryId!),
+    enabled: !!countryId,
+  });
+
+  // Query for locations (loads when province is selected)
+  const { data: locations = [], isLoading: loadingLocations } = useQuery({
+    queryKey: ['locations', provinceId],
+    queryFn: () => fetchStateLocations(provinceId!),
+    enabled: !!provinceId,
+  });
+
+  // Query for zones (loads when location is selected)
+  const { data: zones = [], isLoading: loadingZones } = useQuery({
+    queryKey: ['zones', localidadId],
+    queryFn: () => fetchLocationChildren(localidadId!),
+    enabled: !!localidadId,
+  });
+
   const hasAddress = useMemo(() => address.trim().length > 0, [address]);
   const showMapPreview = hasAddress;
+
+  // Transform data for Select components
+  const countryOptions = countries.map((country: any) => ({
+    value: country.id.toString(),
+    label: country.name,
+  }));
+
+  const provinceOptions = provinces.map((province: any) => ({
+    value: province.id.toString(),
+    label: province.name,
+  }));
+
+  const locationOptions = locations.map((location: any) => ({
+    value: location.id.toString(),
+    label: location.name,
+  }));
+
+  const zoneOptions = zones.map((zone: any) => ({
+    value: zone.id.toString(),
+    label: zone.name,
+  }));
+
+  // Handle selection changes and reset dependent selects
+  const handleCountryChange = (value: string | null) => {
+    const selectedCountryId = value ? parseInt(value) : null;
+    setCountryId(selectedCountryId);
+    setProvinceId(null); // Reset province
+    setLocalidadId(null); // Reset location
+    setZoneId(null); // Reset zone
+  };
+
+  const handleProvinceChange = (value: string | null) => {
+    const selectedProvinceId = value ? parseInt(value) : null;
+    setProvinceId(selectedProvinceId);
+    setLocalidadId(null); // Reset location
+    setZoneId(null); // Reset zone
+  };
+
+  const handleLocationChange = (value: string | null) => {
+    const selectedLocationId = value ? parseInt(value) : null;
+    setLocalidadId(selectedLocationId);
+    setZoneId(null); // Reset zone
+  };
+
+  const handleZoneChange = (value: string | null) => {
+    const selectedZoneId = value ? parseInt(value) : null;
+    setZoneId(selectedZoneId);
+  };
 
   // Update wizard data when location data changes
   useEffect(() => {
     updateWizardData({
       location: {
         address,
-        province,
-        city,
-        district,
-        zone,
+        countryId,
+        provinceId,
+        localidadId,
+        zoneId,
         postalCode,
         showExactLocation,
+        // Store readable names for display purposes
+        countryName: countries.find(c => c.id === countryId)?.name || '',
+        provinceName: provinces.find(p => p.id === provinceId)?.name || '',
+        localidadName: locations.find(l => l.id === localidadId)?.name || '',
+        zoneName: zones.find(z => z.id === zoneId)?.name || '',
       },
     });
-  }, [address, province, city, district, zone, postalCode, showExactLocation, updateWizardData]);
-
-  const handleSelectDemo = () => {
-    setProvince('Capital Federal');
-    setCity('CABA');
-    setDistrict('Palermo');
-    setZone('Zona Norte');
-  };
-
-  const handleClearSelect = (setter: (value: string | null) => void) => {
-    setter(null);
-  };
+  }, [address, countryId, provinceId, localidadId, zoneId, postalCode, showExactLocation, countries, provinces, locations, zones, updateWizardData]);
 
   const handleBack = () => {
     onBack();
@@ -74,9 +179,9 @@ export default function PublishLocation({
       <div className="publish-location-inner">
         <div className="publish-location-card">
           <div className="publish-location-top">
-            <p className="publish-location-label">Venta - Casa Duplex</p>
+            <p className="publish-location-label">{wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}</p>
             <button className="publish-location-link" type="button">
-              Country y wifi
+              Guardar y salir
             </button>
           </div>
 
@@ -89,7 +194,7 @@ export default function PublishLocation({
             </div>
           </div>
 
-          <div className={`publish-location-section ${showMapPreview ? 'with-divider' : ''}`}>
+          <div className="publish-location-section">
             <div className="publish-location-title">
               <h1>Ingresa la ubicacion de la propiedad</h1>
               <span className={showMapPreview ? 'hide-desktop' : ''}>Datos obligatorios(*)</span>
@@ -97,148 +202,73 @@ export default function PublishLocation({
 
             <div className="publish-location-fields">
               <div className="publish-location-field">
-                <label>Calle y numero*</label>
-                <input
-                  type="text"
-                  placeholder="Escribi la calle y numero"
+                <InputField
+                  label="Calle y numero*"
+                  placeholder="Dirección"
                   value={address}
                   onChange={(event) => setAddress(event.target.value)}
-                  className={address ? 'is-active' : ''}
+                  type="text"
                 />
               </div>
 
               <div className="publish-location-row">
                 <div className="publish-location-field">
-                  <label className={hasAddress ? '' : 'is-muted'}>Provincia*</label>
-                  <button
-                    type="button"
-                    className={`publish-location-select ${province ? 'is-selected' : ''} ${
-                      hasAddress ? '' : 'is-disabled'
-                    }`}
-                    onClick={hasAddress ? handleSelectDemo : undefined}
-                  >
-                    {province ? (
-                      <span className="publish-location-chip">
-                        {province}
-                        <button
-                          type="button"
-                          className="publish-location-chip-close"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleClearSelect(setProvince);
-                          }}
-                        >
-                          <img src={iconClose} alt="" />
-                        </button>
-                      </span>
-                    ) : (
-                      'Seleccionar'
-                    )}
-                    <img src={iconChevron} alt="" />
-                  </button>
+                  <Select
+                    label="País*"
+                    options={countryOptions}
+                    value={countryId ? countryId.toString() : null}
+                    onChange={handleCountryChange}
+                    placeholder={loadingCountries ? "Cargando países..." : "Seleccionar país"}
+                    disabled={!hasAddress || loadingCountries}
+                    required
+                  />
                 </div>
 
                 <div className="publish-location-field">
-                  <label className={hasAddress ? '' : 'is-muted'}>Ciudad*</label>
-                  <button
-                    type="button"
-                    className={`publish-location-select ${city ? 'is-selected' : ''} ${
-                      hasAddress ? '' : 'is-disabled'
-                    }`}
-                    onClick={hasAddress ? handleSelectDemo : undefined}
-                  >
-                    {city ? (
-                      <span className="publish-location-chip">
-                        {city}
-                        <button
-                          type="button"
-                          className="publish-location-chip-close"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleClearSelect(setCity);
-                          }}
-                        >
-                          <img src={iconClose} alt="" />
-                        </button>
-                      </span>
-                    ) : (
-                      'Seleccionar'
-                    )}
-                    <img src={iconChevron} alt="" />
-                  </button>
+                  <Select
+                    label="Provincia*"
+                    options={provinceOptions}
+                    value={provinceId ? provinceId.toString() : null}
+                    onChange={handleProvinceChange}
+                    placeholder={loadingProvinces ? "Cargando provincias..." : "Seleccionar provincia"}
+                    disabled={!hasAddress || !countryId || loadingProvinces}
+                    required
+                  />
                 </div>
               </div>
 
               <div className="publish-location-row">
                 <div className="publish-location-field">
-                  <label className={hasAddress ? '' : 'is-muted'}>Barrio</label>
-                  <button
-                    type="button"
-                    className={`publish-location-select ${district ? 'is-selected' : ''} ${
-                      hasAddress ? '' : 'is-disabled'
-                    }`}
-                    onClick={hasAddress ? handleSelectDemo : undefined}
-                  >
-                    {district ? (
-                      <span className="publish-location-chip">
-                        {district}
-                        <button
-                          type="button"
-                          className="publish-location-chip-close"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleClearSelect(setDistrict);
-                          }}
-                        >
-                          <img src={iconClose} alt="" />
-                        </button>
-                      </span>
-                    ) : (
-                      'Seleccionar'
-                    )}
-                    <img src={iconChevron} alt="" />
-                  </button>
+                  <Select
+                    label="Localidad"
+                    options={locationOptions}
+                    value={localidadId ? localidadId.toString() : null}
+                    onChange={handleLocationChange}
+                    placeholder={loadingLocations ? "Cargando localidades..." : "Seleccionar localidad"}
+                    disabled={!hasAddress || !provinceId || loadingLocations}
+                  />
                 </div>
 
                 <div className="publish-location-field">
-                  <label className={hasAddress ? '' : 'is-muted'}>Zona</label>
-                  <button
-                    type="button"
-                    className={`publish-location-select ${zone ? 'is-selected' : ''} ${
-                      hasAddress ? '' : 'is-disabled'
-                    }`}
-                    onClick={hasAddress ? handleSelectDemo : undefined}
-                  >
-                    {zone ? (
-                      <span className="publish-location-chip">
-                        {zone}
-                        <button
-                          type="button"
-                          className="publish-location-chip-close"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            handleClearSelect(setZone);
-                          }}
-                        >
-                          <img src={iconClose} alt="" />
-                        </button>
-                      </span>
-                    ) : (
-                      'Seleccionar'
-                    )}
-                    <img src={iconChevron} alt="" />
-                  </button>
+                  <Select
+                    label="Zona"
+                    options={zoneOptions}
+                    value={zoneId ? zoneId.toString() : null}
+                    onChange={handleZoneChange}
+                    placeholder={loadingZones ? "Cargando zonas..." : "Seleccionar zona"}
+                    disabled={!hasAddress || !localidadId || loadingZones}
+                  />
                 </div>
               </div>
 
               {showMapPreview ? (
-                <div className="publish-location-field publish-location-postal">
-                  <label>Codigo postal</label>
-                  <input
-                    type="text"
-                    placeholder="Escribi el codigo postal"
+                <div className="publish-location-row">                  
+                  <InputField
+                    label="Código postal"
+                    placeholder="Código postal"
                     value={postalCode}
                     onChange={(event) => setPostalCode(event.target.value)}
+                    type="text"
                   />
                 </div>
               ) : null}
@@ -273,7 +303,7 @@ export default function PublishLocation({
 
           <div className="publish-location-footer">
             <button className="publish-location-back" type="button" onClick={handleBack}>
-              <img src={iconBack} alt="" />
+              <img src={iconChevron} alt="" />
               Volver
             </button>
             <button className="publish-location-continue" type="button" onClick={handleContinue}>

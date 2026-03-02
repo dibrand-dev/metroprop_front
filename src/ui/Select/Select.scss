@@ -9,8 +9,16 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: 16px;
   width: 100%;
+  
+  label {
+    font-family: $font-family-base;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 18px;
+    color: $input-text-color;
+  }
 
   &.error {
     .select-trigger {
@@ -34,7 +42,7 @@
   align-items: center;
   justify-content: space-between;
   height: 56px;
-  padding: $spacing-lg;
+  padding: 16px;
   background-color: rgba($bg-primary, 0.5);
   border: 1.3px solid #A6A6A6;
   border-radius: $border-radius-md;
@@ -152,7 +160,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: $spacing-md $spacing-lg;
+  padding: 16px;
   background: none;
   border: none;
   color: $text-color;

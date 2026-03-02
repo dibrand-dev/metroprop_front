@@ -9,7 +9,7 @@ interface PublishCheckoutDetailProps {
   onBack: () => void;
 }
 
-const iconBack = '/icons/arrow.svg';
+const iconChevron = '/icons/chevron-up.svg';
 
 const purchaseItems = [
   { label: '1 Destacada', value: '$20.000,25' },
@@ -38,7 +38,7 @@ export default function PublishCheckoutDetail({
         <div className="publish-checkout-card">
           <div className="publish-checkout-back">
             <button type="button" onClick={handleBack}>
-              <img src={iconBack} alt="" />
+              <img src={iconChevron} alt="" />
               Seleccion de planes
             </button>
           </div>
@@ -72,7 +72,7 @@ export default function PublishCheckoutDetail({
               </div>
               <div className="publish-checkout-total">
                 <span>Total</span>
-                <strong>{totalValue}</strong>
+                <span>{totalValue}</span>
               </div>
             </div>
             <button className="publish-checkout-buy" type="button" onClick={handleBuy}>

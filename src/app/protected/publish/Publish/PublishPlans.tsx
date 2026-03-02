@@ -2,17 +2,18 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import './PublishPlans.scss';
+import Select from '@/ui/Select/Select';
 
 interface PublishPlansProps {
   wizardData: any;
   updateWizardData: (data: any) => void;
   onNext: () => void;
   onBack: () => void;
+  onComprar: () => void;
 }
 
 const iconChevron = '/icons/chevron-up.svg';
-const iconBack = '/icons/arrow.svg';
-const iconCheck = '/icons/check.svg';
+const iconCheck = '/icons/check-black.svg';
 
 const collaboratorOptions = ['Daniela Benitez', 'Lucia Perez', 'Carlos Molina'];
 
@@ -55,16 +56,19 @@ const planBenefits = [
 export default function PublishPlans({
   wizardData,
   updateWizardData,
+  onComprar,
   onNext,
   onBack,
 }: PublishPlansProps) {
   const [selectedCollaborator, setSelectedCollaborator] = useState(wizardData.plans?.selectedCollaborator || '');
-  const [showCollaborators, setShowCollaborators] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(wizardData.plans?.selectedPlan || 'bonificado');
 
-  const availableCollaborators = useMemo(
-    () => collaboratorOptions.filter((option) => option !== selectedCollaborator),
-    [selectedCollaborator]
+  const collaboratorSelectOptions = useMemo(
+    () => collaboratorOptions.map(option => ({
+      value: option,
+      label: option,
+    })),
+    []
   );
 
   // Update wizard data when plans data changes
@@ -85,14 +89,17 @@ export default function PublishPlans({
     onNext();
   };
 
+  const handleComprar = () => {
+    onComprar();
+  };
+
   return (
     <div className="publish-plans">
       <div className="publish-plans-inner">
         <div className="publish-plans-card">
           <div className="publish-plans-top">
             <div className="publish-plans-route">
-              <p>Venta - Casa Duplex</p>
-              <p>Juncal 2345</p>
+              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
             </div>
             <button className="publish-plans-link" type="button">
               Guardar y salir
@@ -111,35 +118,13 @@ export default function PublishPlans({
             <div className="publish-plans-block">
               <h2>Asigna este aviso a un colaborador</h2>
               <div className="publish-plans-field">
-                <label>Tus colaboradores</label>
-                <div className="publish-plans-select">
-                  <button
-                    type="button"
-                    className={`publish-plans-select-button ${
-                      selectedCollaborator ? 'is-selected' : ''
-                    }`}
-                    onClick={() => setShowCollaborators((prev) => !prev)}
-                  >
-                    <span>{selectedCollaborator || 'Seleccionar'}</span>
-                    <img src={iconChevron} alt="" />
-                  </button>
-                  {showCollaborators ? (
-                    <div className="publish-plans-options">
-                      {availableCollaborators.map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => {
-                            setSelectedCollaborator(option);
-                            setShowCollaborators(false);
-                          }}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
+                <Select
+                  label="Tus colaboradores"
+                  options={collaboratorSelectOptions}
+                  value={selectedCollaborator}
+                  onChange={(value) => setSelectedCollaborator(value)}
+                  placeholder="Seleccionar colaborador"
+                />
               </div>
             </div>
 
@@ -183,7 +168,7 @@ export default function PublishPlans({
                           </li>
                         ))}
                       </ul>
-                      <button type="button" className="publish-plans-buy">
+                      <button type="button" className="publish-plans-buy" onClick={handleComprar}>
                         Comprar
                       </button>
                     </div>
@@ -195,7 +180,7 @@ export default function PublishPlans({
 
           <div className="publish-plans-footer">
             <button className="publish-plans-back" type="button" onClick={handleBack}>
-              <img src={iconBack} alt="" />
+              <img src={iconChevron} alt="" />
               Volver
             </button>
             <button className="publish-plans-continue" type="button" onClick={handleContinue}>

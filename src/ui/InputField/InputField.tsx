@@ -4,11 +4,11 @@ import { useState, ReactNode } from 'react';
 import './InputField.scss';
 
 interface InputFieldProps {
-  label: string;
+  label?: string;
   type?: 'text' | 'password' | 'email' | 'number' | 'tel' | 'url' | 'search' | 'date' | 'time' | 'datetime-local' | 'month' | 'week' | 'color' | 'file';
   placeholder?: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   icon?: ReactNode;
   onIconClick?: () => void;
   required?: boolean;
@@ -20,6 +20,10 @@ interface InputFieldProps {
   min?: string | number;
   max?: string | number;
   step?: string | number;
+  multiline?: boolean;
+  rows?: number;
+  cols?: number;
+  maxLength?: number;
 }
 
 export default function InputField({
@@ -39,6 +43,10 @@ export default function InputField({
   min,
   max,
   step,
+  multiline = false,
+  rows,
+  cols,
+  maxLength,
 }: InputFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
   const isPasswordField = type === 'password';
@@ -67,27 +75,44 @@ export default function InputField({
 
   return (
     <div className="input-field-container">
-      <div className="input-field-label-wrapper">
+      {label && <div className="input-field-label-wrapper">
         <label htmlFor={id} className="input-field-label">
           {label}
         </label>
-      </div>
-      <div className={`input-field-wrapper ${error ? 'error' : ''}`}>
-        <input
-          id={id}
-          type={inputType}
-          name={name}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          required={required}
-          disabled={disabled}
-          className="input-field-element"
-          autoComplete={autoComplete}
-          min={min}
-          max={max}
-          step={step}
-        />
+      </div>}
+      <div className={`input-field-wrapper ${error ? 'error' : ''} ${multiline ? 'multiline' : ''}`}>
+        {multiline ? (
+          <textarea
+            id={id}
+            name={name}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            required={required}
+            disabled={disabled}
+            className="input-field-element"
+            rows={rows}
+            cols={cols}
+            maxLength={maxLength}
+          />
+        ) : (
+          <input
+            id={id}
+            type={inputType}
+            name={name}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            required={required}
+            disabled={disabled}
+            className="input-field-element"
+            autoComplete={autoComplete}
+            min={min}
+            max={max}
+            step={step}
+            maxLength={maxLength}
+          />
+        )}
         
       </div>
       {displayIcon && (

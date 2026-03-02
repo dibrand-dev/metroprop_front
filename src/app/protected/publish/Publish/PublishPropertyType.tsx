@@ -4,7 +4,6 @@ import { useMemo, useState, useEffect } from 'react';
 import './PublishPropertyType.scss';
 
 const iconChevron = '/icons/chevron-up.svg';
-const iconBack = '/icons/arrow.svg';
 const iconClose = '/icons/close.svg';
 
 const propertyOptions = ['Casa', 'Departamento', 'Terreno', 'PH'];
@@ -87,7 +86,7 @@ export default function PublishPropertyType({
         ) : null}
 
         <div className="publish-step-card">
-          <p className="publish-step-label">Venta</p>
+          <p className="publish-step-label">{wizardData.operation}</p>
           <div className="publish-status-bar">
             <div className="publish-status-track">
               <span className="publish-status-segment" />
@@ -104,7 +103,7 @@ export default function PublishPropertyType({
             </div>
 
             <div className="publish-step-field">
-              <p className="publish-step-field-label">Propiedad*</p>
+              <p className="publish-step-field-label propiedad">Propiedad*</p>
               <div className="publish-chip-grid">
                 {propertyOptions.map((option) => (
                   <button
@@ -151,7 +150,7 @@ export default function PublishPropertyType({
 
           <div className="publish-step-footer">
             <button className="publish-back" type="button" onClick={handleBack}>
-              <img src={iconBack} alt="" />
+              <img src={iconChevron} alt="" />
               Volver
             </button>
             <button className="publish-continue" type="button" onClick={handleContinue}>

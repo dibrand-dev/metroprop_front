@@ -2,9 +2,11 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import './PublishPrice.scss';
+import Select from '@/ui/Select/Select';
+import InputField from '@/ui/InputField/InputField';
+import Checkbox from '@/ui/Checkbox/Checkbox';
 
 const iconChevron = '/icons/chevron-up.svg';
-const iconBack = '/icons/arrow.svg';
 
 const currencyOptions = ['$', 'USD', 'EUR'];
 
@@ -26,10 +28,14 @@ export default function PublishPrice({
   const [expenseCurrency, setExpenseCurrency] = useState(wizardData.price?.expenseCurrency || '$');
   const [expenseAmount, setExpenseAmount] = useState(wizardData.price?.expenseAmount || '100000');
   const [withoutExpenses, setWithoutExpenses] = useState(wizardData.price?.withoutExpenses || false);
-  const [openCurrency, setOpenCurrency] = useState<'rent' | 'expense' | null>(null);
 
   const rentPlaceholder = useMemo(() => 'Ej. 700000', []);
   const expensePlaceholder = useMemo(() => 'Ej. 100000', []);
+
+  const currencySelectOptions = currencyOptions.map(option => ({
+    value: option,
+    label: option,
+  }));
 
   // Update wizard data when price data changes
   useEffect(() => {
@@ -43,19 +49,6 @@ export default function PublishPrice({
       },
     });
   }, [rentCurrency, rentAmount, expenseCurrency, expenseAmount, withoutExpenses, updateWizardData]);
-
-  const toggleCurrency = (field: 'rent' | 'expense') => {
-    setOpenCurrency((prev) => (prev === field ? null : field));
-  };
-
-  const handleCurrencySelect = (field: 'rent' | 'expense', value: string) => {
-    if (field === 'rent') {
-      setRentCurrency(value);
-    } else {
-      setExpenseCurrency(value);
-    }
-    setOpenCurrency(null);
-  };
 
   const handleBack = () => {
     onBack();
@@ -71,8 +64,7 @@ export default function PublishPrice({
         <div className="publish-price-card">
           <div className="publish-price-top">
             <div className="publish-price-route">
-              <p>Venta - Casa Duplex</p>
-              <p>Juncal 2345</p>
+              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
             </div>
             <button className="publish-price-link" type="button">
               Guardar y salir
@@ -95,34 +87,16 @@ export default function PublishPrice({
               <div className="publish-price-field">
                 <label>Alquiler*</label>
                 <div className="publish-price-inputs">
-                  <div className="publish-price-select">
-                    <button
-                      type="button"
-                      className="publish-price-select-button"
-                      onClick={() => toggleCurrency('rent')}
-                    >
-                      <span>{rentCurrency}</span>
-                      <img src={iconChevron} alt="" />
-                    </button>
-                    {openCurrency === 'rent' ? (
-                      <div className="publish-price-options">
-                        {currencyOptions.map((option) => (
-                          <button
-                            key={`rent-${option}`}
-                            type="button"
-                            onClick={() => handleCurrencySelect('rent', option)}
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                  <input
-                    type="text"
+                  <Select
+                    options={currencySelectOptions}
+                    value={rentCurrency}
+                    onChange={(value) => setRentCurrency(value)}
+                  />
+                  <InputField
                     value={rentAmount}
                     onChange={(event) => setRentAmount(event.target.value)}
                     placeholder={rentPlaceholder}
+                    type="number"
                   />
                 </div>
               </div>
@@ -130,52 +104,32 @@ export default function PublishPrice({
               <div className="publish-price-field">
                 <label>Expensas</label>
                 <div className="publish-price-inputs">
-                  <div className="publish-price-select">
-                    <button
-                      type="button"
-                      className="publish-price-select-button"
-                      onClick={() => toggleCurrency('expense')}
-                    >
-                      <span>{expenseCurrency}</span>
-                      <img src={iconChevron} alt="" />
-                    </button>
-                    {openCurrency === 'expense' ? (
-                      <div className="publish-price-options">
-                        {currencyOptions.map((option) => (
-                          <button
-                            key={`expense-${option}`}
-                            type="button"
-                            onClick={() => handleCurrencySelect('expense', option)}
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                  <input
-                    type="text"
+                  <Select
+                    options={currencySelectOptions}
+                    value={expenseCurrency}
+                    onChange={(value) => setExpenseCurrency(value)}
+                    disabled={withoutExpenses}
+                  />
+                  <InputField
                     value={expenseAmount}
                     onChange={(event) => setExpenseAmount(event.target.value)}
                     placeholder={expensePlaceholder}
+                    type="number"
                     disabled={withoutExpenses}
                   />
                 </div>
-                <label className="publish-price-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={withoutExpenses}
-                    onChange={(event) => setWithoutExpenses(event.target.checked)}
-                  />
-                  <span>Sin expensas</span>
-                </label>
+                <Checkbox
+                  label="Sin expensas"
+                  checked={withoutExpenses}
+                  onChange={(checked) => setWithoutExpenses(checked)}
+                />
               </div>
             </div>
           </div>
 
           <div className="publish-price-footer">
             <button className="publish-price-back" type="button" onClick={handleBack}>
-              <img src={iconBack} alt="" />
+              <img src={iconChevron} alt="" />
               Volver
             </button>
             <button className="publish-price-continue" type="button" onClick={handleContinue}>

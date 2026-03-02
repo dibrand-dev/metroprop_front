@@ -2,10 +2,12 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import './PublishContent.scss';
+import Button from '@/ui/Button/Button';
+import InputField from '@/ui/InputField/InputField';
 
 const iconChevron = '/icons/chevron-up.svg';
-const iconBack = '/icons/arrow.svg';
 const iconTrash = '/icons/trash.svg';
+const iconUpload = '/icons/upload.svg';
 
 const sampleImages = [
   '/images/home_comprar.png', 
@@ -45,10 +47,11 @@ export default function PublishContent({
   onNext,
   onBack,
 }: PublishContentProps) {
-  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+  const [openAccordions, setOpenAccordions] = useState<string[]>(wizardData.content?.openAccordions || []);
   const [hasMedia, setHasMedia] = useState(wizardData.content?.hasMedia || false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [videoUrl, setVideoUrl] = useState(wizardData.content?.videoUrl || '');
+  const [recorridoUrl, setRecorridoUrl] = useState(wizardData.content?.recorridoUrl || '');
 
   const uploadedImages = useMemo(() => (hasMedia ? sampleImages : []), [hasMedia]);
 
@@ -58,13 +61,20 @@ export default function PublishContent({
       content: {
         hasMedia,
         videoUrl,
-        openAccordion,
+        recorridoUrl,
+        openAccordions,
       },
     });
-  }, [hasMedia, videoUrl, openAccordion, updateWizardData]);
+  }, [hasMedia, videoUrl, recorridoUrl, openAccordions, updateWizardData]);
 
   const toggleAccordion = (id: string) => {
-    setOpenAccordion((prev) => (prev === id ? null : id));
+    setOpenAccordions((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((accordionId) => accordionId !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
     setShowTooltip(true);
   };
 
@@ -86,12 +96,13 @@ export default function PublishContent({
         <div className="publish-content-card">
           <div className="publish-content-top">
             <div className="publish-content-route">
-              <p>Venta - Casa Duplex</p>
-              <p>Juncal 2345</p>
+              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
             </div>
-            <button className="publish-content-link" type="button">
-              Country y wifi
-            </button>
+            <Button
+              label="Guardar y salir"
+              variant="text"
+              onClick={() => {}}
+            />
           </div>
 
           <div className="publish-content-status">
@@ -137,8 +148,8 @@ export default function PublishContent({
                     className="publish-content-upload-card"
                     onClick={handleMockUpload}
                   >
-                    <span className="publish-content-upload-icon">+</span>
-                    <span>Agregar foto</span>
+                    <img src={iconUpload} alt="" />
+                    <span>Agregar fotos</span>
                   </button>
                 ) : (
                   <div className="publish-content-upload-grid">
@@ -147,8 +158,8 @@ export default function PublishContent({
                       className="publish-content-upload-card"
                       onClick={handleMockUpload}
                     >
-                      <span className="publish-content-upload-icon">+</span>
-                      <span>Agregar foto</span>
+                      <img src={iconUpload} alt="" />
+                      <span>Agregar fotos</span>
                     </button>
                     {uploadedImages.map((image, index) => (
                       <div key={`${image}-${index}`} className="publish-content-thumb">
@@ -172,7 +183,7 @@ export default function PublishContent({
                   <div
                     key={item.id}
                     className={`publish-content-accordion-item ${
-                      openAccordion === item.id ? 'is-open' : ''
+                      openAccordions.includes(item.id) ? 'is-open' : ''
                     }`}
                   >
                     <button
@@ -183,31 +194,48 @@ export default function PublishContent({
                       <span>{item.title}</span>
                       <img src={iconChevron} alt="" />
                     </button>
-                    {openAccordion === item.id ? (
+                    {openAccordions.includes(item.id) ? (
                       <div className="publish-content-accordion-body">
                         <p>{item.description}</p>
                         {item.id === 'videos' ? (
                           <div className="publish-content-input-row">
-                            <input
-                              type="text"
+                            <InputField                              
                               placeholder="Pega el link de YouTube"
                               value={videoUrl}
                               onChange={(event) => setVideoUrl(event.target.value)}
                             />
-                            <button type="button" onClick={handleMockUpload}>
-                              Agregar
-                            </button>
+                            <Button
+                              label="Agregar"
+                              variant="primary"
+                              buttonType="1"
+                              onClick={handleMockUpload}
+                            />
                           </div>
                         ) : null}
-                        {item.id !== 'videos' ? (
+                        {item.id === 'recorrido' ? (
+                          <div className="publish-content-input-row">
+                            <InputField
+                              placeholder="Copiá y pegá la URL del recorrido acá"
+                              value={recorridoUrl}
+                              onChange={(event) => setRecorridoUrl(event.target.value)}
+                            />
+                            <Button
+                              label="Agregar"
+                              variant="primary"
+                              buttonType="1"
+                              onClick={handleMockUpload}
+                            />
+                          </div>
+                        ) : null}
+                        {item.id !== 'videos' && item.id !== 'recorrido' ? (
                           <div className="publish-content-upload-grid compact">
                             <button
                               type="button"
                               className="publish-content-upload-card"
                               onClick={handleMockUpload}
                             >
-                              <span className="publish-content-upload-icon">+</span>
-                              <span>Agregar</span>
+                              <img src={iconUpload} alt="" />
+                              <span>Agregar planos</span>
                             </button>
                             {uploadedImages.slice(0, 2).map((image, index) => (
                               <div
@@ -234,13 +262,20 @@ export default function PublishContent({
           </div>
 
           <div className="publish-content-footer">
-            <button className="publish-content-back" type="button" onClick={handleBack}>
-              <img src={iconBack} alt="" />
-              Volver
-            </button>
-            <button className="publish-content-continue" type="button" onClick={handleContinue}>
-              Continuar
-            </button>
+            <Button
+              label="Volver"
+              variant="back"
+              onClick={handleBack}
+              icon={<img src={iconChevron} alt="" />}
+              iconPosition="left"
+              className="publish-content-back"
+            />
+            <Button
+              label="Continuar"
+              variant="primary"
+              onClick={handleContinue}
+              className="publish-content-continue"
+            />
           </div>
         </div>
       </div>

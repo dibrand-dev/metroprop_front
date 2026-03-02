@@ -12,6 +12,7 @@ interface EmailVerificationModalProps {
   onClose?: () => void;
   onBack?: () => void;
   onResendEmail?: () => void;
+  resendMessage?: string;
 }
 
 export default function EmailVerificationModal({
@@ -19,6 +20,7 @@ export default function EmailVerificationModal({
   title,
   text,
   onResendEmail,
+  resendMessage,
 }: EmailVerificationModalProps) {
   const [isResending, setIsResending] = useState(false);
 
@@ -62,9 +64,22 @@ export default function EmailVerificationModal({
             </p>
           </div>
 
-          <button className="modal-link-button" onClick={handleResendEmail}>
-            No recibí el e-mail
-          </button>
+          {/* Resend Section */}
+          {onResendEmail && (
+            <button 
+              className="modal-link-button" 
+              onClick={handleResendEmail}
+              disabled={isResending}
+            >
+              {isResending ? 'Reenviando...' : 'No recibí el e-mail'}
+            </button>
+          )}
+          
+          {resendMessage && (
+            <p className="modal-resend-message">
+              {resendMessage}
+            </p>
+          )}
         </div>
       </div>
     </div>

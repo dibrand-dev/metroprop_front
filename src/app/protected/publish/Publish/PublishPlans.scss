@@ -107,7 +107,7 @@
 .publish-plans-block {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 32px;
 
   h2 {
     margin: 0;
@@ -203,6 +203,10 @@
   flex-direction: column;
   gap: 16px;
 
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+
   h3 {
     margin: 0;
     font-family: 'Inter', sans-serif;
@@ -236,6 +240,10 @@
   &.is-selected {
     border-color: #006aff;
   }
+
+  @media (min-width: 768px) { 
+    display: flex;
+  }
 }
 
 .publish-plans-radio-dot {
@@ -264,6 +272,12 @@
   font-size: 16px;
   font-weight: 500;
   letter-spacing: 0.32px;
+
+  @media (min-width: 768px) {
+    border-top: 0 none;
+    padding: 0;
+    margin-left: 83px;
+  }
 }
 
 .publish-plans-cards {
@@ -386,8 +400,9 @@
   cursor: pointer;
 
   img {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
+    transform: rotate(90deg);
   }
 }
 

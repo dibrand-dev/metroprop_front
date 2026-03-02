@@ -2,9 +2,10 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import './PublishPropertyContent.scss';
+import Select from '@/ui/Select/Select';
+import InputField from '@/ui/InputField/InputField';
 
 const iconChevron = '/icons/chevron-up.svg';
-const iconBack = '/icons/arrow.svg';
 
 interface PublishPropertyContentProps {
   wizardData: any;
@@ -111,7 +112,6 @@ export default function PublishPropertyContent({
       facilities: new Set([]),
     }
   );
-  const [openSelect, setOpenSelect] = useState<DetailSelectKey | null>(null);
   const [details, setDetails] = useState<Record<DetailSelectKey, string>>(
     wizardData.propertyContent?.details || {
       brightness: '',
@@ -162,16 +162,11 @@ export default function PublishPropertyContent({
     }));
   };
 
-  const handleSelectToggle = (key: DetailSelectKey) => {
-    setOpenSelect((prev) => (prev === key ? null : key));
-  };
-
-  const handleSelectOption = (key: DetailSelectKey, value: string) => {
+  const handleDetailChange = (key: DetailSelectKey, value: string) => {
     setDetails((prev) => ({
       ...prev,
       [key]: value,
     }));
-    setOpenSelect(null);
   };
 
   const handleBack = () => {
@@ -182,21 +177,13 @@ export default function PublishPropertyContent({
     onNext();
   };
 
-  const propertyRoute = useMemo(
-    () => ({ type: 'Venta', property: 'Casa Duplex', address: 'Juncal 2345' }),
-    []
-  );
-
   return (
     <div className="publish-property-content">
       <div className="publish-property-content-inner">
         <div className="publish-property-content-card">
           <div className="publish-property-content-top">
             <div className="publish-property-content-route">
-              <p>
-                {propertyRoute.type} - {propertyRoute.property}
-              </p>
-              <p>{propertyRoute.address}</p>
+              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
             </div>
             <button className="publish-property-content-link" type="button">
               Guardar y salir
@@ -231,8 +218,8 @@ export default function PublishPropertyContent({
                         <button
                           key={option}
                           type="button"
-                          className={`publish-property-content-chip ${
-                            selectedSet.has(option) ? 'is-active' : ''
+                          className={`publish-chip ${
+                            selectedSet.has(option) ? 'publish-chip-active' : ''
                           }`}
                           onClick={() => handleToggleAmenity(group.key, option)}
                         >
@@ -260,63 +247,51 @@ export default function PublishPropertyContent({
             <div className="publish-property-content-details">
               <h2>Detalles de la propiedad</h2>
               <div className="publish-property-content-detail-grid">
-                {detailSelects.map((detail) => (
-                  <div key={detail.key} className="publish-property-content-detail-field">
-                    <label>{detail.label}</label>
-                    <div className="publish-property-content-select">
-                      <button
-                        type="button"
-                        className={`publish-property-content-select-button ${
-                          details[detail.key] ? 'is-selected' : ''
-                        } ${openSelect === detail.key ? 'is-open' : ''}`}
-                        onClick={() => handleSelectToggle(detail.key)}
-                      >
-                        <span>{details[detail.key] || 'Seleccionar'}</span>
-                        <img src={iconChevron} alt="" />
-                      </button>
-                      {openSelect === detail.key ? (
-                        <div className="publish-property-content-options">
-                          {detail.options.map((option) => (
-                            <button
-                              key={`${detail.key}-${option}`}
-                              type="button"
-                              onClick={() => handleSelectOption(detail.key, option)}
-                            >
-                              {option}
-                            </button>
-                          ))}
-                        </div>
-                      ) : null}
+                {detailSelects.map((detail) => {
+                  const selectOptions = detail.options.map(option => ({
+                    value: option,
+                    label: option,
+                  }));
+
+                  return (
+                    <div key={detail.key} className="publish-property-content-detail-field">
+                      <Select
+                        label={detail.label}
+                        options={selectOptions}
+                        value={details[detail.key]}
+                        onChange={(value) => handleDetailChange(detail.key, value)}
+                        placeholder="Seleccionar"
+                      />
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="publish-property-content-inputs">
                 <div className="publish-property-content-detail-field">
-                  <label>Frente del terreno (m2)</label>
-                  <input
-                    type="text"
+                  <InputField
+                    label="Frente del terreno (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
                     value={frontSize}
                     onChange={(event) => setFrontSize(event.target.value)}
+                    type="number"
                   />
                 </div>
                 <div className="publish-property-content-detail-field">
-                  <label>Largo del terreno (m2)</label>
-                  <input
-                    type="text"
+                  <InputField
+                    label="Largo del terreno (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
                     value={depthSize}
                     onChange={(event) => setDepthSize(event.target.value)}
+                    type="number"
                   />
                 </div>
                 <div className="publish-property-content-detail-field">
-                  <label>Superficie semicubierta (m2)</label>
-                  <input
-                    type="text"
+                  <InputField
+                    label="Superficie semicubierta (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
                     value={semiCoveredSize}
                     onChange={(event) => setSemiCoveredSize(event.target.value)}
+                    type="number"
                   />
                 </div>
               </div>
@@ -325,7 +300,7 @@ export default function PublishPropertyContent({
 
           <div className="publish-property-content-footer">
             <button className="publish-property-content-back" type="button" onClick={handleBack}>
-              <img src={iconBack} alt="" />
+              <img src={iconChevron} alt="" />
               Volver
             </button>
             <button

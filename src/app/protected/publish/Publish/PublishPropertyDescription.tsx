@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import './PublishPropertyDescription.scss';
+import InputField from '@/ui/InputField/InputField';
 
-const iconBack = '/icons/arrow.svg';
+const iconChevron = '/icons/chevron-up.svg';
 
 const titleMax = 100;
 const descriptionMax = 10000;
@@ -27,13 +28,23 @@ export default function PublishPropertyDescription({
   onNext,
   onBack,
 }: PublishPropertyDescriptionProps) {
-  const [title, setTitle] = useState('Departamento en alquiler de 100 m2 en Palermo');
-  const [description, setDescription] = useState('Hermosa propiedad de 100m2');
+  const [title, setTitle] = useState(wizardData.description?.title || 'Departamento en alquiler de 100 m2 en Palermo');
+  const [description, setDescription] = useState(wizardData.description?.description || 'Hermosa propiedad de 100m2');
   const [showTooltip, setShowTooltip] = useState(true);
 
   const titleCount = useMemo(() => title.length, [title]);
   const descriptionCount = useMemo(() => description.length, [description]);
-  const showDescriptionError = descriptionCount > 0 && descriptionCount < descriptionMin;
+  const showDescriptionError = descriptionCount >= 0 && descriptionCount < descriptionMin;
+
+  // Update wizard data when description data changes
+  useEffect(() => {
+    updateWizardData({
+      description: {
+        title,
+        description,
+      },
+    });
+  }, [title, description, updateWizardData]);
 
   const handleBack = () => {
     onBack();
@@ -49,8 +60,7 @@ export default function PublishPropertyDescription({
         <div className="publish-property-description-card">
           <div className="publish-property-description-top">
             <div className="publish-property-description-route">
-              <p>Venta - Casa Duplex</p>
-              <p>Juncal 2345</p>
+              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
             </div>
             <button className="publish-property-description-link" type="button">
               Guardar y salir
@@ -86,14 +96,13 @@ export default function PublishPropertyDescription({
             </div>
 
             <div className="publish-property-description-field">
-              <label>Titulo*</label>
-              <input
-                type="text"
+              <InputField
+                label="Titulo*"
                 value={title}
-                maxLength={titleMax}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="Ej. Departamento en alquiler de 100 m2 en Palermo"
-                className={title ? 'is-active' : ''}
+                maxLength={titleMax}
+                required
               />
               <span className="publish-property-description-count">
                 {titleCount}/{titleMax}
@@ -101,20 +110,19 @@ export default function PublishPropertyDescription({
             </div>
 
             <div className="publish-property-description-field">
-              <label>Descripcion*</label>
-              <textarea
+              <InputField
+                label="Descripcion*"
                 value={description}
-                maxLength={descriptionMax}
                 onChange={(event) => setDescription(event.target.value)}
                 placeholder="Escribi una descripcion que detalle los ambientes de tu propiedad y sus principales beneficios"
-                className={showDescriptionError ? 'is-error' : ''}
+                maxLength={descriptionMax}
+                multiline
+                rows={6}
+                error={showDescriptionError ? `La descripcion debe tener al menos ${descriptionMin} caracteres` : undefined}
+                required
               />
-              <div
-                className={`publish-property-description-meta ${
-                  showDescriptionError ? 'is-error' : ''
-                }`}
-              >
-                <span>
+              <div className="publish-property-description-meta" >
+                <span style={{ display: showDescriptionError ? 'none' : 'block' }}>
                   La descripcion debe tener al menos {descriptionMin} caracteres
                 </span>
                 <span>
@@ -130,7 +138,7 @@ export default function PublishPropertyDescription({
               type="button"
               onClick={handleBack}
             >
-              <img src={iconBack} alt="" />
+              <img src={iconChevron} alt="" />
               Volver
             </button>
             <button

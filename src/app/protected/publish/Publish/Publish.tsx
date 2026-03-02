@@ -15,6 +15,7 @@ import PublishFinalReview from './PublishFinalReview';
 import PublishPlans from './PublishPlans';
 import PublishCheckoutDetail from './PublishCheckoutDetail';
 import PublishCheckoutPayment from './PublishCheckoutPayment';
+import PublishCheckoutSuccess from './PublishCheckoutSuccess';
 import PublishEmprendimiento from './PublishEmprendimiento';
 
 const operationOptions = ['Venta', 'Alquiler', 'Temporal', 'Emprendimiento'];
@@ -33,6 +34,7 @@ enum WizardStep {
   PLANS = 'plans',
   CHECKOUT_DETAIL = 'checkout-detail',
   CHECKOUT_PAYMENT = 'checkout-payment',
+  CHECKOUT_SUCCESS = 'checkout-success',
   EMPRENDIMIENTO = 'emprendimiento'
 }
 
@@ -42,14 +44,15 @@ const REGULAR_FLOW = [
   WizardStep.PROPERTY_TYPE,
   WizardStep.LOCATION,
   WizardStep.CONTENT,
-  WizardStep.DESCRIPTION,
   WizardStep.MAIN_INFO,
-  WizardStep.PRICE,
   WizardStep.PROPERTY_CONTENT,
-  WizardStep.FINAL_REVIEW,
+  WizardStep.DESCRIPTION,
+  WizardStep.PRICE, 
   WizardStep.PLANS,
+  WizardStep.FINAL_REVIEW,
   WizardStep.CHECKOUT_DETAIL,
-  WizardStep.CHECKOUT_PAYMENT
+  WizardStep.CHECKOUT_PAYMENT,
+  WizardStep.CHECKOUT_SUCCESS
 ];
 
 const EMPRENDIMIENTO_FLOW = [
@@ -99,6 +102,10 @@ export default function Publish() {
     if (currentIndex > 0) {
       setCurrentStep(flow[currentIndex - 1]);
     }
+  }, [getCurrentFlow, getCurrentStepIndex]);
+
+  const goToBuyPlan = useCallback(() => {
+    setCurrentStep(WizardStep.CHECKOUT_DETAIL); // Ir directamente al paso de checkout detail
   }, [getCurrentFlow, getCurrentStepIndex]);
 
   const updateWizardData = useCallback((stepData: Partial<WizardData>) => {
@@ -227,6 +234,7 @@ export default function Publish() {
             updateWizardData={updateWizardData}
             onNext={goToNextStep}
             onBack={goToPreviousStep}
+            onComprar={goToBuyPlan}
           />
         );
 
@@ -235,8 +243,8 @@ export default function Publish() {
           <PublishCheckoutDetail
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
-            onBack={goToPreviousStep}
+            onNext={() => setCurrentStep(WizardStep.CHECKOUT_PAYMENT)}
+            onBack={() => setCurrentStep(WizardStep.PLANS)}
           />
         );
 
@@ -245,8 +253,15 @@ export default function Publish() {
           <PublishCheckoutPayment
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
-            onBack={goToPreviousStep}
+            onNext={() => setCurrentStep(WizardStep.CHECKOUT_SUCCESS)}
+            onBack={() => setCurrentStep(WizardStep.CHECKOUT_DETAIL)}
+          />
+        );
+
+      case WizardStep.CHECKOUT_SUCCESS:
+        return (
+          <PublishCheckoutSuccess
+            onFinish={() => setCurrentStep(WizardStep.PLANS)}
           />
         );
 

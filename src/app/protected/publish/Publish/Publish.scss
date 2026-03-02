@@ -132,3 +132,62 @@
     letter-spacing: 1px;
   }
 }
+
+
+.publish-chip {
+  border: 1.3px solid #7a7a7a;
+  border-radius: 8px;
+  padding: 13px 8px;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  letter-spacing: 0.08px;
+  color: #1e1e1e;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    border-color: #006aff;
+    color: #006aff;
+  }
+}
+
+.publish-chip-active {
+  border-color: #006aff;
+  color: #006aff;
+  background-color: white;
+}
+
+.input-field-container {
+  padding: 0;
+  gap: 16px !important;
+
+  .input-field-wrapper {
+    border: 1.3px solid #A6A6A6;
+    background: rgba(255, 255, 255, 0.50);
+    height: 56px;
+    &.multiline {
+      height: auto;
+    }
+    input {
+      background: transparent;
+      border: 0 none;
+    }
+  }
+
+  .input-field-label-wrapper {
+    .input-field-label {
+      font-weight: 600;
+      line-height: 18px;
+      color: #1E1E1E;
+    }
+  }
+}
+
+.select-trigger {
+  &:disabled {
+    background-color: #A6A6A6;
+  }
+}

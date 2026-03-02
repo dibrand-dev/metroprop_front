@@ -6,6 +6,7 @@ import './Header.scss';
 import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
 
 const logoMetroprop = "/images/metropropLogo.png";
+const logoMetropropMobile = "/images/metropropLogo_mobile.png";
 const chevronIcon = "/icons/chevron-up.svg";
 
 interface DropdownSubItem {
@@ -234,7 +235,7 @@ export default function Header() {
 
         {/* Center Section - Logo */}
         <div className="header-logo">
-          <a href="/"><img src={logoMetroprop} alt="MetroProp" /></a>
+          <a href="/"><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /><img src={logoMetropropMobile} alt="MetroProp" className="metroLogoMobile" /></a>
         </div>
 
         {/* Right Section - Login Button or User Menu */}

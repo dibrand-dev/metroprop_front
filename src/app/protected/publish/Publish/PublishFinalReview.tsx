@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import './PublishFinalReview.scss';
 
-const iconBack = '/icons/arrow.svg';
+const iconChevron = '/icons/chevron-up.svg';
 
 interface PublishFinalReviewProps {
   wizardData: any;
@@ -52,6 +52,102 @@ export default function PublishFinalReview({
 }: PublishFinalReviewProps) {
   const [activeTab, setActiveTab] = useState(wizardData.finalReview?.activeTab || 'servicios');
 
+  // Extract wizard data for display
+  const operation = wizardData.operation || 'Operación';
+  const propertyType = wizardData.propertyType || 'Tipo';
+  const propertySubtype = wizardData.propertySubtype || '';
+  const address = wizardData.location?.address || 'Dirección no especificada';
+  const price = wizardData.price || {};
+  const mainInfo = wizardData.mainInfo || {};
+  const description = wizardData.description || {};
+  const propertyContent = wizardData.propertyContent || {};
+
+  // Format price display
+  const formatPrice = (amount: string, currency: string) => {
+    if (!amount) return '';
+    return `${currency}${amount}`;
+  };
+
+  // Build property title
+  const propertyTitle = description.title || `${operation} ${propertyType} ${propertySubtype} en ${wizardData.location?.district || 'zona'}`;
+  
+  // Build property features from wizard data
+  const buildFeatures = () => {
+    const features = [];
+    
+    if (mainInfo.antiquity) {
+      if (mainInfo.antiquity === 'new') features.push({ label: 'A estrenar', icon: '/icons/calendar.svg' });
+      if (mainInfo.antiquity === 'construction') features.push({ label: 'En construcción', icon: '/icons/calendar.svg' });
+      if (mainInfo.antiquity === 'years' && mainInfo.antiquityYears) {
+        features.push({ label: `${mainInfo.antiquityYears} años`, icon: '/icons/calendar.svg' });
+      }
+    }
+    
+    if (propertyContent.details?.orientation) {
+      features.push({ label: propertyContent.details.orientation, icon: '/icons/orientacion.svg' });
+    }
+    
+    if (mainInfo.surfaceTotal && mainInfo.totalUnit) {
+      features.push({ label: `${mainInfo.surfaceTotal} ${mainInfo.totalUnit} tot.`, icon: '/icons/regla.svg' });
+    }
+    
+    if (mainInfo.surfaceCovered && mainInfo.coveredUnit) {
+      features.push({ label: `${mainInfo.surfaceCovered} ${mainInfo.coveredUnit} cub`, icon: '/icons/mcubiertos.svg' });
+    }
+    
+    if (mainInfo.rooms?.ambientes) {
+      features.push({ label: `${mainInfo.rooms.ambientes} amb.`, icon: '/icons/door.svg' });
+    }
+    
+    if (mainInfo.rooms?.cocheras) {
+      features.push({ label: `${mainInfo.rooms.cocheras} cochera${mainInfo.rooms.cocheras > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
+    }
+    
+    if (mainInfo.rooms?.dormitorios) {
+      features.push({ label: `${mainInfo.rooms.dormitorios} dorm.`, icon: '/icons/cama.svg' });
+    }
+    
+    if (mainInfo.rooms?.banos) {
+      features.push({ label: `${mainInfo.rooms.banos} baño${mainInfo.rooms.banos > 1 ? 's' : ''}`, icon: '/icons/bano.svg' });
+    }
+    
+    return features.length > 0 ? features : featureItems; // fallback to default
+  };
+
+  // Get amenities from wizard data
+  const getAmenitiesByTab = () => {
+    if (!propertyContent.selectedAmenities) return amenitiesByTab;
+    
+    const wizardAmenities: Record<string, string[]> = {
+      servicios: [],
+      ambientes: [],
+      caracteristicas: [],
+    };
+
+    // Map wizard amenities to tabs
+    Object.entries(propertyContent.selectedAmenities).forEach(([category, amenities]: [string, string[]]) => {
+      if (category === 'services') {
+        wizardAmenities.servicios = amenities || [];
+      } else if (category === 'rooms') {
+        wizardAmenities.ambientes = amenities || [];
+      } else if (category === 'extras' || category === 'facilities') {
+        wizardAmenities.caracteristicas = [...wizardAmenities.caracteristicas, ...(amenities || [])];
+      }
+    });
+
+    // Fallback to default if no amenities
+    Object.keys(wizardAmenities).forEach(key => {
+      if (wizardAmenities[key].length === 0) {
+        wizardAmenities[key] = amenitiesByTab[key] || [];
+      }
+    });
+
+    return wizardAmenities;
+  };
+
+  const dynamicFeatures = buildFeatures();
+  const dynamicAmenities = getAmenitiesByTab();
+
   // Update wizard data when final review data changes
   useEffect(() => {
     updateWizardData({
@@ -75,8 +171,7 @@ export default function PublishFinalReview({
         <div className="publish-review-card">
           <div className="publish-review-top">
             <div className="publish-review-route">
-              <p>Venta - Casa Duplex</p>
-              <p>Juncal 2345</p>
+              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
             </div>
             <button className="publish-review-link" type="button">
               Guardar y salir
@@ -97,24 +192,32 @@ export default function PublishFinalReview({
               <h3>Asi se vera tu publicacion</h3>
 
               <div className="publish-review-preview-card">
-                <div className="publish-review-preview-hero">
-                  <div className="publish-review-preview-status">
-                    <span className="publish-review-status-dot" />
-                    <span>En alquiler</span>
+                <div>
+                  <div className="publish-review-preview-hero">
+                    <div className="publish-review-preview-status">
+                      <span className="publish-review-status-dot" />
+                      <span className='operacion'>En {operation.toLowerCase()}</span>
+                    </div>
+                    <div className="publish-review-preview-meta">
+                      <span>USD/m2 2500</span>
+                      <span className="publish-review-info" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
+                          <path d="M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                          <path d="M11 11h2v6h-2z" fill="currentColor" />
+                        </svg>
+                      </span>
+                    </div>
                   </div>
                   <div className="publish-review-preview-price">
-                    <strong>$700.000</strong>
-                    <span>$100.000 expensas</span>
-                  </div>
-                  <div className="publish-review-preview-meta">
-                    <span>USD/m2 2500</span>
-                    <span className="publish-review-info" aria-hidden="true">
-                      <svg viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
-                        <path d="M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                        <path d="M11 11h2v6h-2z" fill="currentColor" />
-                      </svg>
-                    </span>
+                    <strong>
+                      {formatPrice(price.rentAmount || '700.000', price.rentCurrency || '$')}
+                    </strong>
+                    {!price.withoutExpenses && (
+                      <span>
+                        {formatPrice(price.expenseAmount || '100.000', price.expenseCurrency || '$')} expensas
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -132,8 +235,8 @@ export default function PublishFinalReview({
                 </div>
 
                 <div className="publish-review-features">
-                  {featureItems.map((item) => (
-                    <div key={item.label} className="publish-review-feature">
+                  {dynamicFeatures.map((item, index) => (
+                    <div key={`${item.label}-${index}`} className="publish-review-feature">
                       <img src={item.icon} alt="" />
                       <span>{item.label}</span>
                     </div>
@@ -141,13 +244,9 @@ export default function PublishFinalReview({
                 </div>
 
                 <div className="publish-review-summary">
-                  <h4>Venta inmediata Cervino 5 ambientes, Palermo.</h4>
+                  <h4>{propertyTitle}</h4>
                   <p>
-                    Se vende departamento 2 Ambientes con balcon al frente en Recoleta.
-                    RECICLADO EN SU TOTALIDAD. PISO 7o AL FRENTE.
-                    <br />
-                    <br />
-                    Este departamento cuenta con una superficie total de 41 m2.
+                    {description.description || `Se ${operation.toLowerCase()} ${propertyType.toLowerCase()} de excelente calidad en ${wizardData.location?.district || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${mainInfo.surfaceTotal || '41'} ${mainInfo.totalUnit || 'm2'}.`}
                   </p>
                   <button type="button" className="publish-review-summary-toggle">
                     Leer descripcion completa
@@ -165,7 +264,7 @@ export default function PublishFinalReview({
                         />
                       </svg>
                     </span>
-                    <span>Avenida Cervino 4046, Palermo Chico, Palermo</span>
+                    <span>{address}</span>
                   </div>
                   <div className="publish-review-map-image">
                     <img src="/images/mapa_google.png" alt="Mapa de ubicacion" />
@@ -197,9 +296,13 @@ export default function PublishFinalReview({
                     ))}
                   </div>
                   <div className="publish-review-amenities-content">
-                    {amenitiesByTab[activeTab].map((item) => (
-                      <span key={item}>{item}</span>
-                    ))}
+                    {dynamicAmenities[activeTab]?.length > 0 ? (
+                      dynamicAmenities[activeTab].map((item, index) => (
+                        <span key={`${item}-${index}`}>{item}</span>
+                      ))
+                    ) : (
+                      <span>No hay {activeTab} disponibles</span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -223,7 +326,7 @@ export default function PublishFinalReview({
 
           <div className="publish-review-footer">
             <button className="publish-review-back" type="button" onClick={handleBack}>
-              <img src={iconBack} alt="" />
+              <img src={iconChevron} alt="" />
               Volver
             </button>
             <button className="publish-review-continue" type="button" onClick={handlePublish}>

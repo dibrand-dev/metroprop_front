@@ -116,7 +116,7 @@ export default function ForgotPassword() {
           />
         </form>
       </div>
-      {showEmailVerificationModal && <EmailVerificationModal title="¡Te enviamos un e-mail para restablecer tu contraseña!" text={`Ingresa a tu casilla de mail ${email} para continuar.`} onClose={() => router.push('/login')} onResendEmail={() => {}} />}
+      {showEmailVerificationModal && <EmailVerificationModal title="¡Te enviamos un e-mail para restablecer tu contraseña!" text={`Ingresa a tu casilla de mail ${email} para continuar.`} onClose={() => router.push('/login')} />}
     </div>
   );
 }

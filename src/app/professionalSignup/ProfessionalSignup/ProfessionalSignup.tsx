@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Select from '@/ui/Select/Select';
 import Checkbox from '@/ui/Checkbox/Checkbox';
@@ -57,7 +57,60 @@ export default function ProfessionalSignup() {
   const [isPending, startTransition] = useTransition();
   const [fieldErrors, setFieldErrors] = useState({ userType: '', email: '', password: '', confirmPassword: '', name: '', businessName: '', fiscalCondition: '', cuit: '', phone: '', termsAccepted: '', privacyAccepted: '' });
   const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
+  const [resendDisabledUntil, setResendDisabledUntil] = useState<number | null>(null);
+  const [remainingTime, setRemainingTime] = useState<number>(0);
   const router = useRouter();
+
+  // Check for existing resend cooldown on component mount
+  useEffect(() => {
+    const storedResendTime = localStorage.getItem(`resendDisabled_${email}`);
+    if (storedResendTime) {
+      const disabledUntil = parseInt(storedResendTime);
+      const now = Date.now();
+      if (disabledUntil > now) {
+        setResendDisabledUntil(disabledUntil);
+        setRemainingTime(Math.ceil((disabledUntil - now) / 1000));
+      } else {
+        localStorage.removeItem(`resendDisabled_${email}`);
+      }
+    }
+  }, [email]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (resendDisabledUntil && remainingTime > 0) {
+      const timer = setInterval(() => {
+        const now = Date.now();
+        const timeLeft = Math.ceil((resendDisabledUntil - now) / 1000);
+        
+        if (timeLeft <= 0) {
+          setResendDisabledUntil(null);
+          setRemainingTime(0);
+          localStorage.removeItem(`resendDisabled_${email}`);
+          clearInterval(timer);
+        } else {
+          setRemainingTime(timeLeft);
+        }
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [resendDisabledUntil, remainingTime, email]);
+
+  // Format remaining time for display
+  const formatRemainingTime = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${secs}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,6 +197,38 @@ export default function ProfessionalSignup() {
       }
     });
   };
+
+  const handleResendEmail = async () => {
+    // Check if resend is currently disabled
+    if (resendDisabledUntil && Date.now() < resendDisabledUntil) {
+      return;
+    }
+
+    try {
+      await fetch(`${API_BASE_URL}/registration/resend-welcome`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      // Set 1-hour cooldown (3600 seconds)
+      const cooldownEnd = Date.now() + (60 * 60 * 1000); // 1 hour in milliseconds
+      setResendDisabledUntil(cooldownEnd);
+      setRemainingTime(3600); // 1 hour in seconds
+      localStorage.setItem(`resendDisabled_${email}`, cooldownEnd.toString());
+      
+    } catch (err) {
+      console.error('Error al reenviar el correo de verificación:', err);
+    }
+  };
+
+  // Check if resend is currently disabled
+  const isResendDisabled = resendDisabledUntil && Date.now() < resendDisabledUntil;
+  const resendMessage = isResendDisabled 
+    ? `Podrás reenviar el correo en ${formatRemainingTime(remainingTime)}`
+    : undefined;
 
   return (
     <div className="signup-container bg-white min-h-screen w-full">
@@ -341,7 +426,15 @@ export default function ProfessionalSignup() {
           </div>
         </div>
       </div>
-      {showEmailVerificationModal && <EmailVerificationModal title="¡Te enviamos un e-mail para validar tu cuenta!" text={`Ingresa a tu casilla de mail ${email} para continuar.`} onClose={() => router.push('/')} onResendEmail={() => {}} />}
+      {showEmailVerificationModal && (
+        <EmailVerificationModal 
+          title="¡Te enviamos un e-mail para validar tu cuenta!" 
+          text={`Ingresa a tu casilla de mail ${email} para continuar.`} 
+          onClose={() => router.push('/')} 
+          onResendEmail={isResendDisabled ? undefined : handleResendEmail}
+          resendMessage={resendMessage}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,5 @@
 
 .publish-review {
-  background: #f8f9fa;
   min-height: calc(100vh - 80px);
   padding: 48px 24px 80px;
   display: flex;
@@ -88,7 +87,7 @@
 .publish-review-section {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 
   h1 {
     margin: 0;
@@ -100,12 +99,12 @@
   }
 
   h2 {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
+    color: #1E1E1E;
+    font-family: Inter;
     font-size: 22px;
+    font-style: normal;
     font-weight: 600;
-    line-height: 26px;
-    color: #1e1e1e;
+    line-height: 26px; /* 118.182% */
   }
 }
 
@@ -136,13 +135,13 @@
 }
 
 .publish-review-preview-hero {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 16px;
+  display: flex;
+  justify-content: space-between;
   align-items: flex-start;
-
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
+  margin-bottom: 8px;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
@@ -154,6 +153,15 @@
   font-size: 20px;
   font-weight: 800;
   color: #1e1e1e;
+
+  .operacion {
+    color:  #1E1E1E;
+    font-family: Inter;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 30px; /* 125% */
+  }
 }
 
 .publish-review-status-dot {
@@ -171,23 +179,33 @@
   color: #1e1e1e;
 
   strong {
-    font-size: 26px;
-    font-weight: 700;
+    color: var(--Metroprop-Texto-principal, #1E1E1E);
+    font-family: Montserrat;
+    font-size: 44px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: 52px; /* 118.182% */
+    letter-spacing: -0.44px;
   }
 
   span {
-    font-size: 14px;
-    color: #7a7a7a;
+    color: #1E1E1E;
+    font-family: Inter;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px; /* 122.222% */
+    letter-spacing: 0.045px;
   }
 }
 
 .publish-review-preview-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  color: #1e1e1e;
+  color: #1E1E1E;
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 22px; /* 122.222% */
 }
 
 .publish-review-info {
@@ -272,18 +290,24 @@
   gap: 12px;
 
   h4 {
-    margin: 0;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 20px;
-    font-weight: 800;
-    color: #1e1e1e;
+    color:#1E1E1E;
+    margin:0;
+    font-family: Inter;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 30px; /* 125% */
   }
 
   p {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    color: var(--Metroprop-Texto-principal, #1E1E1E);
+    font-family: Inter;
     font-size: 16px;
-    color: #1e1e1e;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px; /* 125% */
+    letter-spacing: 0.12px;
   }
 }
 
@@ -295,11 +319,14 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e1e1e;
   cursor: pointer;
+  color: #1E1E1E;
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 18px; /* 112.5% */
+  letter-spacing: 0.08px;
 
   img {
     width: 16px;
@@ -318,10 +345,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Montserrat', sans-serif;
+  color: #1E1E1E;
+  font-family: Inter;
   font-size: 18px;
-  font-weight: 800;
-  color: #1e1e1e;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 24px; /* 133.333% */
+  letter-spacing: 0.045px;
 }
 
 .publish-review-address-icon {
@@ -358,14 +388,16 @@
 .publish-review-amenities {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 
   h4 {
     margin: 0;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 22px;
-    font-weight: 800;
-    color: #1e1e1e;
+    color: #1E1E1E;
+    font-family: Inter;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 30px; /* 125% */
   }
 }
 
@@ -390,6 +422,7 @@
   &.is-active {
     background: #ebf2fd;
     color: #006aff;
+    margin-bottom: -1px;
   }
 }
 
@@ -400,13 +433,14 @@
   font-family: 'Inter', sans-serif;
   font-size: 16px;
   color: #1e1e1e;
+  padding: 8px 0;
 }
 
 .publish-review-contact {
   display: flex;
   flex-direction: column;
   gap: 12px;
-
+  margin: 8px 0;
   h3 {
     margin: 0;
     font-family: 'Inter', sans-serif;
@@ -459,6 +493,10 @@
   font-family: 'Inter', sans-serif;
   font-size: 16px;
   font-weight: 600;
+
+  .publish-review-contact-phone {
+    padding-left: 8px;
+  }
 }
 
 .publish-review-contact-name {
@@ -495,10 +533,11 @@
   letter-spacing: 0.16px;
   color: #1e1e1e;
   cursor: pointer;
-
+  
   img {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
+    transform: rotate(90deg); 
   }
 }
 
