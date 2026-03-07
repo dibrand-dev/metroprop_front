@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import './Publish.scss';
+import { API_BASE_URL } from '@/utils/utils';
 
 // Import all step components
 import PublishPropertyType from './PublishPropertyType';
@@ -17,8 +18,9 @@ import PublishCheckoutDetail from './PublishCheckoutDetail';
 import PublishCheckoutPayment from './PublishCheckoutPayment';
 import PublishCheckoutSuccess from './PublishCheckoutSuccess';
 import PublishEmprendimiento from './PublishEmprendimiento';
+import { OperationType, OPERATION_TYPE_LABELS, CreatePropertyDraft } from '@/types/propiedad';
 
-const operationOptions = ['Venta', 'Alquiler', 'Temporal', 'Emprendimiento'];
+const operationOptions: OperationType[] = [OperationType.VENTA, OperationType.ALQUILER, OperationType.ALQUILER_TEMPORAL, OperationType.EMPRENDIMIENTO];
 
 // Define wizard steps
 enum WizardStep {
@@ -60,28 +62,16 @@ const EMPRENDIMIENTO_FLOW = [
   WizardStep.EMPRENDIMIENTO
 ];
 
-interface WizardData {
-  operation?: string;
-  propertyType?: string;
-  propertySubtype?: string;
-  location?: any;
-  content?: any;
-  description?: any;
-  mainInfo?: any;
-  price?: any;
-  propertyContent?: any;
-}
-
 export default function Publish() {
   const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.INITIAL);
-  const [wizardData, setWizardData] = useState<WizardData>({});
+  const [wizardData, setWizardData] = useState<CreatePropertyDraft>({} as CreatePropertyDraft);
 
   const getCurrentFlow = useCallback(() => {
-    if (wizardData.operation === 'Emprendimiento') {
+    if (wizardData.operation_type === OperationType.EMPRENDIMIENTO) {
       return EMPRENDIMIENTO_FLOW;
     }
     return REGULAR_FLOW;
-  }, [wizardData.operation]);
+  }, [wizardData.operation_type]);
 
   const getCurrentStepIndex = useCallback(() => {
     const flow = getCurrentFlow();
@@ -108,19 +98,101 @@ export default function Publish() {
     setCurrentStep(WizardStep.CHECKOUT_DETAIL); // Ir directamente al paso de checkout detail
   }, [getCurrentFlow, getCurrentStepIndex]);
 
-  const updateWizardData = useCallback((stepData: Partial<WizardData>) => {
+  const updateWizardData = useCallback((stepData: Partial<CreatePropertyDraft>) => {
     setWizardData(prev => ({ ...prev, ...stepData }));
   }, []);
 
-  const handleSelect = (option: string) => {
-    updateWizardData({ operation: option });
-    if (option === 'Emprendimiento') {
+  const handleSelect = (option: OperationType) => {
+    updateWizardData({ operation_type: option });
+    if (option === OperationType.EMPRENDIMIENTO) {
       setCurrentStep(WizardStep.EMPRENDIMIENTO);
     } else {
       setCurrentStep(WizardStep.PROPERTY_TYPE);
     }
   };
 
+  const saveDraftProperty = async () => {
+    // Ensure we have minimum required data
+    if (!wizardData.operation_type || !wizardData.property_type) {
+      console.error('Missing required data for draft creation');
+      goToNextStep();
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/properties/draft`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add authorization header if needed
+          // 'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          operation_type: wizardData.operation_type,
+          property_type: wizardData.property_type,
+          ...(wizardData.property_subtype && { property_subtype: wizardData.property_subtype }),
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Error creating property draft';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch {
+          errorMessage = `Error ${response.status}: ${response.statusText}`;
+        }
+        console.error('Draft creation failed:', errorMessage);
+        // Continue to next step even if draft creation fails
+        goToNextStep();
+        return;
+      }
+
+      const draftData = await response.json();
+      
+      // Store draft ID in wizard data for future updates
+      updateWizardData({ draft_id: draftData.id });
+      
+      goToNextStep();
+    } catch (error) {
+      console.error('Error creating draft:', error);
+      // Continue to next step even if draft creation fails
+      goToNextStep();
+    }
+  };
+  
+  const saveCurrentStep = async (wizardDataUpdate: Partial<CreatePropertyDraft>) => {
+    const _wizardDataUpdate = { ...wizardDataUpdate };
+    delete _wizardDataUpdate.draft_id;
+    const response = await fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(_wizardDataUpdate),
+    });
+    goToNextStep();
+  }
+  const saveAndExit = async () => {
+    if (wizardData.draft_id) {
+      try {
+        await fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(wizardData),
+        });
+        console.log('Draft saved successfully');
+        // Navigate to properties list or home page
+        window.location.href = '/';
+      } catch (error) {
+        console.error('Error saving draft:', error);
+        // Still navigate away even if save fails
+        window.location.href = '/';
+      }
+    }
+  };
   const renderCurrentStep = () => {
     switch (currentStep) {
       case WizardStep.INITIAL:
@@ -139,7 +211,7 @@ export default function Publish() {
                     type="button"
                     onClick={() => handleSelect(option)}
                   >
-                    {option}
+                    {OPERATION_TYPE_LABELS[option]}
                   </button>
                 ))}
               </div>
@@ -152,7 +224,7 @@ export default function Publish() {
           <PublishPropertyType
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
+            onNext={saveDraftProperty}
             onBack={goToPreviousStep}
           />
         );
@@ -162,8 +234,9 @@ export default function Publish() {
           <PublishLocation
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
+            onNext={() => saveCurrentStep(wizardData)}
             onBack={goToPreviousStep}
+            onSaveAndExit={saveAndExit}
           />
         );
 
@@ -172,8 +245,9 @@ export default function Publish() {
           <PublishContent
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
+            onNext={() => goToNextStep()}
             onBack={goToPreviousStep}
+            onSaveAndExit={saveAndExit}
           />
         );
 
@@ -182,8 +256,9 @@ export default function Publish() {
           <PublishPropertyDescription
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
+            onNext={() => saveCurrentStep(wizardData)}
             onBack={goToPreviousStep}
+            onSaveAndExit={saveAndExit}
           />
         );
 
@@ -192,8 +267,9 @@ export default function Publish() {
           <PublishMainInfo
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
+            onNext={() => saveCurrentStep(wizardData)}
             onBack={goToPreviousStep}
+            onSaveAndExit={saveAndExit}
           />
         );
 
@@ -202,8 +278,9 @@ export default function Publish() {
           <PublishPrice
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
+            onNext={() => saveCurrentStep(wizardData)}
             onBack={goToPreviousStep}
+            onSaveAndExit={saveAndExit}
           />
         );
 
@@ -212,8 +289,9 @@ export default function Publish() {
           <PublishPropertyContent
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
+            onNext={() => saveCurrentStep(wizardData)}
             onBack={goToPreviousStep}
+            onSaveAndExit={saveAndExit}
           />
         );
 
@@ -222,8 +300,9 @@ export default function Publish() {
           <PublishFinalReview
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
+            onNext={() => saveCurrentStep(wizardData)}
             onBack={goToPreviousStep}
+            onSaveAndExit={saveAndExit}
           />
         );
 
@@ -232,9 +311,10 @@ export default function Publish() {
           <PublishPlans
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={goToNextStep}
+            onNext={() => saveCurrentStep(wizardData)}
             onBack={goToPreviousStep}
             onComprar={goToBuyPlan}
+            onSaveAndExit={saveAndExit}
           />
         );
 

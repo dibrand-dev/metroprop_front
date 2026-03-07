@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import './PublishPropertyDescription.scss';
 import InputField from '@/ui/InputField/InputField';
+import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -16,10 +17,11 @@ const tooltipTextSecondary =
   'Detalla los ambientes, las caracteristicas destacadas y los alrededores. Separa la informacion en parrafos. Los emojis no se mostraran en el aviso.';
 
 interface PublishPropertyDescriptionProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
   onBack: () => void;
+  onSaveAndExit: () => void;
 }
 
 export default function PublishPropertyDescription({
@@ -27,9 +29,10 @@ export default function PublishPropertyDescription({
   updateWizardData,
   onNext,
   onBack,
+  onSaveAndExit
 }: PublishPropertyDescriptionProps) {
-  const [title, setTitle] = useState(wizardData.description?.title || 'Departamento en alquiler de 100 m2 en Palermo');
-  const [description, setDescription] = useState(wizardData.description?.description || 'Hermosa propiedad de 100m2');
+  const [title, setTitle] = useState(wizardData.publication_title || '');
+  const [description, setDescription] = useState(wizardData.description || '');
   const [showTooltip, setShowTooltip] = useState(true);
 
   const titleCount = useMemo(() => title.length, [title]);
@@ -39,10 +42,8 @@ export default function PublishPropertyDescription({
   // Update wizard data when description data changes
   useEffect(() => {
     updateWizardData({
-      description: {
-        title,
-        description,
-      },
+      publication_title: title,
+      description: description,
     });
   }, [title, description, updateWizardData]);
 
@@ -60,9 +61,9 @@ export default function PublishPropertyDescription({
         <div className="publish-property-description-card">
           <div className="publish-property-description-top">
             <div className="publish-property-description-route">
-              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
+              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-property-description-link" type="button">
+            <button className="publish-property-description-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
           </div>

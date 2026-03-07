@@ -1,20 +1,14 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './PublishContent.scss';
 import Button from '@/ui/Button/Button';
 import InputField from '@/ui/InputField/InputField';
+import { CreateImage, CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, VideoPreview } from '@/types/propiedad';
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconTrash = '/icons/trash.svg';
 const iconUpload = '/icons/upload.svg';
-
-const sampleImages = [
-  '/images/home_comprar.png', 
-  '/images/home_alquilar.png',
-  '/images/home_temporal.png',
-  '/images/home_emprendimientos.png',
-];
 
 const accordionItems = [
   {
@@ -25,7 +19,7 @@ const accordionItems = [
   {
     id: 'planos',
     title: 'Planos',
-    description: 'Formato HEIC, JFIF, PNG, JPG, JPEG, WEBP, maximo 20 MB.',
+    description: 'Formato HEIC, JFIF, PNG, JPG, JPEG, WEBP, PDF, maximo 20 MB.',
   },
   {
     id: 'recorrido',
@@ -34,38 +28,72 @@ const accordionItems = [
   },
 ];
 
+
 interface PublishContentProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
   onBack: () => void;
+  onSaveAndExit: () => void;
 }
+
+ // YouTube utility functions
+  const extractYouTubeId = (url: string): string | null => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  const getYouTubeThumbnail = (videoId: string): string => {
+    return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+  };
+
+  const isValidYouTubeUrl = (url: string): boolean => {
+    return extractYouTubeId(url) !== null;
+  };
+
 
 export default function PublishContent({
   wizardData,
   updateWizardData,
   onNext,
   onBack,
+  onSaveAndExit,
 }: PublishContentProps) {
-  const [openAccordions, setOpenAccordions] = useState<string[]>(wizardData.content?.openAccordions || []);
-  const [hasMedia, setHasMedia] = useState(wizardData.content?.hasMedia || false);
+  const [openAccordions, setOpenAccordions] = useState<string[]>([]);
+  const [images, setImages] = useState<CreateImage[] | undefined>(wizardData.images || []);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [videoUrl, setVideoUrl] = useState(wizardData.content?.videoUrl || '');
-  const [recorridoUrl, setRecorridoUrl] = useState(wizardData.content?.recorridoUrl || '');
-
-  const uploadedImages = useMemo(() => (hasMedia ? sampleImages : []), [hasMedia]);
+  const [videos, setVideos] = useState<string[]>(wizardData.videos || []);
+  const [videosPreview, setVideosPreview] = useState<VideoPreview[] | undefined>(
+    wizardData.videos?.map(videoUrl => {
+      const videoId = extractYouTubeId(videoUrl) ?? null;
+      return {
+        url: videoUrl,
+        id: videoId,
+        thumbnail: videoId ? getYouTubeThumbnail(videoId) : ''
+      } as VideoPreview;
+    }) || []);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>('');
+  const [multimedia360, setMultimedia360] = useState<string[]>(wizardData.multimedia360 || ['']);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [uploadedPlans, setUploadedPlans] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [draggedType, setDraggedType] = useState<'image' | 'plan' | 'video' | null>(null);
+  const [dragOverGrid, setDragOverGrid] = useState<'image' | 'plan' | 'video' | null>(null);
+  
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const imageGridInputRef = useRef<HTMLInputElement>(null);
+  const plansInputRef = useRef<HTMLInputElement>(null);
 
   // Update wizard data when content data changes
   useEffect(() => {
     updateWizardData({
-      content: {
-        hasMedia,
-        videoUrl,
-        recorridoUrl,
-        openAccordions,
-      },
+      images,
+      videos, // Keep as string array for wizard data
+      multimedia360
     });
-  }, [hasMedia, videoUrl, recorridoUrl, openAccordions, updateWizardData]);
+  }, [images, videos, multimedia360, updateWizardData]);
 
   const toggleAccordion = (id: string) => {
     setOpenAccordions((prev) => {
@@ -82,12 +110,227 @@ export default function PublishContent({
     onBack();
   };
 
-  const handleContinue = () => {
-    onNext();
+  const handleContinue = async () => {
+    if (uploadedImages.length > 0 || uploadedPlans.length > 0) {
+      await handleFormSubmit();
+    }
   };
 
-  const handleMockUpload = () => {
-    setHasMedia(true);
+ 
+  // Video management functions
+  const addVideo = () => {
+    const trimmedUrl = currentVideoUrl.trim();
+    if (!trimmedUrl || !isValidYouTubeUrl(trimmedUrl)) {
+      alert('Por favor, ingresa una URL válida de YouTube');
+      return;
+    }
+    
+    if (videos.length >= 10) {
+      alert('Máximo 10 videos permitidos');
+      return;
+    }
+
+    const videoId = extractYouTubeId(trimmedUrl);
+    if (videoId) {
+      const newVideo: VideoPreview = {
+        url: trimmedUrl,
+        id: videoId,
+        thumbnail: getYouTubeThumbnail(videoId)
+      };
+      setVideos(prev => [...prev, newVideo.url]);
+      setVideosPreview(prev => [...(prev ?? []), newVideo]);
+      setCurrentVideoUrl(''); // Clear input field
+    }
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Video y multimedia URL management functions
+  const addUrl = (index: number, type: "multimedia360") => {
+    const currentUrl = multimedia360[index]?.trim();
+    if (!currentUrl) return; // Don't add if current input is empty
+    
+    if (type === "multimedia360" && multimedia360.length < 10) { // Max 10 inputs
+      setMultimedia360(prev => [...prev, '']);
+    }
+  };
+
+  const removeUrl = (index: number, type: "multimedia360") => {
+    if (type === "multimedia360" && multimedia360.length > 1) { // Keep at least one input
+      setMultimedia360(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateUrl = (index: number, value: string, type: "multimedia360") => {
+    if (type === "multimedia360") {
+      setMultimedia360(prev => prev.map((item, i) => i === index ? value : item));
+    }
+  };
+
+  // File handling functions
+  const validateFile = (file: File, type: 'image' | 'plan'): boolean => {
+    const maxSize = 20 * 1024 * 1024; // 20MB in bytes
+    
+    if (file.size > maxSize) {
+      alert('El archivo excede el tamaño máximo de 20MB');
+      return false;
+    }
+
+    const imageFormats = ['image/jpeg', 'image/jpg', 'image/webp', 'image/png'];
+    const planFormats = ['image/heic', 'image/jfif', 'image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'];
+    
+    const allowedFormats = type === 'image' ? imageFormats : planFormats;
+    
+    if (!allowedFormats.includes(file.type)) {
+      const formatText = type === 'image' ? 'JPG, JPEG, WEBP, PNG' : 'HEIC, JFIF, PNG, JPG, JPEG, WEBP, PDF';
+      alert(`Formato no permitido. Solo se aceptan archivos: ${formatText}`);
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'plan') => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const validFiles: File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      if (validateFile(files[i], type)) {
+        validFiles.push(files[i]);
+      }
+    }
+
+    if (type === 'image') {
+      setUploadedImages(prev => [...prev, ...validFiles]);
+    } else {
+      setUploadedPlans(prev => [...prev, ...validFiles]);
+    }
+
+    // Reset input
+    event.target.value = '';
+  };
+
+  const removeUploadedFile = (index: number, type: 'image' | 'plan') => {
+    if (type === 'image') {
+      setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setUploadedPlans(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleFormSubmit = async () => {
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      
+      // Add image files
+      uploadedImages.forEach((file, index) => {
+        formData.append(`images`, file);
+      });
+      
+      // Add plan files to multimedia360
+      uploadedPlans.forEach((file, index) => {
+        formData.append(`attached`, file);
+      });
+
+      formData.append('videos', JSON.stringify(videos));
+      formData.append('multimedia360', JSON.stringify(multimedia360));
+
+      const response = await fetch(`http://localhost:3000/properties/${wizardData.draft_id}/save-multimedia`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Error uploading files');
+      }
+
+      const result = await response.json();
+      console.log('Upload successful:', result);
+      
+      // Update wizard data with uploaded file URLs if returned from API
+      if (result.images) {
+        setImages(result.images);
+      }
+      if (result.multimedia360) {
+        // Update multimedia360 with uploaded file URLs
+        const urlsFromFiles = result.multimedia360.map((item: any) => item.url);
+        setMultimedia360(prev => [urlsFromFiles[0], ...urlsFromFiles.slice(1)]);
+      }
+      onNext();
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      alert('Error al subir los archivos. Por favor, intenta nuevamente.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Drag and drop functions
+  const handleDragStart = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video') => {
+    setDraggedIndex(index);
+    setDraggedType(type);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleGridDragOver = (e: React.DragEvent, type: 'image' | 'plan' | 'video') => {
+    e.preventDefault();
+    if (draggedType === type) {
+      setDragOverGrid(type);
+      e.dataTransfer.dropEffect = 'move';
+    }
+  };
+
+  const handleGridDragLeave = (e: React.DragEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (e.clientX < rect.left || e.clientX >= rect.right || 
+        e.clientY < rect.top || e.clientY >= rect.bottom) {
+      setDragOverGrid(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number, type: 'image' | 'plan' | 'video') => {
+    e.preventDefault();
+    
+    if (draggedIndex === null || draggedType !== type) return;
+    
+    if (type === 'image') {
+      const newImages = [...uploadedImages];
+      const draggedImage = newImages[draggedIndex];
+      newImages.splice(draggedIndex, 1);
+      newImages.splice(dropIndex, 0, draggedImage);
+      setUploadedImages(newImages);
+    } else if (type === 'plan') {
+      const newPlans = [...uploadedPlans];
+      const draggedPlan = newPlans[draggedIndex];
+      newPlans.splice(draggedIndex, 1);
+      newPlans.splice(dropIndex, 0, draggedPlan);
+      setUploadedPlans(newPlans);
+    } else if (type === 'video') {
+      const newVideos = [...videos];
+      const draggedVideo = newVideos[draggedIndex];
+      newVideos.splice(draggedIndex, 1);
+      newVideos.splice(dropIndex, 0, draggedVideo);
+      setVideos(newVideos);
+    }
+    
+    setDraggedIndex(null);
+    setDraggedType(null);
+    setDragOverGrid(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDraggedType(null);
+    setDragOverGrid(null);
   };
 
   return (
@@ -96,12 +339,12 @@ export default function PublishContent({
         <div className="publish-content-card">
           <div className="publish-content-top">
             <div className="publish-content-route">
-              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
+             {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
             <Button
               label="Guardar y salir"
               variant="text"
-              onClick={() => {}}
+              onClick={onSaveAndExit}
             />
           </div>
 
@@ -142,31 +385,78 @@ export default function PublishContent({
               </div>
 
               <div className="publish-content-upload">
-                {uploadedImages.length === 0 ? (
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  multiple
+                  accept=".jpg,.jpeg,.webp,.png"
+                  style={{ display: 'none' }}
+                  onChange={(e) => handleFileSelect(e, 'image')}
+                />
+                <input
+                  ref={imageGridInputRef}
+                  type="file"
+                  multiple
+                  accept=".jpg,.jpeg,.webp,.png"
+                  style={{ display: 'none' }}
+                  onChange={(e) => handleFileSelect(e, 'image')}
+                />
+                {(images?.length === 0 && uploadedImages.length === 0) ? (
                   <button
                     type="button"
                     className="publish-content-upload-card"
-                    onClick={handleMockUpload}
+                    onClick={() => imageInputRef.current?.click()}
                   >
                     <img src={iconUpload} alt="" />
                     <span>Agregar fotos</span>
                   </button>
                 ) : (
-                  <div className="publish-content-upload-grid">
+                  <div 
+                    className={`publish-content-upload-grid ${dragOverGrid === 'image' ? 'drag-over' : ''}`}
+                    onDragOver={(e) => handleGridDragOver(e, 'image')}
+                    onDragLeave={handleGridDragLeave}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDragOverGrid(null);
+                    }}
+                  >
                     <button
                       type="button"
                       className="publish-content-upload-card"
-                      onClick={handleMockUpload}
+                      onClick={() => imageGridInputRef.current?.click()}
                     >
                       <img src={iconUpload} alt="" />
                       <span>Agregar fotos</span>
                     </button>
-                    {uploadedImages.map((image, index) => (
-                      <div key={`${image}-${index}`} className="publish-content-thumb">
-                        <img src={image} alt="Foto" />
+                    {images?.map((image, index) => (
+                      <div key={`${image.url}-${index}`} className="publish-content-thumb">
+                        <img src={image.url} alt="Foto" />
                         <button type="button" className="publish-content-thumb-action">
                           <img src={iconTrash} alt="" />
                         </button>
+                      </div>
+                    ))}
+                    {uploadedImages.map((file, index) => (
+                      <div
+                        key={`uploaded-${index}`}
+                        className={`publish-content-thumb ${draggedIndex === index && draggedType === 'image' ? 'dragging' : ''}`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index, 'image')}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, index, 'image')}
+                        onDragEnd={handleDragEnd}
+                      >
+                        <img src={URL.createObjectURL(file)} alt="Foto" />
+                        <button
+                          type="button"
+                          className="publish-content-thumb-action"
+                          onClick={() => removeUploadedFile(index, 'image')}
+                        >
+                          <img src={iconTrash} alt="" />
+                        </button>
+                        <div className="publish-content-drag-handle">
+                          <span>⋮⋮</span>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -198,57 +488,152 @@ export default function PublishContent({
                       <div className="publish-content-accordion-body">
                         <p>{item.description}</p>
                         {item.id === 'videos' ? (
-                          <div className="publish-content-input-row">
-                            <InputField                              
-                              placeholder="Pega el link de YouTube"
-                              value={videoUrl}
-                              onChange={(event) => setVideoUrl(event.target.value)}
-                            />
-                            <Button
-                              label="Agregar"
-                              variant="primary"
-                              buttonType="1"
-                              onClick={handleMockUpload}
-                            />
+                          <div className="publish-content-videos-container">
+                            <div className="publish-content-input-row">
+                              <InputField                              
+                                placeholder="Pega el link de YouTube"
+                                value={currentVideoUrl}
+                                onChange={(event) => setCurrentVideoUrl(event.target.value)}
+                              />
+                              <Button
+                                label="Agregar"
+                                variant="primary"
+                                buttonType="1"
+                                onClick={addVideo}
+                                disabled={!currentVideoUrl.trim() || videos.length >= 10}
+                              />
+                            </div>
+                            {videos.length > 0 && (
+                              <div 
+                                className={`publish-content-videos-grid ${dragOverGrid === 'video' ? 'drag-over' : ''}`}
+                                onDragOver={(e) => handleGridDragOver(e, 'video')}
+                                onDragLeave={handleGridDragLeave}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  setDragOverGrid(null);
+                                }}
+                              >
+                                {videosPreview?.map((video, index) => (
+                                  <div
+                                    key={`video-${index}`}
+                                    className={`publish-content-video-thumb ${draggedIndex === index && draggedType === 'video' ? 'dragging' : ''}`}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, index, 'video')}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleDrop(e, index, 'video')}
+                                    onDragEnd={handleDragEnd}
+                                  >
+                                    <img src={video.thumbnail} alt="Video thumbnail" />
+                                    <div className="publish-content-video-overlay">
+                                      <div className="publish-content-video-play">▶</div>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      className="publish-content-thumb-action"
+                                      onClick={() => removeVideo(index)}
+                                    >
+                                      <img src={iconTrash} alt="" />
+                                    </button>
+                                    <div className="publish-content-drag-handle">
+                                      <span>⋮⋮</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {videos.length >= 10 && (
+                              <p className="publish-content-limit-message">Máximo 10 videos permitidos</p>
+                            )}
                           </div>
                         ) : null}
                         {item.id === 'recorrido' ? (
-                          <div className="publish-content-input-row">
-                            <InputField
-                              placeholder="Copiá y pegá la URL del recorrido acá"
-                              value={recorridoUrl}
-                              onChange={(event) => setRecorridoUrl(event.target.value)}
-                            />
-                            <Button
-                              label="Agregar"
-                              variant="primary"
-                              buttonType="1"
-                              onClick={handleMockUpload}
-                            />
+                          <div className="publish-content-videos-container">
+                            {multimedia360.map((multimedia, index) => (
+                              <div key={index} className="publish-content-input-row">
+                                <InputField                              
+                                  placeholder="Copiá y pegá la URL del recorrido acá"
+                                  value={multimedia}
+                                  onChange={(event) => updateUrl(index, event.target.value, "multimedia360")}
+                                />
+                                {index === multimedia360.length - 1 && multimedia360.length < 10 ? (
+                                  <Button
+                                    label="Agregar"
+                                    variant="primary"
+                                    buttonType="1"
+                                    onClick={() => addUrl(index, "multimedia360")}
+                                    disabled={!multimedia.trim()}
+                                  />
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="publish-content-remove-btn"
+                                    onClick={() => removeUrl(index, "multimedia360")}
+                                    aria-label="Eliminar recorrido"
+                                  >
+                                    <img src={iconTrash} alt="" />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                            {multimedia360.length >= 10 && (
+                              <p className="publish-content-limit-message">Máximo 10 recorridos permitidos</p>
+                            )}
                           </div>
                         ) : null}
                         {item.id !== 'videos' && item.id !== 'recorrido' ? (
-                          <div className="publish-content-upload-grid compact">
+                          <div 
+                            className={`publish-content-upload-grid compact ${dragOverGrid === 'plan' ? 'drag-over' : ''}`}
+                            onDragOver={(e) => handleGridDragOver(e, 'plan')}
+                            onDragLeave={handleGridDragLeave}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              setDragOverGrid(null);
+                            }}
+                          >
+                            <input
+                              ref={plansInputRef}
+                              type="file"
+                              multiple
+                              accept=".heic,.jfif,.png,.jpg,.jpeg,.webp,.pdf"
+                              style={{ display: 'none' }}
+                              onChange={(e) => handleFileSelect(e, 'plan')}
+                            />
                             <button
                               type="button"
                               className="publish-content-upload-card"
-                              onClick={handleMockUpload}
+                              onClick={() => plansInputRef.current?.click()}
                             >
                               <img src={iconUpload} alt="" />
                               <span>Agregar planos</span>
                             </button>
-                            {uploadedImages.slice(0, 2).map((image, index) => (
+                            {uploadedPlans.map((file, index) => (
                               <div
-                                key={`${item.id}-${index}`}
-                                className="publish-content-thumb"
+                                key={`plan-${index}`}
+                                className={`publish-content-thumb ${draggedIndex === index && draggedType === 'plan' ? 'dragging' : ''}`}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, index, 'plan')}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, index, 'plan')}
+                                onDragEnd={handleDragEnd}
                               >
-                                <img src={image} alt="Contenido" />
+                                {file.type === 'application/pdf' ? (
+                                  <div className="publish-content-pdf-thumb">
+                                    <span>PDF</span>
+                                    <small>{file.name}</small>
+                                  </div>
+                                ) : (
+                                  <img src={URL.createObjectURL(file)} alt="Plan" />
+                                )}
                                 <button
                                   type="button"
                                   className="publish-content-thumb-action"
+                                  onClick={() => removeUploadedFile(index, 'plan')}
                                 >
                                   <img src={iconTrash} alt="" />
                                 </button>
+                                <div className="publish-content-drag-handle">
+                                  <span>⋮⋮</span>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -271,9 +656,10 @@ export default function PublishContent({
               className="publish-content-back"
             />
             <Button
-              label="Continuar"
+              label={isUploading ? "Subiendo..." : "Continuar"}
               variant="primary"
               onClick={handleContinue}
+              disabled={isUploading}
               className="publish-content-continue"
             />
           </div>

@@ -3,13 +3,15 @@
 import { useMemo, useState, useEffect } from 'react';
 import './PublishPlans.scss';
 import Select from '@/ui/Select/Select';
+import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 
 interface PublishPlansProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
   onBack: () => void;
   onComprar: () => void;
+  onSaveAndExit: () => void;
 }
 
 const iconChevron = '/icons/chevron-up.svg';
@@ -59,6 +61,7 @@ export default function PublishPlans({
   onComprar,
   onNext,
   onBack,
+  onSaveAndExit
 }: PublishPlansProps) {
   const [selectedCollaborator, setSelectedCollaborator] = useState(wizardData.plans?.selectedCollaborator || '');
   const [selectedPlan, setSelectedPlan] = useState(wizardData.plans?.selectedPlan || 'bonificado');
@@ -99,9 +102,9 @@ export default function PublishPlans({
         <div className="publish-plans-card">
           <div className="publish-plans-top">
             <div className="publish-plans-route">
-              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
+              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-plans-link" type="button">
+            <button className="publish-plans-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
           </div>

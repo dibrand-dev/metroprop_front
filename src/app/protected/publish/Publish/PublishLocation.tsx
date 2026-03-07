@@ -7,6 +7,12 @@ import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
 import { API_BASE_URL } from '@/utils/utils';
+import { 
+  OPERATION_TYPE_LABELS, 
+  PROPERTY_TYPE_LABELS, 
+  PROPERTY_SUBTYPE_LABELS, 
+  CreatePropertyDraft
+} from '@/types/propiedad';
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconClose = '/icons/close.svg';
@@ -46,10 +52,11 @@ const fetchLocationChildren = async (locationId: number) => {
 };
 
 interface PublishLocationProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
-  onNext: () => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
+  onNext: (locationUpdate: any) => void;
   onBack: () => void;
+  onSaveAndExit: () => void;
 }
 
 export default function PublishLocation({
@@ -57,15 +64,16 @@ export default function PublishLocation({
   updateWizardData,
   onNext,
   onBack,
+  onSaveAndExit,
 }: PublishLocationProps) {
-  const [address, setAddress] = useState(wizardData.location?.address || '');
-  const [countryId, setCountryId] = useState<number | null>(wizardData.location?.countryId || null);
-  const [provinceId, setProvinceId] = useState<number | null>(wizardData.location?.provinceId || null);
-  const [localidadId, setLocalidadId] = useState<number | null>(wizardData.location?.localidadId || null);
-  const [zoneId, setZoneId] = useState<number | null>(wizardData.location?.zoneId || null);
-  const [postalCode, setPostalCode] = useState(wizardData.location?.postalCode || '');
-  const [showExactLocation, setShowExactLocation] = useState(
-    wizardData.location?.showExactLocation !== undefined ? wizardData.location.showExactLocation : true
+  const [street, setStreet] = useState(wizardData.street || '');
+  const [country_id, setCountry_id] = useState<number | undefined>(wizardData.country_id || undefined);
+  const [province_id, setProvince_id] = useState<number | undefined>(wizardData.province_id || undefined);
+  const [localidad_id, setLocalidad_id] = useState<number | undefined>(wizardData.localidad_id || undefined);
+  const [zone_id, setZone_id] = useState<number | undefined>(wizardData.zone_id || undefined);
+  const [postal_code, setPostal_code] = useState(wizardData.postal_code || '');
+  const [show_exact_location, setShow_exact_location] = useState(
+    wizardData.show_exact_location !== undefined ? wizardData.show_exact_location : true
   );
 
   // Query for countries (loads on component mount)
@@ -76,26 +84,26 @@ export default function PublishLocation({
 
   // Query for states/provinces (loads when country is selected)
   const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
-    queryKey: ['provinces', countryId],
-    queryFn: () => fetchCountryStates(countryId!),
-    enabled: !!countryId,
+    queryKey: ['provinces', country_id],
+    queryFn: () => fetchCountryStates(country_id!),
+    enabled: !!country_id,
   });
 
   // Query for locations (loads when province is selected)
   const { data: locations = [], isLoading: loadingLocations } = useQuery({
-    queryKey: ['locations', provinceId],
-    queryFn: () => fetchStateLocations(provinceId!),
-    enabled: !!provinceId,
+    queryKey: ['locations', province_id],
+    queryFn: () => fetchStateLocations(province_id!),
+    enabled: !!province_id,
   });
 
   // Query for zones (loads when location is selected)
   const { data: zones = [], isLoading: loadingZones } = useQuery({
-    queryKey: ['zones', localidadId],
-    queryFn: () => fetchLocationChildren(localidadId!),
-    enabled: !!localidadId,
+    queryKey: ['zones', localidad_id],
+    queryFn: () => fetchLocationChildren(localidad_id!),
+    enabled: !!localidad_id,
   });
 
-  const hasAddress = useMemo(() => address.trim().length > 0, [address]);
+  const hasAddress = useMemo(() => street.trim().length > 0, [street]);
   const showMapPreview = hasAddress;
 
   // Transform data for Select components
@@ -121,57 +129,53 @@ export default function PublishLocation({
 
   // Handle selection changes and reset dependent selects
   const handleCountryChange = (value: string | null) => {
-    const selectedCountryId = value ? parseInt(value) : null;
-    setCountryId(selectedCountryId);
-    setProvinceId(null); // Reset province
-    setLocalidadId(null); // Reset location
-    setZoneId(null); // Reset zone
+    const selectedCountryId = value ? parseInt(value) : undefined;
+    setCountry_id(selectedCountryId);
+    setProvince_id(undefined); // Reset province
+    setLocalidad_id(undefined); // Reset location
+    setZone_id(undefined); // Reset zone
   };
 
   const handleProvinceChange = (value: string | null) => {
-    const selectedProvinceId = value ? parseInt(value) : null;
-    setProvinceId(selectedProvinceId);
-    setLocalidadId(null); // Reset location
-    setZoneId(null); // Reset zone
+    const selectedProvinceId = value ? parseInt(value) : undefined;
+    setProvince_id(selectedProvinceId);
+    setLocalidad_id(undefined); // Reset location
+    setZone_id(undefined); // Reset zone
   };
 
   const handleLocationChange = (value: string | null) => {
-    const selectedLocationId = value ? parseInt(value) : null;
-    setLocalidadId(selectedLocationId);
-    setZoneId(null); // Reset zone
+    const selectedLocationId = value ? parseInt(value) : undefined;
+    setLocalidad_id(selectedLocationId);
+    setZone_id(undefined); // Reset zone
   };
 
   const handleZoneChange = (value: string | null) => {
-    const selectedZoneId = value ? parseInt(value) : null;
-    setZoneId(selectedZoneId);
+    const selectedZoneId = value ? parseInt(value) : undefined;
+    setZone_id(selectedZoneId);
   };
 
   // Update wizard data when location data changes
   useEffect(() => {
     updateWizardData({
-      location: {
-        address,
-        countryId,
-        provinceId,
-        localidadId,
-        zoneId,
-        postalCode,
-        showExactLocation,
-        // Store readable names for display purposes
-        countryName: countries.find(c => c.id === countryId)?.name || '',
-        provinceName: provinces.find(p => p.id === provinceId)?.name || '',
-        localidadName: locations.find(l => l.id === localidadId)?.name || '',
-        zoneName: zones.find(z => z.id === zoneId)?.name || '',
-      },
+      street,
+      country_id,
+      province_id,
+      localidad_id,
+      zone_id,
+      postal_code,
+      show_exact_location
     });
-  }, [address, countryId, provinceId, localidadId, zoneId, postalCode, showExactLocation, countries, provinces, locations, zones, updateWizardData]);
+  }, [street, country_id, province_id, localidad_id, zone_id, postal_code, show_exact_location]);
 
   const handleBack = () => {
     onBack();
   };
 
   const handleContinue = () => {
-    onNext();
+    const locationUpdate = { 
+      postal_code: wizardData.postal_code || ''
+    }
+    onNext(locationUpdate);
   };
 
   return (
@@ -179,8 +183,8 @@ export default function PublishLocation({
       <div className="publish-location-inner">
         <div className="publish-location-card">
           <div className="publish-location-top">
-            <p className="publish-location-label">{wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}</p>
-            <button className="publish-location-link" type="button">
+            <p className="publish-location-label">{wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}</p>
+            <button className="publish-location-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
           </div>
@@ -205,8 +209,8 @@ export default function PublishLocation({
                 <InputField
                   label="Calle y numero*"
                   placeholder="Dirección"
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
+                  value={street}
+                  onChange={(event) => setStreet(event.target.value)}
                   type="text"
                 />
               </div>
@@ -216,7 +220,7 @@ export default function PublishLocation({
                   <Select
                     label="País*"
                     options={countryOptions}
-                    value={countryId ? countryId.toString() : null}
+                    value={country_id ? country_id.toString() : undefined}
                     onChange={handleCountryChange}
                     placeholder={loadingCountries ? "Cargando países..." : "Seleccionar país"}
                     disabled={!hasAddress || loadingCountries}
@@ -228,10 +232,10 @@ export default function PublishLocation({
                   <Select
                     label="Provincia*"
                     options={provinceOptions}
-                    value={provinceId ? provinceId.toString() : null}
+                    value={province_id ? province_id.toString() : undefined}
                     onChange={handleProvinceChange}
                     placeholder={loadingProvinces ? "Cargando provincias..." : "Seleccionar provincia"}
-                    disabled={!hasAddress || !countryId || loadingProvinces}
+                    disabled={!hasAddress || !country_id || loadingProvinces}
                     required
                   />
                 </div>
@@ -242,10 +246,10 @@ export default function PublishLocation({
                   <Select
                     label="Localidad"
                     options={locationOptions}
-                    value={localidadId ? localidadId.toString() : null}
+                    value={localidad_id ? localidad_id.toString() : undefined}
                     onChange={handleLocationChange}
                     placeholder={loadingLocations ? "Cargando localidades..." : "Seleccionar localidad"}
-                    disabled={!hasAddress || !provinceId || loadingLocations}
+                    disabled={!hasAddress || !province_id || loadingLocations}
                   />
                 </div>
 
@@ -253,10 +257,10 @@ export default function PublishLocation({
                   <Select
                     label="Zona"
                     options={zoneOptions}
-                    value={zoneId ? zoneId.toString() : null}
+                    value={zone_id ? zone_id.toString() : undefined}
                     onChange={handleZoneChange}
                     placeholder={loadingZones ? "Cargando zonas..." : "Seleccionar zona"}
-                    disabled={!hasAddress || !localidadId || loadingZones}
+                    disabled={!hasAddress || !localidad_id || loadingZones}
                   />
                 </div>
               </div>
@@ -266,8 +270,8 @@ export default function PublishLocation({
                   <InputField
                     label="Código postal"
                     placeholder="Código postal"
-                    value={postalCode}
-                    onChange={(event) => setPostalCode(event.target.value)}
+                    value={postal_code}
+                    onChange={(event) => setPostal_code(event.target.value)}
                     type="text"
                   />
                 </div>
@@ -282,8 +286,8 @@ export default function PublishLocation({
                 <div className="publish-location-toggle">
                   <span>Mostrar la ubicacion exacta</span>
                   <SwitchToggle
-                    checked={showExactLocation}
-                    onChange={setShowExactLocation}
+                    checked={show_exact_location}
+                    onChange={setShow_exact_location}
                     ariaLabel="Mostrar ubicacion exacta"
                   />
                 </div>

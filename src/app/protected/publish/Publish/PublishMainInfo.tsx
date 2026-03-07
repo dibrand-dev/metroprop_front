@@ -4,17 +4,23 @@ import { useState, useEffect } from 'react';
 import './PublishMainInfo.scss';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
+import { 
+  CreatePropertyDraft, 
+  OPERATION_TYPE_LABELS, 
+  PROPERTY_TYPE_LABELS, 
+  PROPERTY_SUBTYPE_LABELS 
+} from '@/types/propiedad';
 
 const iconChevron = '/icons/chevron-up.svg';
 
-const unitOptions = ['m2', 'ha'];
+const unitSelectOptions = [{label: 'm2', value: "M2"}, {label: 'ha', value:"HA"}];
 
 const roomsConfig = [
-  { key: 'ambientes', label: 'Ambientes*' },
-  { key: 'dormitorios', label: 'Dormitorios*' },
-  { key: 'banos', label: 'Baños*' },
-  { key: 'toilets', label: 'Toilets*' },
-  { key: 'cocheras', label: 'Cocheras*' },
+  { key: 'room_amount', label: 'Ambientes*' },
+  { key: 'suite_amount', label: 'Dormitorios*' },
+  { key: 'bathroom_amount', label: 'Baños*' },
+  { key: 'toilet_amount', label: 'Toilets*' },
+  { key: 'parking_lot_amount', label: 'Cocheras*' },
 ] as const;
 
 type RoomKey = (typeof roomsConfig)[number]['key'];
@@ -24,10 +30,11 @@ type UnitField = 'total' | 'covered';
 type AntiquityOption = 'construction' | 'new' | 'years';
 
 interface PublishMainInfoProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
   onBack: () => void;
+  onSaveAndExit: () => void;
 }
 
 export default function PublishMainInfo({
@@ -35,43 +42,40 @@ export default function PublishMainInfo({
   updateWizardData,
   onNext,
   onBack,
+  onSaveAndExit
 }: PublishMainInfoProps) {
-  const [totalUnit, setTotalUnit] = useState(wizardData.mainInfo?.totalUnit || '');
-  const [coveredUnit, setCoveredUnit] = useState(wizardData.mainInfo?.coveredUnit || '');
-  const [surfaceTotal, setSurfaceTotal] = useState(wizardData.mainInfo?.surfaceTotal || '');
-  const [surfaceCovered, setSurfaceCovered] = useState(wizardData.mainInfo?.surfaceCovered || '');
-  const [antiquity, setAntiquity] = useState<AntiquityOption | null>(wizardData.mainInfo?.antiquity || null);
-  const [antiquityYears, setAntiquityYears] = useState(wizardData.mainInfo?.antiquityYears || '');
-  const [rooms, setRooms] = useState<Record<RoomKey, number>>(wizardData.mainInfo?.rooms || {
-    ambientes: 0,
-    dormitorios: 0,
-    banos: 0,
-    toilets: 0,
-    cocheras: 0,
+  const [surface_measurement, setSurface_measurement] = useState(wizardData.surface_measurement || undefined);
+  const [roofed_surface_measurement, setRoofed_surface_measurement] = useState(wizardData.roofed_surface_measurement || undefined);
+  const [total_surface, setTotal_surface] = useState(wizardData.total_surface || undefined);
+  const [roofed_surface, setRoofed_surface] = useState(wizardData.roofed_surface || undefined);
+  const [property_condition, setProperty_condition] = useState<AntiquityOption | string | undefined>(wizardData.property_condition || undefined);
+  const [age, setAge] = useState(wizardData.age || undefined);
+  const [rooms, setRooms] = useState<Record<RoomKey, number>>({    
+    room_amount: wizardData.room_amount || 0,
+    suite_amount: wizardData.suite_amount || 0,
+    bathroom_amount: wizardData.bathroom_amount || 0,
+    toilet_amount: wizardData.toilet_amount || 0,
+    parking_lot_amount: wizardData.parking_lot_amount || 0,    
   });
 
-  const propertyType = 'Casa Duplex';
-  const showRooms = propertyType.toLowerCase() !== 'terreno';
-
-  const unitSelectOptions = unitOptions.map(option => ({
-    value: option,
-    label: option,
-  }));
+  const showRooms = wizardData.property_type?.toString().toLowerCase() !== 'terreno';
 
   // Update wizard data when main info changes
   useEffect(() => {
     updateWizardData({
-      mainInfo: {
-        totalUnit,
-        coveredUnit,
-        surfaceTotal,
-        surfaceCovered,
-        antiquity,
-        antiquityYears,
-        rooms,
-      },
+        surface_measurement,
+        roofed_surface_measurement,
+        total_surface,
+        roofed_surface,
+        property_condition,
+        age,
+        room_amount: rooms.room_amount,
+        suite_amount: rooms.suite_amount,
+        bathroom_amount: rooms.bathroom_amount,
+        toilet_amount: rooms.toilet_amount,
+        parking_lot_amount: rooms.parking_lot_amount,
     });
-  }, [totalUnit, coveredUnit, surfaceTotal, surfaceCovered, antiquity, antiquityYears, rooms, updateWizardData]);
+  }, [surface_measurement, roofed_surface_measurement, total_surface, roofed_surface, property_condition, age, rooms, updateWizardData]);
 
   const handleCounterChange = (key: RoomKey, delta: number) => {
     setRooms((prev) => {
@@ -97,9 +101,9 @@ export default function PublishMainInfo({
         <div className="publish-main-info-card">
           <div className="publish-main-info-top">
             <div className="publish-main-info-route">
-              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
+              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-main-info-link" type="button">
+            <button className="publish-main-info-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
           </div>
@@ -125,14 +129,15 @@ export default function PublishMainInfo({
                     <Select
                       label="Total"
                       options={unitSelectOptions}
-                      value={totalUnit}
-                      onChange={(value) => setTotalUnit(value)}
+                      value={surface_measurement}
+                      onChange={(value) => setSurface_measurement(value)}
                       placeholder=""
                     />
                     <InputField
                       placeholder="Ingresar superficie"
-                      value={surfaceTotal}
-                      onChange={(event) => setSurfaceTotal(event.target.value)}
+                      type="number"
+                      value={total_surface ?? ''}
+                      onChange={(event) => setTotal_surface(parseInt(event.target.value))}
                     />
                   </div>
                 </div>
@@ -142,14 +147,15 @@ export default function PublishMainInfo({
                     <Select
                       label="Cubierta"
                       options={unitSelectOptions}
-                      value={coveredUnit}
-                      onChange={(value) => setCoveredUnit(value)}
+                      value={roofed_surface_measurement}
+                      onChange={(value) => setRoofed_surface_measurement(value)}
                       placeholder=""
                     />
                     <InputField
                       placeholder="Ingresar superficie"
-                      value={surfaceCovered}
-                      onChange={(event) => setSurfaceCovered(event.target.value)}
+                      type="number"
+                      value={roofed_surface ?? ''}
+                      onChange={(event) => setRoofed_surface(parseInt(event.target.value))}
                     />
                   </div>
                 </div>
@@ -157,45 +163,41 @@ export default function PublishMainInfo({
             </div>
 
             <div className="publish-main-info-block">
-              <h2>Antiguedad*</h2>
+              <h2>Antigüedad*</h2>
               <div className="publish-main-info-antiquity">
                 <button
                   type="button"
                   className={`publish-chip ${
-                    antiquity === 'construction' ? 'publish-chip-active' : ''
+                    property_condition === 'construction' ? 'publish-chip-active' : ''
                   }`}
-                  onClick={() => setAntiquity('construction')}
+                  onClick={() => setProperty_condition('construction')}
                 >
                   En construccion
                 </button>
                 <button
                   type="button"
                   className={`publish-chip ${
-                    antiquity === 'new' ? 'publish-chip-active' : ''
+                    property_condition === 'new' ? 'publish-chip-active' : ''
                   }`}
-                  onClick={() => setAntiquity('new')}
+                  onClick={() => setProperty_condition('new')}
                 >
                   A estrenar
                 </button>
                 <button
                   type="button"
                   className={`publish-chip ${
-                    antiquity === 'years' ? 'publish-chip-active' : ''
+                    property_condition === 'years' ? 'publish-chip-active' : ''
                   }`}
-                  onClick={() => setAntiquity('years')}
+                  onClick={() => setProperty_condition('years')}
                 >
                   Años de la propiedad
                 </button>
-                <div className="publish-main-info-year">
-                  <input
-                    type="text"
-                    placeholder="Seleccionar"
-                    value={antiquityYears}
-                    onChange={(event) => setAntiquityYears(event.target.value)}
-                    disabled={antiquity !== 'years'}
-                    className={`publish-main-info-input ${
-                      antiquity === 'years' && antiquityYears ? 'is-active' : ''
-                    }`}
+                <div className="publish-main-info-year" style={{ display: property_condition !== 'years' ? 'none' : 'block' }}>
+                  <InputField
+                    placeholder="Ingresar antigüedad"
+                    type="number"
+                    value={age ?? ''}
+                    onChange={(event) => setAge(parseInt(event.target.value))}
                   />
                 </div>
               </div>

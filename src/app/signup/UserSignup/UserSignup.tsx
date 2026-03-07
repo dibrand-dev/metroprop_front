@@ -248,10 +248,10 @@ export default function UserSignup() {
         body: JSON.stringify({ email }),
       });
 
-      // Set 1-hour cooldown (3600 seconds)
-      const cooldownEnd = Date.now() + (60 * 60 * 1000); // 1 hour in milliseconds
+      // (40 segundos para reenviar)
+      const cooldownEnd = Date.now() + (40 * 1000); // 40 seconds in milliseconds
       setResendDisabledUntil(cooldownEnd);
-      setRemainingTime(3600); // 1 hour in seconds
+      setRemainingTime(40); // 40 seconds
       localStorage.setItem(`resendDisabled_${email}`, cooldownEnd.toString());
       
     } catch (err) {

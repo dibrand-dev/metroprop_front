@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import './PublishFinalReview.scss';
+import { CreatePropertyDraft } from '@/types/propiedad';
 
 const iconChevron = '/icons/chevron-up.svg';
 
 interface PublishFinalReviewProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
   onBack: () => void;
+  onSaveAndExit: () => void;
 }
 
 const previewImages = [
@@ -49,14 +51,15 @@ export default function PublishFinalReview({
   updateWizardData,
   onNext,
   onBack,
+  onSaveAndExit
 }: PublishFinalReviewProps) {
   const [activeTab, setActiveTab] = useState(wizardData.finalReview?.activeTab || 'servicios');
 
   // Extract wizard data for display
-  const operation = wizardData.operation || 'Operación';
-  const propertyType = wizardData.propertyType || 'Tipo';
-  const propertySubtype = wizardData.propertySubtype || '';
-  const address = wizardData.location?.address || 'Dirección no especificada';
+  const operation = wizardData.operation_type || 'Operación';
+  const propertyType = wizardData.property_type || 'Tipo';
+  const propertySubtype = wizardData.property_subtype || '';
+  const address = wizardData.street || 'Dirección no especificada';
   const price = wizardData.price || {};
   const mainInfo = wizardData.mainInfo || {};
   const description = wizardData.description || {};
@@ -171,9 +174,9 @@ export default function PublishFinalReview({
         <div className="publish-review-card">
           <div className="publish-review-top">
             <div className="publish-review-route">
-              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
+              {wizardData.operation_type} - {wizardData.property_type} {wizardData.property_subtype}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-review-link" type="button">
+            <button className="publish-review-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
           </div>

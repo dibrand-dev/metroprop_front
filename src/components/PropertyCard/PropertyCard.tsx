@@ -66,10 +66,10 @@ export default function PropertyCard({
         <div className="property-card-price-section">
           <div>
             <p className="property-card-price">
-              {property.currency}{property.price.toLocaleString('en-US')}
+              {property.currency} {property.price.toLocaleString('en-US')}
             </p>
             {property.rent && <p className="property-card-rent">
-              Expensas {property.currencyRent} {property.rent.toLocaleString('en-US')}
+              Exp. {property.currencyRent} {property.rent.toLocaleString('en-US')}
             </p>}
           </div>
           <div className="property-card-logo">

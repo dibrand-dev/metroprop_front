@@ -5,16 +5,18 @@ import './PublishPrice.scss';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
 import Checkbox from '@/ui/Checkbox/Checkbox';
+import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 
 const iconChevron = '/icons/chevron-up.svg';
 
 const currencyOptions = ['$', 'USD', 'EUR'];
 
 interface PublishPriceProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
   onBack: () => void;
+  onSaveAndExit: () => void;
 }
 
 export default function PublishPrice({
@@ -22,6 +24,7 @@ export default function PublishPrice({
   updateWizardData,
   onNext,
   onBack,
+  onSaveAndExit
 }: PublishPriceProps) {
   const [rentCurrency, setRentCurrency] = useState(wizardData.price?.rentCurrency || '$');
   const [rentAmount, setRentAmount] = useState(wizardData.price?.rentAmount || '700000');
@@ -64,9 +67,9 @@ export default function PublishPrice({
         <div className="publish-price-card">
           <div className="publish-price-top">
             <div className="publish-price-route">
-              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
+              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-price-link" type="button">
+            <button className="publish-price-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
           </div>
