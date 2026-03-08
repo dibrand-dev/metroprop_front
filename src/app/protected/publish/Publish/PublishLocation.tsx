@@ -173,7 +173,12 @@ export default function PublishLocation({
 
   const handleContinue = () => {
     const locationUpdate = { 
-      postal_code: wizardData.postal_code || ''
+      postal_code,
+      street,
+      country_id,
+      province_id,
+      localidad_id,
+      zone_id,
     }
     onNext(locationUpdate);
   };

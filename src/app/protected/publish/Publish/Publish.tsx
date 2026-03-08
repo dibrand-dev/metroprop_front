@@ -162,8 +162,7 @@ export default function Publish() {
   };
   
   const saveCurrentStep = async (wizardDataUpdate: Partial<CreatePropertyDraft>) => {
-    const _wizardDataUpdate = { ...wizardDataUpdate };
-    delete _wizardDataUpdate.draft_id;
+    const _wizardDataUpdate = { ...wizardDataUpdate };   
     const response = await fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}`, {
       method: 'PATCH',
       headers: {
@@ -173,6 +172,7 @@ export default function Publish() {
     });
     goToNextStep();
   }
+
   const saveAndExit = async () => {
     if (wizardData.draft_id) {
       try {
@@ -234,7 +234,7 @@ export default function Publish() {
           <PublishLocation
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={() => saveCurrentStep(wizardData)}
+            onNext={(locationData) => saveCurrentStep(locationData)}
             onBack={goToPreviousStep}
             onSaveAndExit={saveAndExit}
           />
