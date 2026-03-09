@@ -32,7 +32,7 @@ type AntiquityOption = 'construction' | 'new' | 'years';
 interface PublishMainInfoProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
-  onNext: () => void;
+  onNext: (mainInfo: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onSaveAndExit: () => void;
 }
@@ -92,7 +92,15 @@ export default function PublishMainInfo({
   };
 
   const handleContinue = () => {
-    onNext();
+    const mainInfoUpdate = { 
+      surface_measurement,
+      roofed_surface_measurement,
+      total_surface,
+      roofed_surface,
+      property_condition,
+      age,
+    }
+    onNext(mainInfoUpdate);
   };
 
   return (

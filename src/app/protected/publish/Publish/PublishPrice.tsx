@@ -9,12 +9,12 @@ import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PR
 
 const iconChevron = '/icons/chevron-up.svg';
 
-const currencyOptions = ['$', 'USD', 'EUR'];
+const currencyOptions = ['ARS', 'USD', 'EUR'];
 
 interface PublishPriceProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
-  onNext: () => void;
+  onNext: (priceData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onSaveAndExit: () => void;
 }
@@ -26,14 +26,10 @@ export default function PublishPrice({
   onBack,
   onSaveAndExit
 }: PublishPriceProps) {
-  const [rentCurrency, setRentCurrency] = useState(wizardData.price?.rentCurrency || '$');
-  const [rentAmount, setRentAmount] = useState(wizardData.price?.rentAmount || '700000');
-  const [expenseCurrency, setExpenseCurrency] = useState(wizardData.price?.expenseCurrency || '$');
-  const [expenseAmount, setExpenseAmount] = useState(wizardData.price?.expenseAmount || '100000');
-  const [withoutExpenses, setWithoutExpenses] = useState(wizardData.price?.withoutExpenses || false);
-
-  const rentPlaceholder = useMemo(() => 'Ej. 700000', []);
-  const expensePlaceholder = useMemo(() => 'Ej. 100000', []);
+  const [currency, setCurrency] = useState(wizardData.currency || 'ARS');
+  const [price, setPrice] = useState<number | undefined>(wizardData.price || undefined);
+  const [expenses, setExpenses] = useState<number | undefined>(wizardData.expenses || undefined);
+  const [withoutExpenses, setWithoutExpenses] = useState(false);
 
   const currencySelectOptions = currencyOptions.map(option => ({
     value: option,
@@ -43,22 +39,22 @@ export default function PublishPrice({
   // Update wizard data when price data changes
   useEffect(() => {
     updateWizardData({
-      price: {
-        rentCurrency,
-        rentAmount,
-        expenseCurrency,
-        expenseAmount,
-        withoutExpenses,
-      },
+      currency,
+      price,
+      expenses: withoutExpenses ? 0 : expenses
     });
-  }, [rentCurrency, rentAmount, expenseCurrency, expenseAmount, withoutExpenses, updateWizardData]);
+  }, [currency, price, expenses, updateWizardData]);
 
   const handleBack = () => {
     onBack();
   };
 
   const handleContinue = () => {
-    onNext();
+    onNext({
+      currency,
+      price,
+      expenses: withoutExpenses ? 0 : expenses
+    });
   };
 
   return (
@@ -88,17 +84,17 @@ export default function PublishPrice({
 
             <div className="publish-price-fields">
               <div className="publish-price-field">
-                <label>Alquiler*</label>
+                <label>{wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''}*</label>
                 <div className="publish-price-inputs">
                   <Select
                     options={currencySelectOptions}
-                    value={rentCurrency}
-                    onChange={(value) => setRentCurrency(value)}
+                    value={currency}
+                    onChange={(value) => setCurrency(value)}
                   />
                   <InputField
-                    value={rentAmount}
-                    onChange={(event) => setRentAmount(event.target.value)}
-                    placeholder={rentPlaceholder}
+                    value={price ?? null}
+                    onChange={(event) => setPrice(Number(event.target.value))}
+                    placeholder={'Ej. 700000'}
                     type="number"
                   />
                 </div>
@@ -109,14 +105,14 @@ export default function PublishPrice({
                 <div className="publish-price-inputs">
                   <Select
                     options={currencySelectOptions}
-                    value={expenseCurrency}
-                    onChange={(value) => setExpenseCurrency(value)}
+                    value={currency}
+                    onChange={(value) => setCurrency(value)}
                     disabled={withoutExpenses}
                   />
                   <InputField
-                    value={expenseAmount}
-                    onChange={(event) => setExpenseAmount(event.target.value)}
-                    placeholder={expensePlaceholder}
+                    value={expenses ?? null}
+                    onChange={(event) => setExpenses(Number(event.target.value))}
+                    placeholder="Ej. 100000"
                     type="number"
                     disabled={withoutExpenses}
                   />

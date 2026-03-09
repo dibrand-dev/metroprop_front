@@ -261,6 +261,8 @@ export interface CreateProperty {
    * Archivos adjuntos de la propiedad (documentos, planos, etc)
    */
   attached?: CreateAttached[];
+
+  selectedPlan?: string; // Plan seleccionado para la publicación (ej: "bonificado", "premium", etc)
 }
 
 // ==========================================================================

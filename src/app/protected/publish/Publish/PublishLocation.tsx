@@ -18,38 +18,8 @@ const iconChevron = '/icons/chevron-up.svg';
 const iconClose = '/icons/close.svg';
 const mapImage = '/images/mapa_google.png';
 
-// API service functions
-const fetchCountries = async () => {
-  const response = await fetch(`${API_BASE_URL}/location/countries`);
-  if (!response.ok) {
-    throw new Error('Error fetching countries');
-  }
-  return response.json();
-};
-
-const fetchCountryStates = async (countryId: number) => {
-  const response = await fetch(`${API_BASE_URL}/location/getCountryStates?countryId=${countryId}`);
-  if (!response.ok) {
-    throw new Error('Error fetching states');
-  }
-  return response.json();
-};
-
-const fetchStateLocations = async (stateId: number) => {
-  const response = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${stateId}`);
-  if (!response.ok) {
-    throw new Error('Error fetching locations');
-  }
-  return response.json();
-};
-
-const fetchLocationChildren = async (locationId: number) => {
-  const response = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${locationId}`);
-  if (!response.ok) {
-    throw new Error('Error fetching location children');
-  }
-  return response.json();
-};
+// API service functions replaced with useQuery hooks
+// ...existing code...
 
 interface PublishLocationProps {
   wizardData: CreatePropertyDraft;
@@ -79,27 +49,43 @@ export default function PublishLocation({
   // Query for countries (loads on component mount)
   const { data: countries = [], isLoading: loadingCountries } = useQuery({
     queryKey: ['countries'],
-    queryFn: fetchCountries,
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/location/countries`);
+      if (!response.ok) throw new Error('Error fetching countries');
+      return response.json();
+    },
   });
 
   // Query for states/provinces (loads when country is selected)
   const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
     queryKey: ['provinces', country_id],
-    queryFn: () => fetchCountryStates(country_id!),
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/location/getCountryStates?countryId=${country_id}`);
+      if (!response.ok) throw new Error('Error fetching states');
+      return response.json();
+    },
     enabled: !!country_id,
   });
 
   // Query for locations (loads when province is selected)
   const { data: locations = [], isLoading: loadingLocations } = useQuery({
     queryKey: ['locations', province_id],
-    queryFn: () => fetchStateLocations(province_id!),
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${province_id}`);
+      if (!response.ok) throw new Error('Error fetching locations');
+      return response.json();
+    },
     enabled: !!province_id,
   });
 
   // Query for zones (loads when location is selected)
   const { data: zones = [], isLoading: loadingZones } = useQuery({
     queryKey: ['zones', localidad_id],
-    queryFn: () => fetchLocationChildren(localidad_id!),
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${localidad_id}`);
+      if (!response.ok) throw new Error('Error fetching location children');
+      return response.json();
+    },
     enabled: !!localidad_id,
   });
 

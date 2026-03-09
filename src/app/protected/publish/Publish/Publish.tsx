@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import './Publish.scss';
 import { API_BASE_URL } from '@/utils/utils';
 
@@ -111,84 +112,71 @@ export default function Publish() {
     }
   };
 
+  const createDraftMutation = useMutation({
+    mutationFn: async (draftData: Partial<CreatePropertyDraft>) => {
+      const response = await fetch(`${API_BASE_URL}/properties/draft`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          operation_type: draftData.operation_type,
+          property_type: draftData.property_type,
+          ...(draftData.property_subtype && { property_subtype: draftData.property_subtype }),
+        }),
+      });
+      if (!response.ok) throw new Error('Error creating draft');
+      return response.json();
+    }
+  });
+
   const saveDraftProperty = async () => {
-    // Ensure we have minimum required data
     if (!wizardData.operation_type || !wizardData.property_type) {
       console.error('Missing required data for draft creation');
       goToNextStep();
       return;
     }
-
     try {
-      const response = await fetch(`${API_BASE_URL}/properties/draft`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Add authorization header if needed
-          // 'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          operation_type: wizardData.operation_type,
-          property_type: wizardData.property_type,
-          ...(wizardData.property_subtype && { property_subtype: wizardData.property_subtype }),
-        }),
-      });
-
-      if (!response.ok) {
-        let errorMessage = 'Error creating property draft';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch {
-          errorMessage = `Error ${response.status}: ${response.statusText}`;
-        }
-        console.error('Draft creation failed:', errorMessage);
-        // Continue to next step even if draft creation fails
-        goToNextStep();
-        return;
-      }
-
-      const draftData = await response.json();
-      
-      // Store draft ID in wizard data for future updates
+      const draftData = await createDraftMutation.mutateAsync(wizardData);
       updateWizardData({ draft_id: draftData.id });
-      
       goToNextStep();
-    } catch (error) {
-      console.error('Error creating draft:', error);
-      // Continue to next step even if draft creation fails
+    } catch (error: any) {
+      console.error('Error creating draft:', error?.message || error);
       goToNextStep();
     }
   };
   
+  const updatePropertyMutation = useMutation({
+    mutationFn: async (updateData: Partial<CreatePropertyDraft>) => {
+      const response = await fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+      if (!response.ok) throw new Error('Error updating property');
+      return response.json();
+    }
+  });
+
   const saveCurrentStep = async (wizardDataUpdate: Partial<CreatePropertyDraft>) => {
-    const _wizardDataUpdate = { ...wizardDataUpdate };   
-    const response = await fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(_wizardDataUpdate),
-    });
+    try {
+      await updatePropertyMutation.mutateAsync(wizardDataUpdate);
+    } catch (error: any) {
+      console.error('Error updating property:', error?.message || error);
+    }
     goToNextStep();
   }
 
   const saveAndExit = async () => {
     if (wizardData.draft_id) {
       try {
-        await fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(wizardData),
-        });
+        await updatePropertyMutation.mutateAsync(wizardData);
         console.log('Draft saved successfully');
-        // Navigate to properties list or home page
         window.location.href = '/';
       } catch (error) {
         console.error('Error saving draft:', error);
-        // Still navigate away even if save fails
         window.location.href = '/';
       }
     }
@@ -256,7 +244,7 @@ export default function Publish() {
           <PublishPropertyDescription
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={() => saveCurrentStep(wizardData)}
+            onNext={(descriptionData) => saveCurrentStep(descriptionData)}
             onBack={goToPreviousStep}
             onSaveAndExit={saveAndExit}
           />
@@ -267,7 +255,7 @@ export default function Publish() {
           <PublishMainInfo
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={() => saveCurrentStep(wizardData)}
+            onNext={(mainData) => saveCurrentStep(mainData)}
             onBack={goToPreviousStep}
             onSaveAndExit={saveAndExit}
           />
@@ -278,7 +266,7 @@ export default function Publish() {
           <PublishPrice
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={() => saveCurrentStep(wizardData)}
+            onNext={(priceData) => saveCurrentStep(priceData)}
             onBack={goToPreviousStep}
             onSaveAndExit={saveAndExit}
           />
@@ -289,7 +277,7 @@ export default function Publish() {
           <PublishPropertyContent
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={() => saveCurrentStep(wizardData)}
+            onNext={(propertyContentUpdate) => saveCurrentStep(propertyContentUpdate)}
             onBack={goToPreviousStep}
             onSaveAndExit={saveAndExit}
           />
@@ -311,7 +299,7 @@ export default function Publish() {
           <PublishPlans
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={() => saveCurrentStep(wizardData)}
+            onNext={(plansUpdate) => saveCurrentStep(plansUpdate)}
             onBack={goToPreviousStep}
             onComprar={goToBuyPlan}
             onSaveAndExit={saveAndExit}

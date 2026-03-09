@@ -19,7 +19,7 @@ const tooltipTextSecondary =
 interface PublishPropertyDescriptionProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
-  onNext: () => void;
+  onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onSaveAndExit: () => void;
 }
@@ -37,7 +37,7 @@ export default function PublishPropertyDescription({
 
   const titleCount = useMemo(() => title.length, [title]);
   const descriptionCount = useMemo(() => description.length, [description]);
-  const showDescriptionError = descriptionCount >= 0 && descriptionCount < descriptionMin;
+  const showDescriptionError = descriptionCount >= 0 && descriptionCount < descriptionMin && descriptionCount > 0;
 
   // Update wizard data when description data changes
   useEffect(() => {
@@ -52,7 +52,10 @@ export default function PublishPropertyDescription({
   };
 
   const handleContinue = () => {
-    onNext();
+    onNext({
+      publication_title: title,
+      description: description,
+    });
   };
 
   return (
@@ -77,7 +80,7 @@ export default function PublishPropertyDescription({
           <div className="publish-property-description-section">
             <div className="publish-property-description-header">
               <div className="publish-property-description-title">
-                <h1>Describi tu propiedad para atraer mas interesados</h1>
+                <h1>Describí tu propiedad para atraer mas interesados</h1>
                 <span>Datos obligatorios(*)</span>
               </div>
               <button
@@ -98,7 +101,7 @@ export default function PublishPropertyDescription({
 
             <div className="publish-property-description-field">
               <InputField
-                label="Titulo*"
+                label="Título*"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="Ej. Departamento en alquiler de 100 m2 en Palermo"
@@ -112,19 +115,19 @@ export default function PublishPropertyDescription({
 
             <div className="publish-property-description-field">
               <InputField
-                label="Descripcion*"
+                label="Descripción*"
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Escribi una descripcion que detalle los ambientes de tu propiedad y sus principales beneficios"
+                placeholder="Escribí una descripción que detalle los ambientes de tu propiedad y sus principales beneficios"
                 maxLength={descriptionMax}
                 multiline
                 rows={6}
-                error={showDescriptionError ? `La descripcion debe tener al menos ${descriptionMin} caracteres` : undefined}
+                error={showDescriptionError ? `La descripción debe tener al menos ${descriptionMin} caracteres` : undefined}
                 required
               />
               <div className="publish-property-description-meta" >
                 <span style={{ display: showDescriptionError ? 'none' : 'block' }}>
-                  La descripcion debe tener al menos {descriptionMin} caracteres
+                  La descripción debe tener al menos {descriptionMin} caracteres
                 </span>
                 <span>
                   {descriptionCount}/{descriptionMax}

@@ -9,6 +9,7 @@ import './UserSignup.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import EmailVerificationModal from '../../../components/EmailVerificationModal/EmailVerificationModal';
 import { API_BASE_URL } from '@/utils/utils';
+import { useMutation } from '@tanstack/react-query';
 import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import Button from '@/ui/Button/Button';
 
@@ -36,6 +37,31 @@ export default function UserSignup() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const hasAutoRegisteredRef = useRef(false);
+
+  // Mutation for user registration
+  const registerUserMutation = useMutation({
+    mutationFn: async (formData: { email: string; password?: string; name?: string; google?: boolean }) => {
+      const response = await fetch(`${API_BASE_URL}/registration/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error registering user');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      setShowEmailVerificationModal(true);
+    },
+    onError: (err: any) => {
+      const errorMessage = err instanceof Error ? err.message : 'Error al conectar con el servidor';
+      setError(errorMessage);
+    },
+  });
 
   // Check for existing resend cooldown on component mount
   useEffect(() => {
@@ -89,24 +115,23 @@ export default function UserSignup() {
   };
 
   const registerUser = async (payload: { email: string; password?: string; name?: string, google?: boolean }) => {
-    const response = await fetch(`${API_BASE_URL}/registration/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
 
-    if (!response.ok) {
-      let errorMessage = 'Error en el registro';
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || errorMessage;
-      } catch {
-        errorMessage = `Error ${response.status}: ${response.statusText}`;
-      }
-      throw new Error(errorMessage);
-    }
+      // Replace fetch with useMutation from tanstack/react-query
+      // import { useMutation } from '@tanstack/react-query';
+      // const registerUserMutation = useMutation({
+      //   mutationFn: async (formData) => {
+      //     const response = await fetch(`${API_BASE_URL}/registration/`, {
+      //       method: 'POST',
+      //       headers: {
+      //         'Content-Type': 'application/json',
+      //       },
+      //       body: JSON.stringify(formData),
+      //     });
+      //     if (!response.ok) throw new Error('Error registering user');
+      //     return response.json();
+      //   }
+      // });
+      // registerUserMutation.mutate(payload);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -154,16 +179,7 @@ export default function UserSignup() {
       return;
     }
 
-    startTransition(async () => {
-      try {
-        await registerUser({ email, password });        
-        setShowEmailVerificationModal(true);
-
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Error al conectar con el servidor';
-        setError(errorMessage);
-      }
-    });
+    registerUserMutation.mutate({ email, password });
   };
 
   const handleGoogleSignUp = () => {

@@ -8,7 +8,7 @@ import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PR
 interface PublishPlansProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
-  onNext: () => void;
+  onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onComprar: () => void;
   onSaveAndExit: () => void;
@@ -63,8 +63,8 @@ export default function PublishPlans({
   onBack,
   onSaveAndExit
 }: PublishPlansProps) {
-  const [selectedCollaborator, setSelectedCollaborator] = useState(wizardData.plans?.selectedCollaborator || '');
-  const [selectedPlan, setSelectedPlan] = useState(wizardData.plans?.selectedPlan || 'bonificado');
+  const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
+  const [selectedPlan, setSelectedPlan] = useState(wizardData.selectedPlan || 'bonificado');
 
   const collaboratorSelectOptions = useMemo(
     () => collaboratorOptions.map(option => ({
@@ -77,19 +77,20 @@ export default function PublishPlans({
   // Update wizard data when plans data changes
   useEffect(() => {
     updateWizardData({
-      plans: {
-        selectedCollaborator,
-        selectedPlan,
-      },
+      user_id,
+      selectedPlan,
     });
-  }, [selectedCollaborator, selectedPlan, updateWizardData]);
+  }, [user_id, selectedPlan, updateWizardData]);
 
   const handleBack = () => {
     onBack();
   };
 
   const handleContinue = () => {
-    onNext();
+    onNext({
+      user_id,
+      selectedPlan,
+    });
   };
 
   const handleComprar = () => {
@@ -124,8 +125,8 @@ export default function PublishPlans({
                 <Select
                   label="Tus colaboradores"
                   options={collaboratorSelectOptions}
-                  value={selectedCollaborator}
-                  onChange={(value) => setSelectedCollaborator(value)}
+                  value={user_id ? user_id.toString() : undefined}
+                  onChange={(value) => setUser_id(value ? parseInt(value) : undefined)}
                   placeholder="Seleccionar colaborador"
                 />
               </div>

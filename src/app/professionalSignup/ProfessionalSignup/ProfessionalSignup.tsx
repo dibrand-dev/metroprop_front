@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Select from '@/ui/Select/Select';
 import Checkbox from '@/ui/Checkbox/Checkbox';
@@ -97,8 +98,61 @@ export default function ProfessionalSignup() {
     }
   }, [resendDisabledUntil, remainingTime, email]);
 
+  // Mutation for professional registration
+  const registerProfessionalMutation = useMutation({
+    mutationFn: async (formData: any) => {
+      const response = await fetch(`${API_BASE_URL}/registration/professional`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error registering professional');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      setShowEmailVerificationModal(true);
+    },
+    onError: (err: any) => {
+      setError(err.message || 'Error registrando profesional');
+    },
+  });
+
+  // Mutation for resend email
+  const resendEmailMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await fetch(`${API_BASE_URL}/registration/resend-welcome`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al reenviar el correo de verificación');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      // Set 1-hour cooldown (3600 seconds)
+      const cooldownEnd = Date.now() + (60 * 60 * 1000); // 1 hour in milliseconds
+      setResendDisabledUntil(cooldownEnd);
+      setRemainingTime(3600); // 1 hour in seconds
+      localStorage.setItem(`resendDisabled_${email}`, cooldownEnd.toString());
+    },
+    onError: (err: any) => {
+      setError(err.message || 'Error al reenviar el correo de verificación');
+    },
+  });
+
   // Format remaining time for display
   const formatRemainingTime = (seconds: number): string => {
+     
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -158,74 +212,31 @@ export default function ProfessionalSignup() {
       return;
     }
 
-    startTransition(async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/registration/professional`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            password,
-            name,
-            company_name: businessName,
-            phone,
-            cuit,
-            fiscal_condition: fiscalCondition,
-            social_reason: businessName,
-          }),
-        });
-
-        if (!response.ok) {
-          let errorMessage = 'Error en el registro';
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.error || errorMessage;
-          } catch {
-            errorMessage = `Error ${response.status}: ${response.statusText}`;
-          }
-          setError(errorMessage);
-          return;
-        }
-
-        setShowEmailVerificationModal(true);
-
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Error al conectar con el servidor';
-        setError(errorMessage);
-      }
+    // Call mutation for registration
+    registerProfessionalMutation.mutate({
+      email,
+      password,
+      name,
+      company_name: businessName,
+      phone,
+      cuit,
+      fiscal_condition: fiscalCondition,
+      social_reason: businessName,
     });
   };
 
-  const handleResendEmail = async () => {
+  const handleResendEmail = () => {
     // Check if resend is currently disabled
     if (resendDisabledUntil && Date.now() < resendDisabledUntil) {
       return;
     }
-
-    try {
-      await fetch(`${API_BASE_URL}/registration/resend-welcome`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      // Set 1-hour cooldown (3600 seconds)
-      const cooldownEnd = Date.now() + (60 * 60 * 1000); // 1 hour in milliseconds
-      setResendDisabledUntil(cooldownEnd);
-      setRemainingTime(3600); // 1 hour in seconds
-      localStorage.setItem(`resendDisabled_${email}`, cooldownEnd.toString());
-      
-    } catch (err) {
-      console.error('Error al reenviar el correo de verificación:', err);
-    }
+    resendEmailMutation.mutate(email);
   };
 
   // Check if resend is currently disabled
   const isResendDisabled = resendDisabledUntil && Date.now() < resendDisabledUntil;
+  // Show resend error if any
+  // Optionally, you can show resendEmailMutation.error in the UI if needed
   const resendMessage = isResendDisabled 
     ? `Podrás reenviar el correo en ${formatRemainingTime(remainingTime)}`
     : undefined;
@@ -247,7 +258,7 @@ export default function ProfessionalSignup() {
                 <div className="form-field-group">
                   <div className="form-field">
                     <Select
-                      label="Tipo de usuario"
+                      label=""
                       placeholder="Seleccionar"
                       value={userType}
                       onChange={(value) => setUserType(value)}

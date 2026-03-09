@@ -9,6 +9,7 @@ import './UserSignin.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import { API_BASE_URL } from '@/utils/utils';
 import SuccessModal from '../../../components/SuccessModal/SuccessModal';
+import { useMutation } from '@tanstack/react-query';
 
 const iconGoogle = '/icons/google.svg';
 
@@ -29,6 +30,47 @@ export default function UserSignin() {
   const searchParams = useSearchParams();
   const hasProcessedGoogleLoginRef = useRef(false);
 
+  const setCookieMutation = useMutation({
+    mutationFn: async (token: string) => {
+      const response = await fetch('/api/auth/set-cookie', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Error setting cookie');
+      return response.json();
+    }
+  });
+
+  // Mutation for Google registration/login
+  const googleRegistrationMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      const response = await fetch(`${API_BASE_URL}/registration/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al iniciar sesión con Google');
+      }
+      return response.json();
+    },
+    onSuccess: async (data: any) => {
+      await storeAuthData(data);
+      router.push('/');
+    },
+    onError: (err: any) => {
+      const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
+      setError(errorMessage);
+    },
+  });
+
   const storeAuthData = async (data: any) => {
     if (!(data?.access_token && data?.user)) {
       return;
@@ -40,20 +82,7 @@ export default function UserSignin() {
 
     try {
       console.log("TRY /api/auth/set-cookie");
-      const cookieResponse = await fetch('/api/auth/set-cookie', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token: data.access_token }),
-        credentials: 'include',
-      });
-
-      if (!cookieResponse.ok) {
-        console.error('Failed to set cookie:', cookieResponse.status);
-      } else {
-        console.log('Cookie set successfully');
-      }
+      await setCookieMutation.mutateAsync(data.access_token);
     } catch (cookieError) {
       console.error('Error calling set-cookie API:', cookieError);
     }
@@ -142,43 +171,11 @@ export default function UserSignin() {
 
       hasProcessedGoogleLoginRef.current = true;
       setError('');
-      startTransition(async () => {
-        try {
-          const response:any = await fetch(`${API_BASE_URL}/registration/google`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: sessionEmail,
-              name: session?.user?.name ?? undefined,
-              avatar: session?.user?.image ?? undefined,
-              google_id: session?.user?.id
-            }),
-          });
-
-          if (!response.ok) {
-            let errorMessage = 'No encontramos un usuario con Google registrado en el sistema';
-            try {
-              const errorData = await response.json();
-              errorMessage = errorData.message || errorData.error || errorMessage;
-            } catch {
-              errorMessage = `Error ${response.status}: ${response.statusText}`;
-            }
-
-            await signOut({ redirect: false });
-            router.replace('/login');
-            setError(errorMessage);
-            return;
-          } else {
-            const data = await response.json();
-            await storeAuthData(data);
-            router.push('/');
-          }
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
-          setError(errorMessage);
-        }
+      googleRegistrationMutation.mutate({
+        email: sessionEmail,
+        name: session?.user?.name ?? undefined,
+        avatar: session?.user?.image ?? undefined,
+        google_id: session?.user?.id,
       });
     };
 

@@ -1,88 +1,49 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
+import { useCallback } from 'react';
 import './PublishPropertyContent.scss';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
 import { Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import { API_BASE_URL } from '@/utils/utils';
+import { useQuery } from '@tanstack/react-query';
 
 const iconChevron = '/icons/chevron-up.svg';
 
 interface PublishPropertyContentProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
-  onNext: () => void;
+  onNext: (data: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onSaveAndExit: () => void;
 }
 
-const amenityGroups = [
-  {
-    key: 'rooms',
-    title: 'Mas ambientes',
-    options: [
-      { id: 1, name: 'Cocina' },
-      { id: 2, name: 'Comedor' },
-      { id: 3, name: 'Jardin' },
-      { id: 4, name: 'Lavadero' },
-      { id: 5, name: 'Living comedor' },
-      { id: 6, name: 'Patio' },
-      { id: 7, name: 'Altillo' },
-      { id: 8, name: 'Balcon' },
-      { id: 9, name: 'Baulera' },
-    ],
-  },
-  {
-    key: 'services',
-    title: 'Servicios',
-    options: [
-      { id: 10, name: 'Ascensor' },
-      { id: 11, name: 'Encargado' },
-      { id: 12, name: 'Internet / Wifi' },
-      { id: 13, name: 'Ropa de cama' },
-      { id: 14, name: 'Servicio de limpieza' },
-      { id: 15, name: 'Toallas' },
-    ],
-  },
-  {
-    key: 'extras',
-    title: 'Extras',
-    options: [
-      { id: 16, name: 'Aire acondicionado' },
-      { id: 17, name: 'Alarma' },
-      { id: 18, name: 'Amoblado' },
-      { id: 19, name: 'Calefaccion' },
-      { id: 20, name: 'Quincho' },
-      { id: 21, name: 'Vigilancia' },
-      { id: 22, name: 'Caldera' },
-      { id: 23, name: 'Cancha de deportes' },
-      { id: 24, name: 'Cocina equipada' },
-    ],
-  },
-  {
-    key: 'facilities',
-    title: 'Facilidades',
-    options: [
-      { id: 25, name: 'Apto profesional' },
-      { id: 26, name: 'Gimnasio' },
-      { id: 27, name: 'Parrilla' },
-      { id: 28, name: 'Permite mascotas' },
-      { id: 29, name: 'Pileta' },
-      { id: 30, name: 'Solarium' },
-      { id: 31, name: 'Acceso para personas...' },
-      { id: 32, name: 'Hidromasaje' },
-    ],
-  },
-] as const;
 
-type AmenityKey = (typeof amenityGroups)[number]['key'];
+enum AmenityType {
+  Rooms = 1,
+  Services = 2,
+  Extras = 3,
+  Facilities = 4,
+}
 
-type DetailSelectKey = 'brightness' | 'orientation' | 'floors_amount' | 'garage_coverage';
+const AMENITY_TYPE_LABELS: Record<AmenityType, string> = {
+  [AmenityType.Rooms]: 'Mas ambientes',
+  [AmenityType.Services]: 'Servicios',
+  [AmenityType.Extras]: 'Extras',
+  [AmenityType.Facilities]: 'Facilidades',
+};
 
-type DetailOption = {
-  key: DetailSelectKey;
-  label: string;
-  options: string[];
+type AmenityTag = {
+  id: number;
+  name: string;
+  type: AmenityType;
+};
+
+type AmenityGroup = {
+  type: AmenityType;
+  title: string;
+  options: AmenityTag[];
 };
 
 export default function PublishPropertyContent({
@@ -92,18 +53,17 @@ export default function PublishPropertyContent({
   onBack,
   onSaveAndExit
 }: PublishPropertyContentProps) {
-  const [expandedGroups, setExpandedGroups] = useState<Record<AmenityKey, boolean>>({
-    rooms: false,
-    services: false,
-    extras: false,
-    facilities: false,
+  const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
+  const [expandedGroups, setExpandedGroups] = useState<Record<AmenityType, boolean>>({
+    [AmenityType.Rooms]: false,
+    [AmenityType.Services]: false,
+    [AmenityType.Extras]: false,
+    [AmenityType.Facilities]: false,
   });
 
-  const [selectedAmenities, setSelectedAmenities] = useState<number[] | undefined>(
-    wizardData.tags || undefined
-  );
+  const [selectedAmenities, setSelectedAmenities] = useState<number[]>(wizardData.tags || []);
 
-  const [tags, setTags] = useState(wizardData.tags || undefined);
+  const [tags, setTags] = useState(wizardData.tags || []);
   const [orientation, setOrientation] = useState(wizardData.orientation || undefined);
   const [floors_amount, setFloors_amount] = useState(wizardData.floors_amount || undefined);
   const [garage_coverage, setGarage_coverage] = useState(wizardData.garage_coverage || undefined);
@@ -112,14 +72,34 @@ export default function PublishPropertyContent({
   const [surface_length, setSurface_length] = useState(wizardData.surface_length || undefined);
   const [semiroofed_surface, setSemiroofed_surface] = useState(wizardData.semiroofed_surface || undefined);
 
+
+  const { data: tagsData = [] } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/tags`);
+      if (!res.ok) throw new Error('Error fetching tags');
+      return res.json();
+    },
+  });
+
+  useEffect(() => {
+    if (tagsData.length > 0) {
+      const groups: AmenityGroup[] = Object.values(AmenityType).filter(v => typeof v === 'number').map(type => {
+        const options = tagsData.filter((tag: AmenityTag) => tag.type === type);
+        return {
+          type: type as AmenityType,
+          title: AMENITY_TYPE_LABELS[type as AmenityType],
+          options,
+        };
+      });
+      setAmenityGroups(groups);
+    }
+  }, [tagsData]);
+
   // Update wizard data when property content changes
   useEffect(() => {
     updateWizardData({
-      /*selectedAmenities: Object.fromEntries(
-        Object.entries(selectedAmenities).map(([key, value]) => [key, Array.from(value)])
-      ),
-      details,*/
-      tags,
+      tags: selectedAmenities,
       brightness,
       orientation,
       floors_amount,
@@ -128,38 +108,43 @@ export default function PublishPropertyContent({
       surface_length,
       semiroofed_surface
     });
-  }, [ /*selectedAmenities,*/ tags, brightness, orientation, floors_amount, garage_coverage, surface_front, surface_length, semiroofed_surface, updateWizardData]);
+  }, [selectedAmenities, brightness, orientation, floors_amount, garage_coverage, surface_front, surface_length, semiroofed_surface, updateWizardData]);
 
-  const handleToggleAmenity = (groupKey: AmenityKey, optionId: number) => {
+  const handleToggleAmenity = useCallback((optionId: number) => {
     setSelectedAmenities((prev) => {
-      const nextSet = new Set(prev[groupKey]);
-      if (nextSet.has(optionId)) {
-        nextSet.delete(optionId);
+      if (prev.includes(optionId)) {
+        return prev.filter(id => id !== optionId);
       } else {
-        nextSet.add(optionId);
+        return [...prev, optionId];
       }
-      return {
-        ...prev,
-        [groupKey]: nextSet,
-      };
     });
-  };
-
-  const handleToggleGroup = (groupKey: AmenityKey) => {
+  }, []);
+  const handleToggleGroup = (type: AmenityType) => {
     setExpandedGroups((prev) => ({
       ...prev,
-      [groupKey]: !prev[groupKey],
+      [type]: !prev[type],
     }));
-  };  
+  };
 
   const handleBack = () => {
     onBack();
   };
 
   const handleContinue = () => {
-    onNext();
+    const propertyContentUpdate = { 
+      tags: selectedAmenities,
+      brightness,
+      orientation,
+      floors_amount,
+      garage_coverage,
+      surface_front,
+      surface_length,
+      semiroofed_surface
+    }
+    onNext(propertyContentUpdate);
   };
 
+  console.log("brightness", brightness)
   return (
     <div className="publish-property-content">
       <div className="publish-property-content-inner">
@@ -168,7 +153,7 @@ export default function PublishPropertyContent({
             <div className="publish-property-content-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-property-content-link" type="button">
+            <button className="publish-property-content-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
           </div>
@@ -189,22 +174,18 @@ export default function PublishPropertyContent({
 
             <div className="publish-property-content-groups">
               {amenityGroups.map((group) => {
-                const selectedSet = selectedAmenities[group.key];
-                const isExpanded = expandedGroups[group.key];
+                const isExpanded = expandedGroups[group.type];
                 const visibleItems = isExpanded ? group.options : group.options.slice(0, 9);
-
                 return (
-                  <div key={group.key} className="publish-property-content-group">
+                  <div key={group.type} className="publish-property-content-group">
                     <h2>{group.title}</h2>
                     <div className="publish-property-content-chip-grid">
                       {visibleItems.map((option) => (
                         <button
                           key={option.id}
                           type="button"
-                          className={`publish-chip ${
-                            selectedSet.has(option.id) ? 'publish-chip-active' : ''
-                          }`}
-                          onClick={() => handleToggleAmenity(group.key, option.id)}
+                          className={`publish-chip ${selectedAmenities.includes(option.id) ? 'publish-chip-active' : ''}`}
+                          onClick={() => handleToggleAmenity(option.id)}
                         >
                           {option.name}
                         </button>
@@ -213,7 +194,7 @@ export default function PublishPropertyContent({
                     <button
                       type="button"
                       className="publish-property-content-more"
-                      onClick={() => handleToggleGroup(group.key)}
+                      onClick={() => handleToggleGroup(group.type)}
                     >
                       {isExpanded ? 'Ver menos' : 'Ver mas'}
                       <img
@@ -234,8 +215,8 @@ export default function PublishPropertyContent({
                   <Select
                     label="Luminoso"
                     options={BRIGHTNESS_SELECT_OPTIONS}
-                    value={brightness ? BRIGHTNESS_LABELS[brightness] : undefined}
-                    onChange={(value) => setBrightness(value as unknown as Brightness)}
+                    value={brightness?.toString() ?? undefined}
+                    onChange={(value) => setBrightness(value as any)}
                     placeholder="Seleccionar"
                   />
                 </div>
@@ -243,8 +224,8 @@ export default function PublishPropertyContent({
                   <Select
                     label="Orientación"
                     options={ORIENTATION_SELECT_OPTIONS}
-                    value={orientation ? ORIENTATION_LABELS[orientation] : undefined}
-                    onChange={(value) => setOrientation(value as unknown as Orientation)}
+                    value={orientation?.toString() ?? undefined}
+                    onChange={(value) => setOrientation(value as any)}
                     placeholder="Seleccionar"
                   />
                 </div>
@@ -261,8 +242,8 @@ export default function PublishPropertyContent({
                   <Select
                     label="Cobertura cochera"
                     options={GARAGE_SELECT_OPTIONS}
-                    value={garage_coverage ? GARAGE_COVERAGE_LABELS[garage_coverage] : undefined}
-                    onChange={(value) => setGarage_coverage(value as unknown as GarageCoverage)}
+                    value={garage_coverage?.toString() ?? undefined}
+                    onChange={(value) => setGarage_coverage(value as any)}
                     placeholder="Seleccionar"
                   />
                 </div>

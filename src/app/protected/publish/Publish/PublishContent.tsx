@@ -6,6 +6,9 @@ import Button from '@/ui/Button/Button';
 import InputField from '@/ui/InputField/InputField';
 import { CreateImage, CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, VideoPreview } from '@/types/propiedad';
 
+// Replace fetch with useMutation for multimedia upload
+import { useMutation } from '@tanstack/react-query';
+
 const iconChevron = '/icons/chevron-up.svg';
 const iconTrash = '/icons/trash.svg';
 const iconUpload = '/icons/upload.svg';
@@ -221,34 +224,34 @@ export default function PublishContent({
     }
   };
 
-  const handleFormSubmit = async () => {
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      
-      // Add image files
-      uploadedImages.forEach((file, index) => {
-        formData.append(`images`, file);
-      });
-      
-      // Add plan files to multimedia360
-      uploadedPlans.forEach((file, index) => {
-        formData.append(`attached`, file);
-      });
-
-      formData.append('videos', JSON.stringify(videos));
-      formData.append('multimedia360', JSON.stringify(multimedia360));
-
+  const uploadMultimediaMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
       const response = await fetch(`http://localhost:3000/properties/${wizardData.draft_id}/save-multimedia`, {
         method: 'POST',
         body: formData,
       });
+      if (!response.ok) throw new Error('Error uploading files');
+      return response.json();
+    }
+  });
 
-      if (!response.ok) {
-        throw new Error('Error uploading files');
-      }
+  const handleFormSubmit = async () => {
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      // Add image files
+      uploadedImages.forEach((file, index) => {
+        formData.append(`images`, file);
+      });
+      // Add plan files to multimedia360
+      uploadedPlans.forEach((file, index) => {
+        formData.append(`attached`, file);
+      });
+      formData.append('videos', JSON.stringify(videos));
+      formData.append('multimedia360', JSON.stringify(multimedia360));
+      await uploadMultimediaMutation.mutateAsync(formData);
 
-      const result = await response.json();
+      const result = await uploadMultimediaMutation.mutateAsync(formData);
       console.log('Upload successful:', result);
       
       // Update wizard data with uploaded file URLs if returned from API
