@@ -62,6 +62,7 @@ export default function PublishMainInfo({
 
   // Update wizard data when main info changes
   useEffect(() => {
+    console.log("roomsroomsrooms", rooms)
     updateWizardData({
         surface_measurement,
         roofed_surface_measurement,
@@ -99,6 +100,11 @@ export default function PublishMainInfo({
       roofed_surface,
       property_condition,
       age,
+      room_amount: rooms.room_amount,
+      suite_amount: rooms.suite_amount,
+      bathroom_amount: rooms.bathroom_amount,
+      toilet_amount: rooms.toilet_amount,
+      parking_lot_amount: rooms.parking_lot_amount,
     }
     onNext(mainInfoUpdate);
   };

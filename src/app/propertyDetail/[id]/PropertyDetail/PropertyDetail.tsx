@@ -12,124 +12,66 @@ import PropertyDetailSubmenu from './PropertyDetailSubmenu/PropertyDetailSubmenu
 import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
+import { useQuery } from '@tanstack/react-query';
+import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation } from '@/types/propiedad';
+import { API_BASE_URL } from '@/utils/utils';
+import { AWS_S3_BUCKET_URL } from '@/constants';
 
 interface PropertyDetailProps {
   propertyId: string;
 }
 
-const propertyDetailData = {
-  status: 'En venta',
-  price: 'USD 320.000',
-  title: 'Departamento - 167 m2 - 5 amb. - 1 cochera',
-  galleryStartIndex: 1,
-  galleryImages: [
-    'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=600&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&h=400&fit=crop&sat=-50',
-    'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=600&h=400&fit=crop',
-  ],
-  summaryTitle: 'Alquiler inmediato Cerviño 5 ambientes, Palermo.',
-  summaryDescription:
-    'Se vende departamento 2 Ambientes con BALCON al frente en Recoleta.\nRECICLADO EN SU TOTALIDAD. PISO 7º AL FRENTE.\n\nEste departamento cuenta con una superficie total de 41 m2.',
-  featureItems: [
-    { label: 'A estrenar', icon: '/icons/calendar.svg' },
-    { label: 'Contrafrente', icon: '/icons/contrafrente.svg' },
-    { label: 'N', icon: '/icons/orientacion.svg' },
-    { label: '177 m2 tot.', icon: '/icons/regla.svg' },
-    { label: '167 m2 cub', icon: '/icons/mcubiertos.svg' },
-    { label: '5 amb.', icon: '/icons/door.svg' },
-    { label: '1 cochera', icon: '/icons/cochera.svg' },
-    { label: '4 dorm.', icon: '/icons/cama.svg' },
-    { label: '3 baños', icon: '/icons/bano.svg' },
-  ],
-  questionChips: [
-    'Se puede visitar hoy',
-    'Aceptan permuta',
-    'El edificio tiene amenities',
-    'Tiene baulera',
-  ],
-  amenitiesByTab: {
-    caracteristicas: ['Ascensor', 'Balcon', 'Lavadero', 'Vestidor', 'Parrilla', 'Piso de madera'],
-    servicios: ['Agua corriente', 'Gas natural', 'Electricidad', 'Internet'],
-    descripcion: [
-      'Departamento luminoso con vista abierta.',
-      'Cocina integrada, living comedor amplio.',
-      'Dormitorio principal en suite con vestidor.',
-    ],
-  },
-  address: 'Avenida Cevino 4046, Palermo Chico, Palermo',
-  mapImage: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=1200&h=600&fit=crop',
-  issues: ['Publicacion incorrecta', 'No responde', 'Ya fue vendida'],
-  agent: {
-    logoText: 'MP',
-    name: 'Metroprop Premium',
-    type: 'Inmobiliaria',
-    stats: ['Propiedades publicadas: 128', 'Respuesta promedio: 2 horas'],
-  },
-  similarSections: [
-    { title: 'Propiedades similares', count: 5 },
-    { title: 'Propiedades similares por m2', count: 5 },
-  ],
-  labels: {
-    infoAria: 'Mas informacion',
-    galleryAltPrimary: 'Vista principal',
-    galleryAltPrefix: 'Vista',
-    galleryViewAll: 'Ver todas',
-    featuresMore: 'Ver mas',
-    featuresLess: 'Ver menos',
-    amenitiesTitle: 'Conoce mas sobre esta propiedad',
-    amenityTabs: [
-      { key: 'caracteristicas', label: 'Caracteristicas' },
-      { key: 'servicios', label: 'Servicios' },
-      { key: 'descripcion', label: 'Descripcion' },
-    ] as const,
-    issuesTitle: 'Tengo un problema con...',
-    contactTitle: 'Contacta al anunciante',
-    contactQuestionsTitle: 'Preguntas para el anunciante',
-    contactQuestionsDescription: 'Selecciona una o mas preguntas, o escribi tu consulta.',
-    form: {
-      name: 'Nombre',
-      country: 'País',
-      phone: 'Telefono',
-      email: 'Email',
-      message: 'Consulta',
-    },
-    terms: {
-      conditions: 'Acepto terminos y condiciones',
-      privacy: 'Acepto politica de privacidad',
-    },
-    actions: {
-      send: 'Enviar',
-      contact: 'Contactar',
-    },
-    contactActions: [
-      {
-        id: 'whatsapp',
-        label: 'Whatsapp',
-        icon: '/icons/whatsapp.svg',
-        variant: 'whatsapp',
-      },
-      {
-        id: 'contact',
-        label: 'Contactar',
-        icon: '/icons/envelope.svg',
-        variant: 'primary',
-      },
-    ],
-    galleryActions: {
-      favorite: 'Favorito',
-      share: 'Compartir',
-    },
-    summaryToggle: {
-      more: 'Leer descripcion completa',
-      less: 'Leer descripcion completa',
-    },
-  },
-};
+interface ApiProperty {
+  id: number;
+  publication_title: string;
+  description?: string;
+  operation_type: number;
+  property_type: number;
+  price: number;
+  currency: string;
+  expenses?: number;
+  currency_expenses?: string;
+  street?: string;
+  room_amount?: number;
+  bathroom_amount?: number;
+  toilet_amount?: number;
+  suite_amount?: number;
+  parking_lot_amount?: number;
+  total_surface?: number;
+  roofed_surface?: number;
+  surface_measurement?: string;
+  roofed_surface_measurement?: string;
+  property_condition?: string;
+  age?: number;
+  orientation?: number;
+  images?: Array<{ id: number; url: string; is_blueprint: boolean; upload_status?: string }>;
+  tags?: Array<{ id: number; tag_id: number }>;
+  organization?: { name?: string; logo_url?: string };
+  user?: { id: number; name?: string; phone?: string };
+  videos?: string[];
+  multimedia360?: string[];
+}
+
+const QUESTION_CHIPS = [
+  'Se puede visitar hoy',
+  'Aceptan permuta',
+  'El edificio tiene amenities',
+  'Tiene baulera',
+];
+
+const SIMILAR_SECTIONS = [
+  { title: 'Propiedades similares', count: 5 },
+  { title: 'Propiedades similares por m2', count: 5 },
+];
+
+const CONTACT_ACTIONS = [
+  { id: 'whatsapp', label: 'Whatsapp', icon: '/icons/whatsapp.svg', variant: 'whatsapp' },
+  { id: 'contact', label: 'Contactar', icon: '/icons/envelope.svg', variant: 'primary' },
+];
 
 export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
-  const [activeTab, setActiveTab] = useState<'caracteristicas' | 'servicios' | 'descripcion'>('caracteristicas');
+  const [activeTab, setActiveTab] = useState<string>('');
+  const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
 	const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [featuresExpanded, setFeaturesExpanded] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
@@ -152,12 +94,99 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
-  const amenities = useMemo(() => propertyDetailData.amenitiesByTab[activeTab], [activeTab]);
-  const showFeaturesToggle = propertyDetailData.featureItems.length > 6;
-  const showSummaryToggle = propertyDetailData.summaryDescription.length > 140;
-  const amenitiesText = useMemo(() => {
-    return amenities.join('\n');
-  }, [activeTab, amenities]);
+  // Fetch property detail
+  const { data: property, isLoading, isError } = useQuery<ApiProperty>({
+    queryKey: ['property', propertyId],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/properties/${propertyId}`);
+      if (!res.ok) throw new Error('Error fetching property');
+      return res.json();
+    },
+    enabled: !!propertyId,
+  });
+
+  // Fetch tags for amenity tab names
+  const { data: tagsData = [] } = useQuery<AmenityTag[]>({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/tags`);
+      if (!res.ok) throw new Error('Error fetching tags');
+      return res.json();
+    },
+  });
+
+  // Build amenity groups from loaded tags (same pattern as PublishFinalReview)
+  useEffect(() => {
+    if (tagsData.length > 0) {
+      const groups: AmenityGroup[] = Object.values(AmenityType).filter(v => typeof v === 'number').map(type => {
+        const options = tagsData.filter((tag: AmenityTag) => tag.type === type);
+        return {
+          type: type as AmenityType,
+          title: AMENITY_TYPE_LABELS[type as AmenityType],
+          options,
+        };
+      });
+      setAmenityGroups(groups);
+      if (groups.length > 0) {
+        setActiveTab(groups[0].type.toString());
+      }
+    }
+  }, [tagsData]);
+
+  const amenityTabs = amenityGroups.map(group => ({
+    key: group.type.toString(),
+    label: group.title,
+  }));
+
+  const getAmenitiesByTab = (): Record<string, string[]> => {
+    const result: Record<string, string[]> = {};
+    const selectedTagIds = (property?.tags ?? []).map(t => t.tag_id);
+    amenityGroups.forEach(group => {
+      const groupKey = group.type.toString();
+      result[groupKey] = group.options
+        .filter((option: AmenityTag) => selectedTagIds.includes(option.id))
+        .map((option: AmenityTag) => option.name);
+    });
+    return result;
+  };
+
+  const dynamicAmenities = getAmenitiesByTab();
+
+  // Gallery images (non-blueprint, completed uploads)
+  const galleryImages = useMemo(() => {
+    return (property?.images ?? [])
+      .filter(img => !img.is_blueprint && img.upload_status === 'completed')
+      .map(img => `${AWS_S3_BUCKET_URL}/${img.url}`);
+  }, [property]);
+
+  const dynamicFeatures = useMemo(() => {
+    if (!property) return [];
+    const features: { label: string; icon: string }[] = [];
+
+    if (property.property_condition === 'new') features.push({ label: 'A estrenar', icon: '/icons/calendar.svg' });
+    else if (property.property_condition === 'construction') features.push({ label: 'En construcción', icon: '/icons/calendar.svg' });
+    else if (property.property_condition === 'years' && property.age) features.push({ label: `${property.age} años`, icon: '/icons/calendar.svg' });
+
+    if (property.orientation) features.push({ label: ORIENTATION_LABELS[property.orientation as Orientation] ?? String(property.orientation), icon: '/icons/orientacion.svg' });
+    if (property.total_surface && property.surface_measurement) features.push({ label: `${property.total_surface} ${property.surface_measurement} tot.`, icon: '/icons/regla.svg' });
+    if (property.roofed_surface && property.roofed_surface_measurement) features.push({ label: `${property.roofed_surface} ${property.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
+    if (property.room_amount) features.push({ label: `${property.room_amount} amb.`, icon: '/icons/door.svg' });
+    if (property.parking_lot_amount) features.push({ label: `${property.parking_lot_amount} cochera${property.parking_lot_amount > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
+    if (property.suite_amount) features.push({ label: `${property.suite_amount} dorm.`, icon: '/icons/cama.svg' });
+    if (property.bathroom_amount) features.push({ label: `${property.bathroom_amount} baño${property.bathroom_amount > 1 ? 's' : ''}`, icon: '/icons/bano.svg' });
+    if (property.toilet_amount) features.push({ label: `${property.toilet_amount} toilette${property.toilet_amount > 1 ? 's' : ''}`, icon: '/icons/toilet.svg' });
+    console.log("property", property)
+    console.log("features", features)
+    return features;
+  }, [property]);
+  const showFeaturesToggle = dynamicFeatures?.length > 6;
+  const showSummaryToggle = (property?.description?.length ?? 0) > 140;
+
+  // Derived display values
+  const priceDisplay = property ? `${property.currency} ${property.price.toLocaleString('en-US')}` : '';
+  const statusDisplay = property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : '';
+  const agentName = property?.organization?.name ?? 'Metroprop';
+  const agentLogoText = agentName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
 
   const updateSimilarScrollState = (index: number) => {
     const container = similarRefs.current[index];
@@ -189,7 +218,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   };
 
   useEffect(() => {
-    const sectionCount = propertyDetailData.similarSections.length;
+    const sectionCount = SIMILAR_SECTIONS.length;
     setSimilarCanScrollLeft((prev) => {
       if (prev.length === sectionCount) return prev;
       return Array.from({ length: sectionCount }, () => false);
@@ -199,7 +228,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       return Array.from({ length: sectionCount }, () => true);
     });
 
-    propertyDetailData.similarSections.forEach((_, index) => {
+    SIMILAR_SECTIONS.forEach((_, index) => {
       updateSimilarScrollState(index);
     });
   }, []);
@@ -234,7 +263,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     setFormState((prev) => ({ ...prev, country: value }));
   };
 
-  const primaryContactAction = propertyDetailData.labels.contactActions.find((action) => action.id === 'contact');
+  const primaryContactAction = CONTACT_ACTIONS.find((action) => action.id === 'contact');
 
   useEffect(() => {
     if (!isContactModalOpen) return;
@@ -261,7 +290,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   const renderContactForm = (options?: { isModal?: boolean }) => {
     const isModal = options?.isModal ?? false;
-    const contactActions = isModal && primaryContactAction ? [primaryContactAction] : propertyDetailData.labels.contactActions;
+    const contactActions = isModal && primaryContactAction ? [primaryContactAction] : CONTACT_ACTIONS;
 
     return (
       <form
@@ -270,15 +299,15 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       >
         {!isModal && (
           <div className="property-detail-contact-header">
-            <h2>{propertyDetailData.labels.contactTitle}</h2>
+            <h2>Contacta al anunciante</h2>
           </div>
         )}
 
         <div className="property-detail-contact-block">
-          <h3>{propertyDetailData.labels.contactQuestionsTitle}</h3>
-          <p>{propertyDetailData.labels.contactQuestionsDescription}</p>
+          <h3>Preguntas para el anunciante</h3>
+          <p>Selecciona una o mas preguntas, o escribi tu consulta.</p>
           <div className="property-detail-question-grid">
-            {propertyDetailData.questionChips.map((question) => (
+            {QUESTION_CHIPS.map((question) => (
               <button
                 key={question}
                 type="button"
@@ -296,12 +325,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         <div className="property-detail-contact-form">
           <div className="property-detail-input-row">
             <InputField2
-              label={propertyDetailData.labels.form.name}
+              label="Nombre"
               value={formState.name}
               onChange={(event) => setFormState({ ...formState, name: event.target.value })}
             />
             <InputField2
-              label={propertyDetailData.labels.form.email}
+              label="Email"
               type="email"
               value={formState.email}
               onChange={(event) => setFormState({ ...formState, email: event.target.value })}
@@ -309,20 +338,20 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           </div>
           <div className="property-detail-input-row">
             <InputField2
-              label={propertyDetailData.labels.form.country}
+              label="País"
               value={formState.country}
               onFocus={() => setIsCountryModalOpen(true)}
               onChange={(event) => setFormState({ ...formState, country: event.target.value })}
             />
             <InputField2
-              label={propertyDetailData.labels.form.phone}
+              label="Telefono"
               value={formState.phone}
               onChange={(event) => setFormState({ ...formState, phone: event.target.value })}
             />
           </div>
           <div className="property-detail-input-row single">
             <InputField2
-              label={propertyDetailData.labels.form.message}
+              label="Consulta"
               value={formState.message}
               onChange={(event) => setFormState({ ...formState, message: event.target.value })}
             />
@@ -331,12 +360,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
         <div className="property-detail-contact-terms">
           <Checkbox
-            label={propertyDetailData.labels.terms.conditions}
+            label="Acepto terminos y condiciones"
             checked={termsAccepted}
             onChange={setTermsAccepted}
           />
           <Checkbox
-            label={propertyDetailData.labels.terms.privacy}
+            label="Acepto politica de privacidad"
             checked={privacyAccepted}
             onChange={setPrivacyAccepted}
           />
@@ -393,13 +422,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       <main className="property-detail-content">
         <section className="property-detail-hero" id="property-detail-fotos">
           <div className="property-detail-hero-row">
-            <p className="property-detail-status"><span className='status-icon'></span>{propertyDetailData.status}</p>
+            <p className="property-detail-status"><span className='status-icon'></span>{statusDisplay}</p>
             <div className="property-detail-price">
-              <span>{propertyDetailData.price}</span>
+              <span>{priceDisplay}</span>
               <button
                 type="button"
                 className="property-detail-info"
-                aria-label={propertyDetailData.labels.infoAria}
+                aria-label="Mas informacion"
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -409,36 +438,36 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               </button>
             </div>
           </div>
-          <h1 className="property-detail-title">{propertyDetailData.title}</h1>
+          <h1 className="property-detail-title">{property?.publication_title}</h1>
         </section>
 
         <section className="property-detail-gallery">
           <div className="property-detail-gallery-main">
             <img
-              src={propertyDetailData.galleryImages[0]}
-              alt={propertyDetailData.labels.galleryAltPrimary}
+              src={galleryImages[0] ?? ''}
+              alt="Vista principal"
             />
             <div className="property-detail-gallery-main-overlay">
               <div className="property-detail-gallery-actions">
-                <button type="button" aria-label={propertyDetailData.labels.galleryActions.favorite}>
+                <button type="button" aria-label="Favorito">
                   <img src="/icons/heart.svg" alt="" />
                 </button>
-                <button type="button" aria-label={propertyDetailData.labels.galleryActions.share}>
+                <button type="button" aria-label="Compartir">
                   <img src="/icons/message.svg" alt="" />
                 </button>
               </div>
               <div className="property-detail-gallery-counter">
-                {propertyDetailData.galleryStartIndex} / {propertyDetailData.galleryImages.length}
+                1 / {galleryImages.length}
               </div>
             </div>
           </div>
           <div className="property-detail-gallery-grid">
-            {propertyDetailData.galleryImages.slice(1, 5).map((image, index) => (
+            {galleryImages.slice(1, 5).map((image, index) => (
               <div key={image} className="property-detail-gallery-item">
-                <img src={image} alt={`${propertyDetailData.labels.galleryAltPrefix} ${index + 2}`} />
+                <img src={image} alt={`Vista ${index + 2}`} />
                 {index === 3 && (
                   <div className="property-detail-gallery-overlay">
-                    <button type="button">{propertyDetailData.labels.galleryViewAll}</button>
+                    <button type="button">Ver todas</button>
                   </div>
                 )}
               </div>
@@ -453,12 +482,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           id="property-detail-informacion"
         >
           <div className="property-detail-features-grid">
-            {propertyDetailData.featureItems.map((item) => (
-              <div key={item.label} className="property-detail-feature">
-                <div className="property-detail-feature-value">
-                  <img src={item.icon} alt={item.label} />
-                </div>
-                <div className="property-detail-feature-label">{item.label}</div>
+            {dynamicFeatures.map((item, index) => (
+              <div key={`${item.label}-${index}`} className="publish-review-feature">
+                <img src={item.icon} alt="" />
+                <span>{item.label}</span>
               </div>
             ))}
           </div>
@@ -469,7 +496,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               onClick={() => setFeaturesExpanded((prev) => !prev)}
               aria-expanded={featuresExpanded}
             >
-              {featuresExpanded ? propertyDetailData.labels.featuresLess : propertyDetailData.labels.featuresMore}
+              {featuresExpanded ? 'Ver menos' : 'Ver mas'}
               <img
                 src="/icons/chevron-up.svg"
                 alt=""
@@ -483,10 +510,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         <div className="property-detail-body">
           <div className="property-detail-left">
             <section className="property-detail-summary" id="property-detail-descripcion">
-              <h2>{propertyDetailData.summaryTitle}</h2>
+              <h2>{property?.publication_title}</h2>
               <div className="property-detail-summary-grid">
                 <p className={summaryExpanded ? 'summary-expanded' : 'summary-collapsed'}>
-                  {propertyDetailData.summaryDescription}
+                  {property?.description ?? ''}
                 </p>
               </div>
               {showSummaryToggle && (
@@ -497,8 +524,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                   aria-expanded={summaryExpanded}
                 >
                   {summaryExpanded
-                    ? propertyDetailData.labels.summaryToggle.less
-                    : propertyDetailData.labels.summaryToggle.more}
+                    ? 'Leer descripcion completa'
+                    : 'Leer descripcion completa'}
                   <img
                     src="/icons/chevron-up.svg"
                     alt=""
@@ -519,7 +546,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                     />
                   </svg>
                 </span>
-                <span>{propertyDetailData.address}</span>
+                <span>{property?.street ?? 'Dirección no especificada'}</span>
               </div>
               <div className="property-detail-map-image">
                 <img
@@ -538,9 +565,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             </section>
 
             <section className="property-detail-amenities">
-              <h2>{propertyDetailData.labels.amenitiesTitle}</h2>
+              <h2>Conoce mas sobre esta propiedad</h2>
               <div className="property-detail-amenities-tabs">
-                {propertyDetailData.labels.amenityTabs.map((tab) => (
+                {amenityTabs.map((tab) => (
                   <button
                     key={tab.key}
                     type="button"
@@ -552,7 +579,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 ))}
               </div>
               <div className="property-detail-amenities-content">
-                <p>{amenitiesText}</p>
+                {dynamicAmenities[activeTab]?.length > 0 ? (
+                  dynamicAmenities[activeTab].map((item, index) => (
+                    <span key={`${item}-${index}`}>{item}</span>
+                  ))
+                ) : (
+                  <span>-</span>
+                )}
               </div>
             </section>
 
@@ -576,10 +609,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
             <div className="property-detail-agent">
               <div className="property-detail-agent-header">
-                <div className="property-detail-agent-logo">{propertyDetailData.agent.logoText}</div>
+                <div className="property-detail-agent-logo">{agentLogoText}</div>
                 <div>
-                  <h4>{propertyDetailData.agent.name}</h4>
-                  <span>{propertyDetailData.agent.type}</span>
+                  <h4>{agentName}</h4>
+                  <span>{property?.organization?.name ? 'Inmobiliaria' : 'Inmobiliaria'}</span>
                 </div>
               </div>
               <div className="property-detail-agent-details">
@@ -591,7 +624,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           </aside>
         </div>
 
-        {propertyDetailData.similarSections.map((section, index) => (
+        {SIMILAR_SECTIONS.map((section, index) => (
           <section key={section.title} className="property-detail-similar">
             <h2>{section.title}</h2>
             <div className="property-detail-similar-wrapper">
@@ -618,7 +651,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                     property={{
                       id: `similar-${section.title}-${cardIndex}`,
                       price: 180000,
+                      rent: 0,
                       currency: 'USD',
+                      currencyRent: 'USD',
                       pricePerSqm: 2000,
                       title: 'Propiedad similar',
                       address: 'Calle Principal 1234',
@@ -650,7 +685,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         className={`property-detail-contact-modal ${isContactModalOpen ? 'is-open' : ''}`}
         role="dialog"
         aria-modal="true"
-        aria-label={propertyDetailData.labels.contactTitle}
+        aria-label="Contacta al anunciante"
       >
         <div
           className="property-detail-contact-modal-backdrop"
@@ -658,7 +693,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         />
         <div className="property-detail-contact-modal-panel">
           <div className="property-detail-contact-modal-header">
-            <h2>{propertyDetailData.labels.contactTitle}</h2>
+            <h2>Contacta al anunciante</h2>
             <button
               type="button"
               className="property-detail-contact-modal-close"
@@ -682,7 +717,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       </div>
 
       <div className="property-detail-mobile-actions">
-        {propertyDetailData.labels.contactActions.map((action) => (
+        {CONTACT_ACTIONS.map((action) => (
           <button
             key={`mobile-${action.id}`}
             type="button"

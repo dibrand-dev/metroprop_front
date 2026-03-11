@@ -134,8 +134,6 @@ const [activeTab, setActiveTab] = useState<string>('');
   const getAmenitiesByTab = () => {
     const result: Record<string, string[]> = {};
     
-    
-    
     // Build result for each amenity group
     amenityGroups.forEach(group => {
       const groupKey = group.type.toString();
