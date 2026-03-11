@@ -4,10 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import './PublishContent.scss';
 import Button from '@/ui/Button/Button';
 import InputField from '@/ui/InputField/InputField';
-import { CreateImage, CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, VideoPreview } from '@/types/propiedad';
+import { CreateImage, CreateImagePlans, CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, VideoPreview } from '@/types/propiedad';
 
 // Replace fetch with useMutation for multimedia upload
 import { useMutation } from '@tanstack/react-query';
+import { AWS_S3_BUCKET_URL } from '@/constants';
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconTrash = '/icons/trash.svg';
@@ -65,6 +66,7 @@ export default function PublishContent({
 }: PublishContentProps) {
   const [openAccordions, setOpenAccordions] = useState<string[]>([]);
   const [images, setImages] = useState<CreateImage[] | undefined>(wizardData.images || []);
+  const [plans, setPlans] = useState<CreateImagePlans[] | undefined>(wizardData.plans || []);
   const [showTooltip, setShowTooltip] = useState(false);
   const [videos, setVideos] = useState<string[]>(wizardData.videos || []);
   const [videosPreview, setVideosPreview] = useState<VideoPreview[] | undefined>(
@@ -93,10 +95,29 @@ export default function PublishContent({
   useEffect(() => {
     updateWizardData({
       images,
+      plans,
       videos, // Keep as string array for wizard data
       multimedia360
     });
-  }, [images, videos, multimedia360, updateWizardData]);
+  }, [images, plans, videos, multimedia360, updateWizardData]);
+
+  useEffect(() => {
+    // call  APIURL /PROPERTYID/getMultimedia to get already uploaded multimedia (images and plans) and set them in state
+    if (wizardData.draft_id) {
+      fetch(`http://localhost:3000/properties/${wizardData.draft_id}/multimedia`)
+        .then(response => response.json())
+        .then(data => {
+          console.log("multimedia data", data);
+          if (data?.images && Array.isArray(data.images)) {
+            setImages(data.images);
+          }
+          if (data?.attached && Array.isArray(data.attached)) {
+            setPlans(data.attached);
+          }
+        })
+        .catch(error => console.error('Error loading multimedia:', error));
+    }
+  }, [wizardData.draft_id]) 
 
   const toggleAccordion = (id: string) => {
     setOpenAccordions((prev) => {
@@ -116,10 +137,19 @@ export default function PublishContent({
   const handleContinue = async () => {
     if (uploadedImages.length > 0 || uploadedPlans.length > 0) {
       await handleFormSubmit();
+    } else {
+      onNext();
     }
   };
 
- 
+  const removePlan = (index: number, type: 'api' | 'local') => {
+    if (type === 'api') {
+      setPlans(prev => prev?.filter((_, i) => i !== index));
+    } else {
+      removeUploadedFile(index, 'plan');
+    }
+  };
+
   // Video management functions
   const addVideo = () => {
     const trimmedUrl = currentVideoUrl.trim();
@@ -431,14 +461,36 @@ export default function PublishContent({
                       <img src={iconUpload} alt="" />
                       <span>Agregar fotos</span>
                     </button>
-                    {images?.map((image, index) => (
-                      <div key={`${image.url}-${index}`} className="publish-content-thumb">
-                        <img src={image.url} alt="Foto" />
-                        <button type="button" className="publish-content-thumb-action">
-                          <img src={iconTrash} alt="" />
-                        </button>
-                      </div>
-                    ))}
+                    {images?.map((image, index) => {
+                      const isCompleted = image.upload_status === 'completed';
+                      const isUploading = image.upload_status === 'uploading' || image.upload_status === 'pending';
+                      const hasError = image.upload_status === 'failed' || image.error_message;
+                      
+                      return (
+                        <div 
+                          key={`${image.id || image.url}-${index}`} 
+                          className={`publish-content-thumb ${hasError ? 'has-error' : ''}`}
+                          style={hasError ? { border: '2px solid #d32f2f' } : {}}
+                        >
+                          {isUploading ? (
+                            <div className="publish-content-upload-loading">
+                              <div className="spinner" />
+                              <span>Subiendo...</span>
+                            </div>
+                          ) : isCompleted ? (
+                            <img src={`${AWS_S3_BUCKET_URL}/${image.url}`} alt="Foto" />
+                          ) : hasError ? (
+                            <div className="publish-content-upload-error">
+                              <span className="error-icon">!</span>
+                              <small>{image.error_message || 'Error en la carga'}</small>
+                            </div>
+                          ) : null}
+                          <button type="button" className="publish-content-thumb-action">
+                            <img src={iconTrash} alt="" />
+                          </button>
+                        </div>
+                      );
+                    })}
                     {uploadedImages.map((file, index) => (
                       <div
                         key={`uploaded-${index}`}
@@ -609,14 +661,51 @@ export default function PublishContent({
                               <img src={iconUpload} alt="" />
                               <span>Agregar planos</span>
                             </button>
+                            {plans?.map((plan, index) => {
+                              const isCompleted = plan.upload_status === 'completed';
+                              const isUploading = plan.upload_status === 'uploading' || plan.upload_status === 'pending';
+                              const hasError = plan.upload_status === 'failed' || plan.error_message;
+                              
+                              return (
+                                <div 
+                                  key={`${plan.id || plan.file_url}-${index}`} 
+                                  className={`publish-content-thumb ${hasError ? 'has-error' : ''}`}
+                                  style={hasError ? { border: '2px solid #d32f2f' } : {}}
+                                >
+                                  {isUploading ? (
+                                    <div className="publish-content-upload-loading">
+                                      <div className="spinner" />
+                                      <span>Subiendo...</span>
+                                    </div>
+                                  ) : isCompleted ? (
+                                    plan.file_url.toLowerCase().endsWith('.pdf') ? (
+                                      <div className="publish-content-pdf-thumb">
+                                        <span>PDF</span>
+                                        <small>{plan.file_url.split('/').pop()}</small>
+                                      </div>
+                                    ) : (
+                                      <img src={`${AWS_S3_BUCKET_URL}/${plan.file_url}`} alt="Plano" />
+                                    )
+                                  ) : hasError ? (
+                                    <div className="publish-content-upload-error">
+                                      <span className="error-icon">!</span>
+                                      <small>{plan.error_message || 'Error en la carga'}</small>
+                                    </div>
+                                  ) : null}
+                                  <button type="button" className="publish-content-thumb-action" onClick={() => removePlan(index, 'api')}>
+                                    <img src={iconTrash} alt="" />
+                                  </button>
+                                </div>
+                              );
+                            })}
                             {uploadedPlans.map((file, index) => (
                               <div
-                                key={`plan-${index}`}
-                                className={`publish-content-thumb ${draggedIndex === index && draggedType === 'plan' ? 'dragging' : ''}`}
+                                key={`plan-local-${index}`}
+                                className={`publish-content-thumb ${draggedIndex === (plans?.length ?? 0) + index && draggedType === 'plan' ? 'dragging' : ''}`}
                                 draggable
-                                onDragStart={(e) => handleDragStart(e, index, 'plan')}
+                                onDragStart={(e) => handleDragStart(e, (plans?.length ?? 0) + index, 'plan')}
                                 onDragOver={handleDragOver}
-                                onDrop={(e) => handleDrop(e, index, 'plan')}
+                                onDrop={(e) => handleDrop(e, (plans?.length ?? 0) + index, 'plan')}
                                 onDragEnd={handleDragEnd}
                               >
                                 {file.type === 'application/pdf' ? (
@@ -630,7 +719,7 @@ export default function PublishContent({
                                 <button
                                   type="button"
                                   className="publish-content-thumb-action"
-                                  onClick={() => removeUploadedFile(index, 'plan')}
+                                  onClick={() => removeUploadedFile((plans?.length ?? 0) + index, 'plan')}
                                 >
                                   <img src={iconTrash} alt="" />
                                 </button>

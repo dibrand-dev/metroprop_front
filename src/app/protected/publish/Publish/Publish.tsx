@@ -287,8 +287,7 @@ export default function Publish() {
         return (
           <PublishFinalReview
             wizardData={wizardData}
-            updateWizardData={updateWizardData}
-            onNext={() => saveCurrentStep(wizardData)}
+            onNext={(wizardData) => saveCurrentStep(wizardData)}
             onBack={goToPreviousStep}
             onSaveAndExit={saveAndExit}
           />

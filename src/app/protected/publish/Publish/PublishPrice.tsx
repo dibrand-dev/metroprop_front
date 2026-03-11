@@ -29,6 +29,7 @@ export default function PublishPrice({
   const [currency, setCurrency] = useState(wizardData.currency || 'ARS');
   const [price, setPrice] = useState<number | undefined>(wizardData.price || undefined);
   const [expenses, setExpenses] = useState<number | undefined>(wizardData.expenses || undefined);
+  const [currency_expenses, setCurrency_expenses] = useState(wizardData.currency_expenses || 'ARS');
   const [withoutExpenses, setWithoutExpenses] = useState(false);
 
   const currencySelectOptions = currencyOptions.map(option => ({
@@ -105,8 +106,8 @@ export default function PublishPrice({
                 <div className="publish-price-inputs">
                   <Select
                     options={currencySelectOptions}
-                    value={currency}
-                    onChange={(value) => setCurrency(value)}
+                    value={currency_expenses}
+                    onChange={(value) => setCurrency_expenses(value)}
                     disabled={withoutExpenses}
                   />
                   <InputField

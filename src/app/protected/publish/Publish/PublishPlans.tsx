@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect } from 'react';
 import './PublishPlans.scss';
 import Select from '@/ui/Select/Select';
 import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import { useQuery } from '@tanstack/react-query';
 
 interface PublishPlansProps {
   wizardData: CreatePropertyDraft;
@@ -21,9 +22,8 @@ const collaboratorOptions = ['Daniela Benitez', 'Lucia Perez', 'Carlos Molina'];
 
 const planOptions = [
   {
-    id: 'bonificado',
-    title: 'Bonificado',
-    subtitle: 'Visibilidad baja',
+    id: 1,
+    title: 'Bonificado',  
     highlighted: true,
   },
 ];
@@ -64,7 +64,7 @@ export default function PublishPlans({
   onSaveAndExit
 }: PublishPlansProps) {
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
-  const [selectedPlan, setSelectedPlan] = useState(wizardData.selectedPlan || 'bonificado');
+  const [selected_plan, setSelected_plan] = useState(wizardData.selected_plan || 1);
 
   const collaboratorSelectOptions = useMemo(
     () => collaboratorOptions.map(option => ({
@@ -78,9 +78,9 @@ export default function PublishPlans({
   useEffect(() => {
     updateWizardData({
       user_id,
-      selectedPlan,
+      selected_plan,
     });
-  }, [user_id, selectedPlan, updateWizardData]);
+  }, [user_id, selected_plan, updateWizardData]);
 
   const handleBack = () => {
     onBack();
@@ -89,7 +89,7 @@ export default function PublishPlans({
   const handleContinue = () => {
     onNext({
       user_id,
-      selectedPlan,
+      selected_plan,
     });
   };
 
@@ -142,8 +142,8 @@ export default function PublishPlans({
                     type="button"
                     className={`publish-plans-radio ${
                       plan.highlighted ? 'is-highlighted' : ''
-                    } ${selectedPlan === plan.id ? 'is-selected' : ''}`}
-                    onClick={() => setSelectedPlan(plan.id)}
+                    } ${selected_plan === plan.id ? 'is-selected' : ''}`}
+                    onClick={() => setSelected_plan(plan.id)}
                   >
                     <span className="publish-plans-radio-dot" />
                     <span>{plan.title}</span>

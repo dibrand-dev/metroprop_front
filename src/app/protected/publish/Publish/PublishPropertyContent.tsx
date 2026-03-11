@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 import './PublishPropertyContent.scss';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
-import { Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 import { API_BASE_URL } from '@/utils/utils';
 import { useQuery } from '@tanstack/react-query';
 
@@ -18,33 +18,6 @@ interface PublishPropertyContentProps {
   onBack: () => void;
   onSaveAndExit: () => void;
 }
-
-
-enum AmenityType {
-  Rooms = 1,
-  Services = 2,
-  Extras = 3,
-  Facilities = 4,
-}
-
-const AMENITY_TYPE_LABELS: Record<AmenityType, string> = {
-  [AmenityType.Rooms]: 'Mas ambientes',
-  [AmenityType.Services]: 'Servicios',
-  [AmenityType.Extras]: 'Extras',
-  [AmenityType.Facilities]: 'Facilidades',
-};
-
-type AmenityTag = {
-  id: number;
-  name: string;
-  type: AmenityType;
-};
-
-type AmenityGroup = {
-  type: AmenityType;
-  title: string;
-  options: AmenityTag[];
-};
 
 export default function PublishPropertyContent({
   wizardData,
@@ -62,8 +35,6 @@ export default function PublishPropertyContent({
   });
 
   const [selectedAmenities, setSelectedAmenities] = useState<number[]>(wizardData.tags || []);
-
-  const [tags, setTags] = useState(wizardData.tags || []);
   const [orientation, setOrientation] = useState(wizardData.orientation || undefined);
   const [floors_amount, setFloors_amount] = useState(wizardData.floors_amount || undefined);
   const [garage_coverage, setGarage_coverage] = useState(wizardData.garage_coverage || undefined);
@@ -215,7 +186,7 @@ export default function PublishPropertyContent({
                   <Select
                     label="Luminoso"
                     options={BRIGHTNESS_SELECT_OPTIONS}
-                    value={brightness?.toString() ?? undefined}
+                    value={brightness?.toString() ?? ''}
                     onChange={(value) => setBrightness(value as any)}
                     placeholder="Seleccionar"
                   />
@@ -224,7 +195,7 @@ export default function PublishPropertyContent({
                   <Select
                     label="Orientación"
                     options={ORIENTATION_SELECT_OPTIONS}
-                    value={orientation?.toString() ?? undefined}
+                    value={orientation?.toString() ?? ''}
                     onChange={(value) => setOrientation(value as any)}
                     placeholder="Seleccionar"
                   />
@@ -233,8 +204,8 @@ export default function PublishPropertyContent({
                   <Select
                     label="Cantidad de plantas"
                     options={[{ label: '1', value: '1' }, { label: '2', value: '2' }, { label: '3', value: '3' }, { label: '4+', value: '4+' }]}
-                    value={floors_amount?.toString() ?? undefined}
-                    onChange={(value) => setFloors_amount(value ? parseInt(value) : undefined)}
+                    value={floors_amount?.toString() ?? ''}
+                    onChange={(value) => setFloors_amount(value ? parseInt(value) : 0)}
                     placeholder="Seleccionar"
                   />
                 </div>
@@ -242,7 +213,7 @@ export default function PublishPropertyContent({
                   <Select
                     label="Cobertura cochera"
                     options={GARAGE_SELECT_OPTIONS}
-                    value={garage_coverage?.toString() ?? undefined}
+                    value={garage_coverage?.toString() ?? ''}
                     onChange={(value) => setGarage_coverage(value as any)}
                     placeholder="Seleccionar"
                   />
@@ -253,8 +224,8 @@ export default function PublishPropertyContent({
                   <InputField
                     label="Frente del terreno (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={surface_front ?? ''}
-                    onChange={(event) => setSurface_front(event.target.value ? parseInt(event.target.value) : undefined)}
+                    value={surface_front ?? 0}
+                    onChange={(event) => setSurface_front(event.target.value ? parseInt(event.target.value) : 0)}
                     type="number"
                   />
                 </div>
@@ -262,8 +233,8 @@ export default function PublishPropertyContent({
                   <InputField
                     label="Largo del terreno (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={surface_length ?? ''}
-                    onChange={(event) => setSurface_length(event.target.value ? parseInt(event.target.value) : undefined)}
+                    value={surface_length ?? 0}
+                    onChange={(event) => setSurface_length(event.target.value ? parseInt(event.target.value) : 0)}
                     type="number"
                   />
                 </div>
@@ -271,8 +242,8 @@ export default function PublishPropertyContent({
                   <InputField
                     label="Superficie semicubierta (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={semiroofed_surface ?? ''}
-                    onChange={(event) => setSemiroofed_surface(event.target.value ? parseInt(event.target.value) : undefined)}
+                    value={semiroofed_surface ?? 0}
+                    onChange={(event) => setSemiroofed_surface(event.target.value ? parseInt(event.target.value) : 0)}
                     type="number"
                   />
                 </div>

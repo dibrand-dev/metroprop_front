@@ -38,9 +38,9 @@ export default function PublishLocation({
 }: PublishLocationProps) {
   const [street, setStreet] = useState(wizardData.street || '');
   const [country_id, setCountry_id] = useState<number | undefined>(wizardData.country_id || undefined);
-  const [province_id, setProvince_id] = useState<number | undefined>(wizardData.province_id || undefined);
-  const [localidad_id, setLocalidad_id] = useState<number | undefined>(wizardData.localidad_id || undefined);
-  const [zone_id, setZone_id] = useState<number | undefined>(wizardData.zone_id || undefined);
+  const [state_id, setState_id] = useState<number | undefined>(wizardData.state_id || undefined);
+  const [location_id, setLocation_id] = useState<number | undefined>(wizardData.location_id || undefined);
+  const [sub_location_id, setSub_location_id] = useState<number | undefined>(wizardData.sub_location_id || undefined);
   const [postal_code, setPostal_code] = useState(wizardData.postal_code || '');
   const [show_exact_location, setShow_exact_location] = useState(
     wizardData.show_exact_location !== undefined ? wizardData.show_exact_location : true
@@ -69,24 +69,24 @@ export default function PublishLocation({
 
   // Query for locations (loads when province is selected)
   const { data: locations = [], isLoading: loadingLocations } = useQuery({
-    queryKey: ['locations', province_id],
+    queryKey: ['locations', state_id],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${province_id}`);
+      const response = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${state_id}`);
       if (!response.ok) throw new Error('Error fetching locations');
       return response.json();
     },
-    enabled: !!province_id,
+    enabled: !!state_id,
   });
 
   // Query for zones (loads when location is selected)
   const { data: zones = [], isLoading: loadingZones } = useQuery({
-    queryKey: ['zones', localidad_id],
+    queryKey: ['zones', sub_location_id],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${localidad_id}`);
+      const response = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${location_id}`);
       if (!response.ok) throw new Error('Error fetching location children');
       return response.json();
     },
-    enabled: !!localidad_id,
+    enabled: !!sub_location_id,
   });
 
   const hasAddress = useMemo(() => street.trim().length > 0, [street]);
@@ -117,27 +117,27 @@ export default function PublishLocation({
   const handleCountryChange = (value: string | null) => {
     const selectedCountryId = value ? parseInt(value) : undefined;
     setCountry_id(selectedCountryId);
-    setProvince_id(undefined); // Reset province
-    setLocalidad_id(undefined); // Reset location
-    setZone_id(undefined); // Reset zone
+    setState_id(undefined); // Reset state
+    setLocation_id(undefined); // Reset location
+    setSub_location_id(undefined); // Reset sub-location
   };
 
-  const handleProvinceChange = (value: string | null) => {
-    const selectedProvinceId = value ? parseInt(value) : undefined;
-    setProvince_id(selectedProvinceId);
-    setLocalidad_id(undefined); // Reset location
-    setZone_id(undefined); // Reset zone
+  const handleStateChange = (value: string | null) => {
+    const selectedStateId = value ? parseInt(value) : undefined;
+    setState_id(selectedStateId);
+    setLocation_id(undefined); // Reset location
+    setSub_location_id(undefined); // Reset sub-location
   };
 
   const handleLocationChange = (value: string | null) => {
     const selectedLocationId = value ? parseInt(value) : undefined;
-    setLocalidad_id(selectedLocationId);
-    setZone_id(undefined); // Reset zone
+    setLocation_id(selectedLocationId);
+    setSub_location_id(undefined); // Reset sub-location
   };
 
-  const handleZoneChange = (value: string | null) => {
-    const selectedZoneId = value ? parseInt(value) : undefined;
-    setZone_id(selectedZoneId);
+  const handleSubLocationChange = (value: string | null) => {
+    const selectedSubLocationId = value ? parseInt(value) : undefined;
+    setSub_location_id(selectedSubLocationId);
   };
 
   // Update wizard data when location data changes
@@ -145,13 +145,13 @@ export default function PublishLocation({
     updateWizardData({
       street,
       country_id,
-      province_id,
-      localidad_id,
-      zone_id,
+      state_id,
+      location_id,
+      sub_location_id,
       postal_code,
       show_exact_location
     });
-  }, [street, country_id, province_id, localidad_id, zone_id, postal_code, show_exact_location]);
+  }, [street, country_id, state_id, location_id, sub_location_id, postal_code, show_exact_location]);
 
   const handleBack = () => {
     onBack();
@@ -162,9 +162,9 @@ export default function PublishLocation({
       postal_code,
       street,
       country_id,
-      province_id,
-      localidad_id,
-      zone_id,
+      state_id,
+      location_id,
+      sub_location_id
     }
     onNext(locationUpdate);
   };
@@ -223,8 +223,8 @@ export default function PublishLocation({
                   <Select
                     label="Provincia*"
                     options={provinceOptions}
-                    value={province_id ? province_id.toString() : undefined}
-                    onChange={handleProvinceChange}
+                    value={state_id ? state_id.toString() : undefined}
+                    onChange={handleStateChange}
                     placeholder={loadingProvinces ? "Cargando provincias..." : "Seleccionar provincia"}
                     disabled={!hasAddress || !country_id || loadingProvinces}
                     required
@@ -237,10 +237,10 @@ export default function PublishLocation({
                   <Select
                     label="Localidad"
                     options={locationOptions}
-                    value={localidad_id ? localidad_id.toString() : undefined}
+                    value={location_id ? location_id.toString() : undefined}
                     onChange={handleLocationChange}
                     placeholder={loadingLocations ? "Cargando localidades..." : "Seleccionar localidad"}
-                    disabled={!hasAddress || !province_id || loadingLocations}
+                    disabled={!hasAddress || !state_id || loadingLocations}
                   />
                 </div>
 
@@ -248,10 +248,10 @@ export default function PublishLocation({
                   <Select
                     label="Zona"
                     options={zoneOptions}
-                    value={zone_id ? zone_id.toString() : undefined}
-                    onChange={handleZoneChange}
+                    value={sub_location_id ? sub_location_id.toString() : undefined}
+                    onChange={handleSubLocationChange}
                     placeholder={loadingZones ? "Cargando zonas..." : "Seleccionar zona"}
-                    disabled={!hasAddress || !localidad_id || loadingZones}
+                    disabled={!hasAddress || !location_id || loadingZones}
                   />
                 </div>
               </div>

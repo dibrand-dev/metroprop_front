@@ -74,10 +74,30 @@ export enum PropertyStatus {
 // ==========================================================================
 
 export interface CreateImage {
+  id?: number;
   url: string;
   is_blueprint?: boolean;
   description?: string;
   order_position?: number;
+  upload_status?: 'completed' | 'uploading' | 'pending' | 'failed';
+  retry_count?: number;
+  error_message?: string | null;
+  upload_completed_at?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateImagePlans {
+  id?: number;
+  file_url: string;
+  description?: string;
+  order_position?: number;
+  upload_status?: 'completed' | 'uploading' | 'pending' | 'failed';
+  retry_count?: number;
+  error_message?: string | null;
+  upload_completed_at?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CreateOperation {
@@ -93,6 +113,13 @@ export interface CreateAttached {
   description?: string;
 }
 
+export enum MediaUploadStatus {
+  PENDING = 'pending',       // Esperando ser procesado
+  UPLOADING = 'uploading',   // En proceso de subida a S3
+  COMPLETED = 'completed',   // Subido exitosamente
+  FAILED = 'failed',         // Error en la subida
+  RETRYING = 'retrying',     // Reintentando después de error
+}
 /**
  * Luminosidad de la propiedad.
  */
@@ -133,6 +160,40 @@ export interface VideoPreview {
   thumbnail: string;
 }
 
+/**
+ * Plan de publicación para una propiedad.
+ */
+export enum PublicationPlan {
+  PUBLICATION_FREE = 1,     // Plan gratuito
+  PUBLICATION_PREMIUM = 2,  // Plan premium
+}
+
+export enum AmenityType {
+  Rooms = 1,
+  Services = 2,
+  Extras = 3,
+  Facilities = 4,
+}
+
+export const AMENITY_TYPE_LABELS: Record<AmenityType, string> = {
+  [AmenityType.Rooms]: 'Mas ambientes',
+  [AmenityType.Services]: 'Servicios',
+  [AmenityType.Extras]: 'Extras',
+  [AmenityType.Facilities]: 'Facilidades',
+};
+
+export type AmenityTag = {
+  id: number;
+  name: string;
+  type: AmenityType;
+};
+
+export type AmenityGroup = {
+  type: AmenityType;
+  title: string;
+  options: AmenityTag[];
+};
+
 // ==========================================================================
 // INTERFACE PRINCIPAL - CREATE PROPERTY
 // ==========================================================================
@@ -160,13 +221,12 @@ export interface CreateProperty {
   number?: string;
   floor?: string;
   apartment?: string;
-  location_id?: number;
   postal_code?: string;
     show_exact_location?: boolean;
     country_id?: number;
-    province_id?: number;
-    localidad_id?: number;
-    zone_id?: number;
+    state_id?: number;
+    location_id?: number;
+    sub_location_id?: number;
   // Coordenadas geográficas
   geo_lat?: number; // Entre -90 y 90
   geo_long?: number; // Entre -180 y 180
@@ -238,6 +298,11 @@ export interface CreateProperty {
   images?: CreateImage[];
 
   /**
+   * Planos de la propiedad (es_blueprint: true)
+   */
+  plans?: CreateImagePlans[];
+
+  /**
    * Tags de la propiedad (IDs de servicios, ambientes, adicionales)
    */
   tags?: number[];
@@ -261,8 +326,8 @@ export interface CreateProperty {
    * Archivos adjuntos de la propiedad (documentos, planos, etc)
    */
   attached?: CreateAttached[];
-
-  selectedPlan?: string; // Plan seleccionado para la publicación (ej: "bonificado", "premium", etc)
+  currency_expenses: string; // Moneda de los gastos (ej: "ARS", "USD")
+  selected_plan?: number; // Plan seleccionado para la publicación (ej: "bonificado", "premium", etc)
 }
 
 // ==========================================================================
@@ -424,6 +489,7 @@ export function createDefaultProperty(): Partial<CreateProperty> {
     status: PropertyStatus.DRAFT,
     currency: 'ARS',
     images: [],
+    plans: [],
     tags: [],
     operations: [],
     videos: [],

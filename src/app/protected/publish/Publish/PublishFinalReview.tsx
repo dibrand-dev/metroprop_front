@@ -2,25 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import './PublishFinalReview.scss';
-import { CreatePropertyDraft } from '@/types/propiedad';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import { AWS_S3_BUCKET_URL } from '@/constants';
+import { useQuery } from '@tanstack/react-query';
+import { API_BASE_URL } from '@/utils/utils';
 
 const iconChevron = '/icons/chevron-up.svg';
 
 interface PublishFinalReviewProps {
   wizardData: CreatePropertyDraft;
-  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
-  onNext: () => void;
+  onNext: (data: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onSaveAndExit: () => void;
 }
 
-const previewImages = [
-  'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=600&h=400&fit=crop',
-  'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&h=400&fit=crop',
-  'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&h=400&fit=crop&sat=-50',
-  'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=600&h=400&fit=crop',
-];
+const previewImage = 'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=1200&h=800&fit=crop';
 
 const featureItems = [
   { label: 'A estrenar', icon: '/icons/calendar.svg' },
@@ -34,36 +30,43 @@ const featureItems = [
   { label: '3 banos', icon: '/icons/bano.svg' },
 ];
 
-const amenityTabs = [
-  { key: 'servicios', label: 'Servicios' },
-  { key: 'ambientes', label: 'Ambientes' },
-  { key: 'caracteristicas', label: 'Caracteristicas' },
-];
-
-const amenitiesByTab: Record<string, string[]> = {
-  servicios: ['Ascensor', 'Balcon', 'Lavadero'],
-  ambientes: ['Living comedor', 'Cocina integrada', 'Dormitorio principal'],
-  caracteristicas: ['Piso de madera', 'Placares empotrados', 'Calefaccion'],
-};
-
 export default function PublishFinalReview({
   wizardData,
-  updateWizardData,
   onNext,
   onBack,
   onSaveAndExit
 }: PublishFinalReviewProps) {
-  const [activeTab, setActiveTab] = useState(wizardData.finalReview?.activeTab || 'servicios');
-
-  // Extract wizard data for display
-  const operation = wizardData.operation_type || 'Operación';
-  const propertyType = wizardData.property_type || 'Tipo';
-  const propertySubtype = wizardData.property_subtype || '';
+const [activeTab, setActiveTab] = useState<string>('');
   const address = wizardData.street || 'Dirección no especificada';
-  const price = wizardData.price || {};
-  const mainInfo = wizardData.mainInfo || {};
-  const description = wizardData.description || {};
-  const propertyContent = wizardData.propertyContent || {};
+  const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
+  
+  const { data: tagsData = [] } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/tags`);
+      if (!res.ok) throw new Error('Error fetching tags');
+      return res.json();
+    },
+  });
+  
+  useEffect(() => {
+    if (tagsData.length > 0) {
+      const groups: AmenityGroup[] = Object.values(AmenityType).filter(v => typeof v === 'number').map(type => {
+        const options = tagsData.filter((tag: AmenityTag) => tag.type === type);
+        return {
+          type: type as AmenityType,
+          title: AMENITY_TYPE_LABELS[type as AmenityType],
+          options,
+        };
+      });
+      setAmenityGroups(groups);
+      // Set activeTab to first group's type if available
+      if (groups.length > 0) {
+        setActiveTab(groups[0].type.toString());
+      }
+    }
+  }, [tagsData]);
+
 
   // Format price display
   const formatPrice = (amount: string, currency: string) => {
@@ -71,101 +74,96 @@ export default function PublishFinalReview({
     return `${currency}${amount}`;
   };
 
+  // Build amenity tabs from amenityGroups
+  const amenityTabs = amenityGroups.map(group => ({
+    key: group.type.toString(),
+    label: group.title
+  }));
+
   // Build property title
-  const propertyTitle = description.title || `${operation} ${propertyType} ${propertySubtype} en ${wizardData.location?.district || 'zona'}`;
+  const propertyTitle = wizardData.publication_title || `${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} ${wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}`;
   
   // Build property features from wizard data
   const buildFeatures = () => {
     const features = [];
     
-    if (mainInfo.antiquity) {
-      if (mainInfo.antiquity === 'new') features.push({ label: 'A estrenar', icon: '/icons/calendar.svg' });
-      if (mainInfo.antiquity === 'construction') features.push({ label: 'En construcción', icon: '/icons/calendar.svg' });
-      if (mainInfo.antiquity === 'years' && mainInfo.antiquityYears) {
-        features.push({ label: `${mainInfo.antiquityYears} años`, icon: '/icons/calendar.svg' });
+    if (wizardData.property_condition) {
+      if (wizardData.property_condition === 'new') features.push({ label: 'A estrenar', icon: '/icons/calendar.svg' });
+      if (wizardData.property_condition === 'construction') features.push({ label: 'En construcción', icon: '/icons/calendar.svg' });
+      if (wizardData.property_condition === 'years' && wizardData.age) {
+        features.push({ label: `${wizardData.age} años`, icon: '/icons/calendar.svg' });
       }
     }
     
-    if (propertyContent.details?.orientation) {
-      features.push({ label: propertyContent.details.orientation, icon: '/icons/orientacion.svg' });
+    if (wizardData.orientation) {
+      features.push({ label: ORIENTATION_LABELS[wizardData.orientation], icon: '/icons/orientacion.svg' });
     }
     
-    if (mainInfo.surfaceTotal && mainInfo.totalUnit) {
-      features.push({ label: `${mainInfo.surfaceTotal} ${mainInfo.totalUnit} tot.`, icon: '/icons/regla.svg' });
+    if (wizardData.total_surface && wizardData.surface_measurement) {
+      features.push({ label: `${wizardData.total_surface} ${wizardData.surface_measurement} tot.`, icon: '/icons/regla.svg' });
     }
     
-    if (mainInfo.surfaceCovered && mainInfo.coveredUnit) {
-      features.push({ label: `${mainInfo.surfaceCovered} ${mainInfo.coveredUnit} cub`, icon: '/icons/mcubiertos.svg' });
+    if (wizardData.roofed_surface && wizardData.roofed_surface_measurement) {
+      features.push({ label: `${wizardData.roofed_surface} ${wizardData.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
     }
     
-    if (mainInfo.rooms?.ambientes) {
-      features.push({ label: `${mainInfo.rooms.ambientes} amb.`, icon: '/icons/door.svg' });
+    if (wizardData.room_amount) {
+      features.push({ label: `${wizardData.room_amount} amb.`, icon: '/icons/door.svg' });
     }
     
-    if (mainInfo.rooms?.cocheras) {
-      features.push({ label: `${mainInfo.rooms.cocheras} cochera${mainInfo.rooms.cocheras > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
+    if (wizardData.parking_lot_amount) {
+      features.push({ label: `${wizardData.parking_lot_amount} cochera${wizardData.parking_lot_amount > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
     }
     
-    if (mainInfo.rooms?.dormitorios) {
-      features.push({ label: `${mainInfo.rooms.dormitorios} dorm.`, icon: '/icons/cama.svg' });
+    if (wizardData.suite_amount) {
+      features.push({ label: `${wizardData.suite_amount} dorm.`, icon: '/icons/cama.svg' });
     }
     
-    if (mainInfo.rooms?.banos) {
-      features.push({ label: `${mainInfo.rooms.banos} baño${mainInfo.rooms.banos > 1 ? 's' : ''}`, icon: '/icons/bano.svg' });
+    if (wizardData.bathroom_amount) {
+      features.push({ label: `${wizardData.bathroom_amount} baño${wizardData.bathroom_amount > 1 ? 's' : ''}`, icon: '/icons/bano.svg' });
     }
     
+    if (wizardData.toilet_amount) {
+      features.push({ label: `${wizardData.toilet_amount} toilette${wizardData.toilet_amount > 1 ? 's' : ''}`, icon: '/icons/toilet.svg' });
+    }
+
     return features.length > 0 ? features : featureItems; // fallback to default
   };
 
-  // Get amenities from wizard data
+  // Get selected amenities by group, using amenityGroups and wizardData.tags
   const getAmenitiesByTab = () => {
-    if (!propertyContent.selectedAmenities) return amenitiesByTab;
+    const result: Record<string, string[]> = {};
     
-    const wizardAmenities: Record<string, string[]> = {
-      servicios: [],
-      ambientes: [],
-      caracteristicas: [],
-    };
-
-    // Map wizard amenities to tabs
-    Object.entries(propertyContent.selectedAmenities).forEach(([category, amenities]: [string, string[]]) => {
-      if (category === 'services') {
-        wizardAmenities.servicios = amenities || [];
-      } else if (category === 'rooms') {
-        wizardAmenities.ambientes = amenities || [];
-      } else if (category === 'extras' || category === 'facilities') {
-        wizardAmenities.caracteristicas = [...wizardAmenities.caracteristicas, ...(amenities || [])];
-      }
+    
+    
+    // Build result for each amenity group
+    amenityGroups.forEach(group => {
+      const groupKey = group.type.toString();
+      result[groupKey] = [];
+      
+      // Filter tags in this group that are selected
+      const selectedTags = group.options
+        .filter((option: AmenityTag) => wizardData?.tags?.includes(option.id))
+        .map((option: AmenityTag) => option.name);
+      
+      result[groupKey] = selectedTags;
     });
-
-    // Fallback to default if no amenities
-    Object.keys(wizardAmenities).forEach(key => {
-      if (wizardAmenities[key].length === 0) {
-        wizardAmenities[key] = amenitiesByTab[key] || [];
-      }
-    });
-
-    return wizardAmenities;
+    
+    return result;
   };
 
   const dynamicFeatures = buildFeatures();
   const dynamicAmenities = getAmenitiesByTab();
-
-  // Update wizard data when final review data changes
-  useEffect(() => {
-    updateWizardData({
-      finalReview: {
-        activeTab,
-      },
-    });
-  }, [activeTab, updateWizardData]);
-
+  
   const handleBack = () => {
     onBack();
   };
 
   const handlePublish = () => {
-    onNext();
+    const propertyPublishUpdate = { 
+      status: 1
+    }
+    onNext(propertyPublishUpdate);
   };
 
   return (
@@ -173,8 +171,8 @@ export default function PublishFinalReview({
       <div className="publish-review-inner">
         <div className="publish-review-card">
           <div className="publish-review-top">
-            <div className="publish-review-route">
-              {wizardData.operation_type} - {wizardData.property_type} {wizardData.property_subtype}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
+            <div className="publish-review-route">              
+              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
             <button className="publish-review-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
@@ -199,10 +197,12 @@ export default function PublishFinalReview({
                   <div className="publish-review-preview-hero">
                     <div className="publish-review-preview-status">
                       <span className="publish-review-status-dot" />
-                      <span className='operacion'>En {operation.toLowerCase()}</span>
+                      <span className='operacion'>En {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'}</span>
                     </div>
                     <div className="publish-review-preview-meta">
-                      <span>USD/m2 2500</span>
+                      {wizardData.price && wizardData.total_surface && (
+                      <span>{wizardData.currency}/m2 {(wizardData.price / wizardData.total_surface).toFixed(2)}</span>
+                      )}
                       <span className="publish-review-info" aria-hidden="true">
                         <svg viewBox="0 0 24 24">
                           <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -214,11 +214,11 @@ export default function PublishFinalReview({
                   </div>
                   <div className="publish-review-preview-price">
                     <strong>
-                      {formatPrice(price.rentAmount || '700.000', price.rentCurrency || '$')}
+                      {formatPrice(wizardData?.price?.toString() ?? '', wizardData.currency || '$')}
                     </strong>
-                    {!price.withoutExpenses && (
+                    {!wizardData.expenses && (
                       <span>
-                        {formatPrice(price.expenseAmount || '100.000', price.expenseCurrency || '$')} expensas
+                        {formatPrice(wizardData?.expenses?.toString() ?? '', wizardData.currency_expenses || '$')} expensas
                       </span>
                     )}
                   </div>
@@ -226,12 +226,12 @@ export default function PublishFinalReview({
 
                 <div className="publish-review-gallery">
                   <div className="publish-review-gallery-main">
-                    <img src={previewImages[0]} alt="Vista principal" />
+                    <img src={wizardData?.images?.[0]?.url ? `${AWS_S3_BUCKET_URL}/${wizardData.images[0].url}` : previewImage} alt="Vista principal" />
                   </div>
                   <div className="publish-review-gallery-grid">
-                    {previewImages.slice(1).map((image, index) => (
-                      <div key={image} className="publish-review-gallery-item">
-                        <img src={image} alt={`Vista ${index + 2}`} />
+                    {wizardData?.images?.slice(1).map((image, index) => (
+                      <div key={image.url} className="publish-review-gallery-item">
+                        <img src={`${AWS_S3_BUCKET_URL}/${image.url}`} alt={`Vista ${index + 2}`} />
                       </div>
                     ))}
                   </div>
@@ -249,12 +249,13 @@ export default function PublishFinalReview({
                 <div className="publish-review-summary">
                   <h4>{propertyTitle}</h4>
                   <p>
-                    {description.description || `Se ${operation.toLowerCase()} ${propertyType.toLowerCase()} de excelente calidad en ${wizardData.location?.district || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${mainInfo.surfaceTotal || '41'} ${mainInfo.totalUnit || 'm2'}.`}
+                    {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm2'}.`}
                   </p>
+                  {(wizardData.description && wizardData.description.length > 1200) && (
                   <button type="button" className="publish-review-summary-toggle">
                     Leer descripcion completa
                     <img src="/icons/chevron-up.svg" alt="" />
-                  </button>
+                  </button>)}
                 </div>
 
                 <div className="publish-review-map">
@@ -304,7 +305,7 @@ export default function PublishFinalReview({
                         <span key={`${item}-${index}`}>{item}</span>
                       ))
                     ) : (
-                      <span>No hay {activeTab} disponibles</span>
+                      <span>-</span>
                     )}
                   </div>
                 </div>
