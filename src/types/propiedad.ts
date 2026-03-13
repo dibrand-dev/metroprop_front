@@ -22,41 +22,89 @@ export enum OperationType {
  * Tipos principales de propiedad.
  */
 export enum PropertyType {
-  LAND = 1,               // Terreno
-  APARTMENT = 2,          // Departamento
-  HOUSE = 3,              // Casa
-  WEEKEND_HOUSE = 4,      // Casa de fin de semana
-  OFFICE = 5,             // Oficina
-  MOORING = 6,            // Amarre
-  BUSINESS_PREMISES = 7,  // Local comercial
-  COMMERCIAL_BUILDING = 8, // Edificio comercial
-  COUNTRYSIDE = 9,        // Campo
-  GARAGE = 10,            // Garage
-  HOTEL = 11,             // Hotel
-  INDUSTRIAL_SHIP = 12,   // Nave industrial
-  CONDO = 13,             // Condominio
-  STORAGE = 14,           // Depósito
-  BUSINESS_PERMIT = 15,   // Habilitación comercial
-  STORAGE_ROOM = 16,      // Trastero
-  BODEGAS = 17,           // Bodegas
-  FINCAS = 18,            // Fincas
-  CHACRA = 19,            // Chacra
-  CAMA_NAUTICA = 20,      // Cama náutica
-  ISLA = 21,              // Isla
-  TERRAZA = 23,           // Terraza
-  GALPON = 24,            // Galpón
+  CASA = 1,                   // Casa
+  DEPARTAMENTO = 2,           // Departamento
+  TERRENO = 3,                // Terreno
+  PH = 4,                     // PH
+  GALPON_BODEGA = 5,          // Galpón / Bodega
+  BOVEDA_NICHO_PARCELA = 6,   // Bóveda / Nicho / Parcela
+  CAMA_NAUTICA = 7,           // Cama náutica
+  CAMPO = 8,                  // Campo
+  CONSULTORIO = 9,            // Consultorio
+  DEPOSITO = 10,              // Depósito
+  EDIFICIO = 11,              // Edificio
+  FONDO_DE_COMERCIO = 12,     // Fondo de comercio
+  GARAGE = 13,                // Garage
+  HOTEL = 14,                 // Hotel
+  LOCAL_COMERCIAL = 15,       // Local comercial
+  OFICINA_COMERCIAL = 16,     // Oficina comercial
+  QUINTA_VACACIONAL = 17,     // Quinta vacacional
 }
 
 /**
- * Subtipos de propiedad.
+ * Subtipos de propiedad, agrupados por tipo principal.
  */
 export enum PropertySubtype {
-  DUPLEX = 1,
-  TRIPLEX = 2,
-  LOFT = 3,
-  PISO_UNICO = 4,
-  PENTHOUSE = 5,
+  // ── Casa ─────────────────────────────────────────────────────────────
+  BUNGALOW = 1,
+  CABANA = 2,         // Cabaña
+  CHALET = 3,
+  CONDOMINIO = 4,
+  DUPLEX = 5,         // Casa / Departamento
+  TRIPLEX = 6,        // Casa / Departamento
+  CASA_DE_PLAYA = 7,
+  PH = 8,
+  PREFABRICADA = 9,
+
+  // ── Departamento ─────────────────────────────────────────────────────
+  APARTESTUDIO = 10,
+  LOFT = 11,
+  PENTHOUSE = 12,
+  PISO = 13,
+  SEMIPISO = 14,
+  ESTANDAR = 15,
+
+  // ── Bóveda / Nicho / Parcela ─────────────────────────────────────────
+  BOVEDA = 16,
+  NICHO = 17,
+  PARCELA = 18,
 }
+
+
+
+/**
+ * Mapa de subtipos válidos por tipo de propiedad.
+ * Los tipos sin subtipos no aparecen en el mapa (o tienen array vacío).
+ * Usarlo para validar, generar selects en el front, etc.
+ */
+export const PROPERTY_SUBTYPES_BY_TYPE: Partial<Record<PropertyType, PropertySubtype[]>> = {
+  [PropertyType.CASA]: [
+    PropertySubtype.BUNGALOW,
+    PropertySubtype.CABANA,
+    PropertySubtype.CHALET,
+    PropertySubtype.CONDOMINIO,
+    PropertySubtype.DUPLEX,
+    PropertySubtype.TRIPLEX,
+    PropertySubtype.CASA_DE_PLAYA,
+    PropertySubtype.PH,
+    PropertySubtype.PREFABRICADA,
+  ],
+  [PropertyType.DEPARTAMENTO]: [
+    PropertySubtype.APARTESTUDIO,
+    PropertySubtype.DUPLEX,
+    PropertySubtype.LOFT,
+    PropertySubtype.PENTHOUSE,
+    PropertySubtype.PISO,
+    PropertySubtype.SEMIPISO,
+    PropertySubtype.TRIPLEX,
+    PropertySubtype.ESTANDAR,
+  ],
+  [PropertyType.BOVEDA_NICHO_PARCELA]: [
+    PropertySubtype.BOVEDA,
+    PropertySubtype.NICHO,
+    PropertySubtype.PARCELA,
+  ],
+};
 
 /**
  * Estados de la propiedad.
@@ -67,6 +115,16 @@ export enum PropertyStatus {
   DISPONIBLE = 2,    // Disponible (default)
   RESERVADA = 3,     // Reservada
   NO_DISPONIBLE = 4, // No disponible
+}
+
+/**
+ * Roles de usuario.
+ */
+export enum UserRole {
+  USER_ROL_ADMIN = 1,
+  USER_ROL_SELLER = 2,
+  USER_ROL_COLLABORATOR = 3,
+  USER_ROL_SUPER_ADMIN = 4,
 }
 
 // ==========================================================================
@@ -200,6 +258,7 @@ export type AmenityGroup = {
 
 export interface CreateProperty {
   // ========== CAMPOS OBLIGATORIOS ==========
+  id?: number; // Solo para propiedades existentes, no requerido al crear
   reference_code: string;
   publication_title: string;
   property_type: PropertyType;
@@ -364,34 +423,6 @@ export const CURRENCIES = {
 
 export type Currency = typeof CURRENCIES[keyof typeof CURRENCIES];
 
-/**
- * Mapeo de labels para los tipos de propiedad (útil para selects)
- */
-export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
-  [PropertyType.LAND]: 'Terreno',
-  [PropertyType.APARTMENT]: 'Departamento',
-  [PropertyType.HOUSE]: 'Casa',
-  [PropertyType.WEEKEND_HOUSE]: 'Casa de fin de semana',
-  [PropertyType.OFFICE]: 'Oficina',
-  [PropertyType.MOORING]: 'Amarre',
-  [PropertyType.BUSINESS_PREMISES]: 'Local comercial',
-  [PropertyType.COMMERCIAL_BUILDING]: 'Edificio comercial',
-  [PropertyType.COUNTRYSIDE]: 'Campo',
-  [PropertyType.GARAGE]: 'Garage',
-  [PropertyType.HOTEL]: 'Hotel',
-  [PropertyType.INDUSTRIAL_SHIP]: 'Nave industrial',
-  [PropertyType.CONDO]: 'Condominio',
-  [PropertyType.STORAGE]: 'Depósito',
-  [PropertyType.BUSINESS_PERMIT]: 'Habilitación comercial',
-  [PropertyType.STORAGE_ROOM]: 'Trastero',
-  [PropertyType.BODEGAS]: 'Bodegas',
-  [PropertyType.FINCAS]: 'Fincas',
-  [PropertyType.CHACRA]: 'Chacra',
-  [PropertyType.CAMA_NAUTICA]: 'Cama náutica',
-  [PropertyType.ISLA]: 'Isla',
-  [PropertyType.TERRAZA]: 'Terraza',
-  [PropertyType.GALPON]: 'Galpón',
-};
 
 /**
  * Mapeo de labels para los estados de propiedad
@@ -402,6 +433,29 @@ export const PROPERTY_STATUS_LABELS: Record<PropertyStatus, string> = {
   [PropertyStatus.DISPONIBLE]: 'Disponible',
   [PropertyStatus.RESERVADA]: 'Reservada',
   [PropertyStatus.NO_DISPONIBLE]: 'No disponible',
+};
+
+/**
+ * Mapeo de labels para los tipos de propiedad
+ */
+export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
+  [PropertyType.CASA]: 'Casa',
+  [PropertyType.DEPARTAMENTO]: 'Departamento',
+  [PropertyType.TERRENO]: 'Terreno',
+  [PropertyType.PH]: 'PH',
+  [PropertyType.GALPON_BODEGA]: 'Galpón / Bodega',
+  [PropertyType.BOVEDA_NICHO_PARCELA]: 'Bóveda / Nicho / Parcela',
+  [PropertyType.CAMA_NAUTICA]: 'Cama náutica',
+  [PropertyType.CAMPO]: 'Campo',
+  [PropertyType.CONSULTORIO]: 'Consultorio',
+  [PropertyType.DEPOSITO]: 'Depósito',
+  [PropertyType.EDIFICIO]: 'Edificio',
+  [PropertyType.FONDO_DE_COMERCIO]: 'Fondo de comercio',
+  [PropertyType.GARAGE]: 'Garage',
+  [PropertyType.HOTEL]: 'Hotel',
+  [PropertyType.LOCAL_COMERCIAL]: 'Local comercial',
+  [PropertyType.OFICINA_COMERCIAL]: 'Oficina comercial',
+  [PropertyType.QUINTA_VACACIONAL]: 'Quinta vacacional',
 };
 
 /**
@@ -416,11 +470,27 @@ export const OPERATION_TYPE_LABELS: Record<OperationType, string> = {
 
 // Mapping for property subtype user-friendly labels
 export const PROPERTY_SUBTYPE_LABELS: Record<PropertySubtype, string> = {
-  [PropertySubtype.DUPLEX]: 'Duplex',
-  [PropertySubtype.TRIPLEX]: 'Triplex',
+  // ── Casa ────────────────────────────────────────────────────────────
+  [PropertySubtype.BUNGALOW]: 'Bungalow',
+  [PropertySubtype.CABANA]: 'Cabaña',
+  [PropertySubtype.CHALET]: 'Chalet',
+  [PropertySubtype.CONDOMINIO]: 'Condominio',
+  [PropertySubtype.DUPLEX]: 'Dúplex',
+  [PropertySubtype.TRIPLEX]: 'Tríplex',
+  [PropertySubtype.CASA_DE_PLAYA]: 'Casa de playa',
+  [PropertySubtype.PH]: 'PH',
+  [PropertySubtype.PREFABRICADA]: 'Prefabricada',
+  // ── Departamento ────────────────────────────────────────────────────
+  [PropertySubtype.APARTESTUDIO]: 'Apartestudio',
   [PropertySubtype.LOFT]: 'Loft',
-  [PropertySubtype.PISO_UNICO]: 'Piso único',
   [PropertySubtype.PENTHOUSE]: 'Penthouse',
+  [PropertySubtype.PISO]: 'Piso',
+  [PropertySubtype.SEMIPISO]: 'Semipiso',
+  [PropertySubtype.ESTANDAR]: 'Estándar',
+  // ── Bóveda / Nicho / Parcela ─────────────────────────────────────────
+  [PropertySubtype.BOVEDA]: 'Bóveda',
+  [PropertySubtype.NICHO]: 'Nicho',
+  [PropertySubtype.PARCELA]: 'Parcela',
 };
 
 export const BRIGHTNESS_LABELS: Record<Brightness, string> = {
@@ -461,6 +531,7 @@ export const ORIENTATION_SELECT_OPTIONS = Object.entries(ORIENTATION_LABELS).map
   value: key,
   label,
 }));
+
 
 // ==========================================================================
 // FUNCIONES AUXILIARES

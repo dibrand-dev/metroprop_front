@@ -4,9 +4,7 @@
 .property-card-grid-list {
   width: 333px;
   border: 1.3px solid $border-color;
-  border-radius: $border-radius-md;
-  display: flex;
-  flex-direction: column;
+  border-radius: $border-radius-md; 
   filter: $shadow-md;
   overflow: hidden;
 

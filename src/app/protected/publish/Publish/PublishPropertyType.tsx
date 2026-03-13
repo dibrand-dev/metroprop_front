@@ -2,14 +2,12 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import './PublishPropertyType.scss';
-import { PropertyType, PropertySubtype, PROPERTY_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, CreatePropertyDraft, OPERATION_TYPE_LABELS } from '@/types/propiedad';
+import { PropertyType, PropertySubtype, PROPERTY_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPES_BY_TYPE } from '@/types/propiedad';
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconClose = '/icons/close.svg';
 
-const propertyOptions: PropertyType[] = [PropertyType.HOUSE, PropertyType.APARTMENT, PropertyType.LAND];
-
-const subtypeOptions: PropertySubtype[] = [PropertySubtype.DUPLEX, PropertySubtype.TRIPLEX, PropertySubtype.LOFT, PropertySubtype.PISO_UNICO, PropertySubtype.PENTHOUSE];
+const propertyOptions: PropertyType[] = PROPERTY_TYPE_LABELS ? (Object.keys(PROPERTY_TYPE_LABELS) as unknown as PropertyType[]) : [];
 
 interface PublishPropertyTypeProps {
   wizardData: CreatePropertyDraft;
@@ -28,12 +26,12 @@ export default function PublishPropertyType({
     wizardData.property_type || null
   );
   const [selectedSubtype, setSelectedSubtype] = useState<PropertySubtype | undefined>(
-    wizardData.property_subtype || PropertySubtype.DUPLEX
+    wizardData.property_subtype || undefined
   );
   const [showError, setShowError] = useState(false);
 
   const showSubtypes = useMemo(() => Boolean(selectedProperty), [selectedProperty]);
-
+  const subtypeOptions: PropertySubtype[] = PROPERTY_SUBTYPES_BY_TYPE[selectedProperty as PropertyType] || [];
   // Update wizard data when selections change
   useEffect(() => {
     if (selectedProperty) {
@@ -110,11 +108,7 @@ export default function PublishPropertyType({
                     {PROPERTY_TYPE_LABELS[option]}
                   </button>
                 ))}
-              </div>
-              <button className="publish-more" type="button">
-                Ver mas
-                <img src={iconChevron} alt="" />
-              </button>
+              </div>             
             </div>
           </div>
 

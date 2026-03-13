@@ -236,6 +236,7 @@ export default function UserSignup() {
           } else {
             setShowSuccessModal(true);
             setTimeout(() => {
+              setShowSuccessModal(false);
               router.replace('/signup');
             }, 3000);
           }

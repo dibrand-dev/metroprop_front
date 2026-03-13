@@ -1,53 +1,33 @@
 'use client';
 import React from 'react';
 import './PropertyCardMapList.scss';
-
-interface Property {
-  id: string;
-  price: number;
-  currency: 'USD' | 'ARS' | 'EUR';
-  pricePerSqm?: number;
-  title: string;
-  address: string;
-  rooms: number;
-  bathrooms: number;
-  area: number;
-  image: string;
-  agencyLogo?: string;
-  isFavorite: boolean;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-}
+import { CreateProperty } from '@/types/propiedad';
 
 interface PropertyCardMapListProps {
-  property: Property;
+  property: CreateProperty;
   onFavorite?: () => void;
 }
 
 const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onFavorite }) => {
   const defaultImage = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=400&fit=crop';
-
+  console.log("propertypropertyproperty", property)
   return (
     <div className="property-card-map-list">
       <div className="card-content">
         <img 
-          src={property.image || defaultImage} 
-          alt={property.title}
+          src={property.images?.[0].url || defaultImage} 
+          alt={property.publication_title}
           className="property-image"
         />
         
         <div className="property-info">
           <div className="title-row">
-            <div className="price-section">
-              {property.pricePerSqm && (
-                <div className="price-per-sqm">
-                  {property.currency} {property.pricePerSqm.toLocaleString()} m²
-                </div>
-              )}
+            <div className="price-section">             
               <div className="total-price">
                 {property.currency} {property.price.toLocaleString()}
+              </div>
+               <div className="price-per-meter">
+                {property.currency} {property.price_square_meter?.toLocaleString()} m²
               </div>
             </div>
             
@@ -69,12 +49,12 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
           
           <div className="details-row">
             <div className="address">
-              {property.address}
+              {property.street}
             </div>
             <div className="specs">
-              <span>{property.rooms} amb.</span>
-              <span>{property.bathrooms} baños</span>
-              <span>{property.area} m² tot.</span>
+              <span>{property.room_amount} amb.</span>
+              <span>{property.bathroom_amount} baños</span>
+              <span>{property.total_surface} m² tot.</span>
             </div>
           </div>
         </div>

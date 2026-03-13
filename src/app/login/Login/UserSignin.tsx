@@ -195,8 +195,10 @@ export default function UserSignin() {
         const responseData = await response.json();
         if (responseData.success) {
           setShowEmailVerificatedModal(true)
+          console.log("setShowEmailVerificatedModal true")
           setTimeout(() => {
             setShowEmailVerificatedModal(false);
+            console.log("setShowEmailVerificatedModal false")
           }, 3000);
         } else {
           let errorMessage = responseData.message         
