@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import './PublishFinalReview.scss';
-import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus } from '@/types/propiedad';
 import { AWS_S3_BUCKET_URL } from '@/constants';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
@@ -165,7 +165,7 @@ export default function PublishFinalReview({
 
   const handlePublish = () => {
     const propertyPublishUpdate = { 
-      status: 1
+      status: PropertyStatus.DISPONIBLE
     }
     onNext(propertyPublishUpdate);
   };

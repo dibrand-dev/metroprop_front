@@ -175,7 +175,6 @@ function buildFilterParams(
   const p = new URLSearchParams();
   p.set('operation_type', OPERACION_TO_OP_TYPE[operacion]);
   p.set('currency', precio.precio.moneda);
-  p.set('status', '1');
   p.set('page', '1');
   p.set('limit', '20');
 
@@ -666,9 +665,6 @@ export default function FilterBar() {
 
           {/* Location search */}
           <div className="filter-search">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="search-icon">
-              <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
             <input
               type="text"
               placeholder="Dirección, barrio, c..."
@@ -681,6 +677,9 @@ export default function FilterBar() {
                 }
               }}
             />
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="search-icon">
+              <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
 
           {/* Operación popover */}
@@ -862,7 +861,7 @@ export default function FilterBar() {
               aria-expanded={filtrosOpen}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M2.5 5h15M5 10h10M7.5 15h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M2.5 5h15M5 10h10M7.5 15h5" stroke="#006AFF" strokeWidth="2" strokeLinecap="round" />
               </svg>
               <span>Filtros</span>
               {filtrosBadge > 0 && <span className="filter-badge">{filtrosBadge}</span>}
