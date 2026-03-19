@@ -19,8 +19,6 @@ interface PublishFinalReviewProps {
   onSaveAndExit: () => void;
 }
 
-const previewImage = 'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=1200&h=800&fit=crop';
-
 export default function PublishFinalReview({
   wizardData,
   onNext,
@@ -230,7 +228,7 @@ export default function PublishFinalReview({
 
                 <div className="publish-review-gallery">
                   <div className="publish-review-gallery-main">
-                    <img src={wizardData?.images?.[0]?.url ? `${AWS_S3_BUCKET_URL}/${wizardData.images[0].url}` : previewImage} alt="Vista principal" />
+                    {wizardData?.images?.[0]?.url && <img src={wizardData?.images?.[0]?.url} alt="Vista principal" />}
                   </div>
                   <div className="publish-review-gallery-grid">
                     {wizardData?.images?.slice(1).map((image, index) => (

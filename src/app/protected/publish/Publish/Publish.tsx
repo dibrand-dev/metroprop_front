@@ -161,8 +161,15 @@ export default function Publish() {
   });
 
   const saveCurrentStep = async (wizardDataUpdate: Partial<CreatePropertyDraft>) => {
+    const _wizardDataUpdate = {...wizardDataUpdate};
+
+    if (!wizardData.draft_id) {
+      const draftData = await createDraftMutation.mutateAsync(wizardData);
+      updateWizardData({ draft_id: draftData.id });
+    }
+    
     try {
-      await updatePropertyMutation.mutateAsync(wizardDataUpdate);
+      await updatePropertyMutation.mutateAsync(_wizardDataUpdate);
     } catch (error: any) {
       console.error('Error updating property:', error?.message || error);
     }
