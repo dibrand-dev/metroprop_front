@@ -11,7 +11,7 @@
 
 .phone-reveal-modal {
   width: 100%;
-  max-width: 440px;
+  max-width: 480px;
   background: #ffffff;
   border: 1px solid #a6a6a6;
   border-radius: 8px;
@@ -70,8 +70,7 @@
 }
 
 .phone-reveal-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
   gap: 16px;
 }
 
@@ -82,7 +81,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: #7a7a7a;
-
+  height: 58px;
   span {
     font-weight: 500;
   }
@@ -107,7 +106,7 @@
 }
 
 .phone-reveal-country {
-  height: 42px;
+  height: 100%;
   border-radius: 8px;
   border: 1.3px solid #a6a6a6;
   background: #ffffff;
@@ -139,7 +138,6 @@
 .phone-reveal-chevron {
   width: 20px;
   height: 20px;
-  transform: rotate(180deg);
 }
 
 .phone-reveal-terms {
@@ -175,10 +173,4 @@
   line-height: 20px;
   letter-spacing: 0.32px;
   cursor: pointer;
-}
-
-@media (max-width: 480px) {
-  .phone-reveal-row {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }

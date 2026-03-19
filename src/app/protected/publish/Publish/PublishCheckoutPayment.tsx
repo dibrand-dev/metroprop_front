@@ -5,10 +5,11 @@ import './PublishCheckoutPayment.scss';
 import InputField from '@/ui/InputField/InputField';
 import Select from '@/ui/Select/Select';
 import Checkbox from '@/ui/Checkbox/Checkbox';
+import { CreatePropertyDraft } from '@/types/propiedad';
 
 interface PublishCheckoutPaymentProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
   onBack: () => void;
 }

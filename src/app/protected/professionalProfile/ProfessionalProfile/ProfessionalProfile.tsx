@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import './ProfessionalProfile.scss';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
+import { useSession } from 'next-auth/react';
 
 const iconEditPencil = "/icons/pencil.svg";
 const iconArrowBack = "/icons/arrow.svg";
@@ -13,24 +13,12 @@ interface PropertyData {
   [key: string]: string;
 }
 
-const mockProfileData: PropertyData = {
-  email: 'contacto@metroprop.com',
-  nombre: 'Norberto',
-  apellido: 'Gomez',
-  telefono: '1144556677',
-  telefonoAdicional: '1144332211',
-  provincia: 'Buenos Aires',
-  ciudad: 'Palermo',
-  calle: 'Cervino',
-  numero: '4046',
-  descripcion: 'Inmobiliaria especializada en propiedades premium con atencion personalizada.',
-};
-
-const getSessionProfileData = (): Partial<PropertyData> => {
+const getSessionProfileData = (sessionData: any): Partial<PropertyData> => {
+  
   if (typeof window === 'undefined') return {};
 
   try {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = sessionData?.user;
     if (!storedUser) return {};
     const user = JSON.parse(storedUser);
     const address = user?.address || {};
@@ -56,10 +44,11 @@ const getSessionProfileData = (): Partial<PropertyData> => {
 const formatNumeric = (value: string): string => value.replace(/\D/g, '');
 
 export default function ProfessionalProfile() {
+  const { data: sessionData, status: sessionStatus } = useSession();
   const [activeSection, setActiveSection] = useState<'generales' | 'ubicacion' | 'descripcion'>('generales');
   const [showMenu, setShowMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [properties, setProperties] = useState<PropertyData>({
+  const [properties, setProperties] = useState<any>({
     // Generales
     email: '',
     nombre: '',
@@ -74,20 +63,9 @@ export default function ProfessionalProfile() {
     // Descripción
     descripcion: '',
   });
-
-  useEffect(() => {
-    const sessionData = getSessionProfileData();
-    const merged = { ...mockProfileData };
-    Object.entries(sessionData).forEach(([key, value]) => {
-      if (typeof value === 'string' && value.trim()) {
-        merged[key] = value.trim();
-      }
-    });
-    merged.telefono = formatNumeric(merged.telefono || '');
-    merged.telefonoAdicional = formatNumeric(merged.telefonoAdicional || '');
-    merged.numero = formatNumeric(merged.numero || '');
-    setProperties(merged);
-  }, []);
+  useEffect(() => {   
+    sessionData?.user && setProperties(sessionData);
+  }, [sessionData]);
 
   const handleInputChange = (field: string, value: string) => {
     const nextValue = ['telefono', 'telefonoAdicional', 'numero'].includes(field)

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { getSession, signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
@@ -9,6 +9,7 @@ import './UserSignup.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import EmailVerificationModal from '../../../components/EmailVerificationModal/EmailVerificationModal';
 import { API_BASE_URL } from '@/utils/utils';
+import { useMutation } from '@tanstack/react-query';
 import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import Button from '@/ui/Button/Button';
 
@@ -36,6 +37,32 @@ export default function UserSignup() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const hasAutoRegisteredRef = useRef(false);
+  const { data: googleSession, status: sessionStatus } = useSession();
+
+  // Mutation for user registration
+  const registerUserMutation = useMutation({
+    mutationFn: async (formData: { email: string; password?: string; name?: string; google?: boolean }) => {
+      const response = await fetch(`${API_BASE_URL}/registration/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error registering user');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      setShowEmailVerificationModal(true);
+    },
+    onError: (err: any) => {
+      const errorMessage = err instanceof Error ? err.message : 'Error al conectar con el servidor';
+      setError(errorMessage);
+    },
+  });
 
   // Check for existing resend cooldown on component mount
   useEffect(() => {
@@ -89,24 +116,23 @@ export default function UserSignup() {
   };
 
   const registerUser = async (payload: { email: string; password?: string; name?: string, google?: boolean }) => {
-    const response = await fetch(`${API_BASE_URL}/registration/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
 
-    if (!response.ok) {
-      let errorMessage = 'Error en el registro';
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || errorMessage;
-      } catch {
-        errorMessage = `Error ${response.status}: ${response.statusText}`;
-      }
-      throw new Error(errorMessage);
-    }
+      // Replace fetch with useMutation from tanstack/react-query
+      // import { useMutation } from '@tanstack/react-query';
+      // const registerUserMutation = useMutation({
+      //   mutationFn: async (formData) => {
+      //     const response = await fetch(`${API_BASE_URL}/registration/`, {
+      //       method: 'POST',
+      //       headers: {
+      //         'Content-Type': 'application/json',
+      //       },
+      //       body: JSON.stringify(formData),
+      //     });
+      //     if (!response.ok) throw new Error('Error registering user');
+      //     return response.json();
+      //   }
+      // });
+      // registerUserMutation.mutate(payload);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -154,16 +180,7 @@ export default function UserSignup() {
       return;
     }
 
-    startTransition(async () => {
-      try {
-        await registerUser({ email, password });        
-        setShowEmailVerificationModal(true);
-
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Error al conectar con el servidor';
-        setError(errorMessage);
-      }
-    });
+    registerUserMutation.mutate({ email, password });
   };
 
   const handleGoogleSignUp = () => {
@@ -187,9 +204,13 @@ export default function UserSignup() {
       return;
     }
 
+    // Wait until NextAuth session is ready after the OAuth redirect
+    if (sessionStatus !== 'authenticated') {
+      return;
+    }
+
     const runGoogleRegistration = async () => {
-      const session:any = await getSession();
-      const sessionEmail = session?.user?.email ?? '';
+      const sessionEmail = googleSession?.user?.email ?? '';
       if (!sessionEmail) {
         return;
       }
@@ -206,9 +227,9 @@ export default function UserSignup() {
             },
             body: JSON.stringify({
               email: sessionEmail,
-              name: session?.user?.name ?? undefined,
-              avatar: session?.user?.image ?? undefined,
-              google_id: session?.user?.id
+              name: googleSession?.user?.name ?? undefined,
+              avatar: (googleSession?.user as any)?.image ?? undefined,
+              google_id: googleSession?.user?.id
             }),
           });
 
@@ -220,6 +241,7 @@ export default function UserSignup() {
           } else {
             setShowSuccessModal(true);
             setTimeout(() => {
+              setShowSuccessModal(false);
               router.replace('/signup');
             }, 3000);
           }
@@ -231,7 +253,7 @@ export default function UserSignup() {
     };
 
     runGoogleRegistration();
-  }, [searchParams, startTransition]);
+  }, [searchParams, startTransition, googleSession, sessionStatus]);
   
   const handleResendEmail = async () => {
     // Check if resend is currently disabled
@@ -248,10 +270,10 @@ export default function UserSignup() {
         body: JSON.stringify({ email }),
       });
 
-      // Set 1-hour cooldown (3600 seconds)
-      const cooldownEnd = Date.now() + (60 * 60 * 1000); // 1 hour in milliseconds
+      // (40 segundos para reenviar)
+      const cooldownEnd = Date.now() + (40 * 1000); // 40 seconds in milliseconds
       setResendDisabledUntil(cooldownEnd);
-      setRemainingTime(3600); // 1 hour in seconds
+      setRemainingTime(40); // 40 seconds
       localStorage.setItem(`resendDisabled_${email}`, cooldownEnd.toString());
       
     } catch (err) {

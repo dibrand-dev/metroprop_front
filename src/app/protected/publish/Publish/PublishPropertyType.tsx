@@ -2,28 +2,16 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import './PublishPropertyType.scss';
+import { PropertyType, PropertySubtype, PROPERTY_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPES_BY_TYPE } from '@/types/propiedad';
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconClose = '/icons/close.svg';
 
-const propertyOptions = ['Casa', 'Departamento', 'Terreno', 'PH'];
-
-const subtypeOptions = [
-  'Barrio con acceso...',
-  'Bungalow',
-  'Cabana',
-  'Casa de playa',
-  'Chalet',
-  'Condominio',
-  'Duplex',
-  'PH',
-  'Prefabricada',
-  'Triplex',
-];
+const propertyOptions: PropertyType[] = PROPERTY_TYPE_LABELS ? (Object.keys(PROPERTY_TYPE_LABELS) as unknown as PropertyType[]) : [];
 
 interface PublishPropertyTypeProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -34,22 +22,22 @@ export default function PublishPropertyType({
   onNext,
   onBack,
 }: PublishPropertyTypeProps) {
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(
-    wizardData.propertyType || null
+  const [selectedProperty, setSelectedProperty] = useState<PropertyType | null>(
+    wizardData.property_type || null
   );
-  const [selectedSubtype, setSelectedSubtype] = useState<string | null>(
-    wizardData.propertySubtype || 'Duplex'
+  const [selectedSubtype, setSelectedSubtype] = useState<PropertySubtype | undefined>(
+    wizardData.property_subtype || undefined
   );
   const [showError, setShowError] = useState(false);
 
   const showSubtypes = useMemo(() => Boolean(selectedProperty), [selectedProperty]);
-
+  const subtypeOptions: PropertySubtype[] = PROPERTY_SUBTYPES_BY_TYPE[selectedProperty as PropertyType] || [];
   // Update wizard data when selections change
   useEffect(() => {
     if (selectedProperty) {
       updateWizardData({
-        propertyType: selectedProperty,
-        propertySubtype: selectedSubtype,
+        property_type: selectedProperty,
+        property_subtype: selectedSubtype,
       });
     }
   }, [selectedProperty, selectedSubtype, updateWizardData]);
@@ -86,7 +74,7 @@ export default function PublishPropertyType({
         ) : null}
 
         <div className="publish-step-card">
-          <p className="publish-step-label">{wizardData.operation}</p>
+          <p className="publish-step-label">{wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''}</p>
           <div className="publish-status-bar">
             <div className="publish-status-track">
               <span className="publish-status-segment" />
@@ -117,18 +105,14 @@ export default function PublishPropertyType({
                       setShowError(false);
                     }}
                   >
-                    {option}
+                    {PROPERTY_TYPE_LABELS[option]}
                   </button>
                 ))}
-              </div>
-              <button className="publish-more" type="button">
-                Ver mas
-                <img src={iconChevron} alt="" />
-              </button>
+              </div>             
             </div>
           </div>
 
-          {showSubtypes ? (
+          {showSubtypes && subtypeOptions.length ? (
             <div className="publish-step-section">
               <p className="publish-step-field-label">Subtipo de propiedad</p>
               <div className="publish-subtype-grid">
@@ -141,7 +125,7 @@ export default function PublishPropertyType({
                     }`}
                     onClick={() => setSelectedSubtype(option)}
                   >
-                    {option}
+                    {PROPERTY_SUBTYPE_LABELS[option]}
                   </button>
                 ))}
               </div>

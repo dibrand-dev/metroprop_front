@@ -3,13 +3,16 @@
 import { useMemo, useState, useEffect } from 'react';
 import './PublishPlans.scss';
 import Select from '@/ui/Select/Select';
+import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import { useQuery } from '@tanstack/react-query';
 
 interface PublishPlansProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
-  onNext: () => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
+  onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onComprar: () => void;
+  onSaveAndExit: () => void;
 }
 
 const iconChevron = '/icons/chevron-up.svg';
@@ -19,9 +22,8 @@ const collaboratorOptions = ['Daniela Benitez', 'Lucia Perez', 'Carlos Molina'];
 
 const planOptions = [
   {
-    id: 'bonificado',
-    title: 'Bonificado',
-    subtitle: 'Visibilidad baja',
+    id: 1,
+    title: 'Bonificado',  
     highlighted: true,
   },
 ];
@@ -59,9 +61,10 @@ export default function PublishPlans({
   onComprar,
   onNext,
   onBack,
+  onSaveAndExit
 }: PublishPlansProps) {
-  const [selectedCollaborator, setSelectedCollaborator] = useState(wizardData.plans?.selectedCollaborator || '');
-  const [selectedPlan, setSelectedPlan] = useState(wizardData.plans?.selectedPlan || 'bonificado');
+  const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
+  const [selected_plan, setSelected_plan] = useState(wizardData.selected_plan || 1);
 
   const collaboratorSelectOptions = useMemo(
     () => collaboratorOptions.map(option => ({
@@ -74,19 +77,20 @@ export default function PublishPlans({
   // Update wizard data when plans data changes
   useEffect(() => {
     updateWizardData({
-      plans: {
-        selectedCollaborator,
-        selectedPlan,
-      },
+      user_id,
+      selected_plan,
     });
-  }, [selectedCollaborator, selectedPlan, updateWizardData]);
+  }, [user_id, selected_plan, updateWizardData]);
 
   const handleBack = () => {
     onBack();
   };
 
   const handleContinue = () => {
-    onNext();
+    onNext({
+      user_id,
+      selected_plan,
+    });
   };
 
   const handleComprar = () => {
@@ -99,9 +103,9 @@ export default function PublishPlans({
         <div className="publish-plans-card">
           <div className="publish-plans-top">
             <div className="publish-plans-route">
-              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
+              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-plans-link" type="button">
+            <button className="publish-plans-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
           </div>
@@ -121,8 +125,8 @@ export default function PublishPlans({
                 <Select
                   label="Tus colaboradores"
                   options={collaboratorSelectOptions}
-                  value={selectedCollaborator}
-                  onChange={(value) => setSelectedCollaborator(value)}
+                  value={user_id ? user_id.toString() : undefined}
+                  onChange={(value) => setUser_id(value ? parseInt(value) : undefined)}
                   placeholder="Seleccionar colaborador"
                 />
               </div>
@@ -138,8 +142,8 @@ export default function PublishPlans({
                     type="button"
                     className={`publish-plans-radio ${
                       plan.highlighted ? 'is-highlighted' : ''
-                    } ${selectedPlan === plan.id ? 'is-selected' : ''}`}
-                    onClick={() => setSelectedPlan(plan.id)}
+                    } ${selected_plan === plan.id ? 'is-selected' : ''}`}
+                    onClick={() => setSelected_plan(plan.id)}
                   >
                     <span className="publish-plans-radio-dot" />
                     <span>{plan.title}</span>

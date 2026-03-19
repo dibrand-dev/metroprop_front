@@ -1,5 +1,4 @@
 .publish-location {
-  background: #ffffff;
   min-height: calc(100vh - 80px);
   padding: 48px 24px 80px;
   display: flex;
@@ -286,6 +285,53 @@
   img {
     width: 100%;
     display: block;
+  }
+}
+
+// ── Address autocomplete ──────────────────────────────────────────────────────
+.publish-location-autocomplete {
+  position: relative;
+  width: 100%;
+}
+
+.publish-location-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.publish-location-suggestion-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+
+  &:hover {
+    background: #f5f3ff;
+  }
+
+  .suggestion-main {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e1e1e;
+  }
+
+  .suggestion-secondary {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
   }
 }
 

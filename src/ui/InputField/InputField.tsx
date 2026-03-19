@@ -7,7 +7,7 @@ interface InputFieldProps {
   label?: string;
   type?: 'text' | 'password' | 'email' | 'number' | 'tel' | 'url' | 'search' | 'date' | 'time' | 'datetime-local' | 'month' | 'week' | 'color' | 'file';
   placeholder?: string;
-  value: string;
+  value: string | number | null;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   icon?: ReactNode;
   onIconClick?: () => void;

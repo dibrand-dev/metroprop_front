@@ -1,171 +1,99 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
+import { useCallback } from 'react';
 import './PublishPropertyContent.scss';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import { API_BASE_URL } from '@/utils/utils';
+import { useQuery } from '@tanstack/react-query';
 
 const iconChevron = '/icons/chevron-up.svg';
 
 interface PublishPropertyContentProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
-  onNext: () => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
+  onNext: (data: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
+  onSaveAndExit: () => void;
 }
-
-const amenityGroups = [
-  {
-    key: 'rooms',
-    title: 'Mas ambientes',
-    options: [
-      'Cocina',
-      'Comedor',
-      'Jardin',
-      'Lavadero',
-      'Living comedor',
-      'Patio',
-      'Altillo',
-      'Balcon',
-      'Baulera',
-    ],
-  },
-  {
-    key: 'services',
-    title: 'Servicios',
-    options: [
-      'Ascensor',
-      'Encargado',
-      'Internet / Wifi',
-      'Ropa de cama',
-      'Servicio de limpieza',
-      'Toallas',
-    ],
-  },
-  {
-    key: 'extras',
-    title: 'Extras',
-    options: [
-      'Aire acondicionado',
-      'Alarma',
-      'Amoblado',
-      'Calefaccion',
-      'Quincho',
-      'Vigilancia',
-      'Caldera',
-      'Cancha de deportes',
-      'Cocina equipada',
-    ],
-  },
-  {
-    key: 'facilities',
-    title: 'Facilidades',
-    options: [
-      'Apto profesional',
-      'Gimnasio',
-      'Parrilla',
-      'Permite mascotas',
-      'Pileta',
-      'Solarium',
-      'Acceso para personas...',
-      'Hidromasaje',
-    ],
-  },
-] as const;
-
-type AmenityKey = (typeof amenityGroups)[number]['key'];
-
-type DetailSelectKey = 'brightness' | 'orientation' | 'floors' | 'parking';
-
-type DetailOption = {
-  key: DetailSelectKey;
-  label: string;
-  options: string[];
-};
-
-const detailSelects: DetailOption[] = [
-  { key: 'brightness', label: 'Luminoso', options: ['Si', 'No'] },
-  { key: 'orientation', label: 'Orientacion', options: ['Norte', 'Sur', 'Este', 'Oeste'] },
-  { key: 'floors', label: 'Cantidad de plantas', options: ['1', '2', '3', '4+'] },
-  { key: 'parking', label: 'Cobertura cochera', options: ['Cubierta', 'Semi cubierta', 'Descubierta'] },
-];
 
 export default function PublishPropertyContent({
   wizardData,
   updateWizardData,
   onNext,
   onBack,
+  onSaveAndExit
 }: PublishPropertyContentProps) {
-  const [expandedGroups, setExpandedGroups] = useState<Record<AmenityKey, boolean>>(
-    wizardData.propertyContent?.expandedGroups || {
-      rooms: false,
-      services: false,
-      extras: false,
-      facilities: false,
+  const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
+  const [expandedGroups, setExpandedGroups] = useState<Record<AmenityType, boolean>>({
+    [AmenityType.Rooms]: false,
+    [AmenityType.Services]: false,
+    [AmenityType.Extras]: false,
+    [AmenityType.Facilities]: false,
+  });
+
+  const [selectedAmenities, setSelectedAmenities] = useState<number[]>(wizardData.tags || []);
+  const [orientation, setOrientation] = useState(wizardData.orientation || undefined);
+  const [floors_amount, setFloors_amount] = useState(wizardData.floors_amount || undefined);
+  const [garage_coverage, setGarage_coverage] = useState(wizardData.garage_coverage || undefined);
+  const [brightness, setBrightness] = useState(wizardData.brightness || undefined);
+  const [surface_front, setSurface_front] = useState(wizardData.surface_front || undefined);
+  const [surface_length, setSurface_length] = useState(wizardData.surface_length || undefined);
+  const [semiroofed_surface, setSemiroofed_surface] = useState(wizardData.semiroofed_surface || undefined);
+
+
+  const { data: tagsData = [] } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/tags`);
+      if (!res.ok) throw new Error('Error fetching tags');
+      return res.json();
+    },
+  });
+
+  useEffect(() => {
+    if (tagsData.length > 0) {
+      const groups: AmenityGroup[] = Object.values(AmenityType).filter(v => typeof v === 'number').map(type => {
+        const options = tagsData.filter((tag: AmenityTag) => tag.type === type);
+        return {
+          type: type as AmenityType,
+          title: AMENITY_TYPE_LABELS[type as AmenityType],
+          options,
+        };
+      });
+      setAmenityGroups(groups);
     }
-  );
-  const [selectedAmenities, setSelectedAmenities] = useState<Record<AmenityKey, Set<string>>>(
-    wizardData.propertyContent?.selectedAmenities || {
-      rooms: new Set(['Cocina']),
-      services: new Set(['Internet / Wifi']),
-      extras: new Set([]),
-      facilities: new Set([]),
-    }
-  );
-  const [details, setDetails] = useState<Record<DetailSelectKey, string>>(
-    wizardData.propertyContent?.details || {
-      brightness: '',
-      orientation: '',
-      floors: '',
-      parking: '',
-    }
-  );
-  const [frontSize, setFrontSize] = useState(wizardData.propertyContent?.frontSize || '');
-  const [depthSize, setDepthSize] = useState(wizardData.propertyContent?.depthSize || '');
-  const [semiCoveredSize, setSemiCoveredSize] = useState(wizardData.propertyContent?.semiCoveredSize || '');
+  }, [tagsData]);
 
   // Update wizard data when property content changes
   useEffect(() => {
     updateWizardData({
-      propertyContent: {
-        expandedGroups,
-        selectedAmenities: Object.fromEntries(
-          Object.entries(selectedAmenities).map(([key, value]) => [key, Array.from(value)])
-        ),
-        details,
-        frontSize,
-        depthSize,
-        semiCoveredSize,
-      },
+      tags: selectedAmenities,
+      brightness,
+      orientation,
+      floors_amount,
+      garage_coverage,
+      surface_front,
+      surface_length,
+      semiroofed_surface
     });
-  }, [expandedGroups, selectedAmenities, details, frontSize, depthSize, semiCoveredSize, updateWizardData]);
+  }, [selectedAmenities, brightness, orientation, floors_amount, garage_coverage, surface_front, surface_length, semiroofed_surface, updateWizardData]);
 
-  const handleToggleAmenity = (groupKey: AmenityKey, option: string) => {
+  const handleToggleAmenity = useCallback((optionId: number) => {
     setSelectedAmenities((prev) => {
-      const nextSet = new Set(prev[groupKey]);
-      if (nextSet.has(option)) {
-        nextSet.delete(option);
+      if (prev.includes(optionId)) {
+        return prev.filter(id => id !== optionId);
       } else {
-        nextSet.add(option);
+        return [...prev, optionId];
       }
-      return {
-        ...prev,
-        [groupKey]: nextSet,
-      };
     });
-  };
-
-  const handleToggleGroup = (groupKey: AmenityKey) => {
+  }, []);
+  const handleToggleGroup = (type: AmenityType) => {
     setExpandedGroups((prev) => ({
       ...prev,
-      [groupKey]: !prev[groupKey],
-    }));
-  };
-
-  const handleDetailChange = (key: DetailSelectKey, value: string) => {
-    setDetails((prev) => ({
-      ...prev,
-      [key]: value,
+      [type]: !prev[type],
     }));
   };
 
@@ -174,18 +102,29 @@ export default function PublishPropertyContent({
   };
 
   const handleContinue = () => {
-    onNext();
+    const propertyContentUpdate = { 
+      tags: selectedAmenities,
+      brightness,
+      orientation,
+      floors_amount,
+      garage_coverage,
+      surface_front,
+      surface_length,
+      semiroofed_surface
+    }
+    onNext(propertyContentUpdate);
   };
 
+  console.log("brightness", brightness)
   return (
     <div className="publish-property-content">
       <div className="publish-property-content-inner">
         <div className="publish-property-content-card">
           <div className="publish-property-content-top">
             <div className="publish-property-content-route">
-              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
+              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-property-content-link" type="button">
+            <button className="publish-property-content-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
           </div>
@@ -206,31 +145,27 @@ export default function PublishPropertyContent({
 
             <div className="publish-property-content-groups">
               {amenityGroups.map((group) => {
-                const selectedSet = selectedAmenities[group.key];
-                const isExpanded = expandedGroups[group.key];
+                const isExpanded = expandedGroups[group.type];
                 const visibleItems = isExpanded ? group.options : group.options.slice(0, 9);
-
                 return (
-                  <div key={group.key} className="publish-property-content-group">
+                  <div key={group.type} className="publish-property-content-group">
                     <h2>{group.title}</h2>
                     <div className="publish-property-content-chip-grid">
                       {visibleItems.map((option) => (
                         <button
-                          key={option}
+                          key={option.id}
                           type="button"
-                          className={`publish-chip ${
-                            selectedSet.has(option) ? 'publish-chip-active' : ''
-                          }`}
-                          onClick={() => handleToggleAmenity(group.key, option)}
+                          className={`publish-chip ${selectedAmenities.includes(option.id) ? 'publish-chip-active' : ''}`}
+                          onClick={() => handleToggleAmenity(option.id)}
                         >
-                          {option}
+                          {option.name}
                         </button>
                       ))}
                     </div>
                     <button
                       type="button"
                       className="publish-property-content-more"
-                      onClick={() => handleToggleGroup(group.key)}
+                      onClick={() => handleToggleGroup(group.type)}
                     >
                       {isExpanded ? 'Ver menos' : 'Ver mas'}
                       <img
@@ -246,33 +181,51 @@ export default function PublishPropertyContent({
 
             <div className="publish-property-content-details">
               <h2>Detalles de la propiedad</h2>
-              <div className="publish-property-content-detail-grid">
-                {detailSelects.map((detail) => {
-                  const selectOptions = detail.options.map(option => ({
-                    value: option,
-                    label: option,
-                  }));
-
-                  return (
-                    <div key={detail.key} className="publish-property-content-detail-field">
-                      <Select
-                        label={detail.label}
-                        options={selectOptions}
-                        value={details[detail.key]}
-                        onChange={(value) => handleDetailChange(detail.key, value)}
-                        placeholder="Seleccionar"
-                      />
-                    </div>
-                  );
-                })}
+              <div className="publish-property-content-detail-grid">                
+                <div className="publish-property-content-detail-field">
+                  <Select
+                    label="Luminoso"
+                    options={BRIGHTNESS_SELECT_OPTIONS}
+                    value={brightness?.toString() ?? ''}
+                    onChange={(value) => setBrightness(value as any)}
+                    placeholder="Seleccionar"
+                  />
+                </div>
+                <div className="publish-property-content-detail-field">
+                  <Select
+                    label="Orientación"
+                    options={ORIENTATION_SELECT_OPTIONS}
+                    value={orientation?.toString() ?? ''}
+                    onChange={(value) => setOrientation(value as any)}
+                    placeholder="Seleccionar"
+                  />
+                </div>
+                <div className="publish-property-content-detail-field">
+                  <Select
+                    label="Cantidad de plantas"
+                    options={[{ label: '1', value: '1' }, { label: '2', value: '2' }, { label: '3', value: '3' }, { label: '4+', value: '4+' }]}
+                    value={floors_amount?.toString() ?? ''}
+                    onChange={(value) => setFloors_amount(value ? parseInt(value) : 0)}
+                    placeholder="Seleccionar"
+                  />
+                </div>
+                <div className="publish-property-content-detail-field">
+                  <Select
+                    label="Cobertura cochera"
+                    options={GARAGE_SELECT_OPTIONS}
+                    value={garage_coverage?.toString() ?? ''}
+                    onChange={(value) => setGarage_coverage(value as any)}
+                    placeholder="Seleccionar"
+                  />
+                </div>
               </div>
               <div className="publish-property-content-inputs">
                 <div className="publish-property-content-detail-field">
                   <InputField
                     label="Frente del terreno (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={frontSize}
-                    onChange={(event) => setFrontSize(event.target.value)}
+                    value={surface_front ?? 0}
+                    onChange={(event) => setSurface_front(event.target.value ? parseInt(event.target.value) : 0)}
                     type="number"
                   />
                 </div>
@@ -280,8 +233,8 @@ export default function PublishPropertyContent({
                   <InputField
                     label="Largo del terreno (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={depthSize}
-                    onChange={(event) => setDepthSize(event.target.value)}
+                    value={surface_length ?? 0}
+                    onChange={(event) => setSurface_length(event.target.value ? parseInt(event.target.value) : 0)}
                     type="number"
                   />
                 </div>
@@ -289,8 +242,8 @@ export default function PublishPropertyContent({
                   <InputField
                     label="Superficie semicubierta (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={semiCoveredSize}
-                    onChange={(event) => setSemiCoveredSize(event.target.value)}
+                    value={semiroofed_surface ?? 0}
+                    onChange={(event) => setSemiroofed_surface(event.target.value ? parseInt(event.target.value) : 0)}
                     type="number"
                   />
                 </div>

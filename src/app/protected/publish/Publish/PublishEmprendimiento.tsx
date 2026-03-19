@@ -8,8 +8,8 @@ import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
 import './PublishEmprendimiento.scss';
 
 interface PublishEmprendimientoProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
   onBack: () => void;
 }

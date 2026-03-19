@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
 import { API_BASE_URL } from '@/utils/utils';
@@ -23,6 +24,20 @@ export default function ForgotPassword() {
   const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
   const router = useRouter();
 
+  const requestPasswordResetMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await fetch(`${API_BASE_URL}/users/request-password-reset`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      if (!response.ok) throw new Error('Error requesting password reset');
+      return response.json();
+    }
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -40,28 +55,17 @@ export default function ForgotPassword() {
       return;
     }
 
+    setIsLoading(true);
+    setError('');
     try {
-      setIsLoading(true);
-      setError('');
-
-      const response = await fetch(`${API_BASE_URL}/users/request-password-reset`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      const data = await requestPasswordResetMutation.mutateAsync(email);
+      if (data && data.success) {
         setShowEmailVerificationModal(true);
-        setEmail(''); // Limpiar el campo
+        setEmail('');
       } else {
         setError(data.message || 'Error al enviar el correo de recuperación');
       }
     } catch (err) {
-      console.error('Forgot password error:', err);
       setError('Error de conexión. Por favor intenta de nuevo.');
     } finally {
       setIsLoading(false);

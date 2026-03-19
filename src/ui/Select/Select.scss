@@ -4,6 +4,23 @@
 
 @import '../../styles/variables';
 
+// Display Text
+.select-display {
+  flex: 1;
+  text-align: left;
+  font-family: $font-family-base;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &.placeholder {
+    color: $text-secondary;
+  }
+}
+
 // Container
 .select-container {
   position: relative;
@@ -75,6 +92,10 @@
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+
+    .select-display {
+      color: $text-secondary;
+    }
   }
 
   &.selected {
@@ -82,22 +103,7 @@
   }
 }
 
-// Display Text
-.select-display {
-  flex: 1;
-  text-align: left;
-  font-family: $font-family-base;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 20px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 
-  &.placeholder {
-    color: $text-secondary;
-  }
-}
 
 // Chevron Icon
 .select-chevron {

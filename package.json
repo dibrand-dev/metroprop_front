@@ -11,6 +11,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
     "@types/jsonwebtoken": "^9.0.10",
+    "@vis.gl/react-google-maps": "^1.7.1",
     "jsonwebtoken": "^9.0.3",
     "next": "^15.5.7",
     "next-auth": "^4.24.13",
@@ -19,6 +20,7 @@
     "sass": "^1.97.3"
   },
   "devDependencies": {
+    "@types/google.maps": "^3.58.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

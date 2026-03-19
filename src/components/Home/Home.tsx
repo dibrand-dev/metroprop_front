@@ -1,9 +1,88 @@
 'use client';
 import InputField2 from '@/ui/InputField2/InputField2';
 import './Home.scss';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import Button from '@/ui/Button/Button';
+import { useRouter } from 'next/navigation';
+
+function SearchAutocompleteInput({ onChange, searchActive }: { onChange: (val: string) => void, searchActive: '1' | '2' | '3' }) {
+  const attrDivRef = useRef<HTMLDivElement>(null);
+  const serviceRef = useRef<google.maps.places.AutocompleteService | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [inputValue, setInputValue] = useState('');
+  const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [open, setOpen] = useState(false);
+  const placesLib = useMapsLibrary('places');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (placesLib && !serviceRef.current) {
+      serviceRef.current = new placesLib.AutocompleteService();
+    }
+  }, [placesLib]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setInputValue(val);
+    setSuggestions([]);
+    setOpen(false);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!val.trim() || !serviceRef.current) return;
+    debounceRef.current = setTimeout(() => {
+      serviceRef.current!.getPlacePredictions(
+        { input: val, types: ['address'] },
+        (predictions, status) => {
+          if (status === 'OK' && predictions?.length) {
+            setSuggestions(predictions);
+            setOpen(true);
+          }
+        }
+      );
+    }, 800);
+  };
+
+  const handleSelect = useCallback((prediction: google.maps.places.AutocompletePrediction) => {
+    const label = prediction.description;
+    setInputValue(label);
+    onChange(label);
+    setSuggestions([]);
+    setOpen(false);
+  }, [onChange]);
+
+  return (
+    <div className="home-search-autocomplete">
+      <div ref={attrDivRef} style={{ display: 'none' }} aria-hidden="true" />
+      <InputField2
+        type="text"
+        placeholder="Escribí una ubicación o alguna característica"
+        icon={<img src="/icons/lupa.svg" />}
+        value={inputValue}
+        onIconClick={() => router.replace(`/results?${inputValue ? `q=${inputValue}&` : ''}operation_type=${searchActive}&currency=USD&status=1&page=1&limit=20`)}
+        onChange={handleChange}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        onFocus={() => suggestions.length > 0 && setOpen(true)}
+        autoComplete="off"
+      />
+      {open && suggestions.length > 0 && (
+        <ul className="home-search-suggestions" role="listbox">
+          {suggestions.map((p) => (
+            <li
+              key={p.place_id}
+              className="home-search-suggestion-item"
+              role="option"
+              onMouseDown={() => handleSelect(p)}
+            >
+              <span className="suggestion-main">{p.structured_formatting.main_text}</span>
+              <span className="suggestion-secondary">{p.structured_formatting.secondary_text}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
   const services = [
@@ -33,7 +112,8 @@ export default function Home() {
     }
   ];
 
-  const [searchActive, setSearchActive] = useState<'comprar' | 'alquilar' | 'emprendimientos'>('comprar');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchActive, setSearchActive] = useState<'1' | '2' | '3'>('1');
   const visitedPropertiesRef = useRef<HTMLDivElement>(null);
   const featuredPropertiesRef = useRef<HTMLDivElement>(null);
   
@@ -87,9 +167,8 @@ export default function Home() {
     }, 300);
   };
   return (
+    <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
     <div className="bg-white w-full overflow-x-hidden">
-      
-
       {/* Hero Section */}
       <div className="hero-section hero-background bg-cover bg-center">
         {/* Content */}
@@ -103,18 +182,20 @@ export default function Home() {
             <div className="search-card bg-white rounded-lg p-4 shadow-lg w-full">
               {/* Filter Tabs */}
               <div className="filter-tabs flex gap-1 md:gap-4 mb-4">
-                <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded  font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "comprar" ? "active" : ""}`} onClick={() => setSearchActive("comprar")}>
+                <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded  font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "1" ? "active" : ""}`} onClick={() => setSearchActive("1")}>
                   Comprar
                 </button>
-                <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "alquilar" ? "active" : ""}`} onClick={() => setSearchActive("alquilar")}>
+                <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "2" ? "active" : ""}`} onClick={() => setSearchActive("2")}>
                   Alquilar
                 </button>
-                <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded  font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "emprendimientos" ? "active" : ""}`} onClick={() => setSearchActive("emprendimientos")}>
+                <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded  font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "4" ? "active" : ""}`} onClick={() => setSearchActive("4")}>
                   Emprendimientos
                 </button>
               </div>
               {/* Search Input */}
-              <div className="search-input-wrapper"><InputField2 type="text" placeholder="Escribí una ubicación o alguna característica" icon={<img src="/icons/lupa.svg" />}  /></div>
+              <div className="search-input-wrapper">
+                <SearchAutocompleteInput onChange={setSearchQuery} searchActive={searchActive} />
+              </div>
             </div>
           </div>
         </div>
@@ -246,5 +327,6 @@ export default function Home() {
         </section>
       </div>
     </div>
+    </APIProvider>
   );
 }

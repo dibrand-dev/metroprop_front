@@ -1,28 +1,10 @@
 'use client';
 import React from 'react';
 import './PropertyCardGridList.scss';
-
-interface Property {
-  id: string;
-  price: number;
-  currency: 'USD' | 'ARS' | 'EUR';
-  pricePerSqm?: number;
-  title: string;
-  address: string;
-  rooms: number;
-  bathrooms: number;
-  area: number;
-  image: string;
-  agencyLogo?: string;
-  isFavorite: boolean;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-}
+import { CreateProperty } from '@/types/propiedad';
 
 interface PropertyCardGridListProps {
-  property: Property;
+  property: CreateProperty;
   onFavorite?: () => void;
 }
 
@@ -34,8 +16,8 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
     <div className="property-card-grid-list">
       <div className="image-section">
         <img 
-          src={property.image || defaultImage} 
-          alt={property.title}
+          src={property.images?.[0]?.url || defaultImage} 
+          alt={property.publication_title}
           className="property-image"
         />
       </div>
@@ -43,7 +25,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
       <div className="info-section">
         <div className="content-wrapper">
           <img 
-            src={property.agencyLogo || defaultLogo} 
+            src={property.agencyLogo || defaultLogo}
             alt="Agency logo"
             className="agency-logo"
           />
@@ -51,23 +33,21 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
           <div className="property-details">
             <div className="price-row">
               <div className="main-price">
-                {property.currency} {property.price.toLocaleString()}
+                {property.currency} {property.price}
               </div>
-              {property.pricePerSqm && (
-                <div className="price-per-sqm">
-                  {property.currency} {property.pricePerSqm.toLocaleString()} m²
-                </div>
-              )}
+              <div className="price-per-sqm">
+                  {property.currency} {property.price_square_meter} m²
+              </div>
             </div>
             
             <div className="address">
-              {property.address}
+              {property.street}
             </div>
             
             <div className="specs-row">
-              <span>{property.area} m² tot.</span>
-              <span>{property.rooms} amb.</span>
-              <span>{property.bathrooms} baños</span>
+              <span>{property.total_surface} m² tot.</span>
+              <span>{property.room_amount} amb.</span>
+              <span>{property.bathroom_amount} baños</span>
             </div>
           </div>
         </div>

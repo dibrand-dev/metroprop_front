@@ -142,17 +142,18 @@ $transition-time: 0.2s;
 .btn-secondary {
   &.btn-type-1 {
     &.btn-state-default {
-      background-color: $primary-color;
+      background-color: #ffffff;
       border-color: $primary-color;
       border-width: 1.5px;
       color: $primary-color;
+      &:hover {
+        background-color: $bg-light-blue;
+        border-color: $primary-color;
+        color: $primary-color;
+      }
     }
 
-    &.btn-state-hover {
-      background-color: $bg-light-blue;
-      border-color: $primary-color;
-      color: $primary-color;
-    }
+    
 
     &.btn-state-selected {
       background-color: $bg-secondary;

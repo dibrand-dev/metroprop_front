@@ -47,19 +47,34 @@
   .price-per-sqm {
     font-family: 'Inter', sans-serif;
     font-weight: 500;
-    font-size: 18px;
+    font-size: 14px;
     line-height: 22px;
-    color: #000000;
-    border-right: 1px solid #000000;
-    padding-right: 8px;
+    color: #7A7A7A;
+    border-left: 1px solid #1E1E1E;
+    padding-left: 8px;
   }
 
   .total-price {
     font-family: 'Inter', sans-serif;
+    color: var(--Metroprop-Texto-principal, #1E1E1E);
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 22px;
+  }
+
+  .price-per-meter {    
+    padding: 0 8px 1px 8px;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 10px;
+    color: #7A7A7A;
+    border-left: 1px solid #7A7A7A;
+    font-family: Inter;
+    font-size: 18px;
+    font-style: normal;
     font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
-    color: rgba(0, 0, 0, 0.5);
+    line-height: 22px; 
   }
 
   .favorite-button {
@@ -84,6 +99,7 @@
     align-items: center;
     gap: 8px;
     padding-right: 16px;
+    color: #1E1E1E;
   }
 
   .address {
@@ -91,7 +107,6 @@
     font-weight: 400;
     font-size: 16px;
     line-height: 20px;
-    color: rgba(0, 0, 0, 0.5);
     border-right: 1px solid #000000;
     padding-right: 4px;
     white-space: nowrap;
@@ -111,7 +126,6 @@
       font-weight: 400;
       font-size: 16px;
       line-height: 20px;
-      color: rgba(0, 0, 0, 0.5);
       white-space: nowrap;
     }
   }

@@ -1,0 +1,1 @@
+export const AWS_S3_BUCKET_URL="https://www.metroprop.co.s3.us-east-2.amazonaws.com"

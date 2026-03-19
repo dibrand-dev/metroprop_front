@@ -35,7 +35,7 @@ $font-family-button: 'Montserrat', sans-serif;
   justify-content: space-between;
   width: 100%;
   margin: 0 auto;
-
+ 
   @media (max-width: 768px) {
     gap: 16px;
     flex-wrap: wrap;
@@ -49,7 +49,9 @@ $font-family-button: 'Montserrat', sans-serif;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-
+  @media (min-width: 768px) {
+    flex: 0 0 260px;
+  }
   @media (max-width: 768px) {
     width: auto;
   }
@@ -399,7 +401,9 @@ $font-family-button: 'Montserrat', sans-serif;
   align-items: center;
   flex-shrink: 0;
   justify-content: flex-end;
-
+  @media (min-width: 768px) {
+    flex: 0 0 260px;
+  }
   @media (max-width: 768px) {
     width: auto;
   }

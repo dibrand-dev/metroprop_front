@@ -5,16 +5,18 @@ import './PublishPrice.scss';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
 import Checkbox from '@/ui/Checkbox/Checkbox';
+import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 
 const iconChevron = '/icons/chevron-up.svg';
 
-const currencyOptions = ['$', 'USD', 'EUR'];
+const currencyOptions = ['ARS', 'USD', 'EUR'];
 
 interface PublishPriceProps {
-  wizardData: any;
-  updateWizardData: (data: any) => void;
-  onNext: () => void;
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
+  onNext: (priceData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
+  onSaveAndExit: () => void;
 }
 
 export default function PublishPrice({
@@ -22,15 +24,13 @@ export default function PublishPrice({
   updateWizardData,
   onNext,
   onBack,
+  onSaveAndExit
 }: PublishPriceProps) {
-  const [rentCurrency, setRentCurrency] = useState(wizardData.price?.rentCurrency || '$');
-  const [rentAmount, setRentAmount] = useState(wizardData.price?.rentAmount || '700000');
-  const [expenseCurrency, setExpenseCurrency] = useState(wizardData.price?.expenseCurrency || '$');
-  const [expenseAmount, setExpenseAmount] = useState(wizardData.price?.expenseAmount || '100000');
-  const [withoutExpenses, setWithoutExpenses] = useState(wizardData.price?.withoutExpenses || false);
-
-  const rentPlaceholder = useMemo(() => 'Ej. 700000', []);
-  const expensePlaceholder = useMemo(() => 'Ej. 100000', []);
+  const [currency, setCurrency] = useState(wizardData.currency || 'ARS');
+  const [price, setPrice] = useState<number | undefined>(wizardData.price || undefined);
+  const [expenses, setExpenses] = useState<number | undefined>(wizardData.expenses || undefined);
+  const [currency_expenses, setCurrency_expenses] = useState(wizardData.currency_expenses || 'ARS');
+  const [withoutExpenses, setWithoutExpenses] = useState(false);
 
   const currencySelectOptions = currencyOptions.map(option => ({
     value: option,
@@ -40,22 +40,22 @@ export default function PublishPrice({
   // Update wizard data when price data changes
   useEffect(() => {
     updateWizardData({
-      price: {
-        rentCurrency,
-        rentAmount,
-        expenseCurrency,
-        expenseAmount,
-        withoutExpenses,
-      },
+      currency,
+      price,
+      expenses: withoutExpenses ? 0 : expenses
     });
-  }, [rentCurrency, rentAmount, expenseCurrency, expenseAmount, withoutExpenses, updateWizardData]);
+  }, [currency, price, expenses, updateWizardData]);
 
   const handleBack = () => {
     onBack();
   };
 
   const handleContinue = () => {
-    onNext();
+    onNext({
+      currency,
+      price,
+      expenses: withoutExpenses ? 0 : expenses
+    });
   };
 
   return (
@@ -64,9 +64,9 @@ export default function PublishPrice({
         <div className="publish-price-card">
           <div className="publish-price-top">
             <div className="publish-price-route">
-              {wizardData.operation} - {wizardData.propertyType} {wizardData.propertySubtype}<br />{wizardData.location?.address}
+              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-price-link" type="button">
+            <button className="publish-price-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
           </div>
@@ -85,17 +85,17 @@ export default function PublishPrice({
 
             <div className="publish-price-fields">
               <div className="publish-price-field">
-                <label>Alquiler*</label>
+                <label>{wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''}*</label>
                 <div className="publish-price-inputs">
                   <Select
                     options={currencySelectOptions}
-                    value={rentCurrency}
-                    onChange={(value) => setRentCurrency(value)}
+                    value={currency}
+                    onChange={(value) => setCurrency(value)}
                   />
                   <InputField
-                    value={rentAmount}
-                    onChange={(event) => setRentAmount(event.target.value)}
-                    placeholder={rentPlaceholder}
+                    value={price ?? null}
+                    onChange={(event) => setPrice(Number(event.target.value))}
+                    placeholder={'Ej. 700000'}
                     type="number"
                   />
                 </div>
@@ -106,14 +106,14 @@ export default function PublishPrice({
                 <div className="publish-price-inputs">
                   <Select
                     options={currencySelectOptions}
-                    value={expenseCurrency}
-                    onChange={(value) => setExpenseCurrency(value)}
+                    value={currency_expenses}
+                    onChange={(value) => setCurrency_expenses(value)}
                     disabled={withoutExpenses}
                   />
                   <InputField
-                    value={expenseAmount}
-                    onChange={(event) => setExpenseAmount(event.target.value)}
-                    placeholder={expensePlaceholder}
+                    value={expenses ?? null}
+                    onChange={(event) => setExpenses(Number(event.target.value))}
+                    placeholder="Ej. 100000"
                     type="number"
                     disabled={withoutExpenses}
                   />
