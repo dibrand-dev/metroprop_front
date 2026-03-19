@@ -25,7 +25,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
       <div className="info-section">
         <div className="content-wrapper">
           <img 
-            src={property.agencyLogo || defaultLogo} 
+            src={property.agencyLogo || defaultLogo}
             alt="Agency logo"
             className="agency-logo"
           />
@@ -33,13 +33,11 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
           <div className="property-details">
             <div className="price-row">
               <div className="main-price">
-                {property.currency} {property.price.toLocaleString()}
+                {property.currency} {property.price}
               </div>
-              {property.price_square_meter && (
-                <div className="price-per-sqm">
-                  {property.currency} {property.price_square_meter.toLocaleString()} m²
-                </div>
-              )}
+              <div className="price-per-sqm">
+                  {property.currency} {property.price_square_meter} m²
+              </div>
             </div>
             
             <div className="address">

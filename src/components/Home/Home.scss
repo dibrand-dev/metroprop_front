@@ -5,7 +5,7 @@
 .hero-section {
     position: relative;
     width: 100%;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .search-card .filter-tabs .filter-button.active {
@@ -37,6 +37,52 @@
 .search-input-wrapper {
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
     border-radius: 8px;
+}
+
+.home-search-autocomplete {
+    position: relative;
+}
+
+.home-search-suggestions {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.home-search-suggestion-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.1s;
+    justify-content: flex-start;
+    align-items: flex-start;
+    &:hover {
+        background: #EBF2FD;
+    }
+
+    .suggestion-main {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1e1e1e;
+    }
+
+    .suggestion-secondary {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 2px;
+    }
 }
 
 .input-field-2-wrapper .input-field-2-container .input-field-2-label {

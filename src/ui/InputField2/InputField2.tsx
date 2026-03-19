@@ -1,30 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import './InputField2.scss';
 
-interface InputField2Props {
-  type?: string;
+type InputField2Props = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'onChange' | 'onFocus' | 'onBlur'
+> & {
   placeholder?: string;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange?: any; // (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | ChangeEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  disabled?: boolean;
-  required?: boolean;
   error?: string;
   label?: string;
-  id?: string;
-  name?: string;
-  autoComplete?: string;
-	onIconClick?: () => void;
+  onIconClick?: () => void;
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
   multiline?: boolean;
   rows?: number;
-}
+};
 
-export default function InputField2({
+const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function InputField2({
   type = 'text',
   placeholder = '',
   value = '',
@@ -39,11 +36,12 @@ export default function InputField2({
   name,
   autoComplete,
   icon,
-	onIconClick,
+  onIconClick,
   iconPosition = 'right',
   multiline = false,
   rows = 4,
-}: InputField2Props) {
+  ...rest
+}, ref) {
   const [isFocused, setIsFocused] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 
@@ -118,6 +116,7 @@ export default function InputField2({
             />
           ) : (
             <input
+              ref={ref}
               id={id}
               name={name}
               type={inputType}
@@ -130,6 +129,7 @@ export default function InputField2({
               disabled={disabled}
               required={required}
               autoComplete={autoComplete}
+              {...rest}
             />
           )}             
 					{displayIcon && (
@@ -149,4 +149,6 @@ export default function InputField2({
       {error && <div className="input-field-2-error">{error}</div>}
     </div>
   );
-}
+});
+
+export default InputField2;

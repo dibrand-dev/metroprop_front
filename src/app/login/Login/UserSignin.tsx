@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { getSession, signIn, signOut } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
@@ -28,6 +28,7 @@ export default function UserSignin() {
   const [showEmailVerificatedModal, setShowEmailVerificatedModal] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: googleSession, status: sessionStatus, update: updateSession } = useSession();
   const hasProcessedGoogleLoginRef = useRef(false);
 
   const setCookieMutation = useMutation({
@@ -75,13 +76,13 @@ export default function UserSignin() {
     if (!(data?.access_token && data?.user)) {
       return;
     }
-    console.log("storeAuthData", data);
+    
     localStorage.setItem('authToken', data.access_token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    localStorage.setItem('userEmail', data.user.email);
+    if (data.user?.organization) {      
+      await updateSession({ organization: data.user.organization });
+    }
 
     try {
-      console.log("TRY /api/auth/set-cookie");
       await setCookieMutation.mutateAsync(data.access_token);
     } catch (cookieError) {
       console.error('Error calling set-cookie API:', cookieError);
@@ -112,22 +113,35 @@ export default function UserSignin() {
       try {
         setError('');
 
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          setError(errorData.message || 'Error al iniciar sesión');
+        if (!result?.ok || result?.error) {
+          setError('Email o contraseña incorrectos. Por favor intenta de nuevo.');
           return;
         }
 
-        const data = await response.json();
-        await storeAuthData(data);
+        // Fetch the fresh session to get apiToken + organization written by JWT callback
+        const sessionRes = await fetch('/api/auth/session');
+        const sessionData = await sessionRes.json();
+        const apiToken: string | undefined = sessionData?.user?.apiToken;
+        const user = sessionData?.user;
+
+        if (apiToken && user) {
+          localStorage.setItem('authToken', apiToken);
+          if (user.organization) {
+            await updateSession({ organization: user.organization });
+          }
+          try {
+            await setCookieMutation.mutateAsync(apiToken);
+          } catch (cookieError) {
+            console.error('Error calling set-cookie API:', cookieError);
+          }
+        }
+
         router.push('/');
       } catch (err) {
         console.error('Login error:', err);
@@ -137,12 +151,9 @@ export default function UserSignin() {
   };
 
   const handleGoogleSignIn = () => {
-    console.log("handleGoogleSignIn CLICK")
     startTransition(async () => {
-      console.log("startTransition for Google SignIn")
       try {
         setError('');
-        console.log("await signIn('google'")
         await signIn('google', {
           redirect: true,
           callbackUrl: '/login?googleLogin=1',
@@ -162,9 +173,13 @@ export default function UserSignin() {
       return;
     }
 
+    // Wait until NextAuth session is ready after the OAuth redirect
+    if (shouldProcessGoogleLogin && sessionStatus !== 'authenticated') {
+      return;
+    }
+
     const processGoogleLogin = async () => {
-      const session: any = await getSession();
-      const sessionEmail = session?.user?.email ?? '';
+      const sessionEmail = googleSession?.user?.email ?? '';
       if (!sessionEmail) {
         return;
       }
@@ -173,9 +188,9 @@ export default function UserSignin() {
       setError('');
       googleRegistrationMutation.mutate({
         email: sessionEmail,
-        name: session?.user?.name ?? undefined,
-        avatar: session?.user?.image ?? undefined,
-        google_id: session?.user?.id,
+        name: googleSession?.user?.name ?? undefined,
+        avatar: (googleSession?.user as any)?.image ?? undefined,
+        google_id: (googleSession?.user as any)?.id,
       });
     };
 
@@ -195,10 +210,8 @@ export default function UserSignin() {
         const responseData = await response.json();
         if (responseData.success) {
           setShowEmailVerificatedModal(true)
-          console.log("setShowEmailVerificatedModal true")
           setTimeout(() => {
             setShowEmailVerificatedModal(false);
-            console.log("setShowEmailVerificatedModal false")
           }, 3000);
         } else {
           let errorMessage = responseData.message         
@@ -213,7 +226,7 @@ export default function UserSignin() {
     shouldProcessGoogleLogin && processGoogleLogin();
     shouldProcessValidation && processValidation()
 
-  }, [router, searchParams, startTransition]);
+  }, [router, searchParams, startTransition, googleSession, sessionStatus]);
 
   useEffect(() => {
 

@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { useState } from 'react';
 import './Header.scss';
 import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
 

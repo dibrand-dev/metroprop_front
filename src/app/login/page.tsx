@@ -1,16 +1,13 @@
-import UserSignin from "@/app/login/Login/UserSignin";
+"use client"
 
-export const metadata = {
-  title: 'Iniciar sesión - Metroprop',
-  description: 'Inicia sesión en tu cuenta de Metroprop',
-};
+import UserSignin from "@/app/login/Login/UserSignin";
 
 export default function SigninPage() {
   return (
     <div className="signin-container">
       {/* Left Panel */}
       <div className="signin-left-panel">
-        <UserSignin /> 
+        <UserSignin />
       </div>
     </div>
   );

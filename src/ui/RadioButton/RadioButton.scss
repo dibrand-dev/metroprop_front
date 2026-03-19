@@ -4,12 +4,26 @@
 .radio-button {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  
   padding: $spacing-lg;
-  background-color: $text-light;
-  border: 1px solid $border-color;
-  border-radius: $border-radius-md;
+  background-color: transparent;
   transition: all 0.2s ease;
+  padding: 0;
+  gap: 0;
+/*
+  &:hover {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .radio-button-main .radio-label {
+    gap: 8px;
+  }
+
+  .radio-custom {
+    border-color: #A6A6A6;
+  }
+    */
 
   &:hover:not(.disabled) {
     border-color: rgba($primary-color, 0.3);
@@ -43,7 +57,7 @@
   &:checked + .radio-label {
     .radio-custom {
       border-color: #006AFF;
-      background-color: #FFFFFF;
+      background-color: #006AFF;
     }
   }
 }
@@ -73,13 +87,13 @@
   &::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: calc(50% - 6px);
+    left: calc(50% - 6px);
     transform: translate(-50%, -50%) scale(0);
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background-color: #006AFF;
+    background-color: #fff;
     transition: transform 0.2s ease;
   }
 

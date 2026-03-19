@@ -71,7 +71,7 @@ export default function CountryCodeModal({
   }
 
   const handleSelect = (country: CountryCode) => {
-    onSelect(`${country.dialCode} ${country.name}`);
+    onSelect(`${country.dialCode}`);
     onClose();
   };
 
@@ -87,7 +87,7 @@ export default function CountryCodeModal({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="country-code-modal-header">
-          <h3>Codigo de pais</h3>
+          <h3>Código de pais</h3>
           <button type="button" onClick={onClose} aria-label="Cerrar">
             <img src={closeIcon} alt="" />
           </button>

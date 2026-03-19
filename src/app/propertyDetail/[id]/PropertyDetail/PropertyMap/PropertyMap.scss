@@ -1,0 +1,92 @@
+.property-map-static,
+.property-map-interactive {
+  width: 100%;
+  height: 320px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+// ── Static (image) state ─────────────────────────────────────────────────────
+.property-map-static {
+  position: relative;
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover &-overlay,
+  &:focus-visible &-overlay {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #3182ce;
+    outline-offset: 2px;
+  }
+}
+
+.property-map-no-address {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  color: #999;
+  font-size: 14px;
+}
+
+// ── Interactive (embedded map) state ─────────────────────────────────────────
+.property-map-interactive {
+  position: relative;
+
+  // Search input floats above the map
+  .property-map-search {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
+    width: calc(100% - 24px);
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    font-size: 14px;
+    background: #fff;
+    outline: none;
+
+    &:focus {
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  // Make sure the Map div fills the container
+  > div {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// Places autocomplete dropdown needs to sit above map tiles
+.pac-container {
+  z-index: 9999;
+}

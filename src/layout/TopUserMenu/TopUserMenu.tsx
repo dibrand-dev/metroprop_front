@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSession, signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import './TopUserMenu.scss';
 import Button from '@/ui/Button/Button';
 
@@ -29,37 +29,20 @@ interface AppUser {
 }
 
 export default function TopUserMenu() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { data: sessionData, status: sessionStatus } = useSession();
   const [user, setUser] = useState<AppUser | null>(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const router = useRouter();
-
   useEffect(() => {
     const loadUser = async () => {
-      const authToken = localStorage.getItem('authToken');
-      const userData = localStorage.getItem('user');
-
-      if (authToken && userData) {
-        try {
-          const parsedUser = JSON.parse(userData);
-          setUser(parsedUser);
-          setIsLoggedIn(true);
-          return;
-        } catch (error) {
-          console.error('Error parsing user data:', error);
-        }
-      }
-
       try {
-        const session = await getSession();
-        if (session?.user?.email) {
-          const sessionUser = session.user as { id?: string; email: string; name?: string | null };
+        if (sessionData?.user?.email) {
+          const sessionUser = sessionData.user as { id?: string; email: string; name?: string | null };
           setUser({
             id: sessionUser.id,
             email: sessionUser.email,
             name: sessionUser.name || sessionUser.email,
           });
-          setIsLoggedIn(true);
           return;
         }
       } catch (error) {
@@ -67,11 +50,10 @@ export default function TopUserMenu() {
       }
 
       setUser(null);
-      setIsLoggedIn(false);
     };
 
     loadUser();
-  }, []);
+  }, [sessionData]);
 
   const getInitials = (name: string): string => {
     return name
@@ -95,7 +77,6 @@ export default function TopUserMenu() {
       redirect: false,
     }).catch(err => console.error('Error signing out from NextAuth:', err));
 
-    setIsLoggedIn(false);
     setUser(null);
     setShowUserDropdown(false);
     router.push('/');
@@ -135,7 +116,7 @@ export default function TopUserMenu() {
       id: 'cuenta',
       label: 'Mi cuenta',
       icon: cuentaIcon,
-      href: '/profile/account'
+      href: '/protected/profile'
     },
     {
       id: 'logout',
@@ -147,7 +128,7 @@ export default function TopUserMenu() {
     }
   ];
 
-  return !isLoggedIn ? (    
+  return sessionStatus === "unauthenticated" ? (    
     <Button
       label="Ingresar"
       type="button"
@@ -164,7 +145,7 @@ export default function TopUserMenu() {
         label="Publicar"
         type="button"
         variant="primary"
-        buttonType="2"
+        buttonType="1"
         state="default"                 
         fullWidth={false}
         size="medium"

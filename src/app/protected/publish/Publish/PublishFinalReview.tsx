@@ -6,40 +6,33 @@ import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePrope
 import { AWS_S3_BUCKET_URL } from '@/constants';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
+import { useSession } from 'next-auth/react';
+import { APIProvider, Map } from '@vis.gl/react-google-maps';
 
 const iconChevron = '/icons/chevron-up.svg';
 
 interface PublishFinalReviewProps {
   wizardData: CreatePropertyDraft;
   onNext: (data: Partial<CreatePropertyDraft>) => void;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onSaveAndExit: () => void;
 }
 
 const previewImage = 'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=1200&h=800&fit=crop';
 
-const featureItems = [
-  { label: 'A estrenar', icon: '/icons/calendar.svg' },
-  { label: 'Contrafrente', icon: '/icons/contrafrente.svg' },
-  { label: 'N', icon: '/icons/orientacion.svg' },
-  { label: '177 m2 tot.', icon: '/icons/regla.svg' },
-  { label: '167 m2 cub', icon: '/icons/mcubiertos.svg' },
-  { label: '5 amb.', icon: '/icons/door.svg' },
-  { label: '1 cochera', icon: '/icons/cochera.svg' },
-  { label: '4 dorm.', icon: '/icons/cama.svg' },
-  { label: '3 banos', icon: '/icons/bano.svg' },
-];
-
 export default function PublishFinalReview({
   wizardData,
   onNext,
   onBack,
-  onSaveAndExit
+  onSaveAndExit,
+  updateWizardData
 }: PublishFinalReviewProps) {
-const [activeTab, setActiveTab] = useState<string>('');
+  const { data: sessionData } = useSession();
+  const [activeTab, setActiveTab] = useState<string>('');
   const address = wizardData.street || 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
-  
+  console.log("sessionData", sessionData)
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: async () => {
@@ -66,7 +59,20 @@ const [activeTab, setActiveTab] = useState<string>('');
       }
     }
   }, [tagsData]);
-
+  
+  useEffect(() => {
+    if (wizardData.draft_id) {
+      fetch(`http://localhost:3000/properties/${wizardData.draft_id}/multimedia`)
+        .then(response => response.json())
+        .then(data => {
+          const _wizardData = {...wizardData};
+          _wizardData.images = data?.images || wizardData.images;
+          _wizardData.attached = data?.attached || wizardData.attached;
+          updateWizardData(_wizardData);
+        })
+        .catch(error => console.error('Error loading multimedia:', error));
+    }
+  }, []) 
 
   // Format price display
   const formatPrice = (amount: string, currency: string) => {
@@ -124,10 +130,10 @@ const [activeTab, setActiveTab] = useState<string>('');
     }
     
     if (wizardData.toilet_amount) {
-      features.push({ label: `${wizardData.toilet_amount} toilette${wizardData.toilet_amount > 1 ? 's' : ''}`, icon: '/icons/toilet.svg' });
+      features.push({ label: `${wizardData.toilet_amount} toilette${wizardData.toilet_amount > 1 ? 's' : ''}`, icon: '/icons/toilete.svg' });
     }
 
-    return features.length > 0 ? features : featureItems; // fallback to default
+    return features.length > 0 ? features : []; // fallback to default
   };
 
   // Get selected amenities by group, using amenityGroups and wizardData.tags
@@ -269,15 +275,27 @@ const [activeTab, setActiveTab] = useState<string>('');
                     <span>{address}</span>
                   </div>
                   <div className="publish-review-map-image">
-                    <img src="/images/mapa_google.png" alt="Mapa de ubicacion" />
-                    <div className="publish-review-map-pin" aria-hidden="true">
-                      <svg viewBox="0 0 24 24">
-                        <path
-                          d="M12 2c-4.4 0-8 3.6-8 8 0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"
-                          fill="currentColor"
+                    {wizardData.geo_lat && wizardData.geo_long ? (
+                      <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
+                        <Map
+                          center={{ lat: wizardData.geo_lat, lng: wizardData.geo_long }}
+                          zoom={15}
+                          gestureHandling="none"
+                          disableDefaultUI
+                          style={{ width: '100%', height: '100%' }}
                         />
-                      </svg>
-                    </div>
+                        <div className="publish-review-map-pin" aria-hidden="true">
+                          <svg viewBox="0 0 24 32" width="28" height="38">
+                            <path
+                              d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20S24 21 24 12C24 5.37 18.63 0 12 0zm0 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"
+                              fill="#e53e3e"
+                            />
+                          </svg>
+                        </div>
+                      </APIProvider>
+                    ) : (
+                      <img src="/images/mapa_google.png" alt="Mapa de ubicacion" />
+                    )}
                   </div>
                 </div>
 
@@ -316,11 +334,11 @@ const [activeTab, setActiveTab] = useState<string>('');
                   <div className="publish-review-contact-logo">
                     <img src="/images/metropropLogo.png" alt="Metroprop" />
                   </div>
-                  <div className="publish-review-contact-info">
-                    <div className="publish-review-contact-name">Juan Perez</div>
-                    <div className="publish-review-contact-phone">1159959324</div>
-                    <div className="publish-review-contact-phone">4532-4871</div>
-                  </div>
+                  {sessionData?.user && <div className="publish-review-contact-info">
+                    <div className="publish-review-contact-name">{sessionData?.user?.name}</div>
+                    <div className="publish-review-contact-name">{sessionData?.user?.email ?? ''}</div>
+                    <div className="publish-review-contact-phone">{sessionData?.user?.phone ?? ''}</div>
+                  </div>}
                 </div>
               </div>
             </div>

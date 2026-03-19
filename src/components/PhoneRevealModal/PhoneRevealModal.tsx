@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import './PhoneRevealModal.scss';
 import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
+import InputField2 from '@/ui/InputField2/InputField2';
+import Checkbox from '@/ui/Checkbox/Checkbox';
+import Button from '@/ui/Button/Button';
 
 interface PhoneRevealModalProps {
   isOpen: boolean;
@@ -78,34 +81,31 @@ export default function PhoneRevealModal({ isOpen, onClose }: PhoneRevealModalPr
 
           <div className="phone-reveal-form">
             <div className="phone-reveal-row">
-              <label className="phone-reveal-field">
-                <span>Nombre</span>
-                <input
-                  type="text"
-                  value={formState.name}
-                  onChange={(event) => handleChange('name', event.target.value)}
-                  placeholder="Nombre"
-                />
-              </label>
-              <label className="phone-reveal-field wide">
-                <span>Email</span>
-                <input
-                  type="email"
-                  value={formState.email}
-                  onChange={(event) => handleChange('email', event.target.value)}
-                  placeholder="unemail@dibrand.com"
-                />
-              </label>
+              <InputField2
+                label="Nombre"
+                type="text"
+                placeholder="Nombre"
+                value={formState.name}
+                onChange={(event) => handleChange('name', event.target.value)}
+              />
+              <InputField2
+                label="Email"
+                type="email"
+                placeholder="unemail@dibrand.com"
+                value={formState.email}
+                onChange={(event) => handleChange('email', event.target.value)}
+              />
             </div>
 
             <div className="phone-reveal-row">
               <div className="phone-reveal-field">
-                <span>Pais</span>
+                
                 <button
                   type="button"
                   className="phone-reveal-country"
                   onClick={() => setIsCountryModalOpen(true)}
                 >
+                  <span>Pais</span>
                   <span className="phone-reveal-flag" aria-hidden="true">
                     <img src={flagIcon} alt="" />
                   </span>
@@ -113,40 +113,35 @@ export default function PhoneRevealModal({ isOpen, onClose }: PhoneRevealModalPr
                   <img src={chevronIcon} alt="" className="phone-reveal-chevron" />
                 </button>
               </div>
-              <label className="phone-reveal-field wide">
-                <span>Telefono</span>
-                <input
-                  type="tel"
-                  value={formState.phone}
-                  onChange={(event) => handleChange('phone', event.target.value)}
-                  placeholder="1526458466"
-                />
-              </label>
+              <InputField2
+                label="Telefono"
+                type="tel"
+                placeholder="1526458466"
+                value={formState.phone}
+                onChange={(event) => handleChange('phone', event.target.value)}
+              />
             </div>
           </div>
 
           <div className="phone-reveal-terms">
-            <label className="phone-reveal-checkbox">
-              <input
-                type="checkbox"
-                checked={formState.termsAccepted}
-                onChange={(event) => handleChange('termsAccepted', event.target.checked)}
-              />
-              <span>Acepto los Terminos y condiciones de Uso</span>
-            </label>
-            <label className="phone-reveal-checkbox">
-              <input
-                type="checkbox"
-                checked={formState.privacyAccepted}
-                onChange={(event) => handleChange('privacyAccepted', event.target.checked)}
-              />
-              <span>Acepto la Politica de Privacidad</span>
-            </label>
+            <Checkbox
+              label="Acepto los Terminos y condiciones de Uso"
+              checked={formState.termsAccepted}
+              onChange={(checked) => handleChange('termsAccepted', checked)}
+            />
+            <Checkbox
+              label="Acepto la Politica de Privacidad"
+              checked={formState.privacyAccepted}
+              onChange={(checked) => handleChange('privacyAccepted', checked)}
+            />
           </div>
 
-          <button type="button" className="phone-reveal-submit">
-            Ver telefono
-          </button>
+          <Button
+            label="Ver telefono"
+            variant="primary"
+            type="button"
+            fullWidth
+          />
         </div>
       </div>
     </div>

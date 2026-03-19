@@ -537,7 +537,7 @@ export default function PublishContent({
                       onClick={() => toggleAccordion(item.id)}
                     >
                       <span>{item.title}</span>
-                      <img src={iconChevron} alt="" />
+                      <div className="chevron-container"><img src={iconChevron} alt="" /></div>
                     </button>
                     {openAccordions.includes(item.id) ? (
                       <div className="publish-content-accordion-body">

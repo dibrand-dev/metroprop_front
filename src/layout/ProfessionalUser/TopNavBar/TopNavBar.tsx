@@ -1,13 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import './TopNavBar.scss';
 import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
 
 const logoMetroprop = "/images/metropropLogo.png";
-const iconChevron = "https://www.figma.com/api/mcp/asset/17656c9e-10e8-428d-84c5-78ac19fac2cf";
-
 interface TopNavBarProps {
   menuItems?: string[];
 }

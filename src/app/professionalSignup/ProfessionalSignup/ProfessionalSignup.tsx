@@ -12,8 +12,6 @@ import EmailVerificationModal from '../../../components/EmailVerificationModal/E
 import { useRouter } from 'next/navigation';
 import { API_BASE_URL } from '@/utils/utils';
 
-const heroBgImage = '/images/hero.png';
-
 // Email validation helper
 const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -241,6 +239,7 @@ export default function ProfessionalSignup() {
     ? `Podrás reenviar el correo en ${formatRemainingTime(remainingTime)}`
     : undefined;
 
+  console.log("error", error)
   return (
     <div className="signup-container bg-white min-h-screen w-full">
       <div className="signup-wrapper">
@@ -353,8 +352,7 @@ export default function ProfessionalSignup() {
                 <h2 className="form-section-title">Condición fiscal</h2>
                 <div className="form-field-group">
                   <div className="form-field">
-                    <Select
-                      label="Condición fiscal"
+                    <Select                      
                       placeholder="Seleccionar"
                       value={fiscalCondition}
                       onChange={(value) => setFiscalCondition(value)}
@@ -429,7 +427,7 @@ export default function ProfessionalSignup() {
               />
 
               {error && (
-                <div className="form-error-message">
+                <div className="merged-signup-error-message">
                   {error}
                 </div>
               )}

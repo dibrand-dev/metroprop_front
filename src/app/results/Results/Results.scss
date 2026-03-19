@@ -408,8 +408,10 @@
 // Filter Bar Styles
 .filter-bar {
   background: #fff;
-  border-bottom: 1px solid #E5E5E5;
+  border-bottom: 1px solid #A6A6A6;
   padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 600;
 
   @media (max-width: 767px) {
     display: none; // Mobile uses simplified filters
@@ -472,17 +474,18 @@
   // Operación popover
   .operacion-popover {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 17px);
     left: 0;
     z-index: 200;
     width: 420px;
     background: #fff;
     border: 1px solid #F5F5F5;
-    border-radius: 16px;
+    border-radius: 0 0 16px 16px;
     box-shadow: 1px 4px 8px 0px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    max-height: calc(100vh - 160px);
   }
 
   .operacion-radio-group {
@@ -490,30 +493,6 @@
     align-items: center;
     gap: 24px;
     padding: 24px 24px 0;
-
-    // Override card-style from RadioButton component
-    .radio-button {
-      padding: 0;
-      border: none;
-      border-radius: 0;
-      background: transparent;
-      gap: 0;
-
-      &:hover {
-        border-color: transparent;
-        background: transparent;
-      }
-
-      .radio-button-main {
-        .radio-label {
-          gap: 8px;
-        }
-
-        .radio-custom {
-          border-color: #A6A6A6;
-        }
-      }
-    }
   }
 
   .operacion-property-section {
@@ -693,17 +672,18 @@
   // Rooms (Amb / Dorm / Baños / Cocheras) popover
   .rooms-popover {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 17px);
     left: 0;
     z-index: 200;
     width: 420px;
     background: #fff;
     border: 1px solid #F5F5F5;
-    border-radius: 16px;
+    border-radius: 0 0 16px 16px;
     box-shadow: 1px 4px 8px 0px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
     overflow: visible;
+    max-height: calc(100vh - 160px);
   }
 
   .rooms-popover-grid {
@@ -735,17 +715,17 @@
   // Filtros popover (mas filtros)
   .filtros-popover {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 17px);
     right: 0;
     z-index: 200;
     width: 420px;
     background: #fff;
-    border: 1px solid #7A7A7A;
-    border-radius: 16px;
+    border: 1px solid #F5F5F5;
+    border-radius: 0 0 16px 16px;    
     box-shadow: 1px 4px 8px 0px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 160px);
     overflow: hidden;
   }
 
@@ -817,17 +797,18 @@
   // Precio popover
   .precio-popover {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 16px);
     left: 0;
     z-index: 200;
     width: 420px;
     background: #fff;
     border: 1px solid #A6A6A6;
-    border-radius: 16px;
+    border-radius: 0 0 16px 16px;
     box-shadow: 1px 4px 8px 0px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    max-height: calc(100vh - 160px);
   }
 
   .precio-popover-body {
@@ -858,28 +839,6 @@
     display: flex;
     gap: 24px;
     align-items: center;
-
-    // Override card-style RadioButton for inline display
-    .radio-button {
-      padding: 0;
-      border: none;
-      border-radius: 0;
-      background: transparent;
-      gap: 0;
-
-      &:hover {
-        border-color: transparent;
-        background: transparent;
-      }
-
-      .radio-button-main .radio-label {
-        gap: 8px;
-      }
-
-      .radio-custom {
-        border-color: #A6A6A6;
-      }
-    }
   }
 
   .precio-slider-wrapper {

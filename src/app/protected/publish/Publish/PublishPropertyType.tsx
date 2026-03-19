@@ -112,7 +112,7 @@ export default function PublishPropertyType({
             </div>
           </div>
 
-          {showSubtypes ? (
+          {showSubtypes && subtypeOptions.length ? (
             <div className="publish-step-section">
               <p className="publish-step-field-label">Subtipo de propiedad</p>
               <div className="publish-subtype-grid">

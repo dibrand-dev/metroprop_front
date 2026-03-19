@@ -365,13 +365,15 @@
 
 .publish-review-map-image {
   position: relative;
+  height: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #a6a6a6;
 
   img {
     width: 100%;
-    height: 200px;
+    height: 100%;
     object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #a6a6a6;
   }
 }
 

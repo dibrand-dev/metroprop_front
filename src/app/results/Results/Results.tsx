@@ -7,6 +7,7 @@ import PropertyCardMapList from './PropertyCardMapList';
 import PropertyCardGridList from './PropertyCardGridList';
 import FilterBar from './FilterBar';
 import SortDropdown from './SortDropdown';
+import ResultsMap from './ResultsMap';
 import './Results.scss';
 import { fetchProperties, searchParamsToFilterParams } from '@/lib/properties';
 // import type { PropertyListItem } from '@/types/property-api';
@@ -127,20 +128,7 @@ export default function Results() {
         {/* Map View - Always visible on desktop (unless grid layout), toggle on mobile */}
         <div className={`map-view ${viewMode === 'map' ? 'active' : ''} ${layoutMode === 'grid' ? 'hidden-grid' : ''}`}>
           <div className="map-container">
-            {properties.map((property, index) => (
-              <div
-                key={property.id}
-                className="map-marker"
-                style={{
-                  top: `${50 + (index % 6 - 2.5) * 8}%`,
-                  left: `${50 + (Math.floor(index / 6) - 1) * 12}%`,
-                }}
-              >
-                <div className="marker-bubble">
-                  ${property.price.toLocaleString()}
-                </div>
-              </div>
-            ))}
+            <ResultsMap properties={properties} />
           </div>
         </div>
 
@@ -158,7 +146,7 @@ export default function Results() {
                     title="Vista de mapa"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path d="M8 3.00001V17.5M15 6.50001V20.5M5.253 4.19601L4.026 4.90801C3.037 5.48101 2.543 5.76801 2.272 6.24501C2 6.72201 2 7.30201 2 8.46401V16.628C2 18.154 2 18.918 2.342 19.342C2.57 19.624 2.889 19.814 3.242 19.877C3.772 19.972 4.422 19.595 5.72 18.842C6.602 18.331 7.45 17.799 8.505 17.944C8.985 18.009 9.442 18.237 10.358 18.692L14.171 20.588C14.996 20.998 15.004 21 15.921 21H18C19.886 21 20.828 21 21.414 20.401C22 19.803 22 18.839 22 16.911V10.171C22 8.24401 22 7.28101 21.414 6.68101C20.828 6.08301 19.886 6.08301 18 6.08301H15.921C15.004 6.08301 14.996 6.08101 14.171 5.67101L10.84 4.01501C9.449 3.32301 8.753 2.97701 8.012 3.00001C7.271 3.02301 6.6 3.41501 5.253 4.19601Z" stroke="#006AFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M8 3.00001V17.5M15 6.50001V20.5M5.253 4.19601L4.026 4.90801C3.037 5.48101 2.543 5.76801 2.272 6.24501C2 6.72201 2 7.30201 2 8.46401V16.628C2 18.154 2 18.918 2.342 19.342C2.57 19.624 2.889 19.814 3.242 19.877C3.772 19.972 4.422 19.595 5.72 18.842C6.602 18.331 7.45 17.799 8.505 17.944C8.985 18.009 9.442 18.237 10.358 18.692L14.171 20.588C14.996 20.998 15.004 21 15.921 21H18C19.886 21 20.828 21 21.414 20.401C22 19.803 22 18.839 22 16.911V10.171C22 8.24401 22 7.28101 21.414 6.68101C20.828 6.08301 19.886 6.08301 18 6.08301H15.921C15.004 6.08301 14.996 6.08101 14.171 5.67101L10.84 4.01501C9.449 3.32301 8.753 2.97701 8.012 3.00001C7.271 3.02301 6.6 3.41501 5.253 4.19601Z" stroke="#006AFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </button>
                   <button
@@ -179,11 +167,13 @@ export default function Results() {
           {layoutMode === 'grid' && (
             <div className="property-grid">
               {properties.map((property) => (
-                <PropertyCardGridList 
-                  key={property.id}
-                  property={property}
-                  onFavorite={() => handleToggleFavorite(property.id ?? 0)}
-                />
+                <a href={`/propertyDetail/${property.id}`} key={property.id} className="property-link">
+                  <PropertyCardGridList 
+                    key={property.id}
+                    property={property}
+                    onFavorite={() => handleToggleFavorite(property.id ?? 0)}
+                  />
+                </a>
               ))}
             </div>
           )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { getSession, signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
@@ -37,6 +37,7 @@ export default function UserSignup() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const hasAutoRegisteredRef = useRef(false);
+  const { data: googleSession, status: sessionStatus } = useSession();
 
   // Mutation for user registration
   const registerUserMutation = useMutation({
@@ -203,9 +204,13 @@ export default function UserSignup() {
       return;
     }
 
+    // Wait until NextAuth session is ready after the OAuth redirect
+    if (sessionStatus !== 'authenticated') {
+      return;
+    }
+
     const runGoogleRegistration = async () => {
-      const session:any = await getSession();
-      const sessionEmail = session?.user?.email ?? '';
+      const sessionEmail = googleSession?.user?.email ?? '';
       if (!sessionEmail) {
         return;
       }
@@ -222,9 +227,9 @@ export default function UserSignup() {
             },
             body: JSON.stringify({
               email: sessionEmail,
-              name: session?.user?.name ?? undefined,
-              avatar: session?.user?.image ?? undefined,
-              google_id: session?.user?.id
+              name: googleSession?.user?.name ?? undefined,
+              avatar: (googleSession?.user as any)?.image ?? undefined,
+              google_id: googleSession?.user?.id
             }),
           });
 
@@ -248,7 +253,7 @@ export default function UserSignup() {
     };
 
     runGoogleRegistration();
-  }, [searchParams, startTransition]);
+  }, [searchParams, startTransition, googleSession, sessionStatus]);
   
   const handleResendEmail = async () => {
     // Check if resend is currently disabled

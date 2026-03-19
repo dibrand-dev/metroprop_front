@@ -16,6 +16,8 @@ import { useQuery } from '@tanstack/react-query';
 import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation } from '@/types/propiedad';
 import { API_BASE_URL } from '@/utils/utils';
 import { AWS_S3_BUCKET_URL } from '@/constants';
+import { APIProvider } from '@vis.gl/react-google-maps';
+import PropertyMap from './PropertyMap/PropertyMap';
 
 interface PropertyDetailProps {
   propertyId: string;
@@ -68,6 +70,8 @@ const CONTACT_ACTIONS = [
   { id: 'whatsapp', label: 'Whatsapp', icon: '/icons/whatsapp.svg', variant: 'whatsapp' },
   { id: 'contact', label: 'Contactar', icon: '/icons/envelope.svg', variant: 'primary' },
 ];
+
+const flagIcon = '/icons/flag.svg'
 
 export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const [activeTab, setActiveTab] = useState<string>('');
@@ -174,16 +178,15 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     if (property.parking_lot_amount) features.push({ label: `${property.parking_lot_amount} cochera${property.parking_lot_amount > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
     if (property.suite_amount) features.push({ label: `${property.suite_amount} dorm.`, icon: '/icons/cama.svg' });
     if (property.bathroom_amount) features.push({ label: `${property.bathroom_amount} baño${property.bathroom_amount > 1 ? 's' : ''}`, icon: '/icons/bano.svg' });
-    if (property.toilet_amount) features.push({ label: `${property.toilet_amount} toilette${property.toilet_amount > 1 ? 's' : ''}`, icon: '/icons/toilet.svg' });
-    console.log("property", property)
-    console.log("features", features)
+    if (property.toilet_amount) features.push({ label: `${property.toilet_amount} toilette${property.toilet_amount > 1 ? 's' : ''}`, icon: '/icons/toilete.svg' });
+    
     return features;
   }, [property]);
   const showFeaturesToggle = dynamicFeatures?.length > 6;
   const showSummaryToggle = (property?.description?.length ?? 0) > 140;
 
   // Derived display values
-  const priceDisplay = property ? `${property.currency} ${property.price.toLocaleString('en-US')}` : '';
+  const priceDisplay = property ? `${property.currency} ${property.price}` : '';
   const statusDisplay = property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : '';
   const agentName = property?.organization?.name ?? 'Metroprop';
   const agentLogoText = agentName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
@@ -260,6 +263,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   };
 
   const handleCountrySelect = (value: string) => {
+    console.log("value", value)
     setFormState((prev) => ({ ...prev, country: value }));
   };
 
@@ -328,6 +332,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               label="Nombre"
               value={formState.name}
               onChange={(event) => setFormState({ ...formState, name: event.target.value })}
+              id="contact_name"
             />
             <InputField2
               label="Email"
@@ -342,6 +347,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               value={formState.country}
               onFocus={() => setIsCountryModalOpen(true)}
               onChange={(event) => setFormState({ ...formState, country: event.target.value })}
+              id="contact_pais"
+              icon={<img src={flagIcon} />}
             />
             <InputField2
               label="Telefono"
@@ -354,6 +361,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               label="Consulta"
               value={formState.message}
               onChange={(event) => setFormState({ ...formState, message: event.target.value })}
+              multiline={true}
+              rows={4}
+              id="contact_consulta"
             />
           </div>
         </div>
@@ -398,6 +408,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   };
 
   return (
+    <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
     <div className="property-detail-page">
 			<Header />
       <PropertyDetailSubmenu
@@ -438,7 +449,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               </button>
             </div>
           </div>
-          <h1 className="property-detail-title">{property?.publication_title}</h1>
+          <h1 className="property-detail-title">{property?.currency} {property?.price}</h1>
         </section>
 
         <section className="property-detail-gallery">
@@ -467,7 +478,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 <img src={image} alt={`Vista ${index + 2}`} />
                 {index === 3 && (
                   <div className="property-detail-gallery-overlay">
-                    <button type="button">Ver todas</button>
+                    <Button label="Ver todas" variant="text" />
                   </div>
                 )}
               </div>
@@ -483,7 +494,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         >
           <div className="property-detail-features-grid">
             {dynamicFeatures.map((item, index) => (
-              <div key={`${item.label}-${index}`} className="publish-review-feature">
+              <div key={`${item.label}-${index}`} className="property-detail-feature">
                 <img src={item.icon} alt="" />
                 <span>{item.label}</span>
               </div>
@@ -549,18 +560,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 <span>{property?.street ?? 'Dirección no especificada'}</span>
               </div>
               <div className="property-detail-map-image">
-                <img
-                  src={"/images/mapa_google.png"}
-                  alt="Mapa de ubicacion"
-                />
-                <div className="property-detail-map-pin" aria-hidden="true">
-                  <svg viewBox="0 0 24 24">
-                    <path
-                      d="M12 2c-4.4 0-8 3.6-8 8 0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </div>
+                <PropertyMap address={property?.street ?? ''} />
               </div>
             </section>
 
@@ -718,10 +718,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
       <div className="property-detail-mobile-actions">
         {CONTACT_ACTIONS.map((action) => (
-          <button
+          <Button
             key={`mobile-${action.id}`}
-            type="button"
+            label={action.label}
+            variant={action.variant === 'primary' ? 'primary' : 'secondary'}
             className={`property-detail-mobile-action property-detail-mobile-action-${action.variant}`}
+            icon={<img src={action.icon} alt="" aria-hidden="true" />}
+            iconPosition="left"
             onClick={() => {
               if (action.id === 'whatsapp') {
                 setIsWhatsappModalOpen(true);
@@ -729,14 +732,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               }
               setIsContactModalOpen(true);
             }}
-          >
-            <img src={action.icon} alt="" aria-hidden="true" />
-            <span>{action.label}</span>
-          </button>
+          />
         ))}
       </div>
 
       <Footer />
     </div>
+    </APIProvider>
   );
 }
