@@ -1,10 +1,6 @@
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
-
-const SERVER_API_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://api.metroprop.co'
-    : 'http://localhost:3000';
+import { API_BASE_URL } from "@/utils/utils";
 
 export const authOptions = {
   providers: [
@@ -21,7 +17,7 @@ export const authOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
         try {
-          const res = await fetch(`${SERVER_API_URL}/auth/login`, {
+          const res = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

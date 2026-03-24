@@ -27,27 +27,27 @@ const dropdownItems: DropdownSection = {
     {
       title: 'Ubicación',
       items: [
-        { label: 'Capital Federal', href: '#' },
-        { label: 'GBA Norte', href: '#' },
-        { label: 'GBA Sur', href: '#' },
-        { label: 'Santa Fe', href: '#' },
-        { label: 'GBA Oeste', href: '#' },
-        { label: 'Buenos Aires Costa Atlántica', href: '#' },
-        { label: 'Córdoba', href: '#' },
-        { label: 'Buenos Aires (fuera de GBA)', href: '#' },
-        { label: 'Mendoza', href: '#' },
-        { label: 'Neuquén', href: '#' },
-        { label: 'Río Negro', href: '#' },
+        { label: 'Capital Federal', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=1&page=1&limit=20' },
+        { label: 'GBA Norte', href: '/results?q=Argentina+%7C+G.B.A.+Zona+Norte&location_id=147&operation_type=1&page=1&limit=20' },
+        { label: 'GBA Sur', href: '/results?q=Argentina+%7C+G.B.A.+Zona+Sur&location_id=149&operation_type=1&page=1&limit=20' },
+        { label: 'GBA Oeste', href: '/results?q=Argentina+%7C+G.B.A.+Zona+Oeste&location_id=148&operation_type=1&page=1&limit=20' },
+        { label: 'Santa Fe', href: '/results?q=Argentina+%7C+Santa+Fe&location_id=170&operation_type=1&page=1&limit=20' },        
+        { label: 'Buenos Aires Costa Atlántica', href: '/results?q=Argentina+%7C+Costa+Atlantica&location_id=150&operation_type=1&page=1&limit=20' },
+        { label: 'Córdoba', href: '/results?q=Argentina+%7C+Cordoba&location_id=155&operation_type=1&page=1&limit=20' },
+        // { label: 'Buenos Aires (fuera de GBA)', href: '/results?q=Argentina+%7C+Buenos+Aires+(fuera+de+GBA)&location_id=156&operation_type=1&page=1&limit=20' },
+        { label: 'Mendoza', href: '/results?q=Argentina+%7C+Mendoza&location_id=162&operation_type=1&page=1&limit=20' },
+        { label: 'Neuquén', href: '/results?q=Argentina+%7C+Neuquen&location_id=164&operation_type=1&page=1&limit=20' },
+        { label: 'Río Negro', href: '/results?q=Argentina+%7C+Río+Negro&location_id=165&operation_type=1&page=1&limit=20' },
       ],
     },
     {
       title: 'Tipo de propiedad',
       items: [
-        { label: 'Departamento', href: '#' },
-        { label: 'Casa', href: '#' },
-        { label: 'Terreno', href: '#' },
-        { label: 'PH', href: '#' },
-        { label: 'Local Comercial', href: '#' },
+        { label: 'Departamento', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=2&page=1&limit=20' },
+        { label: 'Casa', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=1&page=1&limit=20' },
+        { label: 'Terreno', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=3&page=1&limit=20' },
+        { label: 'PH', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=4&page=1&limit=20' },
+        { label: 'Local Comercial', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=15&page=1&limit=20' },
       ],
     },
     {
@@ -61,19 +61,19 @@ const dropdownItems: DropdownSection = {
     {
       title: 'Ubicación',
       items: [
-        { label: 'Capital Federal', href: '#' },
-        { label: 'GBA Norte', href: '#' },
-        { label: 'GBA Sur', href: '#' },
-        { label: 'GBA Oeste', href: '#' },
+        { label: 'Capital Federal', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=2&page=1&limit=20' },
+        { label: 'GBA Norte', href: '/results?q=Argentina+%7C+G.B.A.+Zona+Norte&location_id=147&operation_type=2&page=1&limit=20' },
+        { label: 'GBA Sur', href: '/results?q=Argentina+%7C+G.B.A.+Zona+Sur&location_id=149&operation_type=2&page=1&limit=20' },
+        { label: 'GBA Oeste', href: '/results?q=Argentina+%7C+G.B.A.+Zona+Oeste&location_id=148&operation_type=2&page=1&limit=20' },
       ],
     },
     {
       title: 'Tipo de propiedad',
       items: [
-        { label: 'Departamento', href: '#' },
-        { label: 'Casa', href: '#' },
-        { label: 'Oficina', href: '#' },
-        { label: 'Local', href: '#' },
+        { label: 'Departamento', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=2&page=1&limit=20' },
+        { label: 'Casa', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=1&page=1&limit=20' },
+        { label: 'Oficina', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=16&page=1&limit=20' },
+        { label: 'Local Comercial', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=15&page=1&limit=20' },
       ],
     },
   ],
@@ -81,16 +81,16 @@ const dropdownItems: DropdownSection = {
     {
       title: 'Duración',
       items: [
-        { label: 'Por días', href: '#' },
-        { label: 'Temporada completa', href: '#' },
-        { label: 'Fin de semana', href: '#' },
+        { label: 'Por días', href: '/results?duration=1&q=Argentina+%7C+Capital+Federal&location_id=146&page=1&limit=20' },
+        { label: 'Temporada completa', href: '/results?duration=2&q=Argentina+%7C+Capital+Federal&location_id=146&page=1&limit=20' },
+        { label: 'Fin de semana', href: '/results?duration=3&q=Argentina+%7C+Capital+Federal&location_id=146&page=1&limit=20' },
       ],
     },
     {
       title: 'Ubicación',
       items: [
-        { label: 'Capital Federal', href: '#' },
-        { label: 'GBA', href: '#' },
+        { label: 'Capital Federal', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=3&page=1&limit=20' },
+        { label: 'GBA', href: '/results?q=Argentina+%7C+G.B.A.&location_id=147&operation_type=3&page=1&limit=20' },
       ],
     },
   ],
@@ -119,6 +119,12 @@ export default function Header() {
     setMobileMenuOpen(false);
   };
 
+  const closeAllMenus = () => {
+    setOpenDropdown(null);
+    setExpandedSubCategory(null);
+    closeMobileMenu();
+  };
+
   const toggleSubCategory = (categoryKey: string) => {
     setExpandedSubCategory(expandedSubCategory === categoryKey ? null : categoryKey);
   };
@@ -129,6 +135,17 @@ export default function Header() {
 
   return (
     <header className="header-container">
+      {(openDropdown !== null || mobileMenuOpen) && (
+        <button
+          type="button"
+          className="header-menu-overlay"
+          aria-label="Cerrar menu"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            closeAllMenus();
+          }}
+        />
+      )}
       <div className="header-content">
         {/* Left Section - Navigation Dropdowns / Hamburger Menu */}
         <div className="header-nav-wrapper">

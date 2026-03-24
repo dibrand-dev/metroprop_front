@@ -568,28 +568,23 @@
     max-width: 400px;
     position: relative;
 
-    .search-icon {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #999;
-      width: 20px;
-      height: 20px;
-      pointer-events: none;
-    }
-
-    .filter-input {
+    .input-field-2-wrapper {
       width: 100%;
-      padding: 10px 40px 10px 16px;
-      border: 1px solid #006AFF;
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
-      transition: all 0.2s;
-      height: 48px; 
+      gap: 0;
 
-      &::placeholder {
+      .input-field-2-container {
+        height: 48px;
+      }
+
+      .input-field-2-input-wrapper {
+        height: 48px;
+      }
+
+      .input-field-2-input {
+        font-size: 14px;
+      }
+
+      .input-field-2-label {
         color: #7A7A7A;
       }
     }
@@ -795,7 +790,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    max-height: calc(100vh - 160px);
+    max-height: calc(100vh - 162px);
   }
 
   .precio-popover-body {

@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from 'react';
 import './PublishPlans.scss';
 import Select from '@/ui/Select/Select';
 import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
-import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 interface PublishPlansProps {
   wizardData: CreatePropertyDraft;
@@ -18,12 +18,11 @@ interface PublishPlansProps {
 const iconChevron = '/icons/chevron-up.svg';
 const iconCheck = '/icons/check-black.svg';
 
-const collaboratorOptions = ['Daniela Benitez', 'Lucia Perez', 'Carlos Molina'];
-
 const planOptions = [
   {
     id: 1,
-    title: 'Bonificado',  
+    title: 'Bonificado',
+    subtitle: '',
     highlighted: true,
   },
 ];
@@ -65,15 +64,31 @@ export default function PublishPlans({
 }: PublishPlansProps) {
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
   const [selected_plan, setSelected_plan] = useState(wizardData.selected_plan || 1);
+  const { data: sessionData } = useSession();
 
-  const collaboratorSelectOptions = useMemo(
-    () => collaboratorOptions.map(option => ({
-      value: option,
-      label: option,
-    })),
-    []
-  );
+  type Collaborator = { id: number; name: string };
+  type Branch = { id: number; branch_name: string; users?: Collaborator[] };
+  type Organization = { branches?: Branch[] };
+  const organization = (sessionData as { user?: { organization?: Organization } } | null)?.user?.organization;
 
+  const collaboratorOptions = useMemo(() => {
+    const branches = [...(organization?.branches ?? [])].sort((a: Branch, b: Branch) =>
+      (a.branch_name ?? '').localeCompare(b.branch_name ?? '', 'es', { sensitivity: 'base' })
+    );
+
+    return branches.flatMap((branch: Branch) => {
+      const users = [...(branch.users ?? [])].sort((a: Collaborator, b: Collaborator) =>
+        (a.name ?? '').localeCompare(b.name ?? '', 'es', { sensitivity: 'base' })
+      );
+
+      return users.map((user: Collaborator) => ({
+        value: user.id.toString(),
+        label: `${user.name} - ${branch.branch_name}`,
+      }));
+    });
+  }, [organization]);
+
+  console.log("sessionData" , sessionData)
   // Update wizard data when plans data changes
   useEffect(() => {
     updateWizardData({
@@ -119,18 +134,18 @@ export default function PublishPlans({
           <div className="publish-plans-section">
             <h1>Ya casi terminas</h1>
 
-            <div className="publish-plans-block">
+            {organization && <div className="publish-plans-block">
               <h2>Asigna este aviso a un colaborador</h2>
               <div className="publish-plans-field">
                 <Select
                   label="Tus colaboradores"
-                  options={collaboratorSelectOptions}
+                  options={collaboratorOptions}
                   value={user_id ? user_id.toString() : undefined}
                   onChange={(value) => setUser_id(value ? parseInt(value) : undefined)}
                   placeholder="Seleccionar colaborador"
                 />
               </div>
-            </div>
+            </div>}
 
             <div className="publish-plans-block">
               <h2>Elegi el plan con el que vas a publicar</h2>

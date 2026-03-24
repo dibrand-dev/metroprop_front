@@ -13,34 +13,6 @@ interface PropertyData {
   [key: string]: string;
 }
 
-const getSessionProfileData = (sessionData: any): Partial<PropertyData> => {
-  
-  if (typeof window === 'undefined') return {};
-
-  try {
-    const storedUser = sessionData?.user;
-    if (!storedUser) return {};
-    const user = JSON.parse(storedUser);
-    const address = user?.address || {};
-
-    return {
-      email: user?.email,
-      nombre: user?.name || user?.first_name,
-      apellido: user?.last_name || user?.lastname,
-      telefono: user?.phone || user?.phone_number,
-      telefonoAdicional: user?.phone_secondary || user?.secondary_phone,
-      provincia: address?.province || user?.province,
-      ciudad: address?.city || user?.city,
-      calle: address?.street || user?.street,
-      numero: address?.number || user?.street_number,
-      descripcion: user?.description || user?.bio,
-    };
-  } catch (error) {
-    console.error('Failed to read session user data:', error);
-    return {};
-  }
-};
-
 const formatNumeric = (value: string): string => value.replace(/\D/g, '');
 
 export default function ProfessionalProfile() {

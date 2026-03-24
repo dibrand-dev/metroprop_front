@@ -70,7 +70,12 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, disabled }: 
     if (!val.trim() || !serviceRef.current) return;
     debounceRef.current = setTimeout(() => {
       serviceRef.current!.getPlacePredictions(
-        { input: val, types: ['address'] },
+        {
+          input: val,
+          types: ['address'],
+          componentRestrictions: { country: 'ar' },
+          language: 'es',
+        },
         (predictions, status) => {
           if (status === 'OK' && predictions?.length) {
             setSuggestions(predictions);
@@ -124,8 +129,7 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, disabled }: 
         ref={inputRef}
         type="text"
         label="Calle y numero*"
-        placeholder="Dirección"
-        defaultValue={value}
+        placeholder="Dirección"        
         value={value}
         onChange={handleChange}
         onBlur={handleBlur}
@@ -229,7 +233,8 @@ export default function PublishLocation({
     queryFn: async () => {
       const response = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${state_id}`);
       if (!response.ok) throw new Error('Error fetching locations');
-      return response.json();
+      const locations = await response.json();
+      return locations;
     },
     enabled: !!state_id,
   });
@@ -290,8 +295,6 @@ export default function PublishLocation({
       setLocation_id(undefined);
       setSub_location_id(undefined);
     }
-
-    console.log("data", data)
     // Store pending names regardless — effects will apply them when options load
     setPendingStateName(data.stateName);
     setPendingCityName(data.cityName);
@@ -379,7 +382,6 @@ export default function PublishLocation({
     }
     onNext(locationUpdate);
   };
-console.log("street", street)
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
     <div className="publish-location">
@@ -450,19 +452,19 @@ console.log("street", street)
                     value={location_id ? location_id.toString() : undefined}
                     onChange={handleLocationChange}
                     placeholder={loadingLocations ? "Cargando localidades..." : "Seleccionar localidad"}
-                    disabled={!hasAddress || !state_id || loadingLocations}
+                    disabled={!hasAddress || !state_id || loadingLocations || locationOptions.length === 0}
                   />
                 </div>
 
                 <div className="publish-location-field">
-                  <Select
+                  {zoneOptions.length > 0 && <Select
                     label="Zona"
                     options={zoneOptions}
                     value={sub_location_id ? sub_location_id.toString() : undefined}
                     onChange={handleSubLocationChange}
                     placeholder={loadingZones ? "Cargando zonas..." : "Seleccionar zona"}
                     disabled={!hasAddress || !location_id || loadingZones}
-                  />
+                  />}
                 </div>
               </div>
 

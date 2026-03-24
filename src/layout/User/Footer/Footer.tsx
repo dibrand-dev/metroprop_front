@@ -46,11 +46,11 @@ export default function Footer() {
           <div className="footer-map">
             <h3 className="footer-map-title">Mapa de sitio</h3>
             <ul className="footer-map-list">
-              <li><a href="#">Comprar</a></li>
-              <li><a href="#">Alquilar</a></li>
-              <li><a href="#">Temporal</a></li>
+              <li><a href="/results?operation_type=1">Comprar</a></li>
+              <li><a href="/results?operation_type=2">Alquilar</a></li>
+              <li><a href="/results?operation_type=3">Temporal</a></li>
               <li><a href="#">Emprendimientos</a></li>
-              <li><a href="#">Publicar</a></li>
+              <li><a href="/protected/publish">Publicar</a></li>
               <li><a href="#">Mi cuenta</a></li>
               <li><a href="#">Contáctanos</a></li>
             </ul>
@@ -59,13 +59,13 @@ export default function Footer() {
           <div className="footer-zones">
             <h3 className="footer-zones-title">Zonas más buscadas</h3>
             <ul className="footer-zones-list">
-              <li><a href="#">Capital Federal</a></li>
-              <li><a href="#">GBA Norte</a></li>
-              <li><a href="#">GBA Sur</a></li>
-              <li><a href="#">GBA Oeste</a></li>
-              <li><a href="#">Santa Fé</a></li>
-              <li><a href="#">Buenos Aires Costa Atlántica</a></li>
-              <li><a href="#">Córdoba</a></li>
+              <li><a href="/results?q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=1&currency=USD&status=1&page=1&limit=20">Capital Federal</a></li>
+              <li><a href="/results?q=Argentina+%7C+G.B.A.+Zona+Norte&location_id=147&operation_type=1&currency=USD&status=1&page=1&limit=20">GBA Norte</a></li>
+              <li><a href="/results?q=Argentina+%7C+G.B.A.+Zona+Sur&location_id=149&operation_type=1&currency=USD&status=1&page=1&limit=20">GBA Sur</a></li>
+              <li><a href="/results?q=Argentina+%7C+G.B.A.+Zona+Oeste&location_id=148&operation_type=1&currency=USD&status=1&page=1&limit=20">GBA Oeste</a></li>
+              <li><a href="/results?q=Argentina+%7C+Santa+Fé&location_id=170&operation_type=1&currency=USD&status=1&page=1&limit=20">Santa Fé</a></li>
+              <li><a href="/results?q=Argentina+%7C+Costa+Atlantica&location_id=150&operation_type=1&currency=USD&status=1&page=1&limit=20">Buenos Aires Costa Atlántica</a></li>
+              <li><a href="/results?q=Argentina+%7C+Cordoba&location_id=155&operation_type=1&currency=USD&status=1&page=1&limit=20">Córdoba</a></li>
             </ul>
           </div>
         </div>
@@ -73,11 +73,11 @@ export default function Footer() {
         <div className="footer-map desktop-only">
             <h3 className="footer-map-title">Mapa de sitio</h3>
             <ul className="footer-map-list">
-              <li><a href="#">Comprar</a></li>
-              <li><a href="#">Alquilar</a></li>
-              <li><a href="#">Temporal</a></li>
+              <li><a href="/results?q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=1&currency=USD&status=1&page=1&limit=20">Comprar</a></li>
+              <li><a href="/results?q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=2&currency=USD&status=1&page=1&limit=20">Alquilar</a></li>
+              <li><a href="/results?q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=3&currency=USD&status=1&page=1&limit=20">Temporal</a></li>
               <li><a href="#">Emprendimientos</a></li>
-              <li><a href="#">Publicar</a></li>
+              <li><a href="/protected/publish">Publicar</a></li>
               <li><a href="#">Mi cuenta</a></li>
               <li><a href="#">Contáctanos</a></li>
             </ul>
@@ -86,13 +86,13 @@ export default function Footer() {
           <div className="footer-zones desktop-only">
             <h3 className="footer-zones-title">Zonas más buscadas</h3>
             <ul className="footer-zones-list">
-              <li><a href="#">Capital Federal</a></li>
-              <li><a href="#">GBA Norte</a></li>
-              <li><a href="#">GBA Sur</a></li>
-              <li><a href="#">GBA Oeste</a></li>
-              <li><a href="#">Santa Fé</a></li>
-              <li><a href="#">Buenos Aires Costa Atlántica</a></li>
-              <li><a href="#">Córdoba</a></li>
+              <li><a href="/results?q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=1&currency=USD&status=1&page=1&limit=20">Capital Federal</a></li>
+              <li><a href="/results?q=Argentina+%7C+G.B.A.+Zona+Norte&location_id=147&operation_type=1&currency=USD&status=1&page=1&limit=20">GBA Norte</a></li>
+              <li><a href="/results?q=Argentina+%7C+G.B.A.+Zona+Sur&location_id=149&operation_type=1&currency=USD&status=1&page=1&limit=20">GBA Sur</a></li>
+              <li><a href="/results?q=Argentina+%7C+G.B.A.+Zona+Oeste&location_id=148&operation_type=1&currency=USD&status=1&page=1&limit=20">GBA Oeste</a></li>
+              <li><a href="/results?q=Argentina+%7C+Santa+Fé&location_id=170&operation_type=1&currency=USD&status=1&page=1&limit=20">Santa Fé</a></li>
+              <li><a href="/results?q=Argentina+%7C+Costa+Atlantica&location_id=150&operation_type=1&currency=USD&status=1&page=1&limit=20">Buenos Aires Costa Atlántica</a></li>
+              <li><a href="/results?q=Argentina+%7C+Cordoba&location_id=155&operation_type=1&currency=USD&status=1&page=1&limit=20">Córdoba</a></li>
             </ul>
           </div>
 

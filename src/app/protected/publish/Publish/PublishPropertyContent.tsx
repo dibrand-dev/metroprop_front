@@ -30,8 +30,7 @@ export default function PublishPropertyContent({
   const [expandedGroups, setExpandedGroups] = useState<Record<AmenityType, boolean>>({
     [AmenityType.Rooms]: false,
     [AmenityType.Services]: false,
-    [AmenityType.Extras]: false,
-    [AmenityType.Facilities]: false,
+    [AmenityType.Extras]: false
   });
 
   const [selectedAmenities, setSelectedAmenities] = useState<number[]>(wizardData.tags || []);
@@ -146,7 +145,7 @@ export default function PublishPropertyContent({
             <div className="publish-property-content-groups">
               {amenityGroups.map((group) => {
                 const isExpanded = expandedGroups[group.type];
-                const visibleItems = isExpanded ? group.options : group.options.slice(0, 9);
+                const visibleItems = isExpanded ? group.options : group.options.slice(0, 8);
                 return (
                   <div key={group.type} className="publish-property-content-group">
                     <h2>{group.title}</h2>
@@ -162,7 +161,7 @@ export default function PublishPropertyContent({
                         </button>
                       ))}
                     </div>
-                    <button
+                    {group.options.length > 8 && <button
                       type="button"
                       className="publish-property-content-more"
                       onClick={() => handleToggleGroup(group.type)}
@@ -173,7 +172,7 @@ export default function PublishPropertyContent({
                         alt=""
                         className={isExpanded ? 'is-rotated' : ''}
                       />
-                    </button>
+                    </button>}
                   </div>
                 );
               })}
@@ -224,7 +223,7 @@ export default function PublishPropertyContent({
                   <InputField
                     label="Frente del terreno (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={surface_front ?? 0}
+                    value={surface_front ?? ''}
                     onChange={(event) => setSurface_front(event.target.value ? parseInt(event.target.value) : 0)}
                     type="number"
                   />
@@ -233,7 +232,7 @@ export default function PublishPropertyContent({
                   <InputField
                     label="Largo del terreno (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={surface_length ?? 0}
+                    value={surface_length ?? ''}
                     onChange={(event) => setSurface_length(event.target.value ? parseInt(event.target.value) : 0)}
                     type="number"
                   />
@@ -242,7 +241,7 @@ export default function PublishPropertyContent({
                   <InputField
                     label="Superficie semicubierta (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={semiroofed_surface ?? 0}
+                    value={semiroofed_surface ?? ''}
                     onChange={(event) => setSemiroofed_surface(event.target.value ? parseInt(event.target.value) : 0)}
                     type="number"
                   />

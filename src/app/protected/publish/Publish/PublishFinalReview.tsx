@@ -60,7 +60,7 @@ export default function PublishFinalReview({
   
   useEffect(() => {
     if (wizardData.draft_id) {
-      fetch(`http://localhost:3000/properties/${wizardData.draft_id}/multimedia`)
+      fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/multimedia`)
         .then(response => response.json())
         .then(data => {
           const _wizardData = {...wizardData};

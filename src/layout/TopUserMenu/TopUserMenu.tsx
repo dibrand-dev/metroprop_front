@@ -141,6 +141,17 @@ export default function TopUserMenu() {
     /> 
   ) : (
     <div className="header-logged-in-menu">     
+      {showUserDropdown && (
+        <button
+          type="button"
+          className="header-user-menu-overlay"
+          aria-label="Cerrar menu de usuario"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            setShowUserDropdown(false);
+          }}
+        />
+      )}
       <Button
         label="Publicar"
         type="button"

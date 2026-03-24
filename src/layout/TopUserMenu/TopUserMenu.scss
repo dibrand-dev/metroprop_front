@@ -15,6 +15,8 @@ $font-family-button: 'Montserrat', sans-serif;
 
 // Logged In Menu Styles
 .header-logged-in-menu {
+  position: relative;
+  z-index: 2;
   display: flex;
   gap: 16px;
   align-items: center;
@@ -28,6 +30,16 @@ $font-family-button: 'Montserrat', sans-serif;
     }
   }
 
+}
+
+.header-user-menu-overlay {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  z-index: 1;
 }
 
 

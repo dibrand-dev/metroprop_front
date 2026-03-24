@@ -44,10 +44,10 @@ export default function PublishMainInfo({
   onBack,
   onSaveAndExit
 }: PublishMainInfoProps) {
-  const [surface_measurement, setSurface_measurement] = useState(wizardData.surface_measurement || undefined);
-  const [roofed_surface_measurement, setRoofed_surface_measurement] = useState(wizardData.roofed_surface_measurement || undefined);
-  const [total_surface, setTotal_surface] = useState(wizardData.total_surface || undefined);
-  const [roofed_surface, setRoofed_surface] = useState(wizardData.roofed_surface || undefined);
+  const [surface_measurement, setSurface_measurement] = useState(wizardData.surface_measurement || "M2");
+  const [roofed_surface_measurement, setRoofed_surface_measurement] = useState(wizardData.roofed_surface_measurement || "M2");
+  const [total_surface, setTotal_surface] = useState(wizardData.total_surface || "");
+  const [roofed_surface, setRoofed_surface] = useState(wizardData.roofed_surface || "");
   const [property_condition, setProperty_condition] = useState<AntiquityOption | string | undefined>(wizardData.property_condition || undefined);
   const [age, setAge] = useState(wizardData.age || undefined);
   const [rooms, setRooms] = useState<Record<RoomKey, number>>({    
@@ -150,7 +150,7 @@ export default function PublishMainInfo({
                     <InputField
                       placeholder="Ingresar superficie"
                       type="number"
-                      value={total_surface ?? ''}
+                      value={total_surface ?? undefined}
                       onChange={(event) => setTotal_surface(parseInt(event.target.value))}
                     />
                   </div>
@@ -168,7 +168,7 @@ export default function PublishMainInfo({
                     <InputField
                       placeholder="Ingresar superficie"
                       type="number"
-                      value={roofed_surface ?? ''}
+                      value={roofed_surface ?? undefined}
                       onChange={(event) => setRoofed_surface(parseInt(event.target.value))}
                     />
                   </div>

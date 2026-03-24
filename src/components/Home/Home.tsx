@@ -1,88 +1,11 @@
 'use client';
-import InputField2 from '@/ui/InputField2/InputField2';
 import './Home.scss';
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
+import { useState, useRef, useEffect } from 'react';
+import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import Button from '@/ui/Button/Button';
 import { useRouter } from 'next/navigation';
-
-function SearchAutocompleteInput({ onChange, searchActive }: { onChange: (val: string) => void, searchActive: '1' | '2' | '3' }) {
-  const attrDivRef = useRef<HTMLDivElement>(null);
-  const serviceRef = useRef<google.maps.places.AutocompleteService | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [inputValue, setInputValue] = useState('');
-  const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
-  const [open, setOpen] = useState(false);
-  const placesLib = useMapsLibrary('places');
-  const router = useRouter();
-
-  useEffect(() => {
-    if (placesLib && !serviceRef.current) {
-      serviceRef.current = new placesLib.AutocompleteService();
-    }
-  }, [placesLib]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setInputValue(val);
-    setSuggestions([]);
-    setOpen(false);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!val.trim() || !serviceRef.current) return;
-    debounceRef.current = setTimeout(() => {
-      serviceRef.current!.getPlacePredictions(
-        { input: val, types: ['address'] },
-        (predictions, status) => {
-          if (status === 'OK' && predictions?.length) {
-            setSuggestions(predictions);
-            setOpen(true);
-          }
-        }
-      );
-    }, 800);
-  };
-
-  const handleSelect = useCallback((prediction: google.maps.places.AutocompletePrediction) => {
-    const label = prediction.description;
-    setInputValue(label);
-    onChange(label);
-    setSuggestions([]);
-    setOpen(false);
-  }, [onChange]);
-
-  return (
-    <div className="home-search-autocomplete">
-      <div ref={attrDivRef} style={{ display: 'none' }} aria-hidden="true" />
-      <InputField2
-        type="text"
-        placeholder="Escribí una ubicación o alguna característica"
-        icon={<img src="/icons/lupa.svg" />}
-        value={inputValue}
-        onIconClick={() => router.replace(`/results?${inputValue ? `q=${inputValue}&` : ''}operation_type=${searchActive}&currency=USD&status=1&page=1&limit=20`)}
-        onChange={handleChange}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
-        onFocus={() => suggestions.length > 0 && setOpen(true)}
-        autoComplete="off"
-      />
-      {open && suggestions.length > 0 && (
-        <ul className="home-search-suggestions" role="listbox">
-          {suggestions.map((p) => (
-            <li
-              key={p.place_id}
-              className="home-search-suggestion-item"
-              role="option"
-              onMouseDown={() => handleSelect(p)}
-            >
-              <span className="suggestion-main">{p.structured_formatting.main_text}</span>
-              <span className="suggestion-secondary">{p.structured_formatting.secondary_text}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
+import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
 
 export default function Home() {
   const services = [
@@ -112,8 +35,9 @@ export default function Home() {
     }
   ];
 
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchActive, setSearchActive] = useState<'1' | '2' | '3'>('1');
+  const [searchActive, setSearchActive] = useState<'1' | '2' | '3' | '4'>('1');
   const visitedPropertiesRef = useRef<HTMLDivElement>(null);
   const featuredPropertiesRef = useRef<HTMLDivElement>(null);
   
@@ -168,165 +92,170 @@ export default function Home() {
   };
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
-    <div className="bg-white w-full overflow-x-hidden">
-      {/* Hero Section */}
-      <div className="hero-section hero-background bg-cover bg-center">
-        {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4 md:px-6 py-8 md:py-0">
-          
-          <div>
-            <h1 className="hero-title font-extrabold drop-shadow-lg">
-              <span className="h1-first">Encontrá</span> tu espacio ideal.
-            </h1>
-            {/* Search and Filters Card */}
-            <div className="search-card bg-white rounded-lg p-4 shadow-lg w-full">
-              {/* Filter Tabs */}
-              <div className="filter-tabs flex gap-1 md:gap-4 mb-4">
-                <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded  font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "1" ? "active" : ""}`} onClick={() => setSearchActive("1")}>
-                  Comprar
-                </button>
-                <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "2" ? "active" : ""}`} onClick={() => setSearchActive("2")}>
-                  Alquilar
-                </button>
-                <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded  font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "4" ? "active" : ""}`} onClick={() => setSearchActive("4")}>
-                  Emprendimientos
-                </button>
-              </div>
-              {/* Search Input */}
-              <div className="search-input-wrapper">
-                <SearchAutocompleteInput onChange={setSearchQuery} searchActive={searchActive} />
+      <div className="bg-white w-full overflow-x-hidden">
+        {/* Hero Section */}
+        <div className="hero-section hero-background bg-cover bg-center">
+          {/* Content */}
+          <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4 md:px-6 py-8 md:py-0">
+            
+            <div>
+              <h1 className="hero-title font-extrabold drop-shadow-lg">
+                <span className="h1-first">Encontrá</span> tu espacio ideal.
+              </h1>
+              {/* Search and Filters Card */}
+              <div className="search-card bg-white rounded-lg p-4 shadow-lg w-full">
+                {/* Filter Tabs */}
+                <div className="filter-tabs flex gap-1 md:gap-4 mb-4">
+                  <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded  font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "1" ? "active" : ""}`} onClick={() => setSearchActive("1")}>
+                    Comprar
+                  </button>
+                  <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "2" ? "active" : ""}`} onClick={() => setSearchActive("2")}>
+                    Alquilar
+                  </button>
+                  <button className={`filter-button px-3 md:px-4 py-1.5 md:py-2 rounded  font-semibold text-[#1e1e1e] hover:bg-gray-50 ${searchActive === "4" ? "active" : ""}`} onClick={() => setSearchActive("4")}>
+                    Emprendimientos
+                  </button>
+                </div>
+                {/* Search Input */}
+                <div className="search-input-wrapper">
+                  <LocationAutocompleteInput
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="Escribí una ubicación o alguna característica"
+                    onSubmit={(value, locationId) => router.replace(`/results?${value ? `q=${encodeURIComponent(value)}&` : ''}${locationId != null ? `location_id=${locationId}&` : ''}operation_type=${searchActive}&currency=USD&status=1&page=1&limit=20`)}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="homeSections">
-        {/* Services Section */}
-        <section className="services-section bg-white">
-          <div className="services-grid">
-            {services.map((service, idx) => (
-              <div key={idx} className="service-card">
-                <div className="service-icon"><img src={service.icon} alt={service.title} /></div>
-                <h3 className="service-title font-extrabold text-[#1e1e1e] leading-[30px] md:leading-[30px] tracking-[-0.22px]">
-                  {service.title}
-                </h3>
-                <p className="service-description text-[#1e1e1e] leading-[20px]">
-                  {service.desc}
-                </p>
-                <Button
-                  label={service.boton}
-                  type="button"
-                  variant="secondary"
-                  buttonType="2"
-                  state="default"                 
-                  fullWidth={false}
-                  size="medium"
-                />               
+        <div className="homeSections">
+          {/* Services Section */}
+          <section className="services-section bg-white">
+            <div className="services-grid">
+              {services.map((service, idx) => (
+                <div key={idx} className="service-card">
+                  <div className="service-icon"><img src={service.icon} alt={service.title} /></div>
+                  <h3 className="service-title font-extrabold text-[#1e1e1e] leading-[30px] md:leading-[30px] tracking-[-0.22px]">
+                    {service.title}
+                  </h3>
+                  <p className="service-description text-[#1e1e1e] leading-[20px]">
+                    {service.desc}
+                  </p>
+                  <Button
+                    label={service.boton}
+                    type="button"
+                    variant="secondary"
+                    buttonType="2"
+                    state="default"                 
+                    fullWidth={false}
+                    size="medium"
+                  />               
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Properties Visited Section */}
+          <section className="properties-section bg-white">
+            <h2 className="properties-title font-bold text-[#1e1e1e] tracking-[-0.24px] md:tracking-[-0.055px]">
+              Propiedades visitadas
+            </h2>
+            <div className="properties-gallery-wrapper">
+              {visitedCanScrollLeft && (
+                <button 
+                  onClick={() => scroll(visitedPropertiesRef, 'left')}
+                  className="gallery-arrow gallery-arrow-left"
+                  aria-label="Scroll left"
+                >
+                  <img src="/icons/chevron-up.svg" alt="Scroll left" width={24} />
+                </button>
+              )}
+              <div className="properties-container" ref={visitedPropertiesRef} onScroll={handleVisitedScroll}>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((property) => (
+                  <PropertyCard 
+                    key={property} 
+                    property={{
+                      id: `visited-${property}`,
+                      price: 198000,
+                      rent: 1222,
+                      currency: 'USD',
+                      currencyRent: '$',
+                      pricePerSqm: 2100,
+                      title: 'Departamento en venta',
+                      address: 'Juan Francisco Segui 4500',
+                      rooms: 4,
+                      bathrooms: 2,
+                      area: 310,
+                      image: '/images/property-placeholder.png',
+                      isFavorite: false,
+                    }}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Properties Visited Section */}
-        <section className="properties-section bg-white">
-          <h2 className="properties-title font-bold text-[#1e1e1e] tracking-[-0.24px] md:tracking-[-0.055px]">
-            Propiedades visitadas
-          </h2>
-          <div className="properties-gallery-wrapper">
-            {visitedCanScrollLeft && (
-              <button 
-                onClick={() => scroll(visitedPropertiesRef, 'left')}
-                className="gallery-arrow gallery-arrow-left"
-                aria-label="Scroll left"
-              >
-                <img src="/icons/chevron-up.svg" alt="Scroll left" width={24} />
-              </button>
-            )}
-            <div className="properties-container" ref={visitedPropertiesRef} onScroll={handleVisitedScroll}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((property) => (
-                <PropertyCard 
-                  key={property} 
-                  property={{
-                    id: `visited-${property}`,
-                    price: 198000,
-                    rent: 1222,
-                    currency: 'USD',
-                    currencyRent: '$',
-                    pricePerSqm: 2100,
-                    title: 'Departamento en venta',
-                    address: 'Juan Francisco Segui 4500',
-                    rooms: 4,
-                    bathrooms: 2,
-                    area: 310,
-                    image: '/images/property-placeholder.png',
-                    isFavorite: false,
-                  }}
-                />
-              ))}
+              {visitedCanScrollRight && (
+                <button 
+                  onClick={() => scroll(visitedPropertiesRef, 'right')}
+                  className="gallery-arrow gallery-arrow-right"
+                  aria-label="Scroll right"
+                >
+                  <img src="/icons/chevron-up.svg" alt="Scroll right"  width={24} />
+                </button>
+              )}
             </div>
-            {visitedCanScrollRight && (
-              <button 
-                onClick={() => scroll(visitedPropertiesRef, 'right')}
-                className="gallery-arrow gallery-arrow-right"
-                aria-label="Scroll right"
-              >
-                <img src="/icons/chevron-up.svg" alt="Scroll right"  width={24} />
-              </button>
-            )}
-          </div>
-        </section>
+          </section>
 
-        {/* Properties Featured Section */}
-        <section className="properties-section bg-white">
-          <h2 className="properties-title font-bold text-[#1e1e1e] tracking-[-0.24px] md:tracking-[-0.055px]">
-            Propiedades destacadas
-          </h2>
-          <div className="properties-gallery-wrapper">
-            {featuredCanScrollLeft && (
-              <button 
-                onClick={() => scroll(featuredPropertiesRef, 'left')}
-                className="gallery-arrow gallery-arrow-left"
-                aria-label="Scroll left"
-              >
-                <img src="/icons/chevron-up.svg" alt="Scroll left" width={24} />
-              </button>
-            )}
-           
-            <div className="properties-container" ref={featuredPropertiesRef} onScroll={handleFeaturedScroll}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((property) => (
-                <PropertyCard 
-                  key={property} 
-                  property={{
-                    id: `featured-${property}`,
-                    rent: 2345,
-                    price: 250000,
-                    currency: 'USD',
-                    currencyRent: '$',
-                    pricePerSqm: 2500,
-                    title: 'Propiedad destacada',
-                    address: 'Av. Libertador 5000',
-                    rooms: 3,
-                    bathrooms: 2,
-                    area: 100,
-                    image: '/images/property-placeholder.png',
-                    isFavorite: false,
-                  }}
-                />
-              ))}
+          {/* Properties Featured Section */}
+          <section className="properties-section bg-white">
+            <h2 className="properties-title font-bold text-[#1e1e1e] tracking-[-0.24px] md:tracking-[-0.055px]">
+              Propiedades destacadas
+            </h2>
+            <div className="properties-gallery-wrapper">
+              {featuredCanScrollLeft && (
+                <button 
+                  onClick={() => scroll(featuredPropertiesRef, 'left')}
+                  className="gallery-arrow gallery-arrow-left"
+                  aria-label="Scroll left"
+                >
+                  <img src="/icons/chevron-up.svg" alt="Scroll left" width={24} />
+                </button>
+              )}
+            
+              <div className="properties-container" ref={featuredPropertiesRef} onScroll={handleFeaturedScroll}>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((property) => (
+                  <PropertyCard 
+                    key={property} 
+                    property={{
+                      id: `featured-${property}`,
+                      rent: 2345,
+                      price: 250000,
+                      currency: 'USD',
+                      currencyRent: '$',
+                      pricePerSqm: 2500,
+                      title: 'Propiedad destacada',
+                      address: 'Av. Libertador 5000',
+                      rooms: 3,
+                      bathrooms: 2,
+                      area: 100,
+                      image: '/images/property-placeholder.png',
+                      isFavorite: false,
+                    }}
+                  />
+                ))}
+              </div>
+              {featuredCanScrollRight && (
+                <button 
+                  onClick={() => scroll(featuredPropertiesRef, 'right')}
+                  className="gallery-arrow gallery-arrow-right"
+                  aria-label="Scroll right"
+                >
+                  <img src="/icons/chevron-up.svg" alt="Scroll right"  width={24} />
+                </button>
+              )}
             </div>
-            {featuredCanScrollRight && (
-              <button 
-                onClick={() => scroll(featuredPropertiesRef, 'right')}
-                className="gallery-arrow gallery-arrow-right"
-                aria-label="Scroll right"
-              >
-                <img src="/icons/chevron-up.svg" alt="Scroll right"  width={24} />
-              </button>
-            )}
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
-    </div>
     </APIProvider>
   );
 }

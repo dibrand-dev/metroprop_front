@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import RadioButton from '@/ui/RadioButton/RadioButton';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
 import Select from '@/ui/Select/Select';
-import { PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import { useQuery } from '@tanstack/react-query';
+import { API_BASE_URL } from '@/utils/utils';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Orientation, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -22,37 +25,15 @@ const QUANTITY_OPTIONS = [
 ];
 
 const ANTIGUEDAD_OPTIONS = [
-  { value: 'estrenar', label: 'A estrenar' },
+  { value: '-1', label: 'En Construcción' },
+  { value: '0', label: 'A estrenar' },
   { value: '1-5', label: '1-5 años' },
   { value: '5-10', label: '5-10 años' },
   { value: '10-20', label: '10-20 años' },
   { value: '20+', label: 'Más de 20 años' },
 ];
 
-const TIPO_AMBIENTES = [
-  'Living comedor', 'Cocina', 'Balcón', 'Lavadero', 'Toilette', 'Vestidor',
-  'Dormitorio en suite', 'Jardín', 'Patio', 'Terraza', 'Dependencia servicio',
-];
-
-const DISPOSICION = ['Contrafrente', 'Interior', 'Frente', 'Lateral'];
-
-const AMENITIES = [
-  'Pileta', 'Parrilla', 'Encargado/vigilancia', 'Ascensor', 'SUM', 'Laundry',
-  'Sauna', 'Gimnasio', 'Quincho', 'Sala de juegos', 'Cancha de deportes',
-  'Solárium', 'Aire acondicionado',
-];
-
-const CARACTERISTICAS = [
-  'Apto crédito', 'Apto profesional', 'Movilidad reducida', 'Luminoso',
-  'Uso comercial', 'Permite mascotas', 'Cocina equipada', 'Amoblado', 'Ofrece financiación',
-];
-
-const SUBTIPOS = [
-  'Estándar', 'Semipiso', 'Piso', 'Dúplex', 'Monoambiente',
-  'Aparestudio', 'Loft', 'Penthouse', 'Triplex',
-];
-
-const SERVICIOS = ['Luz', 'Agua corriente', 'Gas natural', 'Calefacción', 'Internet / Wifi'];
+const SUBTIPOS = Object.values(PROPERTY_SUBTYPE_LABELS);
 
 // Mock histogram bar heights (px, max = 56) for price distribution visualization
 const HIST_PRECIO = [12, 34, 45, 28, 20, 38, 56, 52, 44, 30, 18, 25, 40, 56, 48, 36, 22, 13, 19, 30, 42, 55, 50, 44, 35, 26, 15, 10, 18, 30, 45, 56, 52, 44, 34, 22, 14, 22, 38, 50, 56, 48, 43, 35, 26, 18, 13, 20, 30, 44, 52, 56, 43, 30, 18, 21, 23, 33, 15];
@@ -82,15 +63,12 @@ const OPERACION_TO_OP_TYPE: Record<string, string> = {
 const OP_TYPE_TO_OPERACION: Record<string, string> = {
   '1': 'Comprar', '2': 'Alquiler', '3': 'Temporal',
 };
-const DISPOSICION_TO_ID: Record<string, string> = {
-  Contrafrente: '1', Interior: '2', Frente: '3', Lateral: '4',
-};
-const ID_TO_DISPOSICION: Record<string, string> = {
-  '1': 'Contrafrente', '2': 'Interior', '3': 'Frente', '4': 'Lateral',
-};
 const ANTIGUEDAD_TO_RANGE: Record<string, [number, number?]> = {
   estrenar: [0, 0], '1-5': [1, 5], '5-10': [5, 10], '10-20': [10, 20], '20+': [20, undefined],
 };
+const SUBTIPO_LABEL_TO_ID: Record<string, string> = Object.fromEntries(
+  Object.entries(PROPERTY_SUBTYPE_LABELS).map(([id, label]) => [label, id])
+);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -106,11 +84,9 @@ interface MasFiltrosState {
   duenoDirecto: boolean;
   antiguedad: string;
   tipoAmbientes: Record<string, boolean>;
-  disposicion: Record<string, boolean>;
-  amenities: Record<string, boolean>;
-  caracteristicas: Record<string, boolean>;
+  orientation: Record<string, boolean>;
+  tags: number[];
   subtipos: Record<string, boolean>;
-  servicios: Record<string, boolean>;
 }
 
 const EMPTY_ROOMS: RoomsState = { ambientes: '', dormitorios: '', banos: '', cocheras: '' };
@@ -120,11 +96,9 @@ const EMPTY_MAS_FILTROS: MasFiltrosState = {
   duenoDirecto: false,
   antiguedad: '',
   tipoAmbientes: {},
-  disposicion: {},
-  amenities: {},
-  caracteristicas: {},
+  orientation: {},
+  tags: [],
   subtipos: {},
-  servicios: {},
 };
 
 interface PrecioSectionState { moneda: 'ARS' | 'USD'; desde: string; hasta: string; }
@@ -149,11 +123,10 @@ function countMasFiltros(f: MasFiltrosState): number {
     (f.duenoDirecto ? 1 : 0) +
     (f.antiguedad ? 1 : 0) +
     Object.values(f.tipoAmbientes).filter(Boolean).length +
-    Object.values(f.disposicion).filter(Boolean).length +
-    Object.values(f.amenities).filter(Boolean).length +
-    Object.values(f.caracteristicas).filter(Boolean).length +
+    Object.values(f.orientation).filter(Boolean).length +
+    f.tags.length +
     Object.values(f.subtipos).filter(Boolean).length +
-    Object.values(f.servicios).filter(Boolean).length
+    0
   );
 }
 
@@ -181,6 +154,13 @@ function buildFilterParams(
   const types = Object.entries(selectedTypes).filter(([, v]) => v).map(([k]) => k).join(',');
   if (types) p.set('property_type', types);
 
+  const subtypes = Object.entries(masFiltros.subtipos)
+    .filter(([, selected]) => selected)
+    .map(([label]) => SUBTIPO_LABEL_TO_ID[label])
+    .filter(Boolean)
+    .join(',');
+  if (subtypes) p.set('property_subtype', subtypes);
+
   if (precio.precio.desde) p.set('price_min', precio.precio.desde);
   if (precio.precio.hasta) p.set('price_max', precio.precio.hasta);
   if (precio.precioM2.desde) p.set('price_m2_min', precio.precioM2.desde);
@@ -194,21 +174,17 @@ function buildFilterParams(
   if (rooms.dormitorios) p.set('suite_amount', rooms.dormitorios);
   if (rooms.banos) p.set('bathroom_amount', rooms.banos);
   if (rooms.cocheras) p.set('parking_lot_amount', rooms.cocheras);
+  if (masFiltros.antiguedad) p.set('age', masFiltros.antiguedad);
 
-  if (masFiltros.antiguedad) {
-    const range = ANTIGUEDAD_TO_RANGE[masFiltros.antiguedad];
-    if (range) {
-      p.set('age_min', String(range[0]));
-      if (range[1] !== undefined) p.set('age_max', String(range[1]));
-    }
-  }
-
-  const disp = Object.entries(masFiltros.disposicion)
-    .filter(([, v]) => v)
-    .map(([k]) => DISPOSICION_TO_ID[k])
-    .filter(Boolean)
+  const orientation = Object.entries(masFiltros.orientation)
+    .filter(([, selected]) => selected)
+    .map(([value]) => value)
     .join(',');
-  if (disp) p.set('disposition', disp);
+  if (orientation) p.set('orientation', orientation);
+
+  if (masFiltros.tags.length > 0 && masFiltros.tags.join(',') !== '0') {
+    p.set('tags', masFiltros.tags.join(','));
+  }
 
   if (searchText.trim()) p.set('q', searchText.trim());
 
@@ -233,6 +209,15 @@ function parseUrlToState(sp: { get: (k: string) => string | null }): ParsedFilte
   const selectedTypes: Record<string, boolean> = {};
   const ptParam = get('property_type');
   if (ptParam) ptParam.split(',').forEach((id) => { selectedTypes[id.trim()] = true; });
+
+  const subtipos: Record<string, boolean> = {};
+  const pstParam = get('property_subtype');
+  if (pstParam) {
+    pstParam.split(',').forEach((id) => {
+      const label = PROPERTY_SUBTYPE_LABELS[Number(id.trim()) as keyof typeof PROPERTY_SUBTYPE_LABELS];
+      if (label) subtipos[label] = true;
+    });
+  }
 
   const rooms: RoomsState = {
     ambientes: get('room_amount'),
@@ -265,16 +250,23 @@ function parseUrlToState(sp: { get: (k: string) => string | null }): ParsedFilte
     else if (ageMin === '20') antiguedad = '20+';
   }
 
-  const dispParam = get('disposition');
-  const disposicion: Record<string, boolean> = {};
-  if (dispParam) dispParam.split(',').forEach((id) => {
-    const label = ID_TO_DISPOSICION[id.trim()];
-    if (label) disposicion[label] = true;
-  });
+  const orientation: Record<string, boolean> = {};
+  const orientationParam = get('orientation');
+  if (orientationParam) {
+    orientationParam.split(',').forEach((value) => {
+      const trimmed = value.trim();
+      if (trimmed) orientation[trimmed] = true;
+    });
+  }
+
+  const tags = get('tags')
+    .split(',')
+    .map((id) => Number(id.trim()))
+    .filter((id) => !Number.isNaN(id));
 
   return {
     operacion, selectedTypes, rooms,
-    masFiltros: { ...EMPTY_MAS_FILTROS, antiguedad, disposicion },
+    masFiltros: { ...EMPTY_MAS_FILTROS, antiguedad, orientation, tags, subtipos },
     precio, searchText: get('q'),
   };
 }
@@ -452,11 +444,64 @@ function CollapsibleCheckboxSection({
   );
 }
 
+function CollapsibleTagGroupSection({
+  title,
+  options,
+  selectedTagIds,
+  onToggle,
+  collapsedCount = 8,
+}: {
+  title: string;
+  options: AmenityTag[];
+  selectedTagIds: number[];
+  onToggle: (tagId: number, checked: boolean) => void;
+  collapsedCount?: number;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? options : options.slice(0, collapsedCount);
+  const pairs = toPairs(visible);
+  const hasMore = options.length > collapsedCount;
+
+  return (
+    <div className="filtros-section">
+      <h3 className="filtros-section-title">{title}</h3>
+      <div className="filtros-section-grid">
+        {pairs.map((pair, i) => (
+          <div key={i} className="filtros-section-row">
+            <Checkbox
+              label={pair[0].name}
+              checked={selectedTagIds.includes(pair[0].id)}
+              onChange={(checked) => onToggle(pair[0].id, checked)}
+            />
+            {pair[1] && (
+              <Checkbox
+                label={pair[1].name}
+                checked={selectedTagIds.includes(pair[1].id)}
+                onChange={(checked) => onToggle(pair[1]!.id, checked)}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+      {hasMore && (
+        <button className="operacion-toggle-btn" onClick={() => setShowAll((p) => !p)}>
+          {showAll ? 'Ver menos' : 'Ver más'}
+          <svg
+            width="16" height="16" viewBox="0 0 16 16" fill="none"
+            style={{ transform: showAll ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
+          >
+            <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ─── FilterBar ────────────────────────────────────────────────────────────────
 
 export default function FilterBar() {
   // ── Router & search params
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // ── Applied state
@@ -479,6 +524,37 @@ export default function FilterBar() {
   const [showAllTypes, setShowAllTypes] = useState(false);
   const [tempRooms, setTempRooms] = useState<RoomsState>(EMPTY_ROOMS);
   const [tempMasFiltros, setTempMasFiltros] = useState<MasFiltrosState>(EMPTY_MAS_FILTROS);
+
+  const { data: tagsData = [] } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/tags`);
+      if (!res.ok) throw new Error('Error fetching tags');
+      return res.json();
+    },
+  });
+
+  const amenityGroups = useMemo<AmenityGroup[]>(() => {
+    if (!Array.isArray(tagsData) || tagsData.length === 0) return [];
+    return Object.values(AmenityType)
+      .filter(v => typeof v === 'number')
+      .map(type => {
+        const options = (tagsData as AmenityTag[]).filter((tag) => tag.type === type);
+        return {
+          type: type as AmenityType,
+          title: AMENITY_TYPE_LABELS[type as AmenityType],
+          options,
+        };
+      })
+      .filter(group => group.options.length > 0);
+  }, [tagsData]);
+  const orientationOptions = useMemo(
+    () =>
+      Object.entries(ORIENTATION_LABELS)
+        .filter(([value]) => value !== String(Orientation.SELECCIONAR))
+        .map(([value, label]) => ({ value, label })),
+    []
+  );
   const [tempPrecio, setTempPrecio] = useState<PrecioFilterState>(EMPTY_PRECIO);
 
   // ── Refs
@@ -512,9 +588,45 @@ export default function FilterBar() {
     newMasFiltros: MasFiltrosState,
     newPrecio: PrecioFilterState,
     newSearchText: string,
+    locationId?: number,
   ) => {
-    const params = buildFilterParams(newOperacion, newSelectedTypes, newRooms, newMasFiltros, newPrecio, newSearchText);
-    router.push(`/results?${params.toString()}`, { scroll: false });
+    // Start from the current URL params so unknown params (e.g. location_id) are preserved.
+    const params = new URLSearchParams(searchParams.toString());
+    const managedFilterKeys = [
+      'operation_type',
+      'currency',
+      'page',
+      'limit',
+      'property_type',
+      'property_subtype',
+      'price_min',
+      'price_max',
+      'price_m2_min',
+      'price_m2_max',
+      'roofed_surface_min',
+      'roofed_surface_max',
+      'total_surface_min',
+      'total_surface_max',
+      'room_amount',
+      'suite_amount',
+      'bathroom_amount',
+      'parking_lot_amount',
+      'age',
+      'orientation',
+      'tags',
+      'q',
+    ];
+    managedFilterKeys.forEach((key) => params.delete(key));
+    // Overwrite with the freshly built filter params.
+    buildFilterParams(newOperacion, newSelectedTypes, newRooms, newMasFiltros, newPrecio, newSearchText)
+      .forEach((v, k) => params.set(k, v));
+    // If a location was explicitly selected, update location_id; otherwise keep the existing one.
+    if (locationId != null) params.set('location_id', String(locationId));
+    const nextSearch = params.toString();
+    window.history.replaceState(window.history.state, '', `/results?${nextSearch}`);
+    window.dispatchEvent(
+      new CustomEvent('results:filters-changed', { detail: { search: nextSearch } })
+    );
   };
 
   // ── Click-outside handlers
@@ -593,11 +705,9 @@ export default function FilterBar() {
       setTempMasFiltros({
         ...masFiltros,
         tipoAmbientes: { ...masFiltros.tipoAmbientes },
-        disposicion: { ...masFiltros.disposicion },
-        amenities: { ...masFiltros.amenities },
-        caracteristicas: { ...masFiltros.caracteristicas },
+        orientation: { ...masFiltros.orientation },
+        tags: [...masFiltros.tags],
         subtipos: { ...masFiltros.subtipos },
-        servicios: { ...masFiltros.servicios },
       });
     }
     setFiltrosOpen((p) => !p); setOperacionOpen(false); setRoomsOpen(false); setPrecioOpen(false);
@@ -610,10 +720,23 @@ export default function FilterBar() {
   const handleClearFiltros = () => setTempMasFiltros(EMPTY_MAS_FILTROS);
 
   const updateSection = (
-    section: keyof Pick<MasFiltrosState, 'tipoAmbientes' | 'disposicion' | 'amenities' | 'caracteristicas' | 'subtipos' | 'servicios'>,
+    section: keyof Pick<MasFiltrosState, 'tipoAmbientes' | 'orientation' | 'subtipos'>,
     key: string,
     checked: boolean,
   ) => setTempMasFiltros((prev) => ({ ...prev, [section]: { ...prev[section], [key]: checked } }));
+
+  const handleToggleTag = (tagId: number, checked: boolean) => {
+    setTempMasFiltros((prev) => {
+      const exists = prev.tags.includes(tagId);
+      if (checked && !exists) {
+        return { ...prev, tags: [...prev.tags, tagId] };
+      }
+      if (!checked && exists) {
+        return { ...prev, tags: prev.tags.filter((id) => id !== tagId) };
+      }
+      return prev;
+    });
+  };
 
   // ── Precio handlers
   const handleOpenPrecio = () => {
@@ -665,21 +788,17 @@ export default function FilterBar() {
 
           {/* Location search */}
           <div className="filter-search">
-            <input
-              type="text"
-              placeholder="Dirección, barrio, c..."
-              className="filter-input"
+            <LocationAutocompleteInput
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={setSearchText}
+              placeholder="Dirección, barrio, c..."
+              onSubmit={(value, locationId) => pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, value, locationId)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, searchText);
                 }
               }}
             />
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="search-icon">
-              <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
           </div>
 
           {/* Operación popover */}
@@ -885,26 +1004,40 @@ export default function FilterBar() {
                       <Select options={ANTIGUEDAD_OPTIONS} value={tempMasFiltros.antiguedad} onChange={(val) => setTempMasFiltros((prev) => ({ ...prev, antiguedad: val }))} placeholder="Seleccionar" />
                     </div>
                   </div>
-
-                  <CollapsibleCheckboxSection title="Tipo de ambientes" items={TIPO_AMBIENTES} values={tempMasFiltros.tipoAmbientes} onChange={(key, checked) => updateSection('tipoAmbientes', key, checked)} />
-
-                  {/* Disposición — only 4 items, no collapse */}
+                 
+                  {/* Disposición */}
                   <div className="filtros-section">
                     <h3 className="filtros-section-title">Disposición</h3>
                     <div className="filtros-section-grid">
-                      {toPairs(DISPOSICION).map((pair, i) => (
+                      {toPairs(orientationOptions).map((pair, i) => (
                         <div key={i} className="filtros-section-row">
-                          <Checkbox label={pair[0]} checked={!!tempMasFiltros.disposicion[pair[0]]} onChange={(checked) => updateSection('disposicion', pair[0], checked)} />
-                          {pair[1] && <Checkbox label={pair[1]} checked={!!tempMasFiltros.disposicion[pair[1]]} onChange={(checked) => updateSection('disposicion', pair[1]!, checked)} />}
+                          <Checkbox
+                            label={pair[0].label}
+                            checked={!!tempMasFiltros.orientation[pair[0].value]}
+                            onChange={(checked) => updateSection('orientation', pair[0].value, checked)}
+                          />
+                          {pair[1] && (
+                            <Checkbox
+                              label={pair[1].label}
+                              checked={!!tempMasFiltros.orientation[pair[1].value]}
+                              onChange={(checked) => updateSection('orientation', pair[1]!.value, checked)}
+                            />
+                          )}
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <CollapsibleCheckboxSection title="Comodidades / amenities" items={AMENITIES} values={tempMasFiltros.amenities} onChange={(key, checked) => updateSection('amenities', key, checked)} />
-                  <CollapsibleCheckboxSection title="Características de la propiedad" items={CARACTERISTICAS} values={tempMasFiltros.caracteristicas} onChange={(key, checked) => updateSection('caracteristicas', key, checked)} />
+                  {amenityGroups.map((group) => (
+                    <CollapsibleTagGroupSection
+                      key={group.type}
+                      title={group.title}
+                      options={group.options}
+                      selectedTagIds={tempMasFiltros.tags}
+                      onToggle={handleToggleTag}
+                    />
+                  ))}
                   <CollapsibleCheckboxSection title="Subtipo de propiedad" items={SUBTIPOS} values={tempMasFiltros.subtipos} onChange={(key, checked) => updateSection('subtipos', key, checked)} />
-                  <CollapsibleCheckboxSection title="Servicios" items={SERVICIOS} values={tempMasFiltros.servicios} onChange={(key, checked) => updateSection('servicios', key, checked)} collapsedCount={5} />
 
                 </div>
                 <div className="operacion-footer">

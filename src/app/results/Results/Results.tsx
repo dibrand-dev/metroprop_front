@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import PropertyCardMapList from './PropertyCardMapList';
@@ -13,57 +13,48 @@ import { fetchProperties, searchParamsToFilterParams } from '@/lib/properties';
 // import type { PropertyListItem } from '@/types/property-api';
 import { CreateProperty } from '@/types/propiedad';
 
-// ─── Card-compatible display type ────────────────────────────────────────────
-/*
-interface DisplayProperty {
-  id: string;
-  price: number;
-  currency: 'USD' | 'ARS' | 'EUR';
-  pricePerSqm?: number;
-  title: string;
-  address: string;
-  rooms: number;
-  bathrooms: number;
-  area: number;
-  image: string;
-  agencyLogo?: string;
-  isFavorite: boolean;
-  coordinates?: { lat: number; lng: number };
-}
-
-function toDisplayProperty(item: PropertyListItem): CreateProperty {
-  return {
-    id: item.id,
-    price: item.price,
-    currency: (item.currency as DisplayProperty['currency']) || 'USD',
-    pricePerSqm: item.price_square_meter,
-    title: item.publication_title,
-    address: [item.street, item.number].filter(Boolean).join(' ') || item.publication_title,
-    rooms: item.room_amount ?? 0,
-    bathrooms: item.bathroom_amount ?? 0,
-    area: item.total_surface ?? item.roofed_surface ?? 0,
-    image: item.images?.[0]?.url ?? '',
-    agencyLogo: item.organization?.logo_url,
-    isFavorite: false,
-    coordinates:
-      item.geo_lat && item.geo_long
-        ? { lat: item.geo_lat, lng: item.geo_long }
-        : undefined,
-  };
-}*/
 
 export default function Results() {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('list');
   const [sortBy, setSortBy] = useState('relevant');
 
-  // ─── Fetch properties whenever the URL search params change ───────────────
+  // ─── Fetch properties whenever filters change (without route reload) ──────
   const searchParams = useSearchParams();
+  const [activeSearch, setActiveSearch] = useState(searchParams.toString());
+
+  useEffect(() => {
+    // Sync with URL changes coming from navigation / deep-linking.
+    setActiveSearch(searchParams.toString());
+  }, [searchParams]);
+
+  useEffect(() => {
+    const handleFiltersChanged = (event: Event) => {
+      const detail = (event as CustomEvent<{ search?: string }>).detail;
+      const nextSearch = detail?.search;
+      setActiveSearch(typeof nextSearch === 'string' ? nextSearch : window.location.search.slice(1));
+    };
+    const handlePopState = () => {
+      setActiveSearch(window.location.search.slice(1));
+    };
+
+    window.addEventListener('results:filters-changed', handleFiltersChanged as EventListener);
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('results:filters-changed', handleFiltersChanged as EventListener);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  const activeSearchParams = useMemo(() => new URLSearchParams(activeSearch), [activeSearch]);
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['properties', searchParams.toString()],
-    queryFn: () => fetchProperties(searchParamsToFilterParams(searchParams)),
+    queryKey: ['properties', activeSearch],
+    queryFn: () => fetchProperties(searchParamsToFilterParams(new URLSearchParams(activeSearch))),
     staleTime: 30_000,
   });
+
+  const locationQuery = activeSearchParams.get('q')?.trim() ?? '';
 
   const properties: CreateProperty[] = (data?.data ?? [])//.map(toDisplayProperty);
   const totalProperties = data?.total ?? 0;
@@ -128,7 +119,7 @@ export default function Results() {
         {/* Map View - Always visible on desktop (unless grid layout), toggle on mobile */}
         <div className={`map-view ${viewMode === 'map' ? 'active' : ''} ${layoutMode === 'grid' ? 'hidden-grid' : ''}`}>
           <div className="map-container">
-            <ResultsMap properties={properties} />
+            <ResultsMap properties={properties} initialLocationQuery={locationQuery} />
           </div>
         </div>
 

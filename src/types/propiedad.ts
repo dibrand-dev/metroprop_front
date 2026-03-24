@@ -227,17 +227,15 @@ export enum PublicationPlan {
 }
 
 export enum AmenityType {
-  Rooms = 1,
-  Services = 2,
-  Extras = 3,
-  Facilities = 4,
+  Services = 1,
+  Rooms = 2,
+  Extras = 3
 }
 
 export const AMENITY_TYPE_LABELS: Record<AmenityType, string> = {
-  [AmenityType.Rooms]: 'Mas ambientes',
   [AmenityType.Services]: 'Servicios',
-  [AmenityType.Extras]: 'Extras',
-  [AmenityType.Facilities]: 'Facilidades',
+  [AmenityType.Rooms]: 'Ambientes',
+  [AmenityType.Extras]: 'Otros'
 };
 
 export type AmenityTag = {
