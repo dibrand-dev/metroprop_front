@@ -32,6 +32,8 @@ export default function PublishPropertyType({
 
   const showSubtypes = useMemo(() => Boolean(selectedProperty), [selectedProperty]);
   const subtypeOptions: PropertySubtype[] = PROPERTY_SUBTYPES_BY_TYPE[selectedProperty as PropertyType] || [];
+
+
   // Update wizard data when selections change
   useEffect(() => {
     if (selectedProperty) {

@@ -9,6 +9,7 @@ import { CreateImage, CreateImagePlans, CreatePropertyDraft, OPERATION_TYPE_LABE
 // Replace fetch with useMutation for multimedia upload
 import { useMutation } from '@tanstack/react-query';
 import { AWS_S3_BUCKET_URL } from '@/constants';
+import { API_BASE_URL } from '@/utils/utils';
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconTrash = '/icons/trash.svg';
@@ -104,7 +105,7 @@ export default function PublishContent({
   useEffect(() => {
     // call  APIURL /PROPERTYID/getMultimedia to get already uploaded multimedia (images and plans) and set them in state
     if (wizardData.draft_id) {
-      fetch(`http://localhost:3000/properties/${wizardData.draft_id}/multimedia`)
+      fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/multimedia`)
         .then(response => response.json())
         .then(data => {
           console.log("multimedia data", data);

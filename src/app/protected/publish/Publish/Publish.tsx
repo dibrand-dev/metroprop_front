@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import './Publish.scss';
 import { API_BASE_URL } from '@/utils/utils';
+import { useSession } from 'next-auth/react';
 
 // Import all step components
 import PublishPropertyType from './PublishPropertyType';
@@ -66,7 +67,8 @@ const EMPRENDIMIENTO_FLOW = [
 export default function Publish() {
   const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.INITIAL);
   const [wizardData, setWizardData] = useState<CreatePropertyDraft>({} as CreatePropertyDraft);
-
+  const { data: sessionData } = useSession();
+  console.log("sessionData", sessionData);
   const getCurrentFlow = useCallback(() => {
     if (wizardData.operation_type === OperationType.EMPRENDIMIENTO) {
       return EMPRENDIMIENTO_FLOW;
@@ -114,12 +116,21 @@ export default function Publish() {
 
   const createDraftMutation = useMutation({
     mutationFn: async (draftData: Partial<CreatePropertyDraft>) => {
+      console.log("sessionData", sessionData);
+      const user_id = sessionData?.user?.id;
+      const organization_id = sessionData?.user?.organization_id ?? undefined;
+      const branch_id = sessionData?.user?.branch_id;
+      if (!user_id) throw new Error('User not authenticated');
+
       const response = await fetch(`${API_BASE_URL}/properties/draft`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          user_id,
+          organization_id,
+          branch_id,
           operation_type: draftData.operation_type,
           property_type: draftData.property_type,
           ...(draftData.property_subtype && { property_subtype: draftData.property_subtype }),

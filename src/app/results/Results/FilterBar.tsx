@@ -8,14 +8,12 @@ import Button from '@/ui/Button/Button';
 import Select from '@/ui/Select/Select';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
-import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Orientation, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, OperationType, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const OPERACION_COLLAPSED = 8;
-
-type OperationType = 'Alquiler' | 'Comprar' | 'Temporal';
 
 const QUANTITY_OPTIONS = [
   { value: '1', label: '1' },
@@ -55,17 +53,14 @@ const UNIDAD_OPTIONS = [
   { value: 'ha', label: 'ha' },
 ];
 
+const FILTER_OPERATION_OPTIONS: OperationType[] = [
+  OperationType.VENTA,
+  OperationType.ALQUILER,
+  OperationType.ALQUILER_TEMPORAL,
+];
+
 // ─── URL Param Helpers ──────────────────────────────────────────────────────────────
 
-const OPERACION_TO_OP_TYPE: Record<string, string> = {
-  Comprar: '1', Alquiler: '2', Temporal: '3',
-};
-const OP_TYPE_TO_OPERACION: Record<string, string> = {
-  '1': 'Comprar', '2': 'Alquiler', '3': 'Temporal',
-};
-const ANTIGUEDAD_TO_RANGE: Record<string, [number, number?]> = {
-  estrenar: [0, 0], '1-5': [1, 5], '5-10': [5, 10], '10-20': [10, 20], '20+': [20, undefined],
-};
 const SUBTIPO_LABEL_TO_ID: Record<string, string> = Object.fromEntries(
   Object.entries(PROPERTY_SUBTYPE_LABELS).map(([id, label]) => [label, id])
 );
@@ -146,7 +141,7 @@ function buildFilterParams(
   searchText: string,
 ): URLSearchParams {
   const p = new URLSearchParams();
-  p.set('operation_type', OPERACION_TO_OP_TYPE[operacion]);
+  p.set('operation_type', String(operacion));
   p.set('currency', precio.precio.moneda);
   p.set('page', '1');
   p.set('limit', '20');
@@ -186,6 +181,9 @@ function buildFilterParams(
     p.set('tags', masFiltros.tags.join(','));
   }
 
+  if (masFiltros.duenoDirecto) p.set('direct_owner', '1');
+  if (masFiltros.inmobiliaria) p.set('inmobiliaria', '1');
+
   if (searchText.trim()) p.set('q', searchText.trim());
 
   return p;
@@ -204,7 +202,10 @@ type ParsedFilterState = {
 function parseUrlToState(sp: { get: (k: string) => string | null }): ParsedFilterState {
   const get = (k: string) => sp.get(k) ?? '';
   const opType = get('operation_type');
-  const operacion = ((OP_TYPE_TO_OPERACION[opType] ?? 'Alquiler') as OperationType);
+  const parsedOperationType = Number(opType) as OperationType;
+  const operacion = FILTER_OPERATION_OPTIONS.includes(parsedOperationType)
+    ? parsedOperationType
+    : OperationType.ALQUILER;
 
   const selectedTypes: Record<string, boolean> = {};
   const ptParam = get('property_type');
@@ -386,6 +387,120 @@ function PrecioSectionBlock({
   );
 }
 
+function TipoDePropiedadSection({  tempSelectedTypes, setTempSelectedTypes, typeRows, setShowAllTypes, showAllTypes }: {
+  tempSelectedTypes: Record<string, boolean>;
+  setTempSelectedTypes: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  typeRows: [string, string][][];
+  setShowAllTypes: React.Dispatch<React.SetStateAction<boolean>>;
+  showAllTypes: boolean;
+}) {
+  return <>
+    <div className="operacion-property-section">
+      <h3 className="operacion-section-title">Tipo de propiedad</h3>
+      <div className="operacion-property-grid">
+        {typeRows.map((row, rowIdx) => (
+          <div key={rowIdx} className="operacion-property-row">
+            {row.map(([typeId, typeLabel]) => (
+              <Checkbox key={typeId} label={typeLabel} checked={!!tempSelectedTypes[typeId]} onChange={(checked) => setTempSelectedTypes((prev) => ({ ...prev, [typeId]: checked }))} />
+            ))}
+          </div>
+        ))}
+      </div>
+      <button className="operacion-toggle-btn" onClick={() => setShowAllTypes((p) => !p)}>
+        {showAllTypes ? 'Ver menos' : 'Ver más'}
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ transform: showAllTypes ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+          <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+    </div>
+  </>
+}
+
+function RoomsSection({ tempRooms, setTempRooms }: {
+  tempRooms: RoomsState;
+  setTempRooms: React.Dispatch<React.SetStateAction<RoomsState>>;
+}) {
+  return <>
+    <div className="rooms-popover-grid">
+      <div className="rooms-popover-field">
+        <h3 className="rooms-popover-label">Ambientes</h3>
+        <Select options={QUANTITY_OPTIONS} value={tempRooms.ambientes} onChange={(val) => setTempRooms((prev) => ({ ...prev, ambientes: val }))} placeholder="Cantidad" />
+      </div>
+      <div className="rooms-popover-field">
+        <h3 className="rooms-popover-label">Dormitorios</h3>
+        <Select options={QUANTITY_OPTIONS} value={tempRooms.dormitorios} onChange={(val) => setTempRooms((prev) => ({ ...prev, dormitorios: val }))} placeholder="Cantidad" />
+      </div>
+      <div className="rooms-popover-field">
+        <h3 className="rooms-popover-label">Baños</h3>
+        <Select options={QUANTITY_OPTIONS} value={tempRooms.banos} onChange={(val) => setTempRooms((prev) => ({ ...prev, banos: val }))} placeholder="Cantidad" />
+      </div>
+      <div className="rooms-popover-field">
+        <h3 className="rooms-popover-label">Cocheras</h3>
+        <Select options={QUANTITY_OPTIONS} value={tempRooms.cocheras} onChange={(val) => setTempRooms((prev) => ({ ...prev, cocheras: val }))} placeholder="Seleccionar" />
+      </div>
+    </div>
+  </>
+}
+
+function PrecioSection({ tempPrecio, setTempPrecio }: {
+  tempPrecio: PrecioFilterState;
+  setTempPrecio: React.Dispatch<React.SetStateAction<PrecioFilterState>>;
+}) {
+  return <>
+    <PrecioSectionBlock
+      title="Precio"
+      radioName="precio-moneda"
+      histBars={HIST_PRECIO}
+      state={tempPrecio.precio}
+      onChange={(patch) => setTempPrecio((prev) => ({ ...prev, precio: { ...prev.precio, ...patch } }))}
+    />
+    <PrecioSectionBlock
+      title="Precio m²"
+      radioName="preciom2-moneda"
+      histBars={HIST_PRECIO_M2}
+      state={tempPrecio.precioM2}
+      onChange={(patch) => setTempPrecio((prev) => ({ ...prev, precioM2: { ...prev.precioM2, ...patch } }))}
+    />
+    {/* Superficie */}
+    <div className="precio-section">
+      <h3 className="precio-section-title">Superficie</h3>
+      <div className="precio-currency-row">
+        <RadioButton
+          label="Cubierta" name="superficie-tipo" value="Cubierta"
+          checked={tempPrecio.superficie.tipo === 'Cubierta'}
+          onChange={() => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, tipo: 'Cubierta' } }))}
+        />
+        <RadioButton
+          label="Total" name="superficie-tipo" value="Total"
+          checked={tempPrecio.superficie.tipo === 'Total'}
+          onChange={() => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, tipo: 'Total' } }))}
+        />
+      </div>
+      <div className="superficie-row">
+        <Select
+          options={UNIDAD_OPTIONS}
+          value={tempPrecio.superficie.unidad}
+          onChange={(v) => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, unidad: v } }))}
+          placeholder="m²"
+        />
+        <Select
+          options={SUPERFICIE_OPTIONS}
+          value={tempPrecio.superficie.desde}
+          onChange={(v) => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, desde: v } }))}
+          placeholder="Desde"
+        />
+        <span className="precio-input-separator">-</span>
+        <Select
+          options={SUPERFICIE_OPTIONS}
+          value={tempPrecio.superficie.hasta}
+          onChange={(v) => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, hasta: v } }))}
+          placeholder="Hasta"
+        />
+      </div>
+    </div>
+  </>
+}
+
 // ─── CollapsibleCheckboxSection ───────────────────────────────────────────────
 
 interface CollapsibleSectionProps {
@@ -500,12 +615,12 @@ function CollapsibleTagGroupSection({
 
 // ─── FilterBar ────────────────────────────────────────────────────────────────
 
-export default function FilterBar() {
+export default function FilterBar({ setViewMode, viewMode }: { setViewMode: React.Dispatch<React.SetStateAction<'list' | 'map'>>; viewMode: 'list' | 'map' }) {
   // ── Router & search params
   const searchParams = useSearchParams();
 
   // ── Applied state
-  const [operacion, setOperacion] = useState<OperationType>('Alquiler');
+  const [operacion, setOperacion] = useState<OperationType>(OperationType.ALQUILER);
   const [selectedTypes, setSelectedTypes] = useState<Record<string, boolean>>({});
   const [rooms, setRooms] = useState<RoomsState>(EMPTY_ROOMS);
   const [masFiltros, setMasFiltros] = useState<MasFiltrosState>(EMPTY_MAS_FILTROS);
@@ -519,7 +634,7 @@ export default function FilterBar() {
   const [precioOpen, setPrecioOpen] = useState(false);
 
   // ── Temp / draft state
-  const [tempOperacion, setTempOperacion] = useState<OperationType>('Alquiler');
+  const [tempOperacion, setTempOperacion] = useState<OperationType>(OperationType.ALQUILER);
   const [tempSelectedTypes, setTempSelectedTypes] = useState<Record<string, boolean>>({});
   const [showAllTypes, setShowAllTypes] = useState(false);
   const [tempRooms, setTempRooms] = useState<RoomsState>(EMPTY_ROOMS);
@@ -614,6 +729,8 @@ export default function FilterBar() {
       'age',
       'orientation',
       'tags',
+      'direct_owner',
+      'inmobiliaria',
       'q',
     ];
     managedFilterKeys.forEach((key) => params.delete(key));
@@ -685,7 +802,7 @@ export default function FilterBar() {
     setOperacion(newOp); setSelectedTypes(newTypes); setOperacionOpen(false);
     pushUrl(newOp, newTypes, rooms, masFiltros, precio, searchText);
   };
-  const handleClearOperacion = () => { setTempOperacion('Alquiler'); setTempSelectedTypes({}); };
+  const handleClearOperacion = () => { setTempOperacion(OperationType.ALQUILER); setTempSelectedTypes({}); };
 
   // ── Rooms handlers
   const handleOpenRooms = () => {
@@ -713,9 +830,20 @@ export default function FilterBar() {
     setFiltrosOpen((p) => !p); setOperacionOpen(false); setRoomsOpen(false); setPrecioOpen(false);
   };
   const handleApplyFiltros = () => {
+    const newRooms = { ...tempRooms };
+    setRooms(newRooms);
+
+    const newOp = tempOperacion;
+    const newTypes = { ...tempSelectedTypes };
+    setOperacion(newOp); setSelectedTypes(newTypes); 
+
+    const newPrecio = JSON.parse(JSON.stringify(tempPrecio)) as PrecioFilterState;
+    setPrecio(newPrecio);
+
     const newMasFiltros = { ...tempMasFiltros };
     setMasFiltros(newMasFiltros); setFiltrosOpen(false);
-    pushUrl(operacion, selectedTypes, rooms, newMasFiltros, precio, searchText);
+
+    pushUrl(newOp, newTypes, newRooms, newMasFiltros, newPrecio, searchText, );
   };
   const handleClearFiltros = () => setTempMasFiltros(EMPTY_MAS_FILTROS);
 
@@ -744,6 +872,7 @@ export default function FilterBar() {
     setPrecioOpen((p) => !p);
     setOperacionOpen(false); setRoomsOpen(false); setFiltrosOpen(false);
   };
+
   const handleApplyPrecio = () => {
     const newPrecio = JSON.parse(JSON.stringify(tempPrecio)) as PrecioFilterState;
     setPrecio(newPrecio); setPrecioOpen(false);
@@ -819,28 +948,11 @@ export default function FilterBar() {
             {operacionOpen && (
               <div ref={operacionPopoverRef} className="operacion-popover">
                 <div className="operacion-radio-group">
-                  {(['Alquiler', 'Comprar', 'Temporal'] as OperationType[]).map((op) => (
-                    <RadioButton key={op} label={op} name="operacion" value={op} checked={tempOperacion === op} onChange={(val) => setTempOperacion(val as OperationType)} />
+                  {FILTER_OPERATION_OPTIONS.map((op) => (
+                    <RadioButton key={op} label={OPERATION_TYPE_LABELS[op]} name="operacion" value={String(op)} checked={tempOperacion === op} onChange={(val) => setTempOperacion(Number(val) as OperationType)} />
                   ))}
                 </div>
-                <div className="operacion-property-section">
-                  <h3 className="operacion-section-title">Tipo de propiedad</h3>
-                  <div className="operacion-property-grid">
-                    {typeRows.map((row, rowIdx) => (
-                      <div key={rowIdx} className="operacion-property-row">
-                        {row.map(([typeId, typeLabel]) => (
-                          <Checkbox key={typeId} label={typeLabel} checked={!!tempSelectedTypes[typeId]} onChange={(checked) => setTempSelectedTypes((prev) => ({ ...prev, [typeId]: checked }))} />
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                  <button className="operacion-toggle-btn" onClick={() => setShowAllTypes((p) => !p)}>
-                    {showAllTypes ? 'Ver menos' : 'Ver más'}
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ transform: showAllTypes ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
-                      <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </button>
-                </div>
+                <TipoDePropiedadSection tempSelectedTypes={tempSelectedTypes} setTempSelectedTypes={setTempSelectedTypes} typeRows={typeRows} setShowAllTypes={setShowAllTypes} showAllTypes={showAllTypes} />
                 <div className="operacion-footer">
                   <Button label="Limpiar filtros" variant="secondary" onClick={handleClearOperacion} fullWidth />
                   <Button label="Aplicar" variant="primary" onClick={handleApplyOperacion} fullWidth />
@@ -867,57 +979,7 @@ export default function FilterBar() {
             {precioOpen && (
               <div ref={precioPopoverRef} className="precio-popover">
                 <div className="precio-popover-body">
-                  <PrecioSectionBlock
-                    title="Precio"
-                    radioName="precio-moneda"
-                    histBars={HIST_PRECIO}
-                    state={tempPrecio.precio}
-                    onChange={(patch) => setTempPrecio((prev) => ({ ...prev, precio: { ...prev.precio, ...patch } }))}
-                  />
-                  <PrecioSectionBlock
-                    title="Precio m²"
-                    radioName="preciom2-moneda"
-                    histBars={HIST_PRECIO_M2}
-                    state={tempPrecio.precioM2}
-                    onChange={(patch) => setTempPrecio((prev) => ({ ...prev, precioM2: { ...prev.precioM2, ...patch } }))}
-                  />
-                  {/* Superficie */}
-                  <div className="precio-section">
-                    <h3 className="precio-section-title">Superficie</h3>
-                    <div className="precio-currency-row">
-                      <RadioButton
-                        label="Cubierta" name="superficie-tipo" value="Cubierta"
-                        checked={tempPrecio.superficie.tipo === 'Cubierta'}
-                        onChange={() => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, tipo: 'Cubierta' } }))}
-                      />
-                      <RadioButton
-                        label="Total" name="superficie-tipo" value="Total"
-                        checked={tempPrecio.superficie.tipo === 'Total'}
-                        onChange={() => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, tipo: 'Total' } }))}
-                      />
-                    </div>
-                    <div className="superficie-row">
-                      <Select
-                        options={UNIDAD_OPTIONS}
-                        value={tempPrecio.superficie.unidad}
-                        onChange={(v) => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, unidad: v } }))}
-                        placeholder="m²"
-                      />
-                      <Select
-                        options={SUPERFICIE_OPTIONS}
-                        value={tempPrecio.superficie.desde}
-                        onChange={(v) => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, desde: v } }))}
-                        placeholder="Desde"
-                      />
-                      <span className="precio-input-separator">-</span>
-                      <Select
-                        options={SUPERFICIE_OPTIONS}
-                        value={tempPrecio.superficie.hasta}
-                        onChange={(v) => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, hasta: v } }))}
-                        placeholder="Hasta"
-                      />
-                    </div>
-                  </div>
+                  <PrecioSection tempPrecio={tempPrecio} setTempPrecio={setTempPrecio} />
                 </div>
                 <div className="operacion-footer">
                   <Button label="Limpiar filtros" variant="secondary" onClick={handleClearPrecio} fullWidth />
@@ -944,24 +1006,7 @@ export default function FilterBar() {
 
             {roomsOpen && (
               <div ref={roomsPopoverRef} className="rooms-popover">
-                <div className="rooms-popover-grid">
-                  <div className="rooms-popover-field">
-                    <h3 className="rooms-popover-label">Ambientes</h3>
-                    <Select options={QUANTITY_OPTIONS} value={tempRooms.ambientes} onChange={(val) => setTempRooms((prev) => ({ ...prev, ambientes: val }))} placeholder="Cantidad" />
-                  </div>
-                  <div className="rooms-popover-field">
-                    <h3 className="rooms-popover-label">Dormitorios</h3>
-                    <Select options={QUANTITY_OPTIONS} value={tempRooms.dormitorios} onChange={(val) => setTempRooms((prev) => ({ ...prev, dormitorios: val }))} placeholder="Cantidad" />
-                  </div>
-                  <div className="rooms-popover-field">
-                    <h3 className="rooms-popover-label">Baños</h3>
-                    <Select options={QUANTITY_OPTIONS} value={tempRooms.banos} onChange={(val) => setTempRooms((prev) => ({ ...prev, banos: val }))} placeholder="Cantidad" />
-                  </div>
-                  <div className="rooms-popover-field">
-                    <h3 className="rooms-popover-label">Cocheras</h3>
-                    <Select options={QUANTITY_OPTIONS} value={tempRooms.cocheras} onChange={(val) => setTempRooms((prev) => ({ ...prev, cocheras: val }))} placeholder="Seleccionar" />
-                  </div>
-                </div>
+                <RoomsSection tempRooms={tempRooms} setTempRooms={setTempRooms} />
                 <div className="operacion-footer">
                   <Button label="Limpiar filtros" variant="secondary" onClick={handleClearRooms} fullWidth />
                   <Button label="Aplicar" variant="primary" onClick={handleApplyRooms} fullWidth />
@@ -971,7 +1016,7 @@ export default function FilterBar() {
           </div>
 
           {/* Filtros popover */}
-          <div className="filter-dropdown-wrapper">
+          <div className="filter-dropdown-wrapper filtros-dropdown">
             <button
               ref={filtrosTriggerRef}
               className={`filter-button${filtrosOpen ? ' active' : ''}`}
@@ -989,6 +1034,22 @@ export default function FilterBar() {
             {filtrosOpen && (
               <div ref={filtrosPopoverRef} className="filtros-popover">
                 <div className="filtros-popover-body">
+                  <div className="filtros-section operacion-section">
+                    <h3 className="filtros-section-title">Tipo de operación</h3>
+                    <div className="operacion-radio-group">
+                      {FILTER_OPERATION_OPTIONS.map((op) => (
+                        <RadioButton key={op} label={OPERATION_TYPE_LABELS[op]} name="operacion" value={String(op)} checked={tempOperacion === op} onChange={(val) => setTempOperacion(Number(val) as OperationType)} />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="filtros-section precio-section">
+                    <PrecioSection tempPrecio={tempPrecio} setTempPrecio={setTempPrecio} />
+                  </div>
+
+                  <TipoDePropiedadSection tempSelectedTypes={tempSelectedTypes} setTempSelectedTypes={setTempSelectedTypes} typeRows={typeRows} setShowAllTypes={setShowAllTypes} showAllTypes={showAllTypes} />
+
+                  <RoomsSection tempRooms={tempRooms} setTempRooms={setTempRooms} />                  
 
                   {/* Tipo de anunciante + Antigüedad */}
                   <div className="filtros-top-row">
@@ -1047,14 +1108,19 @@ export default function FilterBar() {
               </div>
             )}
           </div>
-
+          <Button id="list-map-view-mobile" label={viewMode === "list" ? "Lista" : "Mapa"} variant="secondary" onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}  icon={<img src={viewMode === "list" ? "/icons/list.svg" : "/icons/map.svg"} />} />
         </div>
 
-        <Button label="Crear Alerta" variant="secondary" onClick={handleClearFiltros}  icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-          
+        <Button label="Crear Alerta" variant="secondary" onClick={() => {}} id="crear-alerta-button-desktop"  icon={
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M15.2783 2.21484C16.0322 2.11152 16.6207 2.51201 16.7803 3.23828V6.77051L17.5557 6.25684C17.8966 6.0311 18.3237 5.81495 18.7773 5.58496C19.1757 5.38298 19.5996 5.16504 19.9502 4.9375C20.1016 4.92637 20.1937 5.00206 20.2354 5.08301C20.261 5.13291 20.269 5.1866 20.2588 5.2373C20.2493 5.2846 20.2193 5.35182 20.1318 5.42383C19.817 5.68243 19.3689 5.91897 18.8525 6.17969C18.3887 6.41388 17.8652 6.67021 17.4424 6.96191C17.4129 6.96828 17.3866 6.97083 17.3623 6.9668L16.7803 6.87012V10.4502H20.3096C20.5448 10.5792 20.5057 10.9292 20.2002 10.9736C19.7381 11.0278 18.0412 11.0488 17.3203 10.9912L16.7803 10.9482V14.25H17.2568L19.9756 15.8164C20.077 15.938 20.0691 16.0639 20.0205 16.1514C19.9923 16.2021 19.9506 16.2403 19.9014 16.2607C19.8617 16.2772 19.8016 16.2864 19.7148 16.2686L17.5283 15.0166L16.7803 14.5869V17.668C16.7576 18.0099 16.51 18.3942 16.207 18.5625L16.2012 18.5664C15.9467 18.7127 15.7424 18.7604 15.5723 18.7627C15.3998 18.7649 15.2263 18.7211 15.0342 18.6318C14.8369 18.5401 14.6366 18.4087 14.4043 18.248C14.1824 18.0946 13.9244 17.9084 13.6543 17.749H13.6533C12.449 17.043 11.0734 16.4997 9.67871 16.248L8.81934 16.0928L9.12109 16.9121L10.3242 20.1875C10.4059 20.6303 10.296 20.9986 10.0781 21.2666C9.88044 21.5097 9.57453 21.6946 9.18457 21.7607L9.0127 21.7812C8.28311 21.8336 7.61747 21.7852 7.07031 21.5742C6.60686 21.3955 6.21343 21.0958 5.92969 20.5986L5.81543 20.373L5.56543 19.7881C5.32604 19.191 5.11383 18.5582 4.89746 17.9072C4.612 17.0484 4.3194 16.1554 3.95898 15.3213L3.89355 15.1709L3.75195 15.0879C2.88377 14.5814 2.32763 13.9551 2.24219 13.0225C2.31899 12.4122 2.29319 11.7002 2.25781 11.001C2.22019 10.2572 2.17295 9.51306 2.20117 8.80859C2.22944 8.10324 2.33253 7.49013 2.56738 7.00781C2.79115 6.54838 3.14019 6.19292 3.71191 5.98633C5.25191 5.58002 6.83486 5.36163 8.48047 5.03125C10.1074 4.7046 11.7481 4.27555 13.251 3.44824L13.252 3.44727C13.555 3.27952 14.0184 2.94221 14.3945 2.69141C14.5965 2.55676 14.7863 2.43696 14.9521 2.34863C15.1297 2.25407 15.2334 2.22113 15.2744 2.21582L15.2783 2.21484ZM5.23828 15.3691C5.18489 15.3772 5.1012 15.3979 5.01562 15.4561C4.92256 15.5193 4.85451 15.6086 4.81738 15.708C4.75544 15.8744 4.7946 16.0235 4.80762 16.0713L4.81641 16.1025L4.82812 16.1318C5.07612 16.73 5.29177 17.3547 5.5127 17.9961C5.67708 18.4734 5.84409 18.9604 6.02832 19.4385L6.21875 19.9131C6.34426 20.2142 6.49158 20.532 6.74414 20.7754C7.01493 21.0362 7.3552 21.1657 7.77539 21.2148V21.2158C7.77795 21.2162 7.78055 21.2165 7.7832 21.2168V21.2158C7.93121 21.2343 8.22436 21.2494 8.49512 21.252C8.63624 21.2533 8.78278 21.2516 8.91016 21.2441C8.99981 21.2389 9.13307 21.2265 9.25 21.1934L9.25098 21.1953C9.25912 21.1933 9.26714 21.189 9.27539 21.1865C9.28451 21.1836 9.29393 21.182 9.30273 21.1787L9.30176 21.1768C9.59433 21.0771 9.93002 20.7452 9.78809 20.2832L9.78418 20.2695L9.77832 20.2559L8.25879 16.166L8.14746 15.8662L7.8291 15.8418L7.57227 15.8105C7.30883 15.7692 7.02538 15.6987 6.71484 15.6201C6.32076 15.5204 5.8752 15.4051 5.4502 15.3711L5.42969 15.3701H5.4248C5.43657 15.3707 5.4403 15.3719 5.41699 15.3691C5.41051 15.3683 5.32767 15.3557 5.23828 15.3691ZM15.7217 2.75684C15.5622 2.72083 15.4091 2.74318 15.2842 2.77832L15.2734 2.78223L15.2617 2.78516C15.1928 2.80814 15.1373 2.84188 15.1123 2.85742C15.08 2.87751 15.0488 2.90002 15.0215 2.91992C14.967 2.95972 14.9063 3.00754 14.8535 3.0498C14.7972 3.09486 14.7485 3.13447 14.7041 3.16895C14.6581 3.20464 14.6386 3.21704 14.6377 3.21777L14.6299 3.22266L14.6221 3.22852C13.3066 4.0656 12.0708 4.6709 10.6201 5.08691L9.9834 5.25391C9.06988 5.47374 8.0698 5.62977 7.0459 5.80273C6.03315 5.97382 4.99965 6.16143 4.06641 6.44141H4.06445C3.28717 6.67749 2.86012 7.29584 2.78223 8.04883L2.77832 8.08984L2.78125 8.13184C2.82935 8.87742 2.80018 9.65901 2.77246 10.4717C2.7451 11.2739 2.71873 12.1069 2.78125 12.9092V12.9102C2.82357 13.4301 2.99199 13.8382 3.33398 14.1348C3.64648 14.4057 4.05259 14.5338 4.43262 14.6338H4.43555C5.3475 14.8681 6.21797 15.0387 7.05469 15.1934C7.89605 15.3488 8.69385 15.4866 9.48633 15.6582C11.0552 15.9979 12.5656 16.4636 14.1562 17.4189H14.1572C14.2603 17.486 14.4587 17.6355 14.7354 17.8242C14.8581 17.908 14.9901 17.9941 15.1045 18.0596C15.1606 18.0917 15.224 18.1261 15.2871 18.1523C15.3186 18.1655 15.3603 18.1808 15.4072 18.1924C15.4435 18.2013 15.5158 18.2144 15.6045 18.2061L15.6055 18.208C15.614 18.2072 15.6225 18.2061 15.6309 18.2051L15.6299 18.2041C16.0366 18.1533 16.1934 17.7875 16.2266 17.7129L16.2695 17.6162L16.2705 17.5107L16.2998 3.64062V3.62109L16.2988 3.60156C16.2936 3.53338 16.2853 3.44416 16.2666 3.35547C16.2484 3.26931 16.2129 3.14487 16.1299 3.02832C16.0368 2.8977 15.898 2.7967 15.7217 2.75684Z" stroke="#006AFF"/>
-          </svg>} />
-        
+          </svg>}
+        />
+        <Button label="" variant="secondary" onClick={() => {}} id="crear-alerta-button-mobile"  icon={
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M15.2783 2.21484C16.0322 2.11152 16.6207 2.51201 16.7803 3.23828V6.77051L17.5557 6.25684C17.8966 6.0311 18.3237 5.81495 18.7773 5.58496C19.1757 5.38298 19.5996 5.16504 19.9502 4.9375C20.1016 4.92637 20.1937 5.00206 20.2354 5.08301C20.261 5.13291 20.269 5.1866 20.2588 5.2373C20.2493 5.2846 20.2193 5.35182 20.1318 5.42383C19.817 5.68243 19.3689 5.91897 18.8525 6.17969C18.3887 6.41388 17.8652 6.67021 17.4424 6.96191C17.4129 6.96828 17.3866 6.97083 17.3623 6.9668L16.7803 6.87012V10.4502H20.3096C20.5448 10.5792 20.5057 10.9292 20.2002 10.9736C19.7381 11.0278 18.0412 11.0488 17.3203 10.9912L16.7803 10.9482V14.25H17.2568L19.9756 15.8164C20.077 15.938 20.0691 16.0639 20.0205 16.1514C19.9923 16.2021 19.9506 16.2403 19.9014 16.2607C19.8617 16.2772 19.8016 16.2864 19.7148 16.2686L17.5283 15.0166L16.7803 14.5869V17.668C16.7576 18.0099 16.51 18.3942 16.207 18.5625L16.2012 18.5664C15.9467 18.7127 15.7424 18.7604 15.5723 18.7627C15.3998 18.7649 15.2263 18.7211 15.0342 18.6318C14.8369 18.5401 14.6366 18.4087 14.4043 18.248C14.1824 18.0946 13.9244 17.9084 13.6543 17.749H13.6533C12.449 17.043 11.0734 16.4997 9.67871 16.248L8.81934 16.0928L9.12109 16.9121L10.3242 20.1875C10.4059 20.6303 10.296 20.9986 10.0781 21.2666C9.88044 21.5097 9.57453 21.6946 9.18457 21.7607L9.0127 21.7812C8.28311 21.8336 7.61747 21.7852 7.07031 21.5742C6.60686 21.3955 6.21343 21.0958 5.92969 20.5986L5.81543 20.373L5.56543 19.7881C5.32604 19.191 5.11383 18.5582 4.89746 17.9072C4.612 17.0484 4.3194 16.1554 3.95898 15.3213L3.89355 15.1709L3.75195 15.0879C2.88377 14.5814 2.32763 13.9551 2.24219 13.0225C2.31899 12.4122 2.29319 11.7002 2.25781 11.001C2.22019 10.2572 2.17295 9.51306 2.20117 8.80859C2.22944 8.10324 2.33253 7.49013 2.56738 7.00781C2.79115 6.54838 3.14019 6.19292 3.71191 5.98633C5.25191 5.58002 6.83486 5.36163 8.48047 5.03125C10.1074 4.7046 11.7481 4.27555 13.251 3.44824L13.252 3.44727C13.555 3.27952 14.0184 2.94221 14.3945 2.69141C14.5965 2.55676 14.7863 2.43696 14.9521 2.34863C15.1297 2.25407 15.2334 2.22113 15.2744 2.21582L15.2783 2.21484ZM5.23828 15.3691C5.18489 15.3772 5.1012 15.3979 5.01562 15.4561C4.92256 15.5193 4.85451 15.6086 4.81738 15.708C4.75544 15.8744 4.7946 16.0235 4.80762 16.0713L4.81641 16.1025L4.82812 16.1318C5.07612 16.73 5.29177 17.3547 5.5127 17.9961C5.67708 18.4734 5.84409 18.9604 6.02832 19.4385L6.21875 19.9131C6.34426 20.2142 6.49158 20.532 6.74414 20.7754C7.01493 21.0362 7.3552 21.1657 7.77539 21.2148V21.2158C7.77795 21.2162 7.78055 21.2165 7.7832 21.2168V21.2158C7.93121 21.2343 8.22436 21.2494 8.49512 21.252C8.63624 21.2533 8.78278 21.2516 8.91016 21.2441C8.99981 21.2389 9.13307 21.2265 9.25 21.1934L9.25098 21.1953C9.25912 21.1933 9.26714 21.189 9.27539 21.1865C9.28451 21.1836 9.29393 21.182 9.30273 21.1787L9.30176 21.1768C9.59433 21.0771 9.93002 20.7452 9.78809 20.2832L9.78418 20.2695L9.77832 20.2559L8.25879 16.166L8.14746 15.8662L7.8291 15.8418L7.57227 15.8105C7.30883 15.7692 7.02538 15.6987 6.71484 15.6201C6.32076 15.5204 5.8752 15.4051 5.4502 15.3711L5.42969 15.3701H5.4248C5.43657 15.3707 5.4403 15.3719 5.41699 15.3691C5.41051 15.3683 5.32767 15.3557 5.23828 15.3691ZM15.7217 2.75684C15.5622 2.72083 15.4091 2.74318 15.2842 2.77832L15.2734 2.78223L15.2617 2.78516C15.1928 2.80814 15.1373 2.84188 15.1123 2.85742C15.08 2.87751 15.0488 2.90002 15.0215 2.91992C14.967 2.95972 14.9063 3.00754 14.8535 3.0498C14.7972 3.09486 14.7485 3.13447 14.7041 3.16895C14.6581 3.20464 14.6386 3.21704 14.6377 3.21777L14.6299 3.22266L14.6221 3.22852C13.3066 4.0656 12.0708 4.6709 10.6201 5.08691L9.9834 5.25391C9.06988 5.47374 8.0698 5.62977 7.0459 5.80273C6.03315 5.97382 4.99965 6.16143 4.06641 6.44141H4.06445C3.28717 6.67749 2.86012 7.29584 2.78223 8.04883L2.77832 8.08984L2.78125 8.13184C2.82935 8.87742 2.80018 9.65901 2.77246 10.4717C2.7451 11.2739 2.71873 12.1069 2.78125 12.9092V12.9102C2.82357 13.4301 2.99199 13.8382 3.33398 14.1348C3.64648 14.4057 4.05259 14.5338 4.43262 14.6338H4.43555C5.3475 14.8681 6.21797 15.0387 7.05469 15.1934C7.89605 15.3488 8.69385 15.4866 9.48633 15.6582C11.0552 15.9979 12.5656 16.4636 14.1562 17.4189H14.1572C14.2603 17.486 14.4587 17.6355 14.7354 17.8242C14.8581 17.908 14.9901 17.9941 15.1045 18.0596C15.1606 18.0917 15.224 18.1261 15.2871 18.1523C15.3186 18.1655 15.3603 18.1808 15.4072 18.1924C15.4435 18.2013 15.5158 18.2144 15.6045 18.2061L15.6055 18.208C15.614 18.2072 15.6225 18.2061 15.6309 18.2051L15.6299 18.2041C16.0366 18.1533 16.1934 17.7875 16.2266 17.7129L16.2695 17.6162L16.2705 17.5107L16.2998 3.64062V3.62109L16.2988 3.60156C16.2936 3.53338 16.2853 3.44416 16.2666 3.35547C16.2484 3.26931 16.2129 3.14487 16.1299 3.02832C16.0368 2.8977 15.898 2.7967 15.7217 2.75684Z" stroke="#006AFF"/>
+          </svg>}
+        />
       </div>
     </div>
   );

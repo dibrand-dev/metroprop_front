@@ -72,7 +72,7 @@ export default function Results() {
   return (
     <div className="results-page">
       {/* Filter Bar - Desktop only */}
-      <FilterBar />
+      <FilterBar setViewMode={setViewMode} viewMode={viewMode}  />
 
       {/* Loading / Error states */}
       {isLoading && (

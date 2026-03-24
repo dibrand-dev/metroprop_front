@@ -413,9 +413,6 @@
   font-size: 16px;
   font-weight: 600;
 
-  @media (max-width: 767px) {
-    display: none; // Mobile uses simplified filters
-  }
 
   .filter-bar-container {
     display: flex;
@@ -462,7 +459,31 @@
 
   .filter-dropdown-wrapper {
     position: relative;
+    @media (max-width: 767px) {
+      display: none;
+    }
+    &.filtros-dropdown {
+      @media (max-width: 767px) {
+        display: block;
+
+        .radio-button, .operacion-property-section, .rooms-popover-grid{
+          padding: 0;
+        }
+      }
+
+          
+        .operacion-section, .precio-section, .operacion-property-section {
+          @media (min-width: 767px) {  
+            display: none;
+          }
+          @media (max-width: 767px) {  
+            gap: 32px;
+          }
+        }
+      
+    }
   }
+
 
   // Operación popover
   .operacion-popover {
@@ -486,6 +507,9 @@
     align-items: center;
     gap: 24px;
     padding: 24px 24px 0;
+    @media (max-width: 767px) {
+      padding: 0;
+    }
   }
 
   .operacion-property-section {
@@ -567,7 +591,10 @@
     flex: 1;
     max-width: 400px;
     position: relative;
-
+    
+    @media (max-width: 767px) {
+      display: none; // Mobile uses simplified filters
+    }
     .input-field-2-wrapper {
       width: 100%;
       gap: 0;
@@ -623,6 +650,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
+
+      @media (max-width: 767px) {
+        display: none;
+      }
     }
   }
 
@@ -709,6 +740,16 @@
     flex-direction: column;
     max-height: calc(100vh - 160px);
     overflow: hidden;
+
+    @media (max-width: 767px) {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 241;
+      width: 100%;
+      max-height: 100vh;
+      border-radius: 0;
+    }
   }
 
   .filtros-popover-body {
@@ -1457,4 +1498,22 @@
   border-radius: 8px;
   border: 1.3px solid #A6A6A6;
   background: #F5F5F5;
+}
+
+#crear-alerta-button-desktop {
+  @media (max-width: 767px) {
+    display: none;
+  }
+}
+
+#crear-alerta-button-mobile {
+  @media (min-width: 767px) {
+    display: none;
+  }
+}
+
+#list-map-view-mobile {
+  @media (min-width: 767px) {
+    display: none;
+  }
 }

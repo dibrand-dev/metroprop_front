@@ -110,7 +110,7 @@ export default function Button({
       {!loading && icon && iconPosition === 'left' && (
         <span className="btn-icon btn-icon-left">{icon}</span>
       )}
-      <span className="btn-label">{label}</span>
+      {label && <span className="btn-label">{label}</span>}
       {!loading && icon && iconPosition === 'right' && (
         <span className="btn-icon btn-icon-right">{icon}</span>
       )}

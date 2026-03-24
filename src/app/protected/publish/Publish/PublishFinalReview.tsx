@@ -30,7 +30,6 @@ export default function PublishFinalReview({
   const [activeTab, setActiveTab] = useState<string>('');
   const address = wizardData.street || 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
-  console.log("sessionData", sessionData)
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: async () => {
