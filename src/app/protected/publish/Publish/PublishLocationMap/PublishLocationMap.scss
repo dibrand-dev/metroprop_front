@@ -4,6 +4,11 @@
   height: 340px;
   border-radius: 12px;
   overflow: hidden;
+
+  &.is-disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 }
 
 // Fixed pin centered over the draggable map

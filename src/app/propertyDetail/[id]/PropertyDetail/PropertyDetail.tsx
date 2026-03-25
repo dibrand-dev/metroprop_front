@@ -47,10 +47,11 @@ interface ApiProperty {
   age?: number;
   orientation?: number;
   images?: Array<{ id: number; url: string; is_blueprint: boolean; upload_status?: string }>;
+  attached?: Array<{ id: number; file_url: string; upload_status?: string }>;
   tags?: Array<{ id: number; tag_id: number }>;
   organization?: { name?: string; logo_url?: string };
   user?: { id: number; name?: string; phone?: string };
-  videos?: string[];
+  videos?: Array<{ id: number; url: string; is_360: boolean; order: number }>;
   multimedia360?: string[];
 }
 
@@ -72,6 +73,15 @@ const CONTACT_ACTIONS = [
 ];
 
 const flagIcon = '/icons/flag.svg'
+const formatNumbers = (price: number) => Math.ceil(price).toLocaleString('en-US');
+
+const extractYouTubeId = (url: string): string | null => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+const getYouTubeThumbnail = (videoId: string) => `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+const getYouTubeEmbed = (videoId: string) => `https://www.youtube.com/embed/${videoId}?autoplay=1`;
 
 export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const [activeTab, setActiveTab] = useState<string>('');
@@ -97,6 +107,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   });
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [galleryTab, setGalleryTab] = useState<'fotos' | 'videos' | 'planos' | '360'>('fotos');
+  const [galleryActiveIndex, setGalleryActiveIndex] = useState(0);
+  const [videoActiveIndex, setVideoActiveIndex] = useState(0);
+  const [planActiveIndex, setPlanActiveIndex] = useState(0);
+  const galleryThumbsRef = useRef<HTMLDivElement>(null);
 
   // Fetch property detail
   const { data: property, isLoading, isError } = useQuery<ApiProperty>({
@@ -163,6 +179,16 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       .map(img => `${AWS_S3_BUCKET_URL}/${img.url}`);
   }, [property]);
 
+  // Gallery videos
+  const galleryVideos = useMemo(() => {
+    return (property?.videos ?? []).sort((a, b) => a.order - b.order);
+  }, [property]);
+
+  // Gallery plans (attached files)
+  const galleryPlans = useMemo(() => {
+    return (property?.attached ?? []).filter(a => a.upload_status === 'completed');
+  }, [property]);
+
   const dynamicFeatures = useMemo(() => {
     if (!property) return [];
     const features: { label: string; icon: string }[] = [];
@@ -172,13 +198,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     else if (property.property_condition === 'years' && property.age) features.push({ label: `${property.age} años`, icon: '/icons/calendar.svg' });
 
     if (property.orientation) features.push({ label: ORIENTATION_LABELS[property.orientation as Orientation] ?? String(property.orientation), icon: '/icons/orientacion.svg' });
-    if (property.total_surface && property.surface_measurement) features.push({ label: `${property.total_surface} ${property.surface_measurement} tot.`, icon: '/icons/regla.svg' });
-    if (property.roofed_surface && property.roofed_surface_measurement) features.push({ label: `${property.roofed_surface} ${property.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
-    if (property.room_amount) features.push({ label: `${property.room_amount} amb.`, icon: '/icons/door.svg' });
-    if (property.parking_lot_amount) features.push({ label: `${property.parking_lot_amount} cochera${property.parking_lot_amount > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
-    if (property.suite_amount) features.push({ label: `${property.suite_amount} dorm.`, icon: '/icons/cama.svg' });
-    if (property.bathroom_amount) features.push({ label: `${property.bathroom_amount} baño${property.bathroom_amount > 1 ? 's' : ''}`, icon: '/icons/bano.svg' });
-    if (property.toilet_amount) features.push({ label: `${property.toilet_amount} toilette${property.toilet_amount > 1 ? 's' : ''}`, icon: '/icons/toilete.svg' });
+    if (property.total_surface && property.surface_measurement) features.push({ label: `${formatNumbers(property.total_surface)} ${property.surface_measurement} tot.`, icon: '/icons/regla.svg' });
+    if (property.roofed_surface && property.roofed_surface_measurement) features.push({ label: `${formatNumbers(property.roofed_surface)} ${property.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
+    if (property.room_amount) features.push({ label: `${formatNumbers(property.room_amount)} amb.`, icon: '/icons/door.svg' });
+    if (property.parking_lot_amount) features.push({ label: `${formatNumbers(property.parking_lot_amount)} cochera${property.parking_lot_amount > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
+    if (property.suite_amount) features.push({ label: `${formatNumbers(property.suite_amount)} dorm.`, icon: '/icons/cama.svg' });
+    if (property.bathroom_amount) features.push({ label: `${formatNumbers(property.bathroom_amount)} baño${property.bathroom_amount > 1 ? 's' : ''}`, icon: '/icons/bano.svg' });
+    if (property.toilet_amount) features.push({ label: `${formatNumbers(property.toilet_amount)} toilette${property.toilet_amount > 1 ? 's' : ''}`, icon: '/icons/toilete.svg' });
     
     return features;
   }, [property]);
@@ -186,7 +212,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const showSummaryToggle = (property?.description?.length ?? 0) > 140;
 
   // Derived display values
-  const priceDisplay = property ? `${property.currency} ${property.price}` : '';
+  
+  const priceDisplay = property ? `${property.currency} ${formatNumbers(property.price)}` : '';
   const statusDisplay = property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : '';
   const agentName = property?.organization?.name ?? 'Metroprop';
   const agentLogoText = agentName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
@@ -279,6 +306,29 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isContactModalOpen]);
+
+  useEffect(() => {
+    if (!isGalleryOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsGalleryOpen(false);
+      if (e.key === 'ArrowRight') {
+        if (galleryTab === 'fotos') setGalleryActiveIndex(prev => Math.min(prev + 1, galleryImages.length - 1));
+        if (galleryTab === 'videos') setVideoActiveIndex(prev => Math.min(prev + 1, galleryVideos.length - 1));
+        if (galleryTab === 'planos') setPlanActiveIndex(prev => Math.min(prev + 1, galleryPlans.length - 1));
+      }
+      if (e.key === 'ArrowLeft') {
+        if (galleryTab === 'fotos') setGalleryActiveIndex(prev => Math.max(prev - 1, 0));
+        if (galleryTab === 'videos') setVideoActiveIndex(prev => Math.max(prev - 1, 0));
+        if (galleryTab === 'planos') setPlanActiveIndex(prev => Math.max(prev - 1, 0));
+      }
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [isGalleryOpen, galleryTab, galleryImages.length, galleryVideos.length, galleryPlans.length]);
 
   useEffect(() => {
     if (!isContactModalOpen) {
@@ -449,36 +499,25 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               </button>
             </div>
           </div>
-          <h1 className="property-detail-title">{property?.currency} {property?.price}</h1>
+          <h1 className="property-detail-title">{property ? `${property.currency} ${formatNumbers(property.price)}` : ''}</h1>
         </section>
 
         <section className="property-detail-gallery">
-          <div className="property-detail-gallery-main">
+          <div className="property-detail-gallery-main" onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); setIsGalleryOpen(true); }} style={{ cursor: 'pointer' }}>
             <img
               src={galleryImages[0] ?? ''}
               alt="Vista principal"
-            />
-            <div className="property-detail-gallery-main-overlay">
-              <div className="property-detail-gallery-actions">
-                <button type="button" aria-label="Favorito">
-                  <img src="/icons/heart.svg" alt="" />
-                </button>
-                <button type="button" aria-label="Compartir">
-                  <img src="/icons/message.svg" alt="" />
-                </button>
-              </div>
-              <div className="property-detail-gallery-counter">
-                1 / {galleryImages.length}
-              </div>
-            </div>
+            />            
           </div>
           <div className="property-detail-gallery-grid">
             {galleryImages.slice(1, 5).map((image, index) => (
-              <div key={image} className="property-detail-gallery-item">
-                <img src={image} alt={`Vista ${index + 2}`} />
+              <div key={image} className="property-detail-gallery-item" onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(index + 1); setIsGalleryOpen(true); }} style={{ cursor: 'pointer' }}>
+                <img src={image} alt={`Vista ${index + 2}`} className="property-detail-gallery-image" />
                 {index === 3 && (
                   <div className="property-detail-gallery-overlay">
-                    <Button label="Ver todas" variant="text" />
+                    <span onClick={(e) => e.stopPropagation()}>
+                      <Button label="Ver todas las fotos" variant="secondary" icon={<img src="/icons/verGaleria.svg" alt="" />} onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); setIsGalleryOpen(true); }} />
+                    </span>
                   </div>
                 )}
               </div>
@@ -564,10 +603,11 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               </div>
             </section>
 
+            {Object.values(dynamicAmenities).some(arr => arr.length > 0) && (
             <section className="property-detail-amenities">
               <h2>Conoce mas sobre esta propiedad</h2>
               <div className="property-detail-amenities-tabs">
-                {amenityTabs.map((tab) => (
+                {amenityTabs.filter(tab => dynamicAmenities[tab.key]?.length > 0).map((tab) => (
                   <button
                     key={tab.key}
                     type="button"
@@ -588,6 +628,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 )}
               </div>
             </section>
+            )}
 
             {/*<section className="property-detail-issues">
               <div className="property-detail-issues-title">
@@ -680,6 +721,137 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           </section>
         ))}
       </main>
+
+      {isGalleryOpen && (
+        <div className="property-gallery-lightbox" role="dialog" aria-modal="true" aria-label="Galería de fotos">
+          <div className="property-gallery-lightbox-backdrop" onClick={() => setIsGalleryOpen(false)} />
+
+          <button type="button" className="property-gallery-lightbox-close" aria-label="Cerrar galería" onClick={() => setIsGalleryOpen(false)}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </button>
+
+          {/* Tabs */}
+          <div className="property-gallery-lightbox-tabs">
+            <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'fotos' ? 'is-active' : ''}`} onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); }}>Fotos</button>
+            {galleryVideos.length > 0 && (
+              <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'videos' ? 'is-active' : ''}`} onClick={() => { setGalleryTab('videos'); setVideoActiveIndex(0); }}>Videos</button>
+            )}
+            {galleryPlans.length > 0 && (
+              <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'planos' ? 'is-active' : ''}`} onClick={() => { setGalleryTab('planos'); setPlanActiveIndex(0); }}>Planos</button>
+            )}
+            <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === '360' ? 'is-active' : ''}`} onClick={() => setGalleryTab('360')}>360</button>
+          </div>
+
+          {/* ── FOTOS ── */}
+          {galleryTab === 'fotos' && (
+            <>
+              <div className="property-gallery-lightbox-main">
+                <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-prev" aria-label="Anterior" onClick={() => setGalleryActiveIndex(prev => Math.max(prev - 1, 0))} disabled={galleryActiveIndex === 0}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                </button>
+                <img src={galleryImages[galleryActiveIndex]} alt={`Foto ${galleryActiveIndex + 1}`} className="property-gallery-lightbox-image" />
+                <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-next" aria-label="Siguiente" onClick={() => setGalleryActiveIndex(prev => Math.min(prev + 1, galleryImages.length - 1))} disabled={galleryActiveIndex === galleryImages.length - 1}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                </button>
+              </div>
+              <div className="property-gallery-lightbox-counter">{galleryActiveIndex + 1} / {galleryImages.length}</div>
+              <div className="property-gallery-lightbox-thumbs" ref={galleryThumbsRef}>
+                {galleryImages.map((img, idx) => (
+                  <button key={img} type="button" className={`property-gallery-lightbox-thumb ${idx === galleryActiveIndex ? 'is-active' : ''}`} onClick={() => setGalleryActiveIndex(idx)} aria-label={`Ver foto ${idx + 1}`}>
+                    <img src={img} alt={`Miniatura ${idx + 1}`} />
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* ── VIDEOS ── */}
+          {galleryTab === 'videos' && (() => {
+            const vid = galleryVideos[videoActiveIndex];
+            const videoId = vid ? extractYouTubeId(vid.url) : null;
+            return (
+              <>
+                <div className="property-gallery-lightbox-main">
+                  <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-prev" aria-label="Anterior" onClick={() => setVideoActiveIndex(prev => Math.max(prev - 1, 0))} disabled={videoActiveIndex === 0}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                  </button>
+                  {videoId ? (
+                    <iframe
+                      key={videoId}
+                      src={getYouTubeEmbed(videoId)}
+                      className="property-gallery-lightbox-video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title={`Video ${videoActiveIndex + 1}`}
+                    />
+                  ) : (
+                    <div className="property-gallery-lightbox-placeholder">Video no disponible</div>
+                  )}
+                  <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-next" aria-label="Siguiente" onClick={() => setVideoActiveIndex(prev => Math.min(prev + 1, galleryVideos.length - 1))} disabled={videoActiveIndex === galleryVideos.length - 1}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                  </button>
+                </div>
+                <div className="property-gallery-lightbox-counter">{videoActiveIndex + 1} / {galleryVideos.length}</div>
+                <div className="property-gallery-lightbox-thumbs">
+                  {galleryVideos.map((v, idx) => {
+                    const vId = extractYouTubeId(v.url);
+                    return (
+                      <button key={v.id} type="button" className={`property-gallery-lightbox-thumb ${idx === videoActiveIndex ? 'is-active' : ''}`} onClick={() => setVideoActiveIndex(idx)} aria-label={`Ver video ${idx + 1}`}>
+                        {vId ? <img src={getYouTubeThumbnail(vId)} alt={`Video ${idx + 1}`} /> : <div className="property-gallery-lightbox-thumb-placeholder">▶</div>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            );
+          })()}
+
+          {/* ── PLANOS ── */}
+          {galleryTab === 'planos' && (() => {
+            const plan = galleryPlans[planActiveIndex];
+            const isPdf = plan?.file_url?.toLowerCase().endsWith('.pdf');
+            return (
+              <>
+                <div className="property-gallery-lightbox-main">
+                  <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-prev" aria-label="Anterior" onClick={() => setPlanActiveIndex(prev => Math.max(prev - 1, 0))} disabled={planActiveIndex === 0}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                  </button>
+                  {isPdf ? (
+                    <div className="property-gallery-lightbox-pdf">
+                      <span>PDF</span>
+                      <small>{plan.file_url.split('/').pop()}</small>
+                      <a href={`${AWS_S3_BUCKET_URL}/${plan.file_url}`} target="_blank" rel="noopener noreferrer">Abrir PDF</a>
+                    </div>
+                  ) : (
+                    <img src={`${AWS_S3_BUCKET_URL}/${plan?.file_url}`} alt={`Plano ${planActiveIndex + 1}`} className="property-gallery-lightbox-image" />
+                  )}
+                  <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-next" aria-label="Siguiente" onClick={() => setPlanActiveIndex(prev => Math.min(prev + 1, galleryPlans.length - 1))} disabled={planActiveIndex === galleryPlans.length - 1}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                  </button>
+                </div>
+                <div className="property-gallery-lightbox-counter">{planActiveIndex + 1} / {galleryPlans.length}</div>
+                <div className="property-gallery-lightbox-thumbs">
+                  {galleryPlans.map((p, idx) => {
+                    const isPdfThumb = p.file_url?.toLowerCase().endsWith('.pdf');
+                    return (
+                      <button key={p.id} type="button" className={`property-gallery-lightbox-thumb ${idx === planActiveIndex ? 'is-active' : ''}`} onClick={() => setPlanActiveIndex(idx)} aria-label={`Ver plano ${idx + 1}`}>
+                        {isPdfThumb ? <div className="property-gallery-lightbox-thumb-placeholder">PDF</div> : <img src={`${AWS_S3_BUCKET_URL}/${p.file_url}`} alt={`Plano ${idx + 1}`} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            );
+          })()}
+
+          {/* ── 360 ── */}
+          {galleryTab === '360' && (
+            <div className="property-gallery-lightbox-empty">
+              <p>Contenido 360° próximamente</p>
+            </div>
+          )}
+        </div>
+      )}
 
       <div
         className={`property-detail-contact-modal ${isContactModalOpen ? 'is-open' : ''}`}

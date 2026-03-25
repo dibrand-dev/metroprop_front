@@ -270,17 +270,28 @@ export default function PublishContent({
     setIsUploading(true);
     try {
       const formData = new FormData();
-      // Add image files
-      uploadedImages.forEach((file, index) => {
-        formData.append(`images`, file);
+      // Append existing (already uploaded) image URLs as strings — backend will skip these
+      images?.forEach((image) => {
+        if (image.url) {
+          formData.append('images', image.url);
+        }
       });
-      // Add plan files to multimedia360
-      uploadedPlans.forEach((file, index) => {
-        formData.append(`attached`, file);
+      // Append new image files
+      uploadedImages.forEach((file) => {
+        formData.append('images', file);
+      });
+      // Append existing (already uploaded) plan URLs as strings — backend will skip these
+      plans?.forEach((plan) => {
+        if (plan.file_url) {
+          formData.append('attached', plan.file_url);
+        }
+      });
+      // Append new plan files
+      uploadedPlans.forEach((file) => {
+        formData.append('attached', file);
       });
       formData.append('videos', JSON.stringify(videos));
       formData.append('multimedia360', JSON.stringify(multimedia360));
-      await uploadMultimediaMutation.mutateAsync(formData);
 
       const result = await uploadMultimediaMutation.mutateAsync(formData);
       console.log('Upload successful:', result);
@@ -337,11 +348,17 @@ export default function PublishContent({
     if (draggedIndex === null || draggedType !== type) return;
     
     if (type === 'image') {
-      const newImages = [...uploadedImages];
-      const draggedImage = newImages[draggedIndex];
-      newImages.splice(draggedIndex, 1);
-      newImages.splice(dropIndex, 0, draggedImage);
-      setUploadedImages(newImages);
+      // Unified list: API images first, then local files
+      type ImageEntry = { kind: 'api'; data: CreateImage } | { kind: 'local'; data: File };
+      const unified: ImageEntry[] = [
+        ...(images ?? []).map(d => ({ kind: 'api' as const, data: d })),
+        ...uploadedImages.map(d => ({ kind: 'local' as const, data: d })),
+      ];
+      const draggedItem = unified[draggedIndex];
+      unified.splice(draggedIndex, 1);
+      unified.splice(dropIndex, 0, draggedItem);
+      setImages(unified.filter(e => e.kind === 'api').map(e => e.data as CreateImage));
+      setUploadedImages(unified.filter(e => e.kind === 'local').map(e => e.data as File));
     } else if (type === 'plan') {
       const newPlans = [...uploadedPlans];
       const draggedPlan = newPlans[draggedIndex];
@@ -470,8 +487,13 @@ export default function PublishContent({
                       return (
                         <div 
                           key={`${image.id || image.url}-${index}`} 
-                          className={`publish-content-thumb ${hasError ? 'has-error' : ''}`}
+                          className={`publish-content-thumb ${hasError ? 'has-error' : ''} ${draggedIndex === index && draggedType === 'image' ? 'dragging' : ''}`}
                           style={hasError ? { border: '2px solid #d32f2f' } : {}}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, index, 'image')}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e, index, 'image')}
+                          onDragEnd={handleDragEnd}
                         >
                           {isUploading ? (
                             <div className="publish-content-upload-loading">
@@ -486,35 +508,45 @@ export default function PublishContent({
                               <small>{image.error_message || 'Error en la carga'}</small>
                             </div>
                           ) : null}
-                          <button type="button" className="publish-content-thumb-action">
+                          <button
+                            type="button"
+                            className="publish-content-thumb-action"
+                            onClick={() => setImages(prev => prev?.filter((_, i) => i !== index))}
+                          >
                             <img src={iconTrash} alt="" />
                           </button>
+                          <div className="publish-content-drag-handle">
+                            <span>⋮⋮</span>
+                          </div>
                         </div>
                       );
                     })}
-                    {uploadedImages.map((file, index) => (
-                      <div
-                        key={`uploaded-${index}`}
-                        className={`publish-content-thumb ${draggedIndex === index && draggedType === 'image' ? 'dragging' : ''}`}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, index, 'image')}
-                        onDragOver={handleDragOver}
-                        onDrop={(e) => handleDrop(e, index, 'image')}
-                        onDragEnd={handleDragEnd}
-                      >
-                        <img src={URL.createObjectURL(file)} alt="Foto" />
-                        <button
-                          type="button"
-                          className="publish-content-thumb-action"
-                          onClick={() => removeUploadedFile(index, 'image')}
+                    {uploadedImages.map((file, index) => {
+                      const unifiedIndex = (images?.length ?? 0) + index;
+                      return (
+                        <div
+                          key={`uploaded-${index}`}
+                          className={`publish-content-thumb ${draggedIndex === unifiedIndex && draggedType === 'image' ? 'dragging' : ''}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, unifiedIndex, 'image')}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e, unifiedIndex, 'image')}
+                          onDragEnd={handleDragEnd}
                         >
-                          <img src={iconTrash} alt="" />
-                        </button>
-                        <div className="publish-content-drag-handle">
-                          <span>⋮⋮</span>
+                          <img src={URL.createObjectURL(file)} alt="Foto" />
+                          <button
+                            type="button"
+                            className="publish-content-thumb-action"
+                            onClick={() => removeUploadedFile(index, 'image')}
+                          >
+                            <img src={iconTrash} alt="" />
+                          </button>
+                          <div className="publish-content-drag-handle">
+                            <span>⋮⋮</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

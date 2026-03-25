@@ -32,10 +32,11 @@ interface AddressAutocompleteInputProps {
   value: string;
   onChange: (val: string) => void;
   onPlaceSelect?: (data: PlaceData) => void;
+  onSuggestionSelectionChange?: (selected: boolean) => void;
   disabled?: boolean;
 }
 
-function AddressAutocompleteInput({ value, onChange, onPlaceSelect, disabled }: AddressAutocompleteInputProps) {
+function AddressAutocompleteInput({ value, onChange, onPlaceSelect, onSuggestionSelectionChange, disabled }: AddressAutocompleteInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const attrDivRef = useRef<HTMLDivElement>(null);
   const serviceRef = useRef<google.maps.places.AutocompleteService | null>(null);
@@ -64,6 +65,7 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, disabled }: 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     onChange(val);
+    onSuggestionSelectionChange?.(false);
     setSuggestions([]);
     setOpen(false);
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -88,6 +90,7 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, disabled }: 
 
   const handleSelect = useCallback((prediction: google.maps.places.AutocompletePrediction) => {
     const fallbackStreet = prediction.description.split(',')[0].trim();
+    onSuggestionSelectionChange?.(true);
     onChange(fallbackStreet);
     if (inputRef.current) inputRef.current.value = fallbackStreet;
     setSuggestions([]);
@@ -114,7 +117,7 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, disabled }: 
         onPlaceSelect?.({ street, countryName, stateName, cityName });
       }
     );
-  }, [onChange, onPlaceSelect]);
+  }, [onChange, onPlaceSelect, onSuggestionSelectionChange]);
 
   const handleBlur = () => {
     // Small delay so onClick on suggestion fires before blur hides it
@@ -200,6 +203,9 @@ export default function PublishLocation({
   const [geo_long, setGeo_long] = useState<number | undefined>(wizardData.geo_long);
   const [pendingStateName, setPendingStateName] = useState('');
   const [pendingCityName, setPendingCityName] = useState('');
+  const [hasSelectedAutocompleteLocation, setHasSelectedAutocompleteLocation] = useState(
+    Boolean(wizardData.location_id || wizardData.state_id || wizardData.country_id || wizardData.geo_lat || wizardData.geo_long)
+  );
 
   const handleCoordinatesChange = (lat: number, lng: number) => {
     setGeo_lat(lat);
@@ -249,7 +255,7 @@ export default function PublishLocation({
     },
     enabled: !!sub_location_id,
   });
-
+  
   const hasAddress = useMemo(() => street.trim().length > 0, [street]);
   const showMapPreview = hasAddress;
 
@@ -296,7 +302,9 @@ export default function PublishLocation({
       setSub_location_id(undefined);
     }
     // Store pending names regardless — effects will apply them when options load
-    setPendingStateName(data.stateName);
+    let stateName = data.stateName
+    if (data.stateName === "Ciudad Autónoma de Buenos Aires") stateName = "Capital Federal"
+    setPendingStateName(stateName);
     setPendingCityName(data.cityName);
   }, [countryOptions]);
 
@@ -415,6 +423,7 @@ export default function PublishLocation({
                   value={street}
                   onChange={setStreet}
                   onPlaceSelect={handlePlaceSelect}
+                  onSuggestionSelectionChange={setHasSelectedAutocompleteLocation}
                 />
               </div>
 
@@ -426,7 +435,7 @@ export default function PublishLocation({
                     value={country_id ? country_id.toString() : undefined}
                     onChange={handleCountryChange}
                     placeholder={loadingCountries ? "Cargando países..." : "Seleccionar país"}
-                    disabled={!hasAddress || loadingCountries}
+                    disabled={!hasSelectedAutocompleteLocation || loadingCountries}
                     required
                   />
                 </div>
@@ -438,7 +447,7 @@ export default function PublishLocation({
                     value={state_id ? state_id.toString() : undefined}
                     onChange={handleStateChange}
                     placeholder={loadingProvinces ? "Cargando provincias..." : "Seleccionar provincia"}
-                    disabled={!hasAddress || !country_id || loadingProvinces}
+                    disabled={!hasSelectedAutocompleteLocation || !country_id || loadingProvinces}
                     required
                   />
                 </div>
@@ -452,7 +461,7 @@ export default function PublishLocation({
                     value={location_id ? location_id.toString() : undefined}
                     onChange={handleLocationChange}
                     placeholder={loadingLocations ? "Cargando localidades..." : "Seleccionar localidad"}
-                    disabled={!hasAddress || !state_id || loadingLocations || locationOptions.length === 0}
+                    disabled={!hasSelectedAutocompleteLocation || !state_id || loadingLocations || locationOptions.length === 0}
                   />
                 </div>
 
@@ -463,7 +472,7 @@ export default function PublishLocation({
                     value={sub_location_id ? sub_location_id.toString() : undefined}
                     onChange={handleSubLocationChange}
                     placeholder={loadingZones ? "Cargando zonas..." : "Seleccionar zona"}
-                    disabled={!hasAddress || !location_id || loadingZones}
+                    disabled={!hasSelectedAutocompleteLocation || !location_id || loadingZones}
                   />}
                 </div>
               </div>
@@ -499,9 +508,10 @@ export default function PublishLocation({
 
             <div className="publish-location-map">
               <PublishLocationMap
-                fullAddress={fullMapAddress}
+                fullAddress={hasSelectedAutocompleteLocation ? fullMapAddress : ''}
                 onStreetChange={setStreet}
                 onCoordinatesChange={handleCoordinatesChange}
+                disabled={!hasSelectedAutocompleteLocation}
               />
               {showMapPreview && showMapNote && (
                 <div className="publish-location-map-note">

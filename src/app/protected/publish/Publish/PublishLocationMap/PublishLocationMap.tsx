@@ -10,9 +10,10 @@ interface MapInteriorProps {
   fullAddress: string;
   onStreetChange: (street: string) => void;
   onCoordinatesChange: (lat: number, lng: number) => void;
+  disabled?: boolean;
 }
 
-function MapInterior({ fullAddress, onStreetChange, onCoordinatesChange }: MapInteriorProps) {
+function MapInterior({ fullAddress, onStreetChange, onCoordinatesChange, disabled = false }: MapInteriorProps) {
   const map = useMap();
   const geocodingLib = useMapsLibrary('geocoding');
   const geocoder = useRef<google.maps.Geocoder | null>(null);
@@ -39,6 +40,7 @@ function MapInterior({ fullAddress, onStreetChange, onCoordinatesChange }: MapIn
 
   // Forward geocode: when the composite address changes, pan the map to it
   useEffect(() => {
+    if (disabled) return;
     if (!geocoder.current || !map || !fullAddress.trim()) return;
     const timer = setTimeout(() => {
       isProgrammatic.current = true;
@@ -58,10 +60,11 @@ function MapInterior({ fullAddress, onStreetChange, onCoordinatesChange }: MapIn
       });
     }, 600); // debounce rapid typing
     return () => clearTimeout(timer);
-  }, [fullAddress, map, geocodingLib]);
+  }, [fullAddress, map, geocodingLib, disabled]);
 
   // Reverse geocode: when user drags map, extract street from the new center
   useEffect(() => {
+    if (disabled) return;
     if (!map) return;
     const listener = map.addListener('idle', () => {
       // First idle is the initial load — unlock and skip
@@ -95,7 +98,7 @@ function MapInterior({ fullAddress, onStreetChange, onCoordinatesChange }: MapIn
       );
     });
     return () => google.maps.event.removeListener(listener);
-  }, [map]);
+  }, [map, disabled]);
 
   return null;
 }
@@ -104,22 +107,29 @@ interface PublishLocationMapProps {
   fullAddress: string;
   onStreetChange: (street: string) => void;
   onCoordinatesChange: (lat: number, lng: number) => void;
+  disabled?: boolean;
 }
 
 export default function PublishLocationMap({
   fullAddress,
   onStreetChange,
   onCoordinatesChange,
+  disabled = false,
 }: PublishLocationMapProps) {
   return (
-    <div className="publish-location-map-wrapper">
+    <div className={`publish-location-map-wrapper${disabled ? ' is-disabled' : ''}`}>
       <Map
         defaultCenter={DEFAULT_CENTER}
         defaultZoom={5}
-        gestureHandling="greedy"
+        gestureHandling={disabled ? 'none' : 'greedy'}
         style={{ width: '100%', height: '100%' }}
       >
-        <MapInterior fullAddress={fullAddress} onStreetChange={onStreetChange} onCoordinatesChange={onCoordinatesChange} />
+        <MapInterior
+          fullAddress={fullAddress}
+          onStreetChange={onStreetChange}
+          onCoordinatesChange={onCoordinatesChange}
+          disabled={disabled}
+        />
       </Map>
       {/* Fixed center pin — stays in the middle while the map moves beneath it */}
       <div className="publish-location-map-center-pin" aria-hidden="true">
