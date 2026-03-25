@@ -2,6 +2,7 @@
 import React from 'react';
 import './PropertyCardGridList.scss';
 import { CreateProperty } from '@/types/propiedad';
+import { AWS_S3_BUCKET_URL } from '@/constants';
 
 interface PropertyCardGridListProps {
   property: CreateProperty;
@@ -9,18 +10,17 @@ interface PropertyCardGridListProps {
 }
 
 const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, onFavorite }) => {
-  const defaultImage = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=400&fit=crop';
   const defaultLogo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/RE-MAX_logo.svg/200px-RE-MAX_logo.svg.png';
 
   return (
     <div className="property-card-grid-list">
-      <div className="image-section">
+      {property.images?.[0]?.url && <div className="image-section">
         <img 
-          src={property.images?.[0]?.url || defaultImage} 
+          src={`${AWS_S3_BUCKET_URL}/${property.images[0].url}`} 
           alt={property.publication_title}
           className="property-image"
         />
-      </div>
+      </div>}
       
       <div className="info-section">
         <div className="content-wrapper">

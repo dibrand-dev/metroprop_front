@@ -2,6 +2,7 @@
 import React from 'react';
 import './PropertyCardMapList.scss';
 import { CreateProperty } from '@/types/propiedad';
+import { AWS_S3_BUCKET_URL } from '@/constants';
 
 interface PropertyCardMapListProps {
   property: CreateProperty;
@@ -14,11 +15,11 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
   return (
     <div className="property-card-map-list">
       <div className="card-content">
-        <img 
-          src={property.images?.[0].url || defaultImage} 
+        {property.images?.[0]?.url && <img 
+          src={`${AWS_S3_BUCKET_URL}/${property.images[0].url}`} 
           alt={property.publication_title}
           className="property-image"
-        />
+        />}
         
         <div className="property-info">
           <div className="title-row">
