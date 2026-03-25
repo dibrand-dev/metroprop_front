@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { APIProvider, Map, AdvancedMarker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { CreateProperty } from '@/types/propiedad';
 import './ResultsMap.scss';
+import { AWS_S3_BUCKET_URL } from '@/constants';
 
 interface ResultsMapProps {
   properties: CreateProperty[];
@@ -142,7 +143,7 @@ export default function ResultsMap({ properties, initialLocationQuery }: Results
                     <div className="results-marker-info" onClick={e => e.stopPropagation()}>
                       {image && (
                         <img
-                          src={image}
+                          src={`${AWS_S3_BUCKET_URL}/${image}`}
                           alt={property.publication_title ?? ''}
                           className="results-marker-info-image"
                         />
