@@ -22,10 +22,16 @@ export default function Results() {
   // ─── Fetch properties whenever filters change (without route reload) ──────
   const searchParams = useSearchParams();
   const [activeSearch, setActiveSearch] = useState(searchParams.toString());
+  const [currentPage, setCurrentPage] = useState(() => {
+    const p = parseInt(searchParams.get('page') ?? '1', 10);
+    return isNaN(p) || p < 1 ? 1 : p;
+  });
 
   useEffect(() => {
     // Sync with URL changes coming from navigation / deep-linking.
     setActiveSearch(searchParams.toString());
+    const p = parseInt(searchParams.get('page') ?? '1', 10);
+    setCurrentPage(isNaN(p) || p < 1 ? 1 : p);
   }, [searchParams]);
 
   useEffect(() => {
@@ -48,9 +54,15 @@ export default function Results() {
 
   const activeSearchParams = useMemo(() => new URLSearchParams(activeSearch), [activeSearch]);
 
+  const limit = parseInt(activeSearchParams.get('limit') ?? '20', 10) || 20;
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['properties', activeSearch],
-    queryFn: () => fetchProperties(searchParamsToFilterParams(new URLSearchParams(activeSearch))),
+    queryKey: ['properties', activeSearch, currentPage],
+    queryFn: () => fetchProperties({
+      ...searchParamsToFilterParams(new URLSearchParams(activeSearch)),
+      page: currentPage,
+      limit,
+    }),
     staleTime: 30_000,
   });
 
@@ -58,6 +70,25 @@ export default function Results() {
 
   const properties: CreateProperty[] = (data?.data ?? [])//.map(toDisplayProperty);
   const totalProperties = data?.total ?? 0;
+  const totalPages = Math.ceil(totalProperties / limit);
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getPaginatorPages = (): (number | '...')[] => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: (number | '...')[] = [1];
+    if (currentPage > 4) pages.push('...');
+    for (let i = Math.max(2, currentPage - 2); i <= Math.min(totalPages - 1, currentPage + 2); i++) {
+      pages.push(i);
+    }
+    if (currentPage < totalPages - 3) pages.push('...');
+    pages.push(totalPages);
+    return pages;
+  };
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
@@ -182,6 +213,45 @@ export default function Results() {
                   </div>
                 </a>
               ))}
+            </div>
+          )}
+
+          {/* Paginator */}
+          {totalPages > 1 && (
+            <div className="results-paginator">
+              <button
+                className="results-paginator-btn results-paginator-arrow"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                aria-label="Página anterior"
+              >
+                ‹
+              </button>
+
+              {getPaginatorPages().map((page, idx) =>
+                page === '...' ? (
+                  <span key={`ellipsis-${idx}`} className="results-paginator-ellipsis">…</span>
+                ) : (
+                  <button
+                    key={page}
+                    className={`results-paginator-btn ${currentPage === page ? 'is-active' : ''}`}
+                    onClick={() => handlePageChange(page as number)}
+                    aria-label={`Página ${page}`}
+                    aria-current={currentPage === page ? 'page' : undefined}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+
+              <button
+                className="results-paginator-btn results-paginator-arrow"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                aria-label="Página siguiente"
+              >
+                ›
+              </button>
             </div>
           )}
         </div>
