@@ -9,8 +9,8 @@ $color-bg-primary: #ffffff;
 $color-border: #a6a6a6;
 
 // Typography
-$font-family-body: 'Inter', sans-serif;
-$font-family-button: 'Montserrat', sans-serif;
+$font-family-body: var(--font-inter), sans-serif;
+$font-family-button: var(--font-montserrat), sans-serif;
 
 // Main Header Container
 .header-container {

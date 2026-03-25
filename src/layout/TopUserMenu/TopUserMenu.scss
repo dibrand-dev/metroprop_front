@@ -10,8 +10,8 @@ $color-border-light: #d3d3d3;
 $color-logout: #d32f2f;
 
 // Typography
-$font-family-body: 'Inter', sans-serif;
-$font-family-button: 'Montserrat', sans-serif;
+$font-family-body: var(--font-inter), sans-serif;
+$font-family-button: var(--font-montserrat), sans-serif;
 
 // Logged In Menu Styles
 .header-logged-in-menu {

@@ -31,7 +31,7 @@
 }
 
 .publish-content-route {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
@@ -46,7 +46,7 @@
   border: none;
   background: none;
   padding: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -102,7 +102,7 @@
 
   h1 {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 26px;
     font-weight: 700;
     line-height: 34px;
@@ -117,7 +117,7 @@
   gap: 12px;
 
   span {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 16px;
     font-weight: 400;
     line-height: 20px;
@@ -132,7 +132,7 @@
   border: 1px solid #006aff;
   background: #006aff;
   color: #ffffff;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -152,7 +152,7 @@
   border: 1px solid #006aff;
   border-radius: 8px;
   padding: 12px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   line-height: 18px;
   color: #1e1e1e;
@@ -174,7 +174,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   color: #1e1e1e;
 
@@ -224,7 +224,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   color: #7a7a7a;
   cursor: pointer;
@@ -303,7 +303,7 @@
   text-align: center;
 
   span {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #006aff;
@@ -311,7 +311,7 @@
   }
 
   small {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 11px;
     color: #7a7a7a;
     word-break: break-word;
@@ -371,7 +371,7 @@
   }
 
   span {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 11px;
     font-weight: 600;
     color: #006aff;
@@ -391,7 +391,7 @@
   padding: 8px;
 
   .error-icon {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 18px;
     font-weight: 700;
     color: #d32f2f;
@@ -399,7 +399,7 @@
   }
 
   small {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 10px;
     font-weight: 500;
     color: #d32f2f;
@@ -513,7 +513,7 @@
   height: 48px;
   border: none;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 500;
   letter-spacing: 0.32px;
@@ -554,7 +554,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   color: #1e1e1e;
 
@@ -577,7 +577,7 @@
     height: 56px;
     border-radius: 8px;
     padding: 0 16px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 16px;
   }
 
@@ -587,7 +587,7 @@
     border-radius: 8px;
     border: 1px solid #006aff;
     background: #006aff;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-montserrat), sans-serif;
     font-size: 16px;
     font-weight: 600;
     line-height: 20px;
@@ -631,7 +631,7 @@
 
 // Limit message styling  
 .publish-content-limit-message {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
@@ -659,7 +659,7 @@
   border: none;
   background: none;
   padding: 12px 8px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -680,7 +680,7 @@
   border-radius: 8px;
   border: 1px solid #006aff;
   background: #006aff;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 20px;

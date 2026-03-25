@@ -4,7 +4,7 @@
   background-color: #ffffff;
   min-height: 100vh;
   padding: 0;
-  font-family: 'Inter', 'sans-serif';
+  font-family: var(--font-inter), 'sans-serif';
 
   &-inner {
     width: min(1088px, 100%);
@@ -81,7 +81,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-inter), sans-serif;
       font-weight: 600;
       font-size: 16px;
       line-height: 18px;
@@ -92,7 +92,7 @@
     }
 
     p {
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-inter), sans-serif;
       font-weight: 400;
       font-size: 16px;
       line-height: 20px;
@@ -167,7 +167,7 @@
   }
 
   &-notification h1 {
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-montserrat), sans-serif;
     font-weight: 600;
     font-size: 20px;
     line-height: 28px;
@@ -188,7 +188,7 @@
   }
 
   &-details h2 {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-weight: 700;
     font-size: 26px;
     line-height: 34px;
@@ -225,7 +225,7 @@
 
     &-label,
     &-value {
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-inter), sans-serif;
       font-weight: 400;
       font-size: 16px;
       line-height: 20px;
@@ -247,7 +247,7 @@
 
     &-label,
     &-value {
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-inter), sans-serif;
       font-weight: 600;
       font-size: 16px;
       line-height: 18px;

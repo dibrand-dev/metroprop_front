@@ -38,7 +38,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     letter-spacing: 0.16px;
     line-height: 18px;
     border-radius: 4px;
@@ -79,7 +79,7 @@
     color: #fff;
     font-size: 16px;
     font-weight: 600;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-montserrat), sans-serif;
     letter-spacing: 0.32px;
     cursor: pointer;
     transition: all 0.2s;
@@ -132,7 +132,7 @@
       color: #fff;
       font-size: 18px;
       font-weight: 500;
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-inter), sans-serif;
       margin-right: 0;
     }
 
@@ -159,7 +159,7 @@
   .results-error {
     padding: 40px 24px;
     text-align: center;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 16px;
     color: #7A7A7A;
   }
@@ -317,7 +317,7 @@
             font-size: 16px;
             font-weight: 600;
             color: #1E1E1E;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-inter), sans-serif;
             letter-spacing: 0.16px;
           }
 
@@ -520,7 +520,7 @@
   }
 
   .operacion-section-title {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 18px;
     font-weight: 600;
     line-height: 22px;
@@ -559,7 +559,7 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 16px;
     font-weight: 600;
     line-height: 18px;
@@ -717,7 +717,7 @@
   }
 
   .rooms-popover-label {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 18px;
     font-weight: 600;
     line-height: 22px;
@@ -797,7 +797,7 @@
   }
 
   .filtros-section-title {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 18px;
     font-weight: 600;
     line-height: 22px;
@@ -850,7 +850,7 @@
   }
 
   .precio-section-title {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 18px;
     font-weight: 600;
     line-height: 22px;
@@ -981,7 +981,7 @@
     padding: 8px 12px;
     border: 1px solid #A6A6A6;
     border-radius: 8px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 16px;
     color: #1E1E1E;
     background: rgba(255, 255, 255, 0.5);
@@ -1029,7 +1029,7 @@
     border-right: 1px solid #A6A6A6;
     background: #fff;
     font-size: 16px;
-    font-family: 'inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-style: normal;
     font-weight: 600;
     line-height: 18px; /* 112.5% */
@@ -1452,7 +1452,7 @@
             font-size: 18px;
             font-weight: 600;
             color: #1E1E1E;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-inter), sans-serif;
             line-height: 22px;
           }
 
@@ -1460,7 +1460,7 @@
             font-size: 14px;
             font-weight: 500;
             color: #7A7A7A;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-inter), sans-serif;
             line-height: 18px;
             letter-spacing: 0.035px;
             padding-left: 4px;
@@ -1470,7 +1470,7 @@
         .property-address-grid {
           font-size: 16px;
           color: rgba(0, 0, 0, 0.5);
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-inter), sans-serif;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
@@ -1481,7 +1481,7 @@
           gap: 8px;
           font-size: 16px;
           color: rgba(0, 0, 0, 0.5);
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-inter), sans-serif;
 
           span {
             white-space: nowrap;

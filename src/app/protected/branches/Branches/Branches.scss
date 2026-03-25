@@ -45,7 +45,7 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 26px;
   font-weight: 700;
   line-height: 34px;
@@ -76,7 +76,7 @@
 
   h1 {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 36px;
     font-weight: 700;
     line-height: 43px;
@@ -85,7 +85,7 @@
 
   p {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 16px;
     font-weight: 400;
     line-height: 20px;
@@ -112,7 +112,7 @@
   border-radius: 8px;
   border: 1px solid #7a7a7a;
   background: #7a7a7a;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 20px;
@@ -151,7 +151,7 @@
 
 .branches-card-title {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -163,7 +163,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -197,7 +197,7 @@
 .branches-status-chip {
   background: #d6f6d5;
   color: #4de04a;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 500;
   line-height: 22px;

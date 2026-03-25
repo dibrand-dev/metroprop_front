@@ -16,7 +16,7 @@
   color: #1f2937;
   font-size: 13px;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -54,7 +54,7 @@
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(0, 106, 255, 0.35);
   position: relative;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   transition: background 0.15s;
 
   &::after {
@@ -103,6 +103,6 @@
   font-size: 13px;
   font-weight: 700;
   color: #1e1e1e;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   text-align: center;
 }

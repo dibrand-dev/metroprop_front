@@ -60,7 +60,7 @@
 
   h1 {
     margin: 0;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-montserrat), sans-serif;
     font-size: 44px;
     font-weight: 800;
     line-height: 52px;
@@ -76,7 +76,7 @@
 
   p {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 18px;
     font-weight: 500;
     line-height: 22px;
@@ -106,7 +106,7 @@
   background: none;
   border: none;
   padding: 2px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 36px;
   font-weight: 700;
   line-height: 43px;
@@ -125,7 +125,7 @@
   }
 
   @media (max-width: 768px) {
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-montserrat), sans-serif;
     font-size: 20px;
     font-weight: 800;
     line-height: 28px;
@@ -139,7 +139,7 @@
   border-radius: 8px;
   padding: 13px 8px;
   background: transparent;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 500;
   line-height: 22px;

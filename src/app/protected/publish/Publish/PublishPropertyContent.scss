@@ -32,7 +32,7 @@
 }
 
 .publish-property-content-route {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
@@ -47,7 +47,7 @@
   border: none;
   background: none;
   padding: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -102,7 +102,7 @@
 
   h1 {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 26px;
     font-weight: 700;
     line-height: 34px;
@@ -122,7 +122,7 @@
   border: none;
   background: #006aff;
   color: #ffffff;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 20px;
   font-weight: 600;
   display: inline-flex;
@@ -146,7 +146,7 @@
 
   h2 {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 16px;
     font-weight: 600;
     line-height: 18px;
@@ -174,7 +174,7 @@
   border-radius: 8px;
   padding: 13px 8px;
   background: #ffffff;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 500;
   line-height: 22px;
@@ -196,7 +196,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -220,7 +220,7 @@
 
   h2 {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 16px;
     font-weight: 600;
     line-height: 18px;
@@ -256,7 +256,7 @@
   border: 1.3px solid #a6a6a6;
   background: #ffffff;
   padding: 0 16px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   color: #7a7a7a;
   display: inline-flex;
@@ -302,7 +302,7 @@
     background: none;
     text-align: left;
     padding: 10px 16px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 14px;
     color: #1e1e1e;
     cursor: pointer;
@@ -348,7 +348,7 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -369,7 +369,7 @@
   padding: 14px 32px;
   background: #006aff;
   color: #ffffff;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 20px;

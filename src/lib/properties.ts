@@ -36,7 +36,7 @@ export function searchParamsToFilterParams(
 ): PropertyFilterParams {
   const NUM_FIELDS = new Set([
     'page', 'limit', 'organization_id', 'country_id', 'state_id',
-    'location_id', 'sub_location_id', 'status',
+    'location_id', 'sub_location_id',
     'price_min', 'price_max', 'price_m2_min', 'price_m2_max',
     'roofed_surface_min', 'roofed_surface_max', 'total_surface_min', 'total_surface_max',
     'age_min', 'age_max',
@@ -44,8 +44,7 @@ export function searchParamsToFilterParams(
 
   const result: PropertyFilterParams = {
     page: 1,
-    limit: 20,
-    status: 2,
+    limit: 20
   };
 
   sp.forEach((value: string, key: string) => {

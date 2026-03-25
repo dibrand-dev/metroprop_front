@@ -75,7 +75,7 @@
 }
 
 .property-card-title {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 14px;
     font-weight: 500;
     line-height: 18px;
@@ -94,7 +94,7 @@
 }
 
 .property-card-price {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 18px;
     font-weight: 600;
     line-height: 22px;
@@ -104,7 +104,7 @@
 }
 
 .property-card-rent {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     color: #7A7A7A;
     font-size: 16px;
     font-style: normal;
@@ -138,7 +138,7 @@
 
 .property-card-address,
 .property-card-location {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 16px;
     font-weight: 400;
     line-height: 20px;
@@ -156,7 +156,7 @@
 }
 
 .property-card-detail {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), sans-serif;
     font-size: 16px;
     font-weight: 400;
     line-height: 20px;
