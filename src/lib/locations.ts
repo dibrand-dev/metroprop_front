@@ -34,8 +34,8 @@ export const useLocations = () => {
   return useQuery({
     queryKey: LOCATIONS_QUERY_KEY,
     queryFn: fetchLocations,
-    staleTime:0, // 60 * 60 * 1000, // 1 hour
-    gcTime: 0, // 24 * 60 * 60 * 1000, // 24 hours (was cacheTime in older versions)
+    staleTime: 60 * 60 * 1000, // 1 hour
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours (was cacheTime in older versions)
     refetchOnWindowFocus: false,
   });
 };

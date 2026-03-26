@@ -75,6 +75,11 @@ export default function Results() {
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
+    const params = new URLSearchParams(activeSearch);
+    params.set('page', String(page));
+    const nextSearch = params.toString();
+    window.history.replaceState(window.history.state, '', `/results?${nextSearch}`);
+    window.dispatchEvent(new CustomEvent('results:filters-changed', { detail: { search: nextSearch } }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

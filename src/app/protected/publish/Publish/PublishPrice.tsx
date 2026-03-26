@@ -41,10 +41,11 @@ export default function PublishPrice({
   useEffect(() => {
     updateWizardData({
       currency,
+      currency_expenses,
       price,
       expenses: withoutExpenses ? 0 : expenses
     });
-  }, [currency, price, expenses, updateWizardData]);
+  }, [currency, price, expenses, currency_expenses, updateWizardData]);
 
   const handleBack = () => {
     onBack();
@@ -54,6 +55,7 @@ export default function PublishPrice({
     onNext({
       currency,
       price,
+      currency_expenses,
       expenses: withoutExpenses ? 0 : expenses
     });
   };

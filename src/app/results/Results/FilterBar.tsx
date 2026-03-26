@@ -920,7 +920,7 @@ export default function FilterBar({ setViewMode, viewMode }: { setViewMode: Reac
             <LocationAutocompleteInput
               value={searchText}
               onChange={setSearchText}
-              placeholder="Dirección, barrio, c..."
+              placeholder="Dirección, barrio, calle"
               onSubmit={(value, locationId) => pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, value, locationId)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {

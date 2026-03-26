@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import './PublishFinalReview.scss';
-import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus } from '@/types/propiedad';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
 import { AWS_S3_BUCKET_URL } from '@/constants';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
@@ -38,7 +38,8 @@ export default function PublishFinalReview({
       return res.json();
     },
   });
-  
+  const formatNumbers = (price: number) => Math.ceil(price).toLocaleString('en-US');
+
   useEffect(() => {
     if (tagsData.length > 0) {
       const groups: AmenityGroup[] = Object.values(AmenityType).filter(v => typeof v === 'number').map(type => {
@@ -74,7 +75,7 @@ export default function PublishFinalReview({
   // Format price display
   const formatPrice = (amount: string, currency: string) => {
     if (!amount) return '';
-    return `${currency}${amount}`;
+    return `${currency} ${amount}`;
   };
 
   // Build amenity tabs from amenityGroups
@@ -82,6 +83,21 @@ export default function PublishFinalReview({
     key: group.type.toString(),
     label: group.title
   }));
+
+  useEffect(() => {
+    if (!wizardData) return;
+    const hasDetails = !!(
+      wizardData.expenses ||
+      wizardData.floors_amount ||
+      wizardData.garage_coverage ||
+      wizardData.postal_code ||
+      wizardData.semiroofed_surface ||
+      wizardData.surface_front ||
+      wizardData.surface_length
+    );
+    if (hasDetails) setActiveTab('4');
+  }, [wizardData]);
+
 
   // Build property title
   const propertyTitle = wizardData.publication_title || `${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} ${wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}`;
@@ -149,12 +165,23 @@ export default function PublishFinalReview({
       
       result[groupKey] = selectedTags;
     });
+
+    result[4] = [];
+    if (wizardData?.expenses)  result[4].push(`Expensas: ${formatNumbers(wizardData.expenses)} ${wizardData.currency_expenses ?? ''}`);
+    if (wizardData?.floors_amount)  result[4].push(`Pisos: ${wizardData.floors_amount}`);
+    if (wizardData?.garage_coverage)  result[4].push(`Cobertura cochera: ${wizardData.garage_coverage}`);
+    if (wizardData?.postal_code)  result[4].push(`Código postal: ${wizardData.postal_code}`);
+    if (wizardData?.semiroofed_surface)  result[4].push(`Superficie semicubierta: ${formatNumbers(wizardData.semiroofed_surface)} ${wizardData.surface_measurement ?? ''}`);
+    if (wizardData?.surface_front)  result[4].push(`Frente: ${formatNumbers(wizardData.surface_front)} ${wizardData.surface_measurement ?? ''}`);
+    if (wizardData?.surface_length)  result[4].push(`Fondo: ${formatNumbers(wizardData.surface_length)} ${wizardData.surface_measurement ?? ''}`);
+    if (result[4].length === 0) delete result[4];
     
     return result;
   };
 
   const dynamicFeatures = buildFeatures();
   const dynamicAmenities = getAmenitiesByTab();
+  const statusDisplay = `${wizardData?.property_type ? `${PROPERTY_TYPE_LABELS[wizardData.property_type as PropertyType]} ` : ''}${wizardData?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype as PropertySubtype]} ` : ''}${wizardData?.operation_type ? `En ${OPERATION_TYPE_LABELS[wizardData.operation_type as OperationType]}` : ''}`;
   
   const handleBack = () => {
     onBack();
@@ -198,11 +225,11 @@ export default function PublishFinalReview({
                   <div className="publish-review-preview-hero">
                     <div className="publish-review-preview-status">
                       <span className="publish-review-status-dot" />
-                      <span className='operacion'>En {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'}</span>
+                      <span className='operacion'>{statusDisplay}</span>
                     </div>
                     <div className="publish-review-preview-meta">
                       {wizardData.price && wizardData.total_surface && (
-                      <span>{wizardData.currency}/m2 {(wizardData.price / wizardData.total_surface).toFixed(2)}</span>
+                      <span>{wizardData.currency}/m2 {formatNumbers((wizardData.price / wizardData.total_surface))}</span>
                       )}
                       <span className="publish-review-info" aria-hidden="true">
                         <svg viewBox="0 0 24 24">
@@ -227,7 +254,7 @@ export default function PublishFinalReview({
 
                 <div className="publish-review-gallery">
                   <div className="publish-review-gallery-main">
-                    {wizardData?.images?.[0]?.url && <img src={wizardData?.images?.[0]?.url} alt="Vista principal" />}
+                    {wizardData?.images?.[0]?.url && <img src={`${AWS_S3_BUCKET_URL}/${wizardData?.images?.[0]?.url}`} alt="Vista principal" />}
                   </div>
                   <div className="publish-review-gallery-grid">
                     {wizardData?.images?.slice(1).map((image, index) => (
@@ -299,6 +326,16 @@ export default function PublishFinalReview({
                 <div className="publish-review-amenities">
                   <h4>Conoce mas sobre esta propiedad</h4>
                   <div className="publish-review-amenities-tabs">
+                    {dynamicAmenities[4] && dynamicAmenities[4].length > 0 && (
+                      <button
+                        key="detalles"
+                        type="button"
+                        className={`publish-review-amenities-tab ${activeTab === "4" ? 'is-active' : ''}`}
+                        onClick={() => setActiveTab("4")}
+                      >
+                        Detalles
+                      </button>
+                    )}
                     {amenityTabs.map((tab) => (
                       <button
                         key={tab.key}

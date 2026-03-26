@@ -13,7 +13,7 @@ import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery } from '@tanstack/react-query';
-import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation } from '@/types/propiedad';
+import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype } from '@/types/propiedad';
 import { API_BASE_URL } from '@/utils/utils';
 import { AWS_S3_BUCKET_URL } from '@/constants';
 import { APIProvider } from '@vis.gl/react-google-maps';
@@ -21,38 +21,6 @@ import PropertyMap from './PropertyMap/PropertyMap';
 
 interface PropertyDetailProps {
   propertyId: string;
-}
-
-interface ApiProperty {
-  id: number;
-  publication_title: string;
-  description?: string;
-  operation_type: number;
-  property_type: number;
-  price: number;
-  currency: string;
-  expenses?: number;
-  currency_expenses?: string;
-  street?: string;
-  room_amount?: number;
-  bathroom_amount?: number;
-  toilet_amount?: number;
-  suite_amount?: number;
-  parking_lot_amount?: number;
-  total_surface?: number;
-  roofed_surface?: number;
-  surface_measurement?: string;
-  roofed_surface_measurement?: string;
-  property_condition?: string;
-  age?: number;
-  orientation?: number;
-  images?: Array<{ id: number; url: string; is_blueprint: boolean; upload_status?: string }>;
-  attached?: Array<{ id: number; file_url: string; upload_status?: string }>;
-  tags?: Array<{ id: number; tag_id: number }>;
-  organization?: { name?: string; logo_url?: string };
-  user?: { id: number; name?: string; phone?: string };
-  videos?: Array<{ id: number; url: string; is_360: boolean; order: number }>;
-  multimedia360?: string[];
 }
 
 const QUESTION_CHIPS = [
@@ -115,7 +83,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const galleryThumbsRef = useRef<HTMLDivElement>(null);
 
   // Fetch property detail
-  const { data: property, isLoading, isError } = useQuery<ApiProperty>({
+  const { data: property, isLoading, isError } = useQuery<CreateProperty>({
     queryKey: ['property', propertyId],
     queryFn: async () => {
       const res = await fetch(`${API_BASE_URL}/properties/${propertyId}`);
@@ -135,7 +103,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     },
   });
 
-  // Build amenity groups from loaded tags (same pattern as PublishFinalReview)
+  // Build amenity groups from loaded tags
   useEffect(() => {
     if (tagsData.length > 0) {
       const groups: AmenityGroup[] = Object.values(AmenityType).filter(v => typeof v === 'number').map(type => {
@@ -148,7 +116,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       });
       setAmenityGroups(groups);
       if (groups.length > 0) {
-        setActiveTab(groups[0].type.toString());
+        setActiveTab(prev => prev === '4' ? prev : groups[0].type.toString());
       }
     }
   }, [tagsData]);
@@ -157,6 +125,20 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     key: group.type.toString(),
     label: group.title,
   }));
+
+  useEffect(() => {
+    if (!property) return;
+    const hasDetails = !!(
+      property.expenses ||
+      property.floors_amount ||
+      property.garage_coverage ||
+      property.postal_code ||
+      property.semiroofed_surface ||
+      property.surface_front ||
+      property.surface_length
+    );
+    if (hasDetails) setActiveTab('4');
+  }, [property]);
 
   const getAmenitiesByTab = (): Record<string, string[]> => {
     const result: Record<string, string[]> = {};
@@ -167,11 +149,19 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         .filter((option: AmenityTag) => selectedTagIds.includes(option.id))
         .map((option: AmenityTag) => option.name);
     });
+    result[4] = [];
+    if (property?.expenses)  result[4].push(`Expensas: ${formatNumbers(property.expenses)} ${property.currency_expenses ?? ''}`);
+    if (property?.floors_amount)  result[4].push(`Pisos: ${property.floors_amount}`);
+    if (property?.garage_coverage)  result[4].push(`Cobertura cochera: ${property.garage_coverage}`);
+    if (property?.postal_code)  result[4].push(`Código postal: ${property.postal_code}`);
+    if (property?.semiroofed_surface)  result[4].push(`Superficie semicubierta: ${formatNumbers(property.semiroofed_surface)} ${property.surface_measurement ?? ''}`);
+    if (property?.surface_front)  result[4].push(`Frente: ${formatNumbers(property.surface_front)} ${property.surface_measurement ?? ''}`);
+    if (property?.surface_length)  result[4].push(`Fondo: ${formatNumbers(property.surface_length)} ${property.surface_measurement ?? ''}`);
+    if (result[4].length === 0) delete result[4];
     return result;
   };
 
   const dynamicAmenities = getAmenitiesByTab();
-
   // Gallery images (non-blueprint, completed uploads)
   const galleryImages = useMemo(() => {
     return (property?.images ?? [])
@@ -214,7 +204,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   // Derived display values
   
   const priceDisplay = property ? `${property.currency} ${formatNumbers(property.price)}` : '';
-  const statusDisplay = property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : '';
+  const statusDisplay = `${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}${property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}`;
   const agentName = property?.organization?.name ?? 'Metroprop';
   const agentLogoText = agentName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
 
@@ -456,7 +446,6 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     const top = target.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: 'smooth' });
   };
-
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
     <div className="property-detail-page">
@@ -503,12 +492,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         </section>
 
         <section className="property-detail-gallery">
-          <div className="property-detail-gallery-main" onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); setIsGalleryOpen(true); }} style={{ cursor: 'pointer' }}>
+          {galleryImages[0] && <div className="property-detail-gallery-main" onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); setIsGalleryOpen(true); }} style={{ cursor: 'pointer' }}>
             <img
-              src={galleryImages[0] ?? ''}
+              src={galleryImages[0]}
               alt="Vista principal"
             />            
-          </div>
+          </div>}
           <div className="property-detail-gallery-grid">
             {galleryImages.slice(1, 5).map((image, index) => (
               <div key={image} className="property-detail-gallery-item" onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(index + 1); setIsGalleryOpen(true); }} style={{ cursor: 'pointer' }}>
@@ -607,6 +596,16 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             <section className="property-detail-amenities">
               <h2>Conoce mas sobre esta propiedad</h2>
               <div className="property-detail-amenities-tabs">
+                {dynamicAmenities[4] && dynamicAmenities[4].length > 0 && (
+                  <button
+                    key="detalles"
+                    type="button"
+                    className={`property-detail-amenities-tab ${activeTab === "4" ? 'active' : ''}`}
+                    onClick={() => setActiveTab("4")}
+                  >
+                    Detalles
+                  </button>
+                )}
                 {amenityTabs.filter(tab => dynamicAmenities[tab.key]?.length > 0).map((tab) => (
                   <button
                     key={tab.key}
