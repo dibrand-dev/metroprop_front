@@ -17,14 +17,14 @@ interface PropertyDetailSubmenuProps {
   style?: CSSProperties;
 }
 
-const iconFavorite = 'https://www.figma.com/api/mcp/asset/b4fce1da-0b2b-4304-bde5-fc1089671ae7';
+const iconFavorite = '/icons/corazon.svg';
 const iconShare = 'https://www.figma.com/api/mcp/asset/d664cf1d-8bd3-4688-aee1-e64843854396';
 
 const defaultItems: SubmenuItem[] = [
   { id: 'fotos', label: 'Fotos' },
-  { id: 'descripcion', label: 'Descripcion' },
-  { id: 'informacion', label: 'Informacion' },
-  { id: 'direccion', label: 'Direccion' },
+  { id: 'descripcion', label: 'Descripción' },
+  { id: 'amenities', label: 'Información' },
+  { id: 'direccion', label: 'Dirección' },
 ];
 
 export default function PropertyDetailSubmenu({

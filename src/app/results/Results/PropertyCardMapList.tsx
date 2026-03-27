@@ -3,6 +3,7 @@ import React from 'react';
 import './PropertyCardMapList.scss';
 import { CreateProperty } from '@/types/propiedad';
 import { AWS_S3_BUCKET_URL } from '@/constants';
+import { formatNumbers } from '@/utils/utils';
 
 interface PropertyCardMapListProps {
   property: CreateProperty;
@@ -25,10 +26,10 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
           <div className="title-row">
             <div className="price-section">             
               <div className="total-price">
-                {property.currency} {property.price.toLocaleString()}
+                {property.currency} {formatNumbers(property.price)}
               </div>
                <div className="price-per-meter">
-                {property.currency} {property.price_square_meter?.toLocaleString()} m²
+                {property.currency} {property.price_square_meter ? formatNumbers(property.price_square_meter) : ''} m²
               </div>
             </div>
             
@@ -53,9 +54,9 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
               {property.street}
             </div>
             <div className="specs">
-              <span>{property.room_amount} amb.</span>
-              <span>{property.bathroom_amount} baños</span>
-              <span>{property.total_surface} m² tot.</span>
+              {property.room_amount && property.room_amount > 0 && <span>{property.room_amount} amb.</span>}
+              {property.bathroom_amount && property.bathroom_amount > 0 && <span>{property.bathroom_amount} baños</span>}
+              {property.total_surface && property.total_surface > 0 && <span>{formatNumbers(property.total_surface)} m² tot.</span>}
             </div>
           </div>
         </div>

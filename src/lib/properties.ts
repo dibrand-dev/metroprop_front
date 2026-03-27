@@ -40,6 +40,7 @@ export function searchParamsToFilterParams(
     'price_min', 'price_max', 'price_m2_min', 'price_m2_max',
     'roofed_surface_min', 'roofed_surface_max', 'total_surface_min', 'total_surface_max',
     'age_min', 'age_max',
+    'lat_ne', 'lng_ne', 'lat_sw', 'lng_sw',
   ]);
 
   const result: PropertyFilterParams = {

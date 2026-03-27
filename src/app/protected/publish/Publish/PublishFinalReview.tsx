@@ -8,6 +8,8 @@ import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
+import { useLocations } from '@/lib/locations';
+import { formatNumbers } from '@/utils/utils';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -26,10 +28,18 @@ export default function PublishFinalReview({
   onSaveAndExit,
   updateWizardData
 }: PublishFinalReviewProps) {
+  const { data: locations = [] } = useLocations();
   const { data: sessionData } = useSession();
   const [activeTab, setActiveTab] = useState<string>('');
-  const address = wizardData.street || 'Dirección no especificada';
+  const countryLabel = locations.find(l => l.id === wizardData.country_id)?.name;
+  const stateLabel = locations.find(l => l.id === wizardData.state_id)?.name;
+  const locationLabel = locations.find(l => l.id === wizardData.location_id)?.name;
+  const subLocationLabel = locations.find(l => l.id === wizardData.sub_location_id)?.name;
+  const addressParts = [wizardData.street, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
+  const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
+  
+
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: async () => {
@@ -38,7 +48,6 @@ export default function PublishFinalReview({
       return res.json();
     },
   });
-  const formatNumbers = (price: number) => Math.ceil(price).toLocaleString('en-US');
 
   useEffect(() => {
     if (tagsData.length > 0) {
@@ -148,7 +157,7 @@ export default function PublishFinalReview({
 
     return features.length > 0 ? features : []; // fallback to default
   };
-
+  console.log("wizardData",wizardData)
   // Get selected amenities by group, using amenityGroups and wizardData.tags
   const getAmenitiesByTab = () => {
     const result: Record<string, string[]> = {};
@@ -193,7 +202,7 @@ export default function PublishFinalReview({
     }
     onNext(propertyPublishUpdate);
   };
-
+  console.log("wizardData",wizardData)
   return (
     <div className="publish-review">
       <div className="publish-review-inner">

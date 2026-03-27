@@ -732,6 +732,10 @@ export default function FilterBar({ setViewMode, viewMode }: { setViewMode: Reac
       'direct_owner',
       'inmobiliaria',
       'q',
+      'lat_ne',
+      'lng_ne',
+      'lat_sw',
+      'lng_sw',
     ];
     managedFilterKeys.forEach((key) => params.delete(key));
     // Overwrite with the freshly built filter params.

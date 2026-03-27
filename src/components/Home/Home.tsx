@@ -12,25 +12,25 @@ export default function Home() {
     {
       title: 'Comprá la propiedad que estás buscando.',
       desc: 'Accedé a oportunidades reales con datos claros y actualizados.',
-      icon: '/images/home_comprar.png',
+      icon: '/images/home_comprar.svg',
       boton: 'Comprar'
     },
     {
       title: 'Encontrá el espacio ideal para alquilar.',
       desc: 'Filtrá, compará y encontrá tu próximo alquiler sin complicaciones.',
-      icon: '/images/home_alquilar.png',
+      icon: '/images/home_alquilar.svg',
       boton: 'Alquilar'
     },
     {
       title: 'Viví donde quieras, por el tiempo que necesites',
       desc: 'Espacios equipados y listos para acompañar tu viaje, trabajo o descanso.',
-      icon: '/images/home_temporal.png',
+      icon: '/images/home_temporal.svg',
       boton: 'Temporal'
     },
     {
       title: 'Invertí en proyectos en desarrollo.',
       desc: 'Invertí con previsibilidad y descubrí oportunidades de crecimiento a largo plazo.',
-      icon: '/images/home_emprendimientos.png',
+      icon: '/images/home_emprendimientos.svg',
       boton: 'Emprendimientos'
     }
   ];

@@ -68,6 +68,15 @@ export default function Results() {
 
   const locationQuery = activeSearchParams.get('q')?.trim() ?? '';
 
+  const initialBoundsFromUrl = useMemo(() => {
+    const lat_ne = parseFloat(activeSearchParams.get('lat_ne') ?? '');
+    const lng_ne = parseFloat(activeSearchParams.get('lng_ne') ?? '');
+    const lat_sw = parseFloat(activeSearchParams.get('lat_sw') ?? '');
+    const lng_sw = parseFloat(activeSearchParams.get('lng_sw') ?? '');
+    if ([lat_ne, lng_ne, lat_sw, lng_sw].some(isNaN)) return null;
+    return { lat_ne, lng_ne, lat_sw, lng_sw };
+  }, [activeSearchParams]);
+
   const properties: CreateProperty[] = (data?.data ?? [])//.map(toDisplayProperty);
   const totalProperties = data?.total ?? 0;
   const totalPages = Math.ceil(totalProperties / limit);
@@ -155,7 +164,7 @@ export default function Results() {
         {/* Map View - Always visible on desktop (unless grid layout), toggle on mobile */}
         <div className={`map-view ${viewMode === 'map' ? 'active' : ''} ${layoutMode === 'grid' ? 'hidden-grid' : ''}`}>
           <div className="map-container">
-            <ResultsMap properties={properties} initialLocationQuery={locationQuery} />
+            <ResultsMap properties={properties} initialLocationQuery={locationQuery} initialBounds={initialBoundsFromUrl} />
           </div>
         </div>
 

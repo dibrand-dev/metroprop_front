@@ -5,10 +5,19 @@ import { APIProvider, Map, AdvancedMarker, useMap, useMapsLibrary } from '@vis.g
 import { CreateProperty } from '@/types/propiedad';
 import './ResultsMap.scss';
 import { AWS_S3_BUCKET_URL } from '@/constants';
+import PropertyCardGridList from './PropertyCardGridList';
+
+interface Bounds {
+  lat_ne: number;
+  lng_ne: number;
+  lat_sw: number;
+  lng_sw: number;
+}
 
 interface ResultsMapProps {
   properties: CreateProperty[];
   initialLocationQuery?: string;
+  initialBounds?: Bounds | null;
 }
 
 const DEFAULT_CENTER = { lat: -34.6037, lng: -58.3816 }; // Buenos Aires
@@ -16,6 +25,7 @@ const DEFAULT_ZOOM = 13;
 
 interface MapBehaviorProps {
   initialLocationQuery?: string;
+  initialBounds?: Bounds | null;
   onMapReady?: (map: google.maps.Map) => void;
 }
 
@@ -36,7 +46,7 @@ function logViewportCorners(map: google.maps.Map) {
   console.log('Results map viewport corners after requested center:', corners);
 }
 
-function MapBehavior({ initialLocationQuery, onMapReady }: MapBehaviorProps) {
+function MapBehavior({ initialLocationQuery, initialBounds, onMapReady }: MapBehaviorProps) {
   const map = useMap();
   const geocodingLib = useMapsLibrary('geocoding');
   const geocoder = useRef<google.maps.Geocoder | null>(null);
@@ -46,6 +56,17 @@ function MapBehavior({ initialLocationQuery, onMapReady }: MapBehaviorProps) {
     onMapReady?.(map);
   }, [map, onMapReady]);
 
+  // Fit map to bounding box when bbox params are present in the URL
+  useEffect(() => {
+    if (!map || !initialBounds) return;
+    map.fitBounds({
+      north: initialBounds.lat_ne,
+      east: initialBounds.lng_ne,
+      south: initialBounds.lat_sw,
+      west: initialBounds.lng_sw,
+    });
+  }, [map, initialBounds]);
+
   useEffect(() => {
     if (geocodingLib && !geocoder.current) {
       geocoder.current = new geocodingLib.Geocoder();
@@ -53,7 +74,7 @@ function MapBehavior({ initialLocationQuery, onMapReady }: MapBehaviorProps) {
   }, [geocodingLib]);
 
   useEffect(() => {
-    if (!map || !geocoder.current || !initialLocationQuery?.trim()) return;
+    if (!map || !geocoder.current || !initialLocationQuery?.trim() || initialBounds) return;
 
     const rawQuery = initialLocationQuery.trim();
     const query = /argentina/i.test(rawQuery) ? rawQuery : `${rawQuery}, Argentina`;
@@ -74,12 +95,12 @@ function MapBehavior({ initialLocationQuery, onMapReady }: MapBehaviorProps) {
         });
       }
     });
-  }, [map, initialLocationQuery, geocodingLib]);
+  }, [map, initialLocationQuery, geocodingLib, initialBounds]);
 
   return null;
 }
 
-export default function ResultsMap({ properties, initialLocationQuery }: ResultsMapProps) {
+export default function ResultsMap({ properties, initialLocationQuery, initialBounds }: ResultsMapProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
 
@@ -104,7 +125,26 @@ export default function ResultsMap({ properties, initialLocationQuery }: Results
 
   const handleSearchInThisArea = useCallback(() => {
     if (!mapRef.current) return;
-    logViewportCorners(mapRef.current);
+    const bounds = mapRef.current.getBounds();
+    if (!bounds) return;
+
+    const northEast = bounds.getNorthEast();
+    const southWest = bounds.getSouthWest();
+
+    const params = new URLSearchParams(window.location.search);
+    // Clear text-based location search — bbox takes over as the spatial filter
+    params.delete('q');
+    params.delete('location_id');
+    params.set('northEastLat', String(northEast.lat()));
+    params.set('northEastLng', String(northEast.lng()));
+    params.set('southWestLat', String(southWest.lat()));
+    params.set('southWestLng', String(southWest.lng()));
+
+    const nextSearch = params.toString();
+    window.history.replaceState(window.history.state, '', `/results?${nextSearch}`);
+    window.dispatchEvent(
+      new CustomEvent('results:filters-changed', { detail: { search: nextSearch } })
+    );
   }, []);
 
   return (
@@ -120,14 +160,13 @@ export default function ResultsMap({ properties, initialLocationQuery }: Results
         >
           <MapBehavior
             initialLocationQuery={initialLocationQuery}
+            initialBounds={initialBounds}
             onMapReady={(map) => {
               mapRef.current = map;
             }}
           />
           {geoProperties.map(property => {
             const isSelected = selectedId === property.id;
-            const image = property.images?.[0]?.url;
-            const priceLabel = `${property.currency} ${property.price.toLocaleString('es-AR')}`;
 
             return (
               <AdvancedMarker
@@ -141,49 +180,22 @@ export default function ResultsMap({ properties, initialLocationQuery }: Results
                 <div className={`results-marker-wrapper ${isSelected ? 'active' : ''}`}>
                   {isSelected && (
                     <div className="results-marker-info" onClick={e => e.stopPropagation()}>
-                      {image && (
-                        <img
-                          src={`${AWS_S3_BUCKET_URL}/${image}`}
-                          alt={property.publication_title ?? ''}
-                          className="results-marker-info-image"
-                        />
-                      )}
-                      {!image && (
-                        <div className="results-marker-info-no-image" />
-                      )}
-                      <div className="info-section">
-                        <div className="content-wrapper">
-                          <img 
-                            src={property.agencyLogo || defaultLogo}
-                            alt="Agency logo"
-                            className="agency-logo"
-                          />
-                          
-                          <div className="property-details">
-                            <div className="price-row">
-                              <div className="main-price">
-                                {property.currency} {property.price}
-                              </div>
-                              <div className="price-per-sqm">
-                                  {property.currency} {property.price_square_meter} m²
-                              </div>
-                            </div>
-                            
-                            <div className="address">
-                              {property.street}
-                            </div>
-                            
-                            <div className="specs-row">
-                              <span>{property.total_surface} m² tot.</span>
-                              <span>{property.room_amount} amb.</span>
-                              <span>{property.bathroom_amount} baños</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <PropertyCardGridList
+                        key={property.id}
+                        property={property}
+                        // onFavorite={() => handleToggleFavorite(property.id ?? 0)}
+                      />
                     </div>
                   )}
-                  <div className="results-marker-pill" />
+                  <div
+                    style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: '50%',
+                      backgroundColor: isSelected ? '#0041D9' : '#020D4B',
+                      cursor: 'pointer',
+                    }}
+                  />
                 </div>
               </AdvancedMarker>
             );

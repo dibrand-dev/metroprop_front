@@ -45,7 +45,7 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  font-family: var(--font-inter), sans-serif;
+  
   font-size: 26px;
   font-weight: 700;
   line-height: 34px;
@@ -76,7 +76,7 @@
 
   h1 {
     margin: 0;
-    font-family: var(--font-inter), sans-serif;
+    
     font-size: 36px;
     font-weight: 700;
     line-height: 43px;
@@ -85,7 +85,7 @@
 
   h2 {
     margin: 0;
-    font-family: var(--font-inter), sans-serif;
+    
     font-size: 18px;
     font-weight: 500;
     line-height: 28px;
@@ -94,7 +94,7 @@
 
   p {
     margin: 0;
-    font-family: var(--font-inter), sans-serif;
+    
     font-size: 16px;
     font-weight: 400;
     line-height: 20px;
@@ -116,7 +116,7 @@
 }
 
 .highlights-label {
-  font-family: var(--font-inter), sans-serif;
+  
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -141,7 +141,7 @@
 
   h3 {
     margin: 0;
-    font-family: var(--font-inter), sans-serif;
+    
     font-size: 18px;
     font-weight: 600;
     line-height: 26px;
@@ -161,7 +161,7 @@
   grid-template-columns: 1.2fr 0.8fr 0.9fr 0.7fr;
   gap: 8px;
   padding: 8px 12px;
-  font-family: var(--font-inter), sans-serif;
+  
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;

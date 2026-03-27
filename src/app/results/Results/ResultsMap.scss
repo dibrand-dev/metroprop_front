@@ -16,7 +16,7 @@
   color: #1f2937;
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-inter), sans-serif;
+  
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -54,7 +54,7 @@
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(0, 106, 255, 0.35);
   position: relative;
-  font-family: var(--font-inter), sans-serif;
+  
   transition: background 0.15s;
 
   &::after {
@@ -76,13 +76,12 @@
   position: absolute;
   bottom: calc(100% + 8px);
   left: 50%;
-  transform: translateX(-50%);
-  width: 180px;
+  transform: translateX(-50%);;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   overflow: hidden;
-  z-index: 10;
+  z-index: 20;
 }
 
 .results-marker-info-image {
@@ -103,12 +102,11 @@
   font-size: 13px;
   font-weight: 700;
   color: #1e1e1e;
-  font-family: var(--font-inter), sans-serif;
+  
   text-align: center;
 }
 
 .info-section {
-  height: 100px;
   background: #F5F5F5;
   padding: 10px 14px;
   display: flex;
@@ -149,7 +147,7 @@
 }
 
 .main-price {
-  font-family: var(--font-inter), sans-serif;
+  
   font-weight: 600;
   font-size: 18px;
   line-height: 22px;
@@ -160,7 +158,7 @@
 }
 
 .price-per-sqm {
-  font-family: var(--font-inter), sans-serif;
+  
   font-weight: 500;
   font-size: 14px;
   line-height: 18px;
@@ -171,7 +169,7 @@
 }
 
 .address {
-  font-family: var(--font-inter), sans-serif;
+  
   font-weight: 400;
   font-size: 16px;
   line-height: 20px;
@@ -188,7 +186,7 @@
   gap: 8px;
 
   span {
-    font-family: var(--font-inter), sans-serif;
+    
     font-weight: 400;
     font-size: 16px;
     line-height: 20px;

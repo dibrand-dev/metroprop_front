@@ -4,12 +4,9 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 import './PropertyDetail.scss';
 import Header from '@/layout/User/Header/Header';
 import Footer from '@/layout/User/Footer/Footer';
-import InputField2 from '@/ui/InputField2/InputField2';
-import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import PropertyDetailSubmenu from './PropertyDetailSubmenu/PropertyDetailSubmenu';
-import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery } from '@tanstack/react-query';
@@ -18,17 +15,14 @@ import { API_BASE_URL } from '@/utils/utils';
 import { AWS_S3_BUCKET_URL } from '@/constants';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
+import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
+import ContactForm from './ContactForm/ContactForm';
+import { useLocations } from '@/lib/locations';
+import { formatNumbers } from '@/utils/utils';
 
 interface PropertyDetailProps {
   propertyId: string;
 }
-
-const QUESTION_CHIPS = [
-  'Se puede visitar hoy',
-  'Aceptan permuta',
-  'El edificio tiene amenities',
-  'Tiene baulera',
-];
 
 const SIMILAR_SECTIONS = [
   { title: 'Propiedades similares', count: 5 },
@@ -40,47 +34,29 @@ const CONTACT_ACTIONS = [
   { id: 'contact', label: 'Contactar', icon: '/icons/envelope.svg', variant: 'primary' },
 ];
 
-const flagIcon = '/icons/flag.svg'
-const formatNumbers = (price: number) => Math.ceil(price).toLocaleString('en-US');
-
-const extractYouTubeId = (url: string): string | null => {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
-};
-const getYouTubeThumbnail = (videoId: string) => `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-const getYouTubeEmbed = (videoId: string) => `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-
 export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
+  const { data: locations = [] } = useLocations();
   const [activeTab, setActiveTab] = useState<string>('');
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
-	const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [featuresExpanded, setFeaturesExpanded] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const [similarCanScrollLeft, setSimilarCanScrollLeft] = useState<boolean[]>([]);
   const [similarCanScrollRight, setSimilarCanScrollRight] = useState<boolean[]>([]);
   const similarRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isWhatsappModalOpen, setIsWhatsappModalOpen] = useState(false);
   const [isSubmenuVisible, setIsSubmenuVisible] = useState(false);
   const [submenuOffset, setSubmenuOffset] = useState(0);
-  const [formState, setFormState] = useState({
-    name: '',
-    country: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [galleryTab, setGalleryTab] = useState<'fotos' | 'videos' | 'planos' | '360'>('fotos');
-  const [galleryActiveIndex, setGalleryActiveIndex] = useState(0);
-  const [videoActiveIndex, setVideoActiveIndex] = useState(0);
-  const [planActiveIndex, setPlanActiveIndex] = useState(0);
-  const galleryThumbsRef = useRef<HTMLDivElement>(null);
+  const [galleryInitialTab, setGalleryInitialTab] = useState<GalleryTab>('fotos');
+  const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
+
+  const openGallery = (tab: GalleryTab = 'fotos', index = 0) => {
+    setGalleryInitialTab(tab);
+    setGalleryInitialIndex(index);
+    setIsGalleryOpen(true);
+  };
 
   // Fetch property detail
   const { data: property, isLoading, isError } = useQuery<CreateProperty>({
@@ -188,8 +164,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     else if (property.property_condition === 'years' && property.age) features.push({ label: `${property.age} años`, icon: '/icons/calendar.svg' });
 
     if (property.orientation) features.push({ label: ORIENTATION_LABELS[property.orientation as Orientation] ?? String(property.orientation), icon: '/icons/orientacion.svg' });
-    if (property.total_surface && property.surface_measurement) features.push({ label: `${formatNumbers(property.total_surface)} ${property.surface_measurement} tot.`, icon: '/icons/regla.svg' });
-    if (property.roofed_surface && property.roofed_surface_measurement) features.push({ label: `${formatNumbers(property.roofed_surface)} ${property.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
+    if (property.total_surface && property.total_surface > 0 && property.surface_measurement) features.push({ label: `${formatNumbers(property.total_surface)} ${property.surface_measurement} tot.`, icon: '/icons/regla.svg' });
+    if (property.roofed_surface && property.roofed_surface > 0 && property.roofed_surface_measurement) features.push({ label: `${formatNumbers(property.roofed_surface)} ${property.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
     if (property.room_amount) features.push({ label: `${formatNumbers(property.room_amount)} amb.`, icon: '/icons/door.svg' });
     if (property.parking_lot_amount) features.push({ label: `${formatNumbers(property.parking_lot_amount)} cochera${property.parking_lot_amount > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
     if (property.suite_amount) features.push({ label: `${formatNumbers(property.suite_amount)} dorm.`, icon: '/icons/cama.svg' });
@@ -207,6 +183,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const statusDisplay = `${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}${property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}`;
   const agentName = property?.organization?.name ?? 'Metroprop';
   const agentLogoText = agentName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
+  
+  const countryLabel = locations.find(l => l.id === property?.country_id)?.name;
+  const stateLabel = locations.find(l => l.id === property?.state_id)?.name;
+  const locationLabel = locations.find(l => l.id === property?.location_id)?.name;
+  const subLocationLabel = locations.find(l => l.id === property?.sub_location_id)?.name;
+  const addressParts = [property?.street, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
+  const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
 
   const updateSimilarScrollState = (index: number) => {
     const container = similarRefs.current[index];
@@ -273,176 +256,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     return () => window.removeEventListener('resize', updateOffset);
   }, []);
 
-  const toggleQuestion = (question: string) => {
-    setSelectedQuestions((prev) =>
-      prev.includes(question) ? prev.filter((item) => item !== question) : [...prev, question]
-    );
-  };
-
-  const handleCountrySelect = (value: string) => {
-    console.log("value", value)
-    setFormState((prev) => ({ ...prev, country: value }));
-  };
-
-  const primaryContactAction = CONTACT_ACTIONS.find((action) => action.id === 'contact');
-
-  useEffect(() => {
-    if (!isContactModalOpen) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsContactModalOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isContactModalOpen]);
-
-  useEffect(() => {
-    if (!isGalleryOpen) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsGalleryOpen(false);
-      if (e.key === 'ArrowRight') {
-        if (galleryTab === 'fotos') setGalleryActiveIndex(prev => Math.min(prev + 1, galleryImages.length - 1));
-        if (galleryTab === 'videos') setVideoActiveIndex(prev => Math.min(prev + 1, galleryVideos.length - 1));
-        if (galleryTab === 'planos') setPlanActiveIndex(prev => Math.min(prev + 1, galleryPlans.length - 1));
-      }
-      if (e.key === 'ArrowLeft') {
-        if (galleryTab === 'fotos') setGalleryActiveIndex(prev => Math.max(prev - 1, 0));
-        if (galleryTab === 'videos') setVideoActiveIndex(prev => Math.max(prev - 1, 0));
-        if (galleryTab === 'planos') setPlanActiveIndex(prev => Math.max(prev - 1, 0));
-      }
-    };
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleKey);
-    return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', handleKey);
-    };
-  }, [isGalleryOpen, galleryTab, galleryImages.length, galleryVideos.length, galleryPlans.length]);
-
-  useEffect(() => {
-    if (!isContactModalOpen) {
-      document.body.style.overflow = '';
-      return;
-    }
-    if (window.innerWidth > 768) return;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isContactModalOpen]);
-
-  const renderContactForm = (options?: { isModal?: boolean }) => {
-    const isModal = options?.isModal ?? false;
-    const contactActions = isModal && primaryContactAction ? [primaryContactAction] : CONTACT_ACTIONS;
-
-    return (
-      <form
-        className={`property-detail-contact ${isModal ? 'property-detail-contact-modal-form' : ''}`}
-        onSubmit={(event) => event.preventDefault()}
-      >
-        {!isModal && (
-          <div className="property-detail-contact-header">
-            <h2>Contacta al anunciante</h2>
-          </div>
-        )}
-
-        <div className="property-detail-contact-block">
-          <h3>Preguntas para el anunciante</h3>
-          <p>Selecciona una o mas preguntas, o escribi tu consulta.</p>
-          <div className="property-detail-question-grid">
-            {QUESTION_CHIPS.map((question) => (
-              <button
-                key={question}
-                type="button"
-                className={`property-detail-question ${
-                  selectedQuestions.includes(question) ? 'selected' : ''
-                }`}
-                onClick={() => toggleQuestion(question)}
-              >
-                {question}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="property-detail-contact-form">
-          <div className="property-detail-input-row">
-            <InputField2
-              label="Nombre"
-              value={formState.name}
-              onChange={(event) => setFormState({ ...formState, name: event.target.value })}
-              id="contact_name"
-            />
-            <InputField2
-              label="Email"
-              type="email"
-              value={formState.email}
-              onChange={(event) => setFormState({ ...formState, email: event.target.value })}
-            />
-          </div>
-          <div className="property-detail-input-row">
-            <InputField2
-              label="País"
-              value={formState.country}
-              onFocus={() => setIsCountryModalOpen(true)}
-              onChange={(event) => setFormState({ ...formState, country: event.target.value })}
-              id="contact_pais"
-              icon={<img src={flagIcon} />}
-            />
-            <InputField2
-              label="Telefono"
-              value={formState.phone}
-              onChange={(event) => setFormState({ ...formState, phone: event.target.value })}
-            />
-          </div>
-          <div className="property-detail-input-row single">
-            <InputField2
-              label="Consulta"
-              value={formState.message}
-              onChange={(event) => setFormState({ ...formState, message: event.target.value })}
-              multiline={true}
-              rows={4}
-              id="contact_consulta"
-            />
-          </div>
-        </div>
-
-        <div className="property-detail-contact-terms">
-          <Checkbox
-            label="Acepto terminos y condiciones"
-            checked={termsAccepted}
-            onChange={setTermsAccepted}
-          />
-          <Checkbox
-            label="Acepto politica de privacidad"
-            checked={privacyAccepted}
-            onChange={setPrivacyAccepted}
-          />
-        </div>
-
-        <div
-          className={`property-detail-contact-actions ${isModal ? 'property-detail-contact-actions-modal' : ''}`}
-        >
-          {contactActions.map((action) => (
-            <button
-              key={action.id}
-              type="button"
-              className={`property-detail-contact-action property-detail-contact-action-${action.variant}`}
-            >
-              <img src={action.icon} alt="" aria-hidden="true" />
-              <span>{action.label}</span>
-            </button>
-          ))}
-        </div>
-      </form>
-    );
-  };
 
   const handleSubmenuItemClick = (itemId: string) => {
+    console.log("Submenu item clicked:", itemId);
     const target = document.getElementById(`property-detail-${itemId}`);
     if (!target) return;
-    const offset = 80;
+    const offset = 180;
     const top = target.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: 'smooth' });
   };
@@ -454,12 +273,6 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         className={isSubmenuVisible ? 'is-visible' : ''}
         style={{ top: submenuOffset }}
         onItemClick={handleSubmenuItemClick}
-      />
-      <CountryCodeModal
-        isOpen={isCountryModalOpen}
-        selectedValue={formState.country}
-        onClose={() => setIsCountryModalOpen(false)}
-        onSelect={handleCountrySelect}
       />
       <PhoneRevealModal
         isOpen={isPhoneModalOpen}
@@ -492,7 +305,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         </section>
 
         <section className="property-detail-gallery">
-          {galleryImages[0] && <div className="property-detail-gallery-main" onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); setIsGalleryOpen(true); }} style={{ cursor: 'pointer' }}>
+          {galleryImages[0] && <div className="property-detail-gallery-main" onClick={() => openGallery('fotos', 0)} style={{ cursor: 'pointer' }}>
             <img
               src={galleryImages[0]}
               alt="Vista principal"
@@ -500,12 +313,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           </div>}
           <div className="property-detail-gallery-grid">
             {galleryImages.slice(1, 5).map((image, index) => (
-              <div key={image} className="property-detail-gallery-item" onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(index + 1); setIsGalleryOpen(true); }} style={{ cursor: 'pointer' }}>
+              <div key={image} className="property-detail-gallery-item" onClick={() => openGallery('fotos', index + 1)} style={{ cursor: 'pointer' }}>
                 <img src={image} alt={`Vista ${index + 2}`} className="property-detail-gallery-image" />
                 {index === 3 && (
                   <div className="property-detail-gallery-overlay">
                     <span onClick={(e) => e.stopPropagation()}>
-                      <Button label="Ver todas las fotos" variant="secondary" icon={<img src="/icons/verGaleria.svg" alt="" />} onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); setIsGalleryOpen(true); }} />
+                      <Button label="Ver todas las fotos" variant="secondary" icon={<img src="/icons/verGaleria.svg" alt="" />} onClick={() => openGallery('fotos', 0)} />
                     </span>
                   </div>
                 )}
@@ -585,7 +398,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                     />
                   </svg>
                 </span>
-                <span>{property?.street ?? 'Dirección no especificada'}</span>
+                <span>{address}</span>
               </div>
               <div className="property-detail-map-image">
                 <PropertyMap address={property?.street ?? ''} />
@@ -593,7 +406,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             </section>
 
             {Object.values(dynamicAmenities).some(arr => arr.length > 0) && (
-            <section className="property-detail-amenities">
+            <section className="property-detail-amenities" id="property-detail-amenities">
               <h2>Conoce mas sobre esta propiedad</h2>
               <div className="property-detail-amenities-tabs">
                 {dynamicAmenities[4] && dynamicAmenities[4].length > 0 && (
@@ -645,7 +458,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           </div>
 
           <aside className="property-detail-right">
-            {renderContactForm()}
+            <ContactForm />
 
             <div className="property-detail-agent">
               <div className="property-detail-agent-header">
@@ -721,136 +534,15 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         ))}
       </main>
 
-      {isGalleryOpen && (
-        <div className="property-gallery-lightbox" role="dialog" aria-modal="true" aria-label="Galería de fotos">
-          <div className="property-gallery-lightbox-backdrop" onClick={() => setIsGalleryOpen(false)} />
-
-          <button type="button" className="property-gallery-lightbox-close" aria-label="Cerrar galería" onClick={() => setIsGalleryOpen(false)}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-          </button>
-
-          {/* Tabs */}
-          <div className="property-gallery-lightbox-tabs">
-            <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'fotos' ? 'is-active' : ''}`} onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); }}>Fotos</button>
-            {galleryVideos.length > 0 && (
-              <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'videos' ? 'is-active' : ''}`} onClick={() => { setGalleryTab('videos'); setVideoActiveIndex(0); }}>Videos</button>
-            )}
-            {galleryPlans.length > 0 && (
-              <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'planos' ? 'is-active' : ''}`} onClick={() => { setGalleryTab('planos'); setPlanActiveIndex(0); }}>Planos</button>
-            )}
-            <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === '360' ? 'is-active' : ''}`} onClick={() => setGalleryTab('360')}>360</button>
-          </div>
-
-          {/* ── FOTOS ── */}
-          {galleryTab === 'fotos' && (
-            <>
-              <div className="property-gallery-lightbox-main">
-                <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-prev" aria-label="Anterior" onClick={() => setGalleryActiveIndex(prev => Math.max(prev - 1, 0))} disabled={galleryActiveIndex === 0}>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                </button>
-                <img src={galleryImages[galleryActiveIndex]} alt={`Foto ${galleryActiveIndex + 1}`} className="property-gallery-lightbox-image" />
-                <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-next" aria-label="Siguiente" onClick={() => setGalleryActiveIndex(prev => Math.min(prev + 1, galleryImages.length - 1))} disabled={galleryActiveIndex === galleryImages.length - 1}>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                </button>
-              </div>
-              <div className="property-gallery-lightbox-counter">{galleryActiveIndex + 1} / {galleryImages.length}</div>
-              <div className="property-gallery-lightbox-thumbs" ref={galleryThumbsRef}>
-                {galleryImages.map((img, idx) => (
-                  <button key={img} type="button" className={`property-gallery-lightbox-thumb ${idx === galleryActiveIndex ? 'is-active' : ''}`} onClick={() => setGalleryActiveIndex(idx)} aria-label={`Ver foto ${idx + 1}`}>
-                    <img src={img} alt={`Miniatura ${idx + 1}`} />
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* ── VIDEOS ── */}
-          {galleryTab === 'videos' && (() => {
-            const vid = galleryVideos[videoActiveIndex];
-            const videoId = vid ? extractYouTubeId(vid.url) : null;
-            return (
-              <>
-                <div className="property-gallery-lightbox-main">
-                  <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-prev" aria-label="Anterior" onClick={() => setVideoActiveIndex(prev => Math.max(prev - 1, 0))} disabled={videoActiveIndex === 0}>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                  </button>
-                  {videoId ? (
-                    <iframe
-                      key={videoId}
-                      src={getYouTubeEmbed(videoId)}
-                      className="property-gallery-lightbox-video"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      title={`Video ${videoActiveIndex + 1}`}
-                    />
-                  ) : (
-                    <div className="property-gallery-lightbox-placeholder">Video no disponible</div>
-                  )}
-                  <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-next" aria-label="Siguiente" onClick={() => setVideoActiveIndex(prev => Math.min(prev + 1, galleryVideos.length - 1))} disabled={videoActiveIndex === galleryVideos.length - 1}>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                  </button>
-                </div>
-                <div className="property-gallery-lightbox-counter">{videoActiveIndex + 1} / {galleryVideos.length}</div>
-                <div className="property-gallery-lightbox-thumbs">
-                  {galleryVideos.map((v, idx) => {
-                    const vId = extractYouTubeId(v.url);
-                    return (
-                      <button key={v.id} type="button" className={`property-gallery-lightbox-thumb ${idx === videoActiveIndex ? 'is-active' : ''}`} onClick={() => setVideoActiveIndex(idx)} aria-label={`Ver video ${idx + 1}`}>
-                        {vId ? <img src={getYouTubeThumbnail(vId)} alt={`Video ${idx + 1}`} /> : <div className="property-gallery-lightbox-thumb-placeholder">▶</div>}
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            );
-          })()}
-
-          {/* ── PLANOS ── */}
-          {galleryTab === 'planos' && (() => {
-            const plan = galleryPlans[planActiveIndex];
-            const isPdf = plan?.file_url?.toLowerCase().endsWith('.pdf');
-            return (
-              <>
-                <div className="property-gallery-lightbox-main">
-                  <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-prev" aria-label="Anterior" onClick={() => setPlanActiveIndex(prev => Math.max(prev - 1, 0))} disabled={planActiveIndex === 0}>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                  </button>
-                  {isPdf ? (
-                    <div className="property-gallery-lightbox-pdf">
-                      <span>PDF</span>
-                      <small>{plan.file_url.split('/').pop()}</small>
-                      <a href={`${AWS_S3_BUCKET_URL}/${plan.file_url}`} target="_blank" rel="noopener noreferrer">Abrir PDF</a>
-                    </div>
-                  ) : (
-                    <img src={`${AWS_S3_BUCKET_URL}/${plan?.file_url}`} alt={`Plano ${planActiveIndex + 1}`} className="property-gallery-lightbox-image" />
-                  )}
-                  <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-next" aria-label="Siguiente" onClick={() => setPlanActiveIndex(prev => Math.min(prev + 1, galleryPlans.length - 1))} disabled={planActiveIndex === galleryPlans.length - 1}>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                  </button>
-                </div>
-                <div className="property-gallery-lightbox-counter">{planActiveIndex + 1} / {galleryPlans.length}</div>
-                <div className="property-gallery-lightbox-thumbs">
-                  {galleryPlans.map((p, idx) => {
-                    const isPdfThumb = p.file_url?.toLowerCase().endsWith('.pdf');
-                    return (
-                      <button key={p.id} type="button" className={`property-gallery-lightbox-thumb ${idx === planActiveIndex ? 'is-active' : ''}`} onClick={() => setPlanActiveIndex(idx)} aria-label={`Ver plano ${idx + 1}`}>
-                        {isPdfThumb ? <div className="property-gallery-lightbox-thumb-placeholder">PDF</div> : <img src={`${AWS_S3_BUCKET_URL}/${p.file_url}`} alt={`Plano ${idx + 1}`} />}
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            );
-          })()}
-
-          {/* ── 360 ── */}
-          {galleryTab === '360' && (
-            <div className="property-gallery-lightbox-empty">
-              <p>Contenido 360° próximamente</p>
-            </div>
-          )}
-        </div>
-      )}
+      <GalleryModal
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+        images={galleryImages}
+        videos={galleryVideos as unknown as GalleryVideo[]}
+        plans={galleryPlans}
+        initialTab={galleryInitialTab}
+        initialIndex={galleryInitialIndex}
+      />
 
       <div
         className={`property-detail-contact-modal ${isContactModalOpen ? 'is-open' : ''}`}
@@ -867,7 +559,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             <h2>Contacta al anunciante</h2>
             <button
               type="button"
-              className="property-detail-contact-modal-close"
+              className="property-detail-gallery-modal-close"
               aria-label="Cerrar"
               onClick={() => setIsContactModalOpen(false)}
             >
@@ -882,7 +574,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             </button>
           </div>
           <div className="property-detail-contact-modal-body">
-            {renderContactForm({ isModal: true })}
+            <ContactForm isModal />
           </div>
         </div>
       </div>

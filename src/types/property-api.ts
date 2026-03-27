@@ -35,6 +35,11 @@ export interface PropertyFilterParams {
   disposition?: string;
   /** Free text search */
   q?: string;
+  /** Bounding box filter (from map "search in this area") */
+  lat_ne?: number;
+  lng_ne?: number;
+  lat_sw?: number;
+  lng_sw?: number;
   [key: string]: string | number | undefined;
 }
 

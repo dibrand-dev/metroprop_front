@@ -180,7 +180,7 @@
 
   strong {
     color: var(--Metroprop-Texto-principal, #1E1E1E);
-    font-family: Montserrat;
+    font-family: var(--font-montserrat);
     font-size: 44px;
     font-style: normal;
     font-weight: 800;

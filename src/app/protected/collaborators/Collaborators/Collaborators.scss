@@ -45,7 +45,7 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  font-family: var(--font-inter), sans-serif;
+  
   font-size: 26px;
   font-weight: 700;
   line-height: 34px;
@@ -76,7 +76,7 @@
 
   h1 {
     margin: 0;
-    font-family: var(--font-inter), sans-serif;
+    
     font-size: 36px;
     font-weight: 700;
     line-height: 43px;
@@ -85,7 +85,7 @@
 
   p {
     margin: 0;
-    font-family: var(--font-inter), sans-serif;
+    
     font-size: 16px;
     font-weight: 400;
     line-height: 20px;
@@ -157,7 +157,7 @@
 
 .collaborators-card-title {
   margin: 0;
-  font-family: var(--font-inter), sans-serif;
+  
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -167,7 +167,7 @@
 
 .collaborators-card-subtitle {
   margin: 0;
-  font-family: var(--font-inter), sans-serif;
+  
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -190,7 +190,7 @@
 .collaborators-role-chip {
   background: #f5f5f5;
   color: #7a7a7a;
-  font-family: var(--font-inter), sans-serif;
+  
   font-size: 16px;
   font-weight: 500;
   line-height: 22px;
