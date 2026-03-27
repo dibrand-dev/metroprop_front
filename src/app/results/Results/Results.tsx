@@ -77,7 +77,7 @@ export default function Results() {
     return { lat_ne, lng_ne, lat_sw, lng_sw };
   }, [activeSearchParams]);
 
-  const properties: CreateProperty[] = (data?.data ?? [])//.map(toDisplayProperty);
+  const properties: CreateProperty[] = (data?.data ?? []);
   const totalProperties = data?.total ?? 0;
   const totalPages = Math.ceil(totalProperties / limit);
 
@@ -164,7 +164,7 @@ export default function Results() {
         {/* Map View - Always visible on desktop (unless grid layout), toggle on mobile */}
         <div className={`map-view ${viewMode === 'map' ? 'active' : ''} ${layoutMode === 'grid' ? 'hidden-grid' : ''}`}>
           <div className="map-container">
-            <ResultsMap properties={properties} initialLocationQuery={locationQuery} initialBounds={initialBoundsFromUrl} />
+            <ResultsMap properties={properties} mapData={data?.mapData ?? []} initialLocationQuery={locationQuery} initialBounds={initialBoundsFromUrl} />
           </div>
         </div>
 

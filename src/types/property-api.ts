@@ -87,9 +87,18 @@ export interface PropertyListItem {
   organization?: PropertyOrganization;
 }
 
+export interface MapDataItem {
+  id: number;
+  lat: number;
+  lng: number;
+  price: string;
+  reference_code: string;
+}
+
 export interface PropertiesResponse {
   data: CreateProperty[];
   total: number;
   page: number;
   limit: number;
+  mapData?: MapDataItem[];
 }

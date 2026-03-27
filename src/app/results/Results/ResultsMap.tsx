@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { APIProvider, Map, AdvancedMarker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, InfoWindow, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
+import { useQuery } from '@tanstack/react-query';
+import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { CreateProperty } from '@/types/propiedad';
+import type { MapDataItem } from '@/types/property-api';
 import './ResultsMap.scss';
-import { AWS_S3_BUCKET_URL } from '@/constants';
+import { API_BASE_URL } from '@/utils/utils';
 import PropertyCardGridList from './PropertyCardGridList';
 
 interface Bounds {
@@ -16,6 +19,7 @@ interface Bounds {
 
 interface ResultsMapProps {
   properties: CreateProperty[];
+  mapData: MapDataItem[];
   initialLocationQuery?: string;
   initialBounds?: Bounds | null;
 }
@@ -100,24 +104,127 @@ function MapBehavior({ initialLocationQuery, initialBounds, onMapReady }: MapBeh
   return null;
 }
 
-export default function ResultsMap({ properties, initialLocationQuery, initialBounds }: ResultsMapProps) {
+// ─── Clustered Markers ───────────────────────────────────────────────────────
+
+interface ClusteredMarkersProps {
+  mapData: MapDataItem[];
+  selectedId: number | null;
+  onMarkerClick: (id: number) => void;
+}
+
+function ClusteredMarkers({ mapData, selectedId, onMarkerClick }: ClusteredMarkersProps) {
+  const map = useMap();
+  const markerLib = useMapsLibrary('marker');
+  const markersRef = useRef<Record<number, google.maps.marker.AdvancedMarkerElement>>({});
+  const prevSelectedRef = useRef<number | null>(null);
+
+  // Create / recreate clusterer and all markers whenever map or data changes
+  useEffect(() => {
+    if (!map || !markerLib) return;
+
+    const clusterer = new MarkerClusterer({
+      map,
+      renderer: {
+        render: ({ count, position }) => {
+          const div = document.createElement('div');
+          div.style.cssText = [
+            'width:40px', 'height:40px', 'border-radius:50%',
+            'background:#020D4B', 'color:#fff',
+            'display:flex', 'align-items:center', 'justify-content:center',
+            'font-size:13px', 'font-weight:600', 'cursor:pointer',
+            'border:2px solid rgba(255,255,255,0.7)',
+            'box-shadow:0 2px 8px rgba(0,0,0,0.4)',
+          ].join(';');
+          div.textContent = String(count);
+          return new markerLib.AdvancedMarkerElement({ position, content: div });
+        },
+      },
+      onClusterClick: (_e, cluster) => {
+        if (cluster.bounds) map.fitBounds(cluster.bounds, 80);
+      },
+    });
+
+    const markers: google.maps.marker.AdvancedMarkerElement[] = [];
+    const newMarkersById: Record<number, google.maps.marker.AdvancedMarkerElement> = {};
+
+    mapData.forEach(item => {
+      const dot = document.createElement('div');
+      dot.style.cssText = [
+        'width:24px', 'height:24px', 'border-radius:50%',
+        `background:${selectedId === item.id ? '#0041D9' : '#020D4B'}`,
+        'cursor:pointer',
+      ].join(';');
+      const marker = new markerLib.AdvancedMarkerElement({
+        position: { lat: item.lat, lng: item.lng },
+        content: dot,
+      });
+      marker.addListener('click', () => onMarkerClick(item.id));
+      newMarkersById[item.id] = marker;
+      markers.push(marker);
+    });
+
+    clusterer.addMarkers(markers);
+    markersRef.current = newMarkersById;
+    prevSelectedRef.current = selectedId;
+
+    return () => {
+      clusterer.clearMarkers();
+      clusterer.setMap(null);
+      markers.forEach(m => { m.map = null; });
+      markersRef.current = {};
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, markerLib, mapData, onMarkerClick]);
+
+  // Update only the dot color when selection changes (no full re-render)
+  useEffect(() => {
+    const prev = prevSelectedRef.current;
+    if (prev !== null && markersRef.current[prev]) {
+      (markersRef.current[prev].content as HTMLDivElement).style.backgroundColor = '#020D4B';
+    }
+    if (selectedId !== null && markersRef.current[selectedId]) {
+      (markersRef.current[selectedId].content as HTMLDivElement).style.backgroundColor = '#0041D9';
+    }
+    prevSelectedRef.current = selectedId;
+  }, [selectedId]);
+
+  return null;
+}
+
+export default function ResultsMap({ properties, mapData, initialLocationQuery, initialBounds }: ResultsMapProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  const geoProperties = useMemo(
-    () =>
-      properties
-        .map(p => ({ ...p, geo_lat: Number(p.geo_lat), geo_long: Number(p.geo_long) }))
-        .filter(p => !isNaN(p.geo_lat) && !isNaN(p.geo_long) && p.geo_lat !== 0 && p.geo_long !== 0),
-    [properties]
-  );
+  const propertiesById = useMemo(() => {
+    const acc: Record<number, CreateProperty> = {};
+    for (const p of properties) {
+      if (p.id != null) acc[p.id] = p;
+    }
+    return acc;
+  }, [properties]);
 
   const center = useMemo(() => {
-    if (geoProperties.length === 0) return DEFAULT_CENTER;
-    const avgLat = geoProperties.reduce((s, p) => s + p.geo_lat!, 0) / geoProperties.length;
-    const avgLng = geoProperties.reduce((s, p) => s + p.geo_long!, 0) / geoProperties.length;
+    if (mapData.length === 0) return DEFAULT_CENTER;
+    const avgLat = mapData.reduce((s, p) => s + p.lat, 0) / mapData.length;
+    const avgLng = mapData.reduce((s, p) => s + p.lng, 0) / mapData.length;
     return { lat: avgLat, lng: avgLng };
-  }, [geoProperties]);
+  }, [mapData]);
+
+  const selectedInProperties = selectedId !== null ? (propertiesById[selectedId] ?? null) : null;
+  const needsFetch = selectedId !== null && selectedInProperties === null;
+
+  const { data: fetchedProperty, isLoading: isFetchingProperty } = useQuery<CreateProperty>({
+    queryKey: ['property', selectedId],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/properties/${selectedId}`);
+      if (!res.ok) throw new Error('Error fetching property');
+      return res.json();
+    },
+    enabled: needsFetch,
+    staleTime: 60_000,
+  });
+
+  const selectedProperty = selectedInProperties ?? (needsFetch ? (fetchedProperty ?? null) : null);
 
   const handleMarkerClick = useCallback((id: number) => {
     setSelectedId(prev => (prev === id ? null : id));
@@ -165,41 +272,27 @@ export default function ResultsMap({ properties, initialLocationQuery, initialBo
               mapRef.current = map;
             }}
           />
-          {geoProperties.map(property => {
-            const isSelected = selectedId === property.id;
-
+          <ClusteredMarkers
+            mapData={mapData}
+            selectedId={selectedId}
+            onMarkerClick={handleMarkerClick}
+          />
+          {(() => {
+            const selectedItem = selectedId !== null ? mapData.find(i => i.id === selectedId) ?? null : null;
+            if (!selectedItem) return null;
             return (
-              <AdvancedMarker
-                key={property.id}
-                position={{ lat: property.geo_lat!, lng: property.geo_long! }}
-                onClick={(e) => {
-                  e.stop();
-                  handleMarkerClick(property.id!);
-                }}
+              <InfoWindow
+                position={{ lat: selectedItem.lat, lng: selectedItem.lng }}
+                onCloseClick={() => setSelectedId(null)}
               >
-                <div className={`results-marker-wrapper ${isSelected ? 'active' : ''}`}>
-                  {isSelected && (
-                    <div className="results-marker-info" onClick={e => e.stopPropagation()}>
-                      <PropertyCardGridList
-                        key={property.id}
-                        property={property}
-                        // onFavorite={() => handleToggleFavorite(property.id ?? 0)}
-                      />
-                    </div>
-                  )}
-                  <div
-                    style={{
-                      width: 24,
-                      height: 24,
-                      borderRadius: '50%',
-                      backgroundColor: isSelected ? '#0041D9' : '#020D4B',
-                      cursor: 'pointer',
-                    }}
-                  />
-                </div>
-              </AdvancedMarker>
+                {isFetchingProperty && !selectedProperty ? (
+                  <div style={{ padding: '8px' }}>Cargando...</div>
+                ) : selectedProperty ? (
+                  <PropertyCardGridList property={selectedProperty} />
+                ) : null}
+              </InfoWindow>
             );
-          })}
+          })()}
         </Map>
         <button
           type="button"

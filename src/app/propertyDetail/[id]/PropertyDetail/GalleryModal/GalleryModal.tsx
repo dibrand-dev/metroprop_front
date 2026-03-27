@@ -28,6 +28,7 @@ export interface GalleryModalProps {
   plans: CreateAttached[];
   initialTab?: GalleryTab;
   initialIndex?: number;
+  gallery360?: string[]
 }
 
 export default function GalleryModal({
@@ -226,8 +227,7 @@ export default function GalleryModal({
 
       {/* ── 360 ── */}
       {galleryTab === '360' && (
-        <div className="property-gallery-lightbox-empty">
-          <p>Contenido 360° próximamente</p>
+        <div className="property-gallery-lightbox-main">          
         </div>
       )}
     </div>

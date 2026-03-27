@@ -116,7 +116,7 @@ export default function LocationAutocompleteInput({
       return;
     }
 
-    setSuggestions([]);
+    // setSuggestions([]);
     setOpen(false);
 
     if (debounceRef.current) {

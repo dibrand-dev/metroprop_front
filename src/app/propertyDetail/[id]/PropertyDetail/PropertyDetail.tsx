@@ -155,6 +155,11 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     return (property?.attached ?? []).filter(a => a.upload_status === 'completed');
   }, [property]);
 
+  // Gallery plans (attached files)
+  const gallery360 = useMemo(() => {
+    return (property?.multimedia360 ?? []).filter(a => a.upload_status === 'completed');
+  }, [property]);
+
   const dynamicFeatures = useMemo(() => {
     if (!property) return [];
     const features: { label: string; icon: string }[] = [];
@@ -540,6 +545,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         images={galleryImages}
         videos={galleryVideos as unknown as GalleryVideo[]}
         plans={galleryPlans}
+        gallery360={gallery360}
         initialTab={galleryInitialTab}
         initialIndex={galleryInitialIndex}
       />
