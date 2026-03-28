@@ -37,7 +37,7 @@ export default function UserSignup() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const hasAutoRegisteredRef = useRef(false);
-  const { data: googleSession, status: sessionStatus } = useSession();
+  const { data: googleSession, status: sessionStatus, update: updateSession } = useSession();
 
   // Mutation for user registration
   const registerUserMutation = useMutation({
@@ -115,26 +115,6 @@ export default function UserSignup() {
     }
   };
 
-  const registerUser = async (payload: { email: string; password?: string; name?: string, google?: boolean }) => {
-
-      // Replace fetch with useMutation from tanstack/react-query
-      // import { useMutation } from '@tanstack/react-query';
-      // const registerUserMutation = useMutation({
-      //   mutationFn: async (formData) => {
-      //     const response = await fetch(`${API_BASE_URL}/registration/`, {
-      //       method: 'POST',
-      //       headers: {
-      //         'Content-Type': 'application/json',
-      //       },
-      //       body: JSON.stringify(formData),
-      //     });
-      //     if (!response.ok) throw new Error('Error registering user');
-      //     return response.json();
-      //   }
-      // });
-      // registerUserMutation.mutate(payload);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -183,6 +163,112 @@ export default function UserSignup() {
     registerUserMutation.mutate({ email, password });
   };
 
+
+
+
+
+  const setCookieMutation = useMutation({
+    mutationFn: async (token: string) => {
+      const response = await fetch('/api/auth/set-cookie', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Error setting cookie');
+      return response.json();
+    }
+  });
+
+  // Mutation for Google registration/login
+  const googleRegistrationMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      const response = await fetch(`${API_BASE_URL}/registration/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al iniciar sesión con Google');
+      }
+      return response.json();
+    },
+    onSuccess: async (data: any) => {
+      console.log('Google registration/login successful:', data);
+      await storeAuthData(data);
+      if (data.message === "Usuario creado exitosamente con Google") {        
+        setShowSuccessModal(true);
+        setTimeout(() => {
+          setShowSuccessModal(false);
+          router.replace('/');
+        }, 3000);
+      } else {      
+        router.push('/');
+      }
+    },
+    onError: (err: any) => {
+      const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
+      setError(errorMessage);
+    },
+  });
+
+  const storeAuthData = async (data: any) => {
+    if (!(data?.access_token && data?.user)) {
+      return;
+    }
+    
+    localStorage.setItem('authToken', data.access_token);
+
+    const sessionUpdate: Record<string, unknown> = {};
+    if (data.user?.id) sessionUpdate.id = String(data.user.id);
+    if (data.user?.organization) sessionUpdate.organization = data.user.organization;
+    if (Object.keys(sessionUpdate).length > 0) {
+      await updateSession(sessionUpdate);
+    }
+
+    try {
+      await setCookieMutation.mutateAsync(data.access_token);
+    } catch (cookieError) {
+      console.error('Error calling set-cookie API:', cookieError);
+    }
+  };
+
+  useEffect(() => {    
+    const shouldProcessGoogleLogin = searchParams.get('googleRegister') === '1';
+    
+    if (!shouldProcessGoogleLogin || hasAutoRegisteredRef.current) {
+      return;
+    }
+
+    // Wait until NextAuth session is ready after the OAuth redirect
+    if (shouldProcessGoogleLogin && sessionStatus !== 'authenticated') {
+      return;
+    }
+
+    const processGoogleLogin = async () => {
+      const sessionEmail = googleSession?.user?.email ?? '';
+      if (!sessionEmail) {
+        return;
+      }
+
+      hasAutoRegisteredRef.current = true;
+      setError('');
+      googleRegistrationMutation.mutate({
+        email: sessionEmail,
+        name: googleSession?.user?.name ?? undefined,
+        avatar: (googleSession?.user as any)?.image ?? undefined,
+        google_id: (googleSession?.user as any)?.id,
+      });
+    };
+
+    shouldProcessGoogleLogin && processGoogleLogin();
+  }, [router, searchParams, startTransition, googleSession, sessionStatus]);
+
   const handleGoogleSignUp = () => {
     startTransition(async () => {
       try {
@@ -229,7 +315,7 @@ export default function UserSignup() {
               email: sessionEmail,
               name: googleSession?.user?.name ?? undefined,
               avatar: (googleSession?.user as any)?.image ?? undefined,
-              google_id: googleSession?.user?.id
+              google_id: (googleSession?.user as any)?.id
             }),
           });
 
@@ -242,7 +328,7 @@ export default function UserSignup() {
             setShowSuccessModal(true);
             setTimeout(() => {
               setShowSuccessModal(false);
-              router.replace('/signup');
+              router.replace('/');
             }, 3000);
           }
         } catch (err) {
@@ -303,7 +389,7 @@ export default function UserSignup() {
           type="text"
           placeholder="Correo electrónico*"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
           id="email"
           name="email"
           autoComplete="email"
@@ -318,7 +404,7 @@ export default function UserSignup() {
           type="password"
           placeholder="Contraseña*"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
           id="password"
           name="password"
           autoComplete="new-password"
@@ -333,7 +419,7 @@ export default function UserSignup() {
           type="password"
           placeholder="Confirmar contraseña*"
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
           id="confirmPassword"
           name="confirmPassword"
           autoComplete="new-password"

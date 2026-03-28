@@ -25,6 +25,7 @@ export default function UserSignin() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
+  const [showSuccessModal, setShowSuccessModal] = useState(false);  
   const [showEmailVerificatedModal, setShowEmailVerificatedModal] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -63,8 +64,17 @@ export default function UserSignin() {
       return response.json();
     },
     onSuccess: async (data: any) => {
+      console.log('Google registration/login successful:', data);
       await storeAuthData(data);
-      router.push('/');
+      if (data.message === "Usuario creado exitosamente con Google") {        
+        setShowSuccessModal(true);
+        setTimeout(() => {
+          setShowSuccessModal(false);
+          router.replace('/');
+        }, 3000);
+      } else {      
+        router.push('/');
+      }
     },
     onError: (err: any) => {
       const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
@@ -78,8 +88,12 @@ export default function UserSignin() {
     }
     
     localStorage.setItem('authToken', data.access_token);
-    if (data.user?.organization) {      
-      await updateSession({ organization: data.user.organization });
+
+    const sessionUpdate: Record<string, unknown> = {};
+    if (data.user?.id) sessionUpdate.id = String(data.user.id);
+    if (data.user?.organization) sessionUpdate.organization = data.user.organization;
+    if (Object.keys(sessionUpdate).length > 0) {
+      await updateSession(sessionUpdate);
     }
 
     try {
@@ -229,8 +243,6 @@ export default function UserSignin() {
   }, [router, searchParams, startTransition, googleSession, sessionStatus]);
 
   useEffect(() => {
-
-   
     const tmeid = setTimeout(() => {
       const formElement = document.getElementById('password');
       formElement?.click();
@@ -340,6 +352,7 @@ export default function UserSignin() {
         </form>
       </div>
       {showEmailVerificatedModal && <SuccessModal title="¡Email verificado!" text="Puedes loguearte con tu email." />}
+      {showSuccessModal && <SuccessModal title="¡Cuenta creada exitosamente!" text="Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión y comenzar a explorar nuestras propiedades." />}
     </>
   );
 }

@@ -60,9 +60,10 @@ export const authOptions = {
       console.log("  - Account:", account ? "✅ EXISTS" : "❌ NULL");
       console.log("  - User:", user ? "✅ EXISTS" : "❌ NULL");
 
-      // Persist organization when session is updated programmatically via update()
-      if (trigger === 'update' && session?.organization !== undefined) {
-        token.organization = session.organization;
+      // Persist fields when session is updated programmatically via update()
+      if (trigger === 'update') {
+        if (session?.organization !== undefined) token.organization = session.organization;
+        if (session?.id !== undefined) token.id = session.id;
       }
 
       if (account) {
