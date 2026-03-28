@@ -11,10 +11,10 @@ import { API_BASE_URL } from '@/utils/utils';
 import PropertyCardGridList from './PropertyCardGridList';
 
 interface Bounds {
-  lat_ne: number;
-  lng_ne: number;
-  lat_sw: number;
-  lng_sw: number;
+  northEastLat: number;
+  northEastLng: number;
+  southWestLat: number;
+  southWestLng: number;
 }
 
 interface ResultsMapProps {
@@ -54,20 +54,22 @@ function MapBehavior({ initialLocationQuery, initialBounds, onMapReady }: MapBeh
   const map = useMap();
   const geocodingLib = useMapsLibrary('geocoding');
   const geocoder = useRef<google.maps.Geocoder | null>(null);
+  const hasFittedBoundsRef = useRef(!initialBounds); // true means "skip fitting" — only fit if bounds were present on mount
 
   useEffect(() => {
     if (!map) return;
     onMapReady?.(map);
   }, [map, onMapReady]);
 
-  // Fit map to bounding box when bbox params are present in the URL
+  // Fit map to bounding box only once on initial load
   useEffect(() => {
-    if (!map || !initialBounds) return;
+    if (!map || !initialBounds || hasFittedBoundsRef.current) return;
+    hasFittedBoundsRef.current = true;
     map.fitBounds({
-      north: initialBounds.lat_ne,
-      east: initialBounds.lng_ne,
-      south: initialBounds.lat_sw,
-      west: initialBounds.lng_sw,
+      north: initialBounds.northEastLat,
+      east: initialBounds.northEastLng,
+      south: initialBounds.southWestLat,
+      west: initialBounds.southWestLng,
     });
   }, [map, initialBounds]);
 

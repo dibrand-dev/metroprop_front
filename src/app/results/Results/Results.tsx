@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import PropertyCardMapList from './PropertyCardMapList';
@@ -8,10 +8,12 @@ import PropertyCardGridList from './PropertyCardGridList';
 import FilterBar from './FilterBar';
 import SortDropdown from './SortDropdown';
 import ResultsMap from './ResultsMap';
+import PropertyCardSkeleton from './PropertyCardSkeleton';
 import './Results.scss';
 import { fetchProperties, searchParamsToFilterParams } from '@/lib/properties';
 // import type { PropertyListItem } from '@/types/property-api';
 import { CreateProperty } from '@/types/propiedad';
+import type { MapDataItem } from '@/types/property-api';
 
 
 export default function Results() {
@@ -69,17 +71,29 @@ export default function Results() {
   const locationQuery = activeSearchParams.get('q')?.trim() ?? '';
 
   const initialBoundsFromUrl = useMemo(() => {
-    const lat_ne = parseFloat(activeSearchParams.get('lat_ne') ?? '');
-    const lng_ne = parseFloat(activeSearchParams.get('lng_ne') ?? '');
-    const lat_sw = parseFloat(activeSearchParams.get('lat_sw') ?? '');
-    const lng_sw = parseFloat(activeSearchParams.get('lng_sw') ?? '');
-    if ([lat_ne, lng_ne, lat_sw, lng_sw].some(isNaN)) return null;
-    return { lat_ne, lng_ne, lat_sw, lng_sw };
+    const northEastLat = parseFloat(activeSearchParams.get('northEastLat') ?? '');
+    const northEastLng = parseFloat(activeSearchParams.get('northEastLng') ?? '');
+    const southWestLat = parseFloat(activeSearchParams.get('southWestLat') ?? '');
+    const southWestLng = parseFloat(activeSearchParams.get('southWestLng') ?? '');
+    if ([northEastLat, northEastLng, southWestLat, southWestLng].some(isNaN)) return null;
+    return { northEastLat, northEastLng, southWestLat, southWestLng };
   }, [activeSearchParams]);
 
   const properties: CreateProperty[] = (data?.data ?? []);
   const totalProperties = data?.total ?? 0;
   const totalPages = Math.ceil(totalProperties / limit);
+
+  // ─── Stable mapData — only updates when filters change, not on pagination ─
+  const filterKey = useMemo(() => {
+    const p = new URLSearchParams(activeSearch);
+    p.delete('page');
+    return p.toString();
+  }, [activeSearch]);
+  const stableMapDataRef = useRef<{ key: string; items: MapDataItem[] }>({ key: '', items: [] });
+  if (!isLoading && data?.mapData && stableMapDataRef.current.key !== filterKey) {
+    stableMapDataRef.current = { key: filterKey, items: data.mapData };
+  }
+  const mapData = stableMapDataRef.current.items;
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -106,7 +120,11 @@ export default function Results() {
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
-    // Implement sorting logic
+    const params = new URLSearchParams(activeSearch);
+    params.set('order_by', value);
+    const nextSearch = params.toString();
+    window.history.replaceState(window.history.state, '', `/results?${nextSearch}`);
+    window.dispatchEvent(new CustomEvent('results:filters-changed', { detail: { search: nextSearch } }));
   };
 
   const handleToggleFavorite = (propertyId: number) => {
@@ -119,12 +137,7 @@ export default function Results() {
       {/* Filter Bar - Desktop only */}
       <FilterBar setViewMode={setViewMode} viewMode={viewMode}  />
 
-      {/* Loading / Error states */}
-      {isLoading && (
-        <div className="results-loading">
-          <span>Cargando propiedades...</span>
-        </div>
-      )}
+      {/* Error state */}
       {isError && (
         <div className="results-error">
           <span>No se pudieron cargar las propiedades. Intente nuevamente.</span>
@@ -164,7 +177,7 @@ export default function Results() {
         {/* Map View - Always visible on desktop (unless grid layout), toggle on mobile */}
         <div className={`map-view ${viewMode === 'map' ? 'active' : ''} ${layoutMode === 'grid' ? 'hidden-grid' : ''}`}>
           <div className="map-container">
-            <ResultsMap properties={properties} mapData={data?.mapData ?? []} initialLocationQuery={locationQuery} initialBounds={initialBoundsFromUrl} />
+            <ResultsMap properties={properties} mapData={mapData} initialLocationQuery={locationQuery} initialBounds={initialBoundsFromUrl} />
           </div>
         </div>
 
@@ -199,8 +212,10 @@ export default function Results() {
                 </div>
               </div>
           </div>  
-          {/* Grid Layout */}
-          {layoutMode === 'grid' && (
+          {/* Grid / List Layout */}
+          {isLoading ? (
+            <PropertyCardSkeleton layout={layoutMode} count={limit} />
+          ) : layoutMode === 'grid' ? (
             <div className="property-grid">
               {properties.map((property) => (
                 <a href={`/propertyDetail/${property.id}`} key={property.id} className="property-link">
@@ -212,10 +227,7 @@ export default function Results() {
                 </a>
               ))}
             </div>
-          )}
-
-          {/* List Layout */}
-          {layoutMode === 'list' && (
+          ) : (
             <div className="property-list">
               {properties.map((property) => (
                 <a href={`/propertyDetail/${property.id}`} key={property.id} className="property-link">

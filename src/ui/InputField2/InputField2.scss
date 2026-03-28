@@ -72,7 +72,7 @@
     font-size: 16px;
     color: $input-text-color;
     caret-color: $input-text-color;
-    font-family: var(--font-inter), sans-serif;
+    
     font-weight: 400;
     line-height: 20px;
     padding: 18px 0 6px 0;
@@ -177,7 +177,7 @@
         font-size: 14px;
         font-weight: 500;
         color: #e84545;
-        font-family: var(--font-inter), sans-serif;
+        
         line-height: 18px;
         letter-spacing: 0.035px;
         margin: 0;
@@ -200,7 +200,7 @@
       .input-field-2-input {
         font-size: 16px;
         color: #e84545;
-        font-family: var(--font-inter), sans-serif;
+        
         font-weight: 400;
         line-height: 20px;
         flex: 1;
@@ -244,7 +244,7 @@
         font-size: 14px;
         font-weight: 500;
         color: #a6a6a6;
-        font-family: var(--font-inter), sans-serif;
+        
         line-height: 18px;
         letter-spacing: 0.035px;
         margin: 0;
@@ -264,7 +264,7 @@
       .input-field-2-input {
         font-size: 16px;
         color: #a6a6a6;
-        font-family: var(--font-inter), sans-serif;
+        
         font-weight: 400;
         line-height: 20px;
         flex: 1;
@@ -410,7 +410,7 @@
 .input-field-2-error {
   color: #e84545;
   font-size: 12px;
-  font-family: var(--font-inter), sans-serif;
+  
   line-height: 16px;
   margin-top: 4px;
   padding-left: 16px;

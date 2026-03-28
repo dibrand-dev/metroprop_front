@@ -12,7 +12,6 @@ import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery } from '@tanstack/react-query';
 import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype } from '@/types/propiedad';
 import { API_BASE_URL } from '@/utils/utils';
-import { AWS_S3_BUCKET_URL } from '@/constants';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
 import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
@@ -142,7 +141,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const galleryImages = useMemo(() => {
     return (property?.images ?? [])
       .filter(img => !img.is_blueprint && img.upload_status === 'completed')
-      .map(img => `${AWS_S3_BUCKET_URL}/${img.url}`);
+      .map(img => img.url);
   }, [property]);
 
   // Gallery videos

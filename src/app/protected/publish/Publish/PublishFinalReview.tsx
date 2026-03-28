@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import './PublishFinalReview.scss';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
-import { AWS_S3_BUCKET_URL } from '@/constants';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
@@ -263,12 +262,12 @@ export default function PublishFinalReview({
 
                 <div className="publish-review-gallery">
                   <div className="publish-review-gallery-main">
-                    {wizardData?.images?.[0]?.url && <img src={`${AWS_S3_BUCKET_URL}/${wizardData?.images?.[0]?.url}`} alt="Vista principal" />}
+                    {wizardData?.images?.[0]?.url && <img src={wizardData?.images?.[0]?.url} alt="Vista principal" />}
                   </div>
                   <div className="publish-review-gallery-grid">
                     {wizardData?.images?.slice(1).map((image, index) => (
                       <div key={image.url} className="publish-review-gallery-item">
-                        <img src={`${AWS_S3_BUCKET_URL}/${image.url}`} alt={`Vista ${index + 2}`} />
+                        <img src={image.url} alt={`Vista ${index + 2}`} />
                       </div>
                     ))}
                   </div>

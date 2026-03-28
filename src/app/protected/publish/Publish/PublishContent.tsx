@@ -8,7 +8,6 @@ import { CreateImage, CreateImagePlans, CreatePropertyDraft, OPERATION_TYPE_LABE
 
 // Replace fetch with useMutation for multimedia upload
 import { useMutation } from '@tanstack/react-query';
-import { AWS_S3_BUCKET_URL } from '@/constants';
 import { API_BASE_URL } from '@/utils/utils';
 
 const iconChevron = '/icons/chevron-up.svg';
@@ -501,7 +500,7 @@ export default function PublishContent({
                               <span>Subiendo...</span>
                             </div>
                           ) : isCompleted ? (
-                            <img src={`${AWS_S3_BUCKET_URL}/${image.url}`} alt="Foto" />
+                            <img src={image.url} alt="Foto" />
                           ) : hasError ? (
                             <div className="publish-content-upload-error">
                               <span className="error-icon">!</span>
@@ -717,7 +716,7 @@ export default function PublishContent({
                                         <small>{plan.file_url.split('/').pop()}</small>
                                       </div>
                                     ) : (
-                                      <img src={`${AWS_S3_BUCKET_URL}/${plan.file_url}`} alt="Plano" />
+                                      <img src={plan.file_url} alt="Plano" />
                                     )
                                   ) : hasError ? (
                                     <div className="publish-content-upload-error">

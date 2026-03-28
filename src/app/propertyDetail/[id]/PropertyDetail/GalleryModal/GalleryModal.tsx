@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { AWS_S3_BUCKET_URL } from '@/constants';
 import { CreateAttached } from '@/types/propiedad';
 
 const extractYouTubeId = (url: string): string | null => {
@@ -201,10 +200,10 @@ export default function GalleryModal({
                 <div className="property-gallery-lightbox-pdf">
                   <span>PDF</span>
                   <small>{plan.file_url.split('/').pop()}</small>
-                  <a href={`${AWS_S3_BUCKET_URL}/${plan.file_url}`} target="_blank" rel="noopener noreferrer">Abrir PDF</a>
+                  <a href={plan.file_url} target="_blank" rel="noopener noreferrer">Abrir PDF</a>
                 </div>
               ) : (
-                <img src={`${AWS_S3_BUCKET_URL}/${plan?.file_url}`} alt={`Plano ${planActiveIndex + 1}`} className="property-gallery-lightbox-image" />
+                <img src={plan?.file_url} alt={`Plano ${planActiveIndex + 1}`} className="property-gallery-lightbox-image" />
               )}
               <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-next" aria-label="Siguiente" onClick={() => setPlanActiveIndex(prev => Math.min(prev + 1, plans.length - 1))} disabled={planActiveIndex === plans.length - 1}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
@@ -216,7 +215,7 @@ export default function GalleryModal({
                 const isPdfThumb = p.file_url?.toLowerCase().endsWith('.pdf');
                 return (
                   <button key={idx} type="button" className={`property-gallery-lightbox-thumb ${idx === planActiveIndex ? 'is-active' : ''}`} onClick={() => setPlanActiveIndex(idx)} aria-label={`Ver plano ${idx + 1}`}>
-                    {isPdfThumb ? <div className="property-gallery-lightbox-thumb-placeholder">PDF</div> : <img src={`${AWS_S3_BUCKET_URL}/${p.file_url}`} alt={`Plano ${idx + 1}`} />}
+                    {isPdfThumb ? <div className="property-gallery-lightbox-thumb-placeholder">PDF</div> : <img src={p.file_url} alt={`Plano ${idx + 1}`} />}
                   </button>
                 );
               })}

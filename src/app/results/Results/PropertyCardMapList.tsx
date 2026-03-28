@@ -2,7 +2,6 @@
 import React from 'react';
 import './PropertyCardMapList.scss';
 import { CreateProperty } from '@/types/propiedad';
-import { AWS_S3_BUCKET_URL } from '@/constants';
 import { formatNumbers } from '@/utils/utils';
 
 interface PropertyCardMapListProps {
@@ -11,13 +10,11 @@ interface PropertyCardMapListProps {
 }
 
 const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onFavorite }) => {
-  const defaultImage = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=400&fit=crop';
-  console.log("propertypropertyproperty", property)
   return (
     <div className="property-card-map-list">
       <div className="card-content">
         {property.images?.[0]?.url && <img 
-          src={`${AWS_S3_BUCKET_URL}/${property.images[0].url}`} 
+          src={property.images[0].url} 
           alt={property.publication_title}
           className="property-image"
         />}

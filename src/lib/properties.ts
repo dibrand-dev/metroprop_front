@@ -40,8 +40,16 @@ export function searchParamsToFilterParams(
     'price_min', 'price_max', 'price_m2_min', 'price_m2_max',
     'roofed_surface_min', 'roofed_surface_max', 'total_surface_min', 'total_surface_max',
     'age_min', 'age_max',
-    'lat_ne', 'lng_ne', 'lat_sw', 'lng_sw',
+    'northEastLat', 'northEastLng', 'southWestLat', 'southWestLng',
   ]);
+
+  // Bbox URL param → API param name mapping
+  const BBOX_MAP: Record<string, string> = {
+    northEastLat: 'northEastLat',
+    northEastLng: 'northEastLng',
+    southWestLat: 'southWestLat',
+    southWestLng: 'southWestLng',
+  };
 
   const result: PropertyFilterParams = {
     page: 1,
@@ -50,11 +58,12 @@ export function searchParamsToFilterParams(
 
   sp.forEach((value: string, key: string) => {
     if (value === '') return;
+    const apiKey = BBOX_MAP[key] ?? key;
     if (NUM_FIELDS.has(key)) {
       const num = Number(value);
-      if (!isNaN(num)) (result as Record<string, unknown>)[key] = num;
+      if (!isNaN(num)) (result as Record<string, unknown>)[apiKey] = num;
     } else {
-      (result as Record<string, unknown>)[key] = value;
+      (result as Record<string, unknown>)[apiKey] = value;
     }
   });
 

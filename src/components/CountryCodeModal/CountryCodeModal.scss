@@ -31,7 +31,7 @@
 
   h3 {
     margin: 0;
-    font-family: var(--font-inter), sans-serif;
+    
     font-size: 22px;
     font-weight: 600;
     line-height: 26px;
@@ -64,7 +64,7 @@
     border: none;
     background: transparent;
     height: 44px;
-    font-family: var(--font-inter), sans-serif;
+    
     font-size: 16px;
     line-height: 22px;
     color: #1e1e1e;
@@ -108,7 +108,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  font-family: var(--font-inter), sans-serif;
+  
   font-size: 16px;
   font-weight: 400;
   line-height: 20px;
@@ -135,7 +135,7 @@
 
 .country-code-modal-empty {
   padding: 12px 16px;
-  font-family: var(--font-inter), sans-serif;
+  
   font-size: 16px;
   color: #7a7a7a;
 }

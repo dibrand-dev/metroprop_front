@@ -2,7 +2,6 @@
 import React from 'react';
 import './PropertyCardGridList.scss';
 import { CreateProperty } from '@/types/propiedad';
-import { AWS_S3_BUCKET_URL } from '@/constants';
 import { formatNumbers } from '@/utils/utils';
 
 interface PropertyCardGridListProps {
@@ -19,7 +18,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
     <div className="property-card-grid-list">
       {property.images?.[0]?.url && <div className="image-section">
         <img 
-          src={`${AWS_S3_BUCKET_URL}/${property.images[0].url}`} 
+          src={property.images[0].url} 
           alt={property.publication_title}
           className="property-image"
         />
