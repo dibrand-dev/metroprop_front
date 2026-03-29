@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import './Partners.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import { API_BASE_URL } from '@/utils/utils';
@@ -11,12 +12,15 @@ const iconArrowBack = '/icons/arrow.svg';
 const iconRefresh = '/icons/refresh.svg';
 const iconLock = '/icons/lock.svg';
 const iconTrash = '/icons/trash.svg';
+const iconCheck = '/icons/check_black.svg';
+const iconPencil = '/icons/pencil.svg';
 
-type ConfirmAction = { type: 'refresh' | 'disable' | 'delete'; id: number } | null;
+type ConfirmAction = { type: 'refresh' | 'edit' | 'disable' | 'enable' | 'delete'; id: number } | null;
 
 export default function Partners() {
   const [showMenu, setShowMenu] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
+  const router = useRouter();
   const [refreshCredentials, setRefreshCredentials] = useState<{ app_key: string; app_secret: string } | null>(null);
   const queryClient = useQueryClient();
 
@@ -34,16 +38,28 @@ export default function Partners() {
     mutationFn: async (id: number) => {
       const res = await fetch(`${API_BASE_URL}/partners/${id}/refresh-access-key`);
       if (!res.ok) throw new Error('Error refreshing access key');
-      return res.json();
+      if (res.status === 204 || res.headers.get('content-length') === '0') return null;
+      return res.json().catch(() => null);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['partners'] }),
   });
 
   const disableMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(`${API_BASE_URL}/partners/${id}/disable`);
+      const res = await fetch(`${API_BASE_URL}/partners/${id}/disable`, { method: 'PATCH' });
       if (!res.ok) throw new Error('Error disabling partner');
-      return res.json();
+      if (res.status === 204 || res.headers.get('content-length') === '0') return null;
+      return res.json().catch(() => null);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['partners'] }),
+  });
+
+  const enableMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`${API_BASE_URL}/partners/${id}/enable`, { method: 'PATCH' });
+      if (!res.ok) throw new Error('Error enabling partner');
+      if (res.status === 204 || res.headers.get('content-length') === '0') return null;
+      return res.json().catch(() => null);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['partners'] }),
   });
@@ -52,13 +68,15 @@ export default function Partners() {
     mutationFn: async (id: number) => {
       const res = await fetch(`${API_BASE_URL}/partners/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error deleting partner');
-      return res.json();
+      if (res.status === 204 || res.headers.get('content-length') === '0') return null;
+      return res.json().catch(() => null);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['partners'] }),
   });
 
-  const refresh = (id: number) => setConfirmAction({ type: 'refresh', id });
+  const refresh = (id: number) => setConfirmAction({ type: 'refresh', id });  
   const desHabilitar = (id: number) => setConfirmAction({ type: 'disable', id });
+  const habilitar = (id: number) => setConfirmAction({ type: 'enable', id });
   const eliminar = (id: number) => setConfirmAction({ type: 'delete', id });
 
   const handleConfirm = async () => {
@@ -70,14 +88,19 @@ export default function Partners() {
       setRefreshCredentials({ app_key: response.data.app_key, app_secret: response.data.app_secret });
     } else if (type === 'disable') {
       disableMutation.mutate(id);
+    } else if (type === 'enable') {
+      enableMutation.mutate(id);
     } else if (type === 'delete') {
       deleteMutation.mutate(id);
+    } else if (type === 'edit') {
+      // Handle edit action here
     }
   };
 
   const confirmMessages: Record<string, { title: string; text: string; icon: string }> = {
     refresh: { title: 'Refresh API Key', text: '¿Estás seguro que desea refrescar la API key del partner?', icon: iconRefresh },
     disable: { title: 'Deshabilitar Partner', text: '¿Estás seguro que desea deshabilitar el partner?', icon: iconLock },
+    enable: { title: 'Habilitar Partner', text: '¿Estás seguro que desea habilitar el partner?', icon: iconCheck },
     delete: { title: 'Eliminar Partner', text: '¿Estás seguro que desea eliminar el partner?', icon: iconTrash },
   };
 
@@ -103,9 +126,9 @@ export default function Partners() {
           <div className="partners-header">
             <div>
               <h1>Partners</h1>
-              <p>Aca podes crear y eliminar partners'</p>
+              <p>Aca podes crear, eliminar, deshabilitar y actualizar keys de los partners</p>
             </div>
-            <button className="partners-add-button" type="button">
+            <button className="partners-add-button" type="button" onClick={() => router.push('/protected/partnerForm')}>
               Agregar partner
             </button>
           </div>
@@ -128,12 +151,20 @@ export default function Partners() {
                       className="partners-action-button"
                       type="button"
                       aria-label="Ver Api key"
-                      onClick={() => {}}
+                      onClick={() => setRefreshCredentials({ app_key: partner.app_key, app_secret: partner.app_secret })}
                     >
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
+                    </button>                   
+                    <button
+                      className="partners-action-button"
+                      type="button"
+                      aria-label="Editar partner"
+                      onClick={() => router.push(`/protected/partnerForm/${partner.id}`)}
+                    >
+                      <img src={iconPencil} alt="Editar partner" />
                     </button>
                     <button
                       className="partners-action-button"
@@ -147,9 +178,9 @@ export default function Partners() {
                       className="partners-action-button"
                       type="button"
                       aria-label={partner.status === 1 ? "Deshabilitar partner" : "Habilitar partner"}
-                      onClick={() => desHabilitar(partner.id)}
+                      onClick={() => partner.status === 1 ? desHabilitar(partner.id) : habilitar(partner.id)}
                     >
-                      <img src={iconLock} alt={partner.status === 1 ? "Deshabilitar partner" : "Habilitar partner"} />
+                      <img src={partner.status === 1 ? iconLock : iconCheck} alt={partner.status === 1 ? "Deshabilitar partner" : "Habilitar partner"} />
                     </button>
                     <button
                       className="partners-action-button"
@@ -167,7 +198,7 @@ export default function Partners() {
         </div>
 
         <div className="partners-mobile-footer">
-          <button className="partners-add-button" type="button">
+          <button className="partners-add-button" type="button" onClick={() => router.push('/protected/partnerForm')}>
             Agregar partner
           </button>
         </div>
