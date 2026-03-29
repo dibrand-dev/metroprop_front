@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
-import { signIn, useSession } from 'next-auth/react';
+import { useEffect, useState, useTransition } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
@@ -12,6 +12,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
 import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import Button from '@/ui/Button/Button';
+import { useGoogleAuth } from '@/lib/useGoogleAuth';
 
 const iconGoogle = "/icons/google.svg";
 
@@ -36,8 +37,7 @@ export default function UserSignup() {
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const hasAutoRegisteredRef = useRef(false);
-  const { data: googleSession, status: sessionStatus, update: updateSession } = useSession();
+  const { update: updateSession } = useSession();
 
   // Mutation for user registration
   const registerUserMutation = useMutation({
@@ -163,184 +163,21 @@ export default function UserSignup() {
     registerUserMutation.mutate({ email, password });
   };
 
-
-
-
-
-  const setCookieMutation = useMutation({
-    mutationFn: async (token: string) => {
-      const response = await fetch('/api/auth/set-cookie', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-        credentials: 'include',
-      });
-      if (!response.ok) throw new Error('Error setting cookie');
-      return response.json();
-    }
-  });
-
-  // Mutation for Google registration/login
-  const googleRegistrationMutation = useMutation({
-    mutationFn: async (payload: any) => {
-      const response = await fetch(`${API_BASE_URL}/registration/google`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al iniciar sesión con Google');
-      }
-      return response.json();
+  const { isGoogleLoading, googleError, handleGoogleAuth } = useGoogleAuth({
+    callbackPath: '/signup',
+    paramName: 'googleRegister',
+    onNewUser: () => {
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        router.replace('/');
+      }, 3000);
     },
-    onSuccess: async (data: any) => {
-      console.log('Google registration/login successful:', data);
-      await storeAuthData(data);
-      if (data.message === "Usuario creado exitosamente con Google") {        
-        setShowSuccessModal(true);
-        setTimeout(() => {
-          setShowSuccessModal(false);
-          router.replace('/');
-        }, 3000);
-      } else {      
-        router.push('/');
-      }
-    },
-    onError: (err: any) => {
-      const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
-      setError(errorMessage);
+    onExistingUser: () => {
+      router.push('/');
     },
   });
 
-  const storeAuthData = async (data: any) => {
-    if (!(data?.access_token && data?.user)) {
-      return;
-    }
-    
-    localStorage.setItem('authToken', data.access_token);
-
-    const sessionUpdate: Record<string, unknown> = {};
-    if (data.user?.id) sessionUpdate.id = String(data.user.id);
-    if (data.user?.organization) sessionUpdate.organization = data.user.organization;
-    if (Object.keys(sessionUpdate).length > 0) {
-      await updateSession(sessionUpdate);
-    }
-
-    try {
-      await setCookieMutation.mutateAsync(data.access_token);
-    } catch (cookieError) {
-      console.error('Error calling set-cookie API:', cookieError);
-    }
-  };
-
-  useEffect(() => {    
-    const shouldProcessGoogleLogin = searchParams.get('googleRegister') === '1';
-    
-    if (!shouldProcessGoogleLogin || hasAutoRegisteredRef.current) {
-      return;
-    }
-
-    // Wait until NextAuth session is ready after the OAuth redirect
-    if (shouldProcessGoogleLogin && sessionStatus !== 'authenticated') {
-      return;
-    }
-
-    const processGoogleLogin = async () => {
-      const sessionEmail = googleSession?.user?.email ?? '';
-      if (!sessionEmail) {
-        return;
-      }
-
-      hasAutoRegisteredRef.current = true;
-      setError('');
-      googleRegistrationMutation.mutate({
-        email: sessionEmail,
-        name: googleSession?.user?.name ?? undefined,
-        avatar: (googleSession?.user as any)?.image ?? undefined,
-        google_id: (googleSession?.user as any)?.id,
-      });
-    };
-
-    shouldProcessGoogleLogin && processGoogleLogin();
-  }, [router, searchParams, startTransition, googleSession, sessionStatus]);
-
-  const handleGoogleSignUp = () => {
-    startTransition(async () => {
-      try {
-        setError('');
-        await signIn('google', {
-          redirect: true,
-          callbackUrl: '/signup?googleRegister=1',
-        });
-      } catch (err) {
-        console.error('Google sign up exception:', err);
-        setError('Error al crear cuenta con Google. Por favor intenta de nuevo.');
-      }
-    });
-  };
-
-  useEffect(() => {
-    const shouldAutoRegister = searchParams.get('googleRegister') === '1';
-    if (!shouldAutoRegister || hasAutoRegisteredRef.current) {
-      return;
-    }
-
-    // Wait until NextAuth session is ready after the OAuth redirect
-    if (sessionStatus !== 'authenticated') {
-      return;
-    }
-
-    const runGoogleRegistration = async () => {
-      const sessionEmail = googleSession?.user?.email ?? '';
-      if (!sessionEmail) {
-        return;
-      }
-
-      hasAutoRegisteredRef.current = true;
-      setError('');
-
-      startTransition(async () => {
-        try {
-          const response:any = await fetch(`${API_BASE_URL}/registration/google`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: sessionEmail,
-              name: googleSession?.user?.name ?? undefined,
-              avatar: (googleSession?.user as any)?.image ?? undefined,
-              google_id: (googleSession?.user as any)?.id
-            }),
-          });
-
-          if (!response.ok) {
-            const errorMessage = 'Error al conectar con el servidor';
-            setError(errorMessage);
-            router.replace('/signup');
-            return;
-          } else {
-            setShowSuccessModal(true);
-            setTimeout(() => {
-              setShowSuccessModal(false);
-              router.replace('/');
-            }, 3000);
-          }
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
-          setError(errorMessage);
-        }
-      });
-    };
-
-    runGoogleRegistration();
-  }, [searchParams, startTransition, googleSession, sessionStatus]);
-  
   const handleResendEmail = async () => {
     // Check if resend is currently disabled
     if (resendDisabledUntil && Date.now() < resendDisabledUntil) {
@@ -372,7 +209,8 @@ export default function UserSignup() {
   const resendMessage = isResendDisabled 
     ? `Podrás reenviar el correo en ${formatRemainingTime(remainingTime)}`
     : undefined;
-
+  const isFormDisabled = isPending || isGoogleLoading;
+  
   return (
   <>
     <BackButtonLogo />
@@ -394,6 +232,7 @@ export default function UserSignup() {
           name="email"
           autoComplete="email"
           error={fieldErrors.email}
+          disabled={isFormDisabled}
         />
       </div>
 
@@ -409,6 +248,7 @@ export default function UserSignup() {
           name="password"
           autoComplete="new-password"
           error={fieldErrors.password}
+          disabled={isFormDisabled}
         />
       </div>
 
@@ -424,6 +264,7 @@ export default function UserSignup() {
           name="confirmPassword"
           autoComplete="new-password"
           error={fieldErrors.confirmPassword}
+          disabled={isFormDisabled}
         />
       </div>
       <Button
@@ -432,7 +273,7 @@ export default function UserSignup() {
         variant="primary"
         buttonType="1"
         state="default"
-        disabled={isPending}
+        disabled={isFormDisabled}
         loading={isPending}
         fullWidth={true}
         size="medium"
@@ -463,11 +304,11 @@ export default function UserSignup() {
       <button
         type="button"
         className="merged-signup-google-button"
-        onClick={handleGoogleSignUp}
-        disabled={isPending}
+        onClick={handleGoogleAuth}
+        disabled={isFormDisabled}
       >
         <img src={iconGoogle} alt="" />
-        <span>{isPending ? 'Procesando...' : 'Google'}</span>
+        <span>{isGoogleLoading ? 'Procesando...' : 'Google'}</span>
       </button>
 
       {/* Terms Checkboxes */}
@@ -479,6 +320,7 @@ export default function UserSignup() {
           id="agreeTerms"
           name="agreeTerms"
           error={fieldErrors.agreeTerms}
+          disabled={isFormDisabled}
         />
 
         <Checkbox
@@ -488,11 +330,12 @@ export default function UserSignup() {
           id="agreePrivacy"
           name="agreePrivacy"
           error={fieldErrors.agreePrivacy}
+          disabled={isFormDisabled}
         />
       </div>
-      {error && (
+      {(error || googleError) && (
         <div className="merged-signup-error-message">
-          {error}
+          {error || googleError}
         </div>
       )}
     </form>

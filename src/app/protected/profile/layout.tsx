@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Administra los datos de tu inmobiliaria",
 };
 
-export default function ProfessionalProfileLayout({
+export default function ProfileLayout({
   children,
 }: {
   children: React.ReactNode;

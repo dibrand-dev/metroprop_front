@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import './ProfessionalProfile.scss';
+import './Profile.scss';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import { useSession } from 'next-auth/react';
@@ -15,7 +15,7 @@ interface PropertyData {
 
 const formatNumeric = (value: string): string => value.replace(/\D/g, '');
 
-export default function ProfessionalProfile() {
+export default function Profile() {
   const { data: sessionData, status: sessionStatus } = useSession();
   const [activeSection, setActiveSection] = useState<'generales' | 'ubicacion' | 'descripcion'>('generales');
   const [showMenu, setShowMenu] = useState(false);

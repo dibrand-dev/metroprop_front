@@ -1,4 +1,4 @@
-import Partners from '@/app/protected/partners/Partners/Partners';
+import Partners from "./Partners/Partners";
 
 export default function PartnersPage() {
   return <Partners />;

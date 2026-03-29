@@ -18,10 +18,11 @@ interface SubmenuProps {
 }
 
 const items: SubmenuItem[] = [
-  { id: 'datos', label: 'Datos de inmobiliaria', href: "/protected/professionalProfile" },
+  { id: 'datos', label: 'Datos de inmobiliaria', href: "/protected/profile" },
   { id: 'ubicacion', label: 'Sucursales', href: "/protected/branches" },
   { id: 'destaques', label: 'Destaques', href: "/protected/highlights" },
   { id: 'colaboradores', label: 'Colaboradores', href: "/protected/collaborators" },
+  { id: 'partners', label: 'Partners', href: "/protected/partners" },
 ];
 
 export default function Submenu({ active }: SubmenuProps) {

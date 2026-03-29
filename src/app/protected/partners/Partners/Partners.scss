@@ -1,0 +1,247 @@
+.professionalContainer {
+  padding: 48px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+
+  @media (max-width: 768px) {
+    padding: 0;
+
+    &.activeMenuMobile {
+      background-color: #ffffff;
+    }
+  }
+}
+
+.partners-container {
+  flex: 1;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  &.mobile-hidden {
+    display: none;
+  }
+}
+
+.partners-mobile-header {
+  display: none;
+  align-items: center;
+  padding: 8px 16px;
+  height: 64px;
+  border-bottom: 1.3px solid #a6a6a6;
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+}
+
+.partners-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 34px;
+  letter-spacing: -0.078px;
+  color: #1e1e1e;
+
+  img {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.partners-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 16px 32px;
+
+  @media (min-width: 768px) {
+    padding: 24px 0 32px;
+  }
+}
+
+.partners-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  h1 {
+    margin: 0;
+    
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 43px;
+    color: #1e1e1e;
+  }
+
+  p {
+    margin: 0;
+    
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #1e1e1e;
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+  }
+}
+
+.partners-add-button {
+  height: 48px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #006aff;
+  background: #006aff;
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.32px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .partners-header .partners-add-button {
+    display: none;
+  }
+}
+
+.partners-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.partners-card {
+  border: 1.3px solid #006aff;
+  border-radius: 8px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+  }
+}
+
+.partners-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.partners-card-title {
+  margin: 0;
+  
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+  color: #1e1e1e;
+}
+
+.partners-card-subtitle {
+  margin: 0;
+  
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.16px;
+  color: #7a7a7a;
+}
+
+.partners-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  @media (min-width: 768px) {
+    justify-content: flex-end;
+    gap: 24px;
+  }
+}
+
+.partners-role-chip {
+  background: #f5f5f5;
+  color: #7a7a7a;
+  
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  letter-spacing: 0.08px;
+  padding: 4px 8px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.partners-card-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.partners-action-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid #006aff;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.partners-mobile-footer {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    border-top: 1px solid #a6a6a6;
+    background: #ffffff;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .partners-content {
+    padding-bottom: 120px;
+  }
+}

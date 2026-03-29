@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import InputField2 from '@/ui/InputField2/InputField2';
@@ -10,6 +10,7 @@ import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import { API_BASE_URL } from '@/utils/utils';
 import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import { useMutation } from '@tanstack/react-query';
+import { useGoogleAuth } from '@/lib/useGoogleAuth';
 
 const iconGoogle = '/icons/google.svg';
 
@@ -29,8 +30,7 @@ export default function UserSignin() {
   const [showEmailVerificatedModal, setShowEmailVerificatedModal] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: googleSession, status: sessionStatus, update: updateSession } = useSession();
-  const hasProcessedGoogleLoginRef = useRef(false);
+  const { update: updateSession } = useSession();
 
   const setCookieMutation = useMutation({
     mutationFn: async (token: string) => {
@@ -47,61 +47,20 @@ export default function UserSignin() {
     }
   });
 
-  // Mutation for Google registration/login
-  const googleRegistrationMutation = useMutation({
-    mutationFn: async (payload: any) => {
-      const response = await fetch(`${API_BASE_URL}/registration/google`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al iniciar sesión con Google');
-      }
-      return response.json();
+  const { isGoogleLoading, googleError, handleGoogleAuth } = useGoogleAuth({
+    callbackPath: '/login',
+    paramName: 'googleLogin',
+    onNewUser: () => {
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        router.replace('/');
+      }, 3000);
     },
-    onSuccess: async (data: any) => {
-      console.log('Google registration/login successful:', data);
-      await storeAuthData(data);
-      if (data.message === "Usuario creado exitosamente con Google") {        
-        setShowSuccessModal(true);
-        setTimeout(() => {
-          setShowSuccessModal(false);
-          router.replace('/');
-        }, 3000);
-      } else {      
-        router.push('/');
-      }
-    },
-    onError: (err: any) => {
-      const errorMessage = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
-      setError(errorMessage);
+    onExistingUser: () => {
+      router.push('/');
     },
   });
-
-  const storeAuthData = async (data: any) => {
-    if (!(data?.access_token && data?.user)) {
-      return;
-    }
-    
-    localStorage.setItem('authToken', data.access_token);
-
-    const sessionUpdate: Record<string, unknown> = {};
-    if (data.user?.id) sessionUpdate.id = String(data.user.id);
-    if (data.user?.organization) sessionUpdate.organization = data.user.organization;
-    if (Object.keys(sessionUpdate).length > 0) {
-      await updateSession(sessionUpdate);
-    }
-
-    try {
-      await setCookieMutation.mutateAsync(data.access_token);
-    } catch (cookieError) {
-      console.error('Error calling set-cookie API:', cookieError);
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -164,49 +123,14 @@ export default function UserSignin() {
     });
   };
 
-  const handleGoogleSignIn = () => {
-    startTransition(async () => {
-      try {
-        setError('');
-        await signIn('google', {
-          redirect: true,
-          callbackUrl: '/login?googleLogin=1',
-        });
-      } catch (err) {
-        console.error('Google sign in exception:', err);
-        setError('Error al iniciar sesión con Google. Por favor intenta de nuevo.');
-      }
-    });
-  };
+  const isFormDisabled = isPending || isGoogleLoading;
 
   useEffect(() => {    
-    const shouldProcessGoogleLogin = searchParams.get('googleLogin') === '1';
     const shouldProcessValidation = searchParams.get('verifyMailToken') !== null && searchParams.get('verifyMailToken') !== "";
     
-    if (!shouldProcessValidation && (!shouldProcessGoogleLogin || hasProcessedGoogleLoginRef.current)) {
+    if (!shouldProcessValidation) {
       return;
     }
-
-    // Wait until NextAuth session is ready after the OAuth redirect
-    if (shouldProcessGoogleLogin && sessionStatus !== 'authenticated') {
-      return;
-    }
-
-    const processGoogleLogin = async () => {
-      const sessionEmail = googleSession?.user?.email ?? '';
-      if (!sessionEmail) {
-        return;
-      }
-
-      hasProcessedGoogleLoginRef.current = true;
-      setError('');
-      googleRegistrationMutation.mutate({
-        email: sessionEmail,
-        name: googleSession?.user?.name ?? undefined,
-        avatar: (googleSession?.user as any)?.image ?? undefined,
-        google_id: (googleSession?.user as any)?.id,
-      });
-    };
 
     const processValidation = async () => {
       const token = searchParams.get('verifyMailToken') || '';
@@ -237,10 +161,9 @@ export default function UserSignin() {
       }
     };
 
-    shouldProcessGoogleLogin && processGoogleLogin();
-    shouldProcessValidation && processValidation()
+    processValidation();
 
-  }, [router, searchParams, startTransition, googleSession, sessionStatus]);
+  }, [searchParams]);
 
   useEffect(() => {
     const tmeid = setTimeout(() => {
@@ -274,6 +197,7 @@ export default function UserSignin() {
               onChange={(e) => setEmail(e.target.value)}
               id="email"
               name="email"
+              disabled={isFormDisabled}
               error={fieldErrors.email}
             />
           </div>
@@ -287,6 +211,7 @@ export default function UserSignin() {
               onChange={(e) => setPassword(e.target.value)}
               id="password"
               name="password"
+              disabled={isFormDisabled}
               error={fieldErrors.password}
             />
           </div>
@@ -297,13 +222,13 @@ export default function UserSignin() {
 
           <div style={{ marginBottom: '24px' }}>
             <Button
-              label={isPending ? 'Iniciando sesión...' : 'Iniciar sesión'}
+              label={isFormDisabled ? 'Iniciando sesión...' : 'Iniciar sesión'}
               type="submit"
               variant="primary"
               buttonType="1"
               state="default"
-              disabled={isPending}
-              loading={isPending}
+              disabled={isFormDisabled}
+              loading={isFormDisabled}
               fullWidth={true}
               size="medium"
             />
@@ -326,15 +251,15 @@ export default function UserSignin() {
             <button
               type="button"
               className="merged-signup-google-button"
-              onClick={handleGoogleSignIn}
-              disabled={isPending}
+              onClick={handleGoogleAuth}
+              disabled={isFormDisabled || isPending}
             >
               <img src={iconGoogle} alt="" />
-              <span>{isPending ? 'Procesando...' : 'Google'}</span>
+              <span>{isGoogleLoading ? 'Procesando...' : 'Google'}</span>
             </button>
           </div>
 
-          {error && (
+          {(error || googleError) && (
             <div
               style={{
                 marginTop: '16px',
@@ -346,7 +271,7 @@ export default function UserSignin() {
                 fontSize: '14px',
               }}
             >
-              {error}
+              {error || googleError}
             </div>
           )}
         </form>
