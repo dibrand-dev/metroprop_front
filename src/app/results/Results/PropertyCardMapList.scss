@@ -100,33 +100,43 @@
     gap: 8px;
     padding-right: 16px;
     color: #1E1E1E;
-  }
-
-  .address {
-    
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 20px;
-    border-right: 1px solid #000000;
-    padding-right: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 1;
-  }
-
-  .specs {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-
-    span {
-      
+    @media (max-width: 767px) {
+      flex-direction: column;
+      padding: 0;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .address {    
       font-weight: 400;
       font-size: 16px;
       line-height: 20px;
+      border-right: 1px solid #000000;
+      padding-right: 4px;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 1;
+      @media (max-width: 767px) {
+        border-right: 0;
+        padding-right: 0;
+      }
+    }
+    .specs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+
+      span {
+        
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 20px;
+        white-space: nowrap;
+      }
     }
   }
+
+ 
+  
 }

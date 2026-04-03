@@ -171,7 +171,7 @@ export default function Publish() {
     }
   });
 
-  const saveCurrentStep = async (wizardDataUpdate: Partial<CreatePropertyDraft>) => {
+  const saveCurrentStep = async (wizardDataUpdate: Partial<CreatePropertyDraft>, nextStep: boolean) => {
     const _wizardDataUpdate = {...wizardDataUpdate};
 
     if (!wizardData.draft_id) {
@@ -184,21 +184,11 @@ export default function Publish() {
     } catch (error: any) {
       console.error('Error updating property:', error?.message || error);
     }
-    goToNextStep();
+    if (nextStep) {
+      goToNextStep();
+    }
   }
 
-  const saveAndExit = async () => {
-    if (wizardData.draft_id) {
-      try {
-        await updatePropertyMutation.mutateAsync(wizardData);
-        console.log('Draft saved successfully');
-        window.location.href = '/';
-      } catch (error) {
-        console.error('Error saving draft:', error);
-        window.location.href = '/';
-      }
-    }
-  };
   const renderCurrentStep = () => {
     switch (currentStep) {
       case WizardStep.INITIAL:
@@ -240,9 +230,9 @@ export default function Publish() {
           <PublishLocation
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={(locationData) => saveCurrentStep(locationData)}
+            onNext={(locationData) => saveCurrentStep(locationData, true)}
             onBack={goToPreviousStep}
-            onSaveAndExit={saveAndExit}
+            onSaveAndExit={(locationData) => saveCurrentStep(locationData, false)}
           />
         );
 
@@ -253,7 +243,7 @@ export default function Publish() {
             updateWizardData={updateWizardData}
             onNext={() => goToNextStep()}
             onBack={goToPreviousStep}
-            onSaveAndExit={saveAndExit}
+            onSaveAndExit={() => window.location.href = '/'}
           />
         );
 
@@ -262,9 +252,9 @@ export default function Publish() {
           <PublishPropertyDescription
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={(descriptionData) => saveCurrentStep(descriptionData)}
+            onNext={(descriptionData) => saveCurrentStep(descriptionData, true)}
             onBack={goToPreviousStep}
-            onSaveAndExit={saveAndExit}
+            onSaveAndExit={(descriptionData) => saveCurrentStep(descriptionData, false)}
           />
         );
 
@@ -273,9 +263,9 @@ export default function Publish() {
           <PublishMainInfo
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={(mainData) => saveCurrentStep(mainData)}
+            onNext={(mainData) => saveCurrentStep(mainData, true)}
             onBack={goToPreviousStep}
-            onSaveAndExit={saveAndExit}
+            onSaveAndExit={(mainData) => saveCurrentStep(mainData, false)}
           />
         );
 
@@ -284,9 +274,9 @@ export default function Publish() {
           <PublishPrice
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={(priceData) => saveCurrentStep(priceData)}
+            onNext={(priceData) => saveCurrentStep(priceData, true)}
             onBack={goToPreviousStep}
-            onSaveAndExit={saveAndExit}
+            onSaveAndExit={(priceData) => saveCurrentStep(priceData, false)}
           />
         );
 
@@ -295,9 +285,9 @@ export default function Publish() {
           <PublishPropertyContent
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={(propertyContentUpdate) => saveCurrentStep(propertyContentUpdate)}
+            onNext={(propertyContentUpdate) => saveCurrentStep(propertyContentUpdate, true)}
             onBack={goToPreviousStep}
-            onSaveAndExit={saveAndExit}
+            onSaveAndExit={(propertyContentUpdate) => saveCurrentStep(propertyContentUpdate, false)}
           />
         );
 
@@ -306,9 +296,9 @@ export default function Publish() {
           <PublishFinalReview
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={(wizardData) => saveCurrentStep(wizardData)}
+            onNext={(wizardData) => saveCurrentStep(wizardData, true)}
             onBack={goToPreviousStep}
-            onSaveAndExit={saveAndExit}
+            onSaveAndExit={(wizardData) => saveCurrentStep(wizardData, false)}
           />
         );
 
@@ -317,10 +307,10 @@ export default function Publish() {
           <PublishPlans
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={(plansUpdate) => saveCurrentStep(plansUpdate)}
+            onNext={(plansUpdate) => saveCurrentStep(plansUpdate, true)}
             onBack={goToPreviousStep}
             onComprar={goToBuyPlan}
-            onSaveAndExit={saveAndExit}
+            onSaveAndExit={(plansUpdate) => saveCurrentStep(plansUpdate, false)}
           />
         );
 

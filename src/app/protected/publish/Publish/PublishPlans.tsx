@@ -12,7 +12,7 @@ interface PublishPlansProps {
   onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onComprar: () => void;
-  onSaveAndExit: () => void;
+  onSaveAndExit: (descriptionData: Partial<CreatePropertyDraft>) => void;
 }
 
 const iconChevron = '/icons/chevron-up.svg';

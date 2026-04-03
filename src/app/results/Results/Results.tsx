@@ -58,6 +58,14 @@ export default function Results() {
 
   const limit = parseInt(activeSearchParams.get('limit') ?? '20', 10) || 20;
 
+  const hasFilters = useMemo(() => {
+    const ignored = new Set(['page', 'limit']);
+    for (const key of activeSearchParams.keys()) {
+      if (!ignored.has(key)) return true;
+    }
+    return false;
+  }, [activeSearchParams]);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ['properties', activeSearch, currentPage],
     queryFn: () => fetchProperties({
@@ -66,6 +74,7 @@ export default function Results() {
       limit,
     }),
     staleTime: 30_000,
+    enabled: hasFilters,
   });
 
   const locationQuery = activeSearchParams.get('q')?.trim() ?? '';
@@ -183,7 +192,7 @@ export default function Results() {
 
         {/* List View - Always visible on desktop, toggle on mobile */}
         <div className={`list-view ${viewMode === 'list' ? 'active' : ''} ${layoutMode === 'grid' ? 'full-width' : ''}`}>
-          <div className="list-header">
+          <div className="list-header" style={{ display: !hasFilters ? 'none' : 'flex' }}>
               <span className="results-count">{totalProperties.toLocaleString()} propiedades</span>
               <div className='flex items-center h-full gap-4'>
                 <SortDropdown value={sortBy} onChange={handleSortChange} />
@@ -213,7 +222,12 @@ export default function Results() {
               </div>
           </div>  
           {/* Grid / List Layout */}
-          {isLoading ? (
+          {!hasFilters ? (
+            <div className="results-no-filters">
+              <img src="/images/no_filtros.svg" alt="Sin filtros" className="results-no-filters-img" />
+              <p className="results-no-filters-text">Para continuar ingresa algún filtro a tu búsqueda</p>
+            </div>
+          ) : isLoading ? (
             <PropertyCardSkeleton layout={layoutMode} count={limit} />
           ) : layoutMode === 'grid' ? (
             <div className="property-grid">

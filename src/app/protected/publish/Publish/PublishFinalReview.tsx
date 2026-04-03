@@ -17,7 +17,7 @@ interface PublishFinalReviewProps {
   onNext: (data: Partial<CreatePropertyDraft>) => void;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
-  onSaveAndExit: () => void;
+  onSaveAndExit: (data: Partial<CreatePropertyDraft>) => void;
 }
 
 export default function PublishFinalReview({

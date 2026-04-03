@@ -21,7 +21,7 @@ interface PublishPropertyDescriptionProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
-  onSaveAndExit: () => void;
+  onSaveAndExit: (descriptionData: Partial<CreatePropertyDraft>) => void;
 }
 
 export default function PublishPropertyDescription({

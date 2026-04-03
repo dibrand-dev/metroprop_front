@@ -16,7 +16,7 @@ interface PublishPropertyContentProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (data: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
-  onSaveAndExit: () => void;
+  onSaveAndExit: (data: Partial<CreatePropertyDraft>) => void;
 }
 
 export default function PublishPropertyContent({

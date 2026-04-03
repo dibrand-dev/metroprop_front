@@ -9,7 +9,7 @@
   box-shadow: $shadow-md;
   padding: $spacing-md $spacing-lg;
 
-  @media (max-width: 767px) {
+  @media (max-width: 999px) {
     display: none;
   }
 
@@ -148,6 +148,17 @@
     display: none;
 }
 
+.list-header {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @media (max-width: 999px) {
+    padding: 8px 0;
+  }
+}
+
 // Results Page Styles
 .results-page {
   display: flex;
@@ -168,8 +179,16 @@
     color: #E53E3E;
   }
 
+  .map-view {
+    .property-card-grid-list {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+
   // Mobile: Full height, toggle between list and map
-  @media (max-width: 767px) {
+  @media (max-width: 999px) {
     .results-header {
       padding: 16px;
       border-bottom: 1px solid #E5E5E5;
@@ -236,6 +255,8 @@
       .list-view {
         overflow-y: auto;
         padding: 16px;
+        box-shadow: -4px 0px 4px 0px #34385040;
+
 
         .property-list {
           display: flex;
@@ -272,7 +293,7 @@
   }
 
   // Desktop: Split view (map left, list right)
-  @media (min-width: 768px) {
+  @media (min-width: 1000px) {
     
     .results-content {
       flex: 1;
@@ -297,26 +318,18 @@
       }
 
       .list-view {
-        flex: 1;
         display: flex;
         flex-direction: column;
-        width: calc(100% - 828px);
         &.full-width {
           flex: 1;
           max-width: 100%;
         }
 
         .list-header {
-          padding: 8px 24px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-
           .results-count {
             font-size: 16px;
             font-weight: 600;
             color: #1E1E1E;
-            
             letter-spacing: 0.16px;
           }
 
@@ -347,10 +360,6 @@
         .property-grid {
           overflow-y: auto;
           padding: 0 24px 16px 24px;
-          display: flex;
-          gap: 24px;
-          align-content: start;
-          flex-wrap: wrap;
         }
       }
     }
@@ -369,7 +378,7 @@
   border-radius: 100px;
   overflow: hidden;
 
-  @media (max-width: 767px) {
+  @media (max-width: 999px) {
     display: none;
   }
 
@@ -413,7 +422,10 @@
   font-size: 16px;
   font-weight: 600;
 
-
+  @media (max-width: 999px) {
+     border-bottom: 0;
+     padding: 16px;
+  }
   .filter-bar-container {
     display: flex;
     align-items: center;
@@ -459,11 +471,11 @@
 
   .filter-dropdown-wrapper {
     position: relative;
-    @media (max-width: 767px) {
+    @media (max-width: 999px) {
       display: none;
     }
     &.filtros-dropdown {
-      @media (max-width: 767px) {
+      @media (max-width: 999px) {
         display: block;
 
         .radio-button, .operacion-property-section, .rooms-popover-grid{
@@ -473,10 +485,10 @@
 
           
         .operacion-section, .precio-section, .operacion-property-section, .rooms-popover-grid {
-          @media (min-width: 767px) {  
+          @media (min-width: 1000px) {  
             display: none;
           }
-          @media (max-width: 767px) {  
+          @media (max-width: 999px) {  
             gap: 32px;
           }
         }
@@ -507,7 +519,7 @@
     align-items: center;
     gap: 24px;
     padding: 24px 24px 0;
-    @media (max-width: 767px) {
+    @media (max-width: 999px) {
       padding: 0;
     }
   }
@@ -593,7 +605,7 @@
     max-width: 400px;
     position: relative;
     
-    @media (max-width: 767px) {
+    @media (max-width: 999px) {
       display: none; // Mobile uses simplified filters
     }
     .input-field-2-wrapper {
@@ -652,7 +664,7 @@
       align-items: center;
       justify-content: center;
 
-      @media (max-width: 767px) {
+      @media (max-width: 999px) {
         display: none;
       }
     }
@@ -742,7 +754,7 @@
     max-height: calc(100vh - 160px);
     overflow: hidden;
 
-    @media (max-width: 767px) {
+    @media (max-width: 999px) {
       position: fixed;
       left: 0;
       top: 0;
@@ -1502,19 +1514,19 @@
 }
 
 #crear-alerta-button-desktop {
-  @media (max-width: 767px) {
+  @media (max-width: 999px) {
     display: none;
   }
 }
 
 #crear-alerta-button-mobile {
-  @media (min-width: 767px) {
+  @media (min-width: 1000px) {
     display: none;
   }
 }
 
 #list-map-view-mobile {
-  @media (min-width: 767px) {
+  @media (min-width: 1000px) {
     display: none;
   }
 }
@@ -1575,27 +1587,98 @@
   user-select: none;
 }
 
-
-@media (min-width: 768px) and (max-width: 999px) {    
+@media (min-width: 1201px) {    
   .results-content {      
     .map-view {
-      min-width: 4cap;
+      width: 60%;
+    }
+    .list-view {
+      width: 40%;
     }
   }
 }
 
 @media (min-width: 1000px) and (max-width: 1200px) {    
   .results-content {      
-    .map-view {
-      min-width: 600px;
+    .map-view, .list-view {
+      width: 50%;
     }
   }
 }
 
-@media (min-width: 1201px) {    
-  .results-content {      
+@media (max-width: 999px) {    
+  .results-content {
     .map-view {
-      min-width: 828px;
+      width: 100%;
+    }
+
+    .list-view.active {
+      padding-top: 0;
+      box-shadow: none;
+
+      .list-header {
+        padding-top: 0;
+
+        .sort-dropdown .sort-button {
+          border-right: none;
+        }
+      }
+
+      .property-wrapper {
+        .property-card-map-list {
+          .property-image {
+            width: 74px;
+            height: 74px;
+          }
+        }
+        
+      }
     }
   }
 }
+
+.results-no-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+  justify-content: center;
+  height: 265px;
+  padding: 32px;
+
+  .results-no-filters-text {
+    font-weight: 600;
+    font-style: Semi Bold;
+    font-size: 24px;
+    line-height: 30px;
+    letter-spacing: 0%;
+  }
+}
+
+.property-grid {
+  margin: 0 auto;
+  display: flex;
+  gap: 24px;
+  align-content: start;
+  flex-wrap: wrap;
+  max-width: 1468px;
+
+  @media (min-width: 1501px) {
+    width: 100%;
+  }
+
+  @media (min-width: 1201px) and (max-width: 1500px) {
+    width: 1095px;
+  }
+
+  @media (min-width: 1000px) and (max-width: 1200px) {
+    width: 738px;
+  }
+
+  @media (max-width: 999px) {
+    width: 100%;
+    justify-content: center;
+  }
+  
+}
+

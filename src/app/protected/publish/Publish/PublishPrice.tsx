@@ -16,7 +16,7 @@ interface PublishPriceProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (priceData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
-  onSaveAndExit: () => void;
+  onSaveAndExit: (priceData: Partial<CreatePropertyDraft>) => void;
 }
 
 export default function PublishPrice({

@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${montserrat.className} ${inter.className}`}>
+      <body className={`${inter.className}`}>
         <SessionProvider>
           <QueryProvider>
             {children}          

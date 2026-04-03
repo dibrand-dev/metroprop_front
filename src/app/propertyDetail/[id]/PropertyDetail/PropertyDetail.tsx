@@ -163,9 +163,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     if (!property) return [];
     const features: { label: string; icon: string }[] = [];
 
-    if (property.property_condition === 'new') features.push({ label: 'A estrenar', icon: '/icons/calendar.svg' });
-    else if (property.property_condition === 'construction') features.push({ label: 'En construcción', icon: '/icons/calendar.svg' });
-    else if (property.property_condition === 'years' && property.age) features.push({ label: `${property.age} años`, icon: '/icons/calendar.svg' });
+    if (property.age === 0) features.push({ label: 'A estrenar', icon: '/icons/calendar.svg' });
+    else if (property.age === -1) features.push({ label: 'En construcción', icon: '/icons/calendar.svg' });
+    else if (property.age! > 0) features.push({ label: `${property.age} años`, icon: '/icons/calendar.svg' });
 
     if (property.orientation) features.push({ label: ORIENTATION_LABELS[property.orientation as Orientation] ?? String(property.orientation), icon: '/icons/orientacion.svg' });
     if (property.total_surface && property.total_surface > 0 && property.surface_measurement) features.push({ label: `${formatNumbers(property.total_surface)} ${property.surface_measurement} tot.`, icon: '/icons/regla.svg' });

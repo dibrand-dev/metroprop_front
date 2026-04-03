@@ -131,7 +131,7 @@ function ClusteredMarkers({ mapData, selectedId, onMarkerClick }: ClusteredMarke
           const div = document.createElement('div');
           div.style.cssText = [
             'width:40px', 'height:40px', 'border-radius:50%',
-            'background:#020D4B', 'color:#fff',
+            'background:#006aff', 'color:#fff',
             'display:flex', 'align-items:center', 'justify-content:center',
             'font-size:13px', 'font-weight:600', 'cursor:pointer',
             'border:2px solid rgba(255,255,255,0.7)',
@@ -153,7 +153,7 @@ function ClusteredMarkers({ mapData, selectedId, onMarkerClick }: ClusteredMarke
       const dot = document.createElement('div');
       dot.style.cssText = [
         'width:24px', 'height:24px', 'border-radius:50%',
-        `background:${selectedId === item.id ? '#0041D9' : '#020D4B'}`,
+        `background:${selectedId === item.id ? '#020D4B' : '#006aff'}`,
         'cursor:pointer',
       ].join(';');
       const marker = new markerLib.AdvancedMarkerElement({
@@ -218,7 +218,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
   const { data: fetchedProperty, isLoading: isFetchingProperty } = useQuery<CreateProperty>({
     queryKey: ['property', selectedId],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/properties/${selectedId}`);
+      const res = await fetch(`${API_BASE_URL}/properties/${selectedId}?format=card`);
       if (!res.ok) throw new Error('Error fetching property');
       return res.json();
     },
@@ -284,8 +284,9 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
             if (!selectedItem) return null;
             return (
               <InfoWindow
-                position={{ lat: selectedItem.lat, lng: selectedItem.lng }}
+                position={{ lat: selectedItem.lat + 0.005, lng: selectedItem.lng}}
                 onCloseClick={() => setSelectedId(null)}
+                style={{ padding: 0, width: 302, height: 190  }}
               >
                 {isFetchingProperty && !selectedProperty ? (
                   <div style={{ padding: '8px' }}>Cargando...</div>

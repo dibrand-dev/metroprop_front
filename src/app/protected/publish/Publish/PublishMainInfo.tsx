@@ -34,7 +34,7 @@ interface PublishMainInfoProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (mainInfo: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
-  onSaveAndExit: () => void;
+  onSaveAndExit: (mainInfo: Partial<CreatePropertyDraft>) => void;
 }
 
 export default function PublishMainInfo({
@@ -98,8 +98,7 @@ export default function PublishMainInfo({
       roofed_surface_measurement,
       total_surface,
       roofed_surface,
-      property_condition,
-      age,
+      age: property_condition === "construction" ? -1 : property_condition === "new" ? 0 : age,
       room_amount: rooms.room_amount,
       suite_amount: rooms.suite_amount,
       bathroom_amount: rooms.bathroom_amount,

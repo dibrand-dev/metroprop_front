@@ -179,7 +179,7 @@ interface PublishLocationProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (locationUpdate: any) => void;
   onBack: () => void;
-  onSaveAndExit: () => void;
+  onSaveAndExit: (locationUpdate: any) => void;
 }
 
 export default function PublishLocation({

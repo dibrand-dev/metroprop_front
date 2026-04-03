@@ -96,7 +96,7 @@ const EMPTY_MAS_FILTROS: MasFiltrosState = {
   subtipos: {},
 };
 
-interface PrecioSectionState { moneda: 'ARS' | 'USD'; desde: string; hasta: string; }
+interface PrecioSectionState { moneda: 'ARS' | 'USD' | null; desde: string; hasta: string; }
 interface SuperficieFilter { tipo: 'Cubierta' | 'Total'; unidad: string; desde: string; hasta: string; }
 interface PrecioFilterState {
   precio: PrecioSectionState;
@@ -105,8 +105,8 @@ interface PrecioFilterState {
 }
 
 const EMPTY_PRECIO: PrecioFilterState = {
-  precio: { moneda: 'USD', desde: '', hasta: '' },
-  precioM2: { moneda: 'USD', desde: '', hasta: '' },
+  precio: { moneda: null, desde: '', hasta: '' },
+  precioM2: { moneda: null, desde: '', hasta: '' },
   superficie: { tipo: 'Total', unidad: 'm2', desde: '', hasta: '' },
 };
 
@@ -133,7 +133,7 @@ function toPairs<T>(arr: T[]): [T, T | undefined][] {
 
 /** Build URLSearchParams from the full applied filter state. */
 function buildFilterParams(
-  operacion: OperationType,
+  operacion: OperationType | null,
   selectedTypes: Record<string, boolean>,
   rooms: RoomsState,
   masFiltros: MasFiltrosState,
@@ -141,8 +141,8 @@ function buildFilterParams(
   searchText: string,
 ): URLSearchParams {
   const p = new URLSearchParams();
-  p.set('operation_type', String(operacion));
-  p.set('currency', precio.precio.moneda);
+  if (operacion) p.set('operation_type', String(operacion));
+  if (precio.precio.moneda) p.set('currency', precio.precio.moneda);
   p.set('page', '1');
   p.set('limit', '20');
 
@@ -620,7 +620,7 @@ export default function FilterBar({ setViewMode, viewMode }: { setViewMode: Reac
   const searchParams = useSearchParams();
 
   // ── Applied state
-  const [operacion, setOperacion] = useState<OperationType>(OperationType.ALQUILER);
+  const [operacion, setOperacion] = useState<OperationType | null>(null);
   const [selectedTypes, setSelectedTypes] = useState<Record<string, boolean>>({});
   const [rooms, setRooms] = useState<RoomsState>(EMPTY_ROOMS);
   const [masFiltros, setMasFiltros] = useState<MasFiltrosState>(EMPTY_MAS_FILTROS);
@@ -634,7 +634,7 @@ export default function FilterBar({ setViewMode, viewMode }: { setViewMode: Reac
   const [precioOpen, setPrecioOpen] = useState(false);
 
   // ── Temp / draft state
-  const [tempOperacion, setTempOperacion] = useState<OperationType>(OperationType.ALQUILER);
+  const [tempOperacion, setTempOperacion] = useState<OperationType | null>(null);
   const [tempSelectedTypes, setTempSelectedTypes] = useState<Record<string, boolean>>({});
   const [showAllTypes, setShowAllTypes] = useState(false);
   const [tempRooms, setTempRooms] = useState<RoomsState>(EMPTY_ROOMS);
@@ -697,7 +697,7 @@ export default function FilterBar({ setViewMode, viewMode }: { setViewMode: Reac
   // Push the full current filter state to the URL (replaces history entry,
   // page=1 reset happens automatically via buildFilterParams).
   const pushUrl = (
-    newOperacion: OperationType,
+    newOperacion: OperationType | null,
     newSelectedTypes: Record<string, boolean>,
     newRooms: RoomsState,
     newMasFiltros: MasFiltrosState,
@@ -806,7 +806,7 @@ export default function FilterBar({ setViewMode, viewMode }: { setViewMode: Reac
     setOperacion(newOp); setSelectedTypes(newTypes); setOperacionOpen(false);
     pushUrl(newOp, newTypes, rooms, masFiltros, precio, searchText);
   };
-  const handleClearOperacion = () => { setTempOperacion(OperationType.ALQUILER); setTempSelectedTypes({}); };
+  const handleClearOperacion = () => { setTempOperacion(null); setTempSelectedTypes({}); };
 
   // ── Rooms handlers
   const handleOpenRooms = () => {
