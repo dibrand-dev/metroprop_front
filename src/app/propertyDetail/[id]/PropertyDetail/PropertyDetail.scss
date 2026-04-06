@@ -877,7 +877,7 @@
   align-items: stretch;
 
   .property-card-wrapper {
-    width: 264px;
+    min-width: 264px;
     height: 100%;
     display: flex;
     flex-direction: column;

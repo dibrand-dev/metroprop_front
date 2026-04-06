@@ -8,7 +8,7 @@
     box-shadow: 1px 4px 4px rgba(0, 0, 0, 0.25);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     color: #1E1E1E;
-    width: 264px;
+    min-width: 264px;
     &:hover .property-card-info {
        background-color: #ffffff;
     }
