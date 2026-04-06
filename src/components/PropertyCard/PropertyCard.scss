@@ -9,6 +9,7 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     color: #1E1E1E;
     min-width: 264px;
+    max-width: 264px;
     &:hover .property-card-info {
        background-color: #ffffff;
     }
@@ -165,6 +166,7 @@
 @media (max-width: 640px) {
     .property-card-wrapper {
         width: 100%;
+        max-width: 100%;
     }
 
     .property-card-title {
