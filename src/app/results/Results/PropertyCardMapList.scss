@@ -116,6 +116,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       flex-shrink: 1;
+      max-width: 100%;
       @media (max-width: 767px) {
         border-right: 0;
         padding-right: 0;

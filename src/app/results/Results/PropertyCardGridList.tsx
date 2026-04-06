@@ -3,6 +3,7 @@ import React from 'react';
 import './PropertyCardGridList.scss';
 import { CreateProperty } from '@/types/propiedad';
 import { formatNumbers } from '@/utils/utils';
+import { AWS_S3_BUCKET_URL } from '@/app/constants';
 
 interface PropertyCardGridListProps {
   property: CreateProperty;
@@ -18,7 +19,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
     <div className="property-card-grid-list">
       {property.images?.[0]?.url && <div className="image-section">
         <img 
-          src={property.images[0].url} 
+          src={property.images[0].url.includes('http') ? property.images[0].url : `${AWS_S3_BUCKET_URL}/${property.images[0].url}`} 
           alt={property.publication_title}
           className="property-image"
         />
@@ -27,7 +28,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
       <div className="info-section">
         <div className="content-wrapper">
           <img 
-            src={property.agencyLogo || defaultLogo}
+            src={property.agencyLogo ? (property.agencyLogo.includes('http') ? property.agencyLogo : `${AWS_S3_BUCKET_URL}/${property.agencyLogo}`) : defaultLogo}
             alt="Agency logo"
             className="agency-logo"
           />

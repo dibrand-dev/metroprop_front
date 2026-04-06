@@ -291,7 +291,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                 {isFetchingProperty && !selectedProperty ? (
                   <div style={{ padding: '8px' }}>Cargando...</div>
                 ) : selectedProperty ? (
-                  <PropertyCardGridList property={selectedProperty} />
+                  <a href={`/propertyDetail/${selectedProperty.id}`}><PropertyCardGridList property={selectedProperty} /></a>
                 ) : null}
               </InfoWindow>
             );

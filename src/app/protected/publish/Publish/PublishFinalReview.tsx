@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import { useLocations } from '@/lib/locations';
 import { formatNumbers } from '@/utils/utils';
+import { AWS_S3_BUCKET_URL } from '@/app/constants';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -262,12 +263,12 @@ export default function PublishFinalReview({
 
                 <div className="publish-review-gallery">
                   <div className="publish-review-gallery-main">
-                    {wizardData?.images?.[0]?.url && <img src={wizardData?.images?.[0]?.url} alt="Vista principal" />}
+                    {wizardData?.images?.[0]?.url && <img src={wizardData?.images?.[0]?.url.includes('http') ? wizardData?.images?.[0]?.url : `${AWS_S3_BUCKET_URL}/${wizardData?.images?.[0]?.url}`} alt="Vista principal" />}
                   </div>
                   <div className="publish-review-gallery-grid">
                     {wizardData?.images?.slice(1).map((image, index) => (
                       <div key={image.url} className="publish-review-gallery-item">
-                        <img src={image.url} alt={`Vista ${index + 2}`} />
+                        <img src={image.url.includes('http') ? image.url : `${AWS_S3_BUCKET_URL}/${image.url}`} alt={`Vista ${index + 2}`} />
                       </div>
                     ))}
                   </div>

@@ -18,6 +18,8 @@ import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryMo
 import ContactForm from './ContactForm/ContactForm';
 import { useLocations } from '@/lib/locations';
 import { formatNumbers } from '@/utils/utils';
+import { AWS_S3_BUCKET_URL } from '@/app/constants';
+import { fetchProperties } from '@/lib/properties';
 
 interface PropertyDetailProps {
   propertyId: string;
@@ -77,6 +79,37 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       return res.json();
     },
   });
+
+  // Fetch similar properties by price
+  const { data: similarByPrice } = useQuery({
+    queryKey: ['similar-by-price', property?.id],
+    queryFn: () => fetchProperties({
+      property_type: String(property!.property_type),
+      ...(property!.property_subtype ? { property_subtype: String(property!.property_subtype) } : {}),
+      operation_type: String(property!.operation_type),
+      price_min: Math.max(0, property!.price - 10000),
+      price_max: property!.price + 10000,
+      limit: 20,
+      page: 1,
+    }),
+    enabled: !!property,
+    staleTime: 60_000,
+  });
+
+  // Fetch similar properties by surface
+  const { data: similarBySurface } = useQuery({
+    queryKey: ['similar-by-surface', property?.id],
+    queryFn: () => fetchProperties({
+      total_surface_min: Math.max(0, (property!.total_surface ?? 0) - 50),
+      total_surface_max: (property!.total_surface ?? 0) + 50,
+      limit: 20,
+      page: 1,
+    }),
+    enabled: !!property && !!property.total_surface,
+    staleTime: 60_000,
+  });
+
+  const similarPropertiesData = useMemo(() => [similarByPrice?.data ?? [], similarBySurface?.data ?? []], [similarByPrice?.data, similarBySurface?.data]);
 
   // Build amenity groups from loaded tags
   useEffect(() => {
@@ -141,7 +174,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const galleryImages = useMemo(() => {
     return (property?.images ?? [])
       .filter(img => !img.is_blueprint && img.upload_status === 'completed')
-      .map(img => img.url);
+      .map(img => img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`);
   }, [property]);
 
   // Gallery videos
@@ -225,20 +258,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   };
 
   useEffect(() => {
-    const sectionCount = SIMILAR_SECTIONS.length;
-    setSimilarCanScrollLeft((prev) => {
-      if (prev.length === sectionCount) return prev;
-      return Array.from({ length: sectionCount }, () => false);
+    // Recalculate after DOM updates when similar data changes
+    requestAnimationFrame(() => {
+      SIMILAR_SECTIONS.forEach((_, index) => {
+        updateSimilarScrollState(index);
+      });
     });
-    setSimilarCanScrollRight((prev) => {
-      if (prev.length === sectionCount) return prev;
-      return Array.from({ length: sectionCount }, () => true);
-    });
-
-    SIMILAR_SECTIONS.forEach((_, index) => {
-      updateSimilarScrollState(index);
-    });
-  }, []);
+  }, [similarPropertiesData]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -502,26 +528,31 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 }}
                 onScroll={() => handleSimilarScroll(index)}
               >
-                {Array.from({ length: section.count }).map((_, cardIndex) => (
-                  <PropertyCard 
-                    key={`${section.title}-${cardIndex}`} 
-                    property={{
-                      id: `similar-${section.title}-${cardIndex}`,
-                      price: 180000,
-                      rent: 0,
-                      currency: 'USD',
-                      currencyRent: 'USD',
-                      pricePerSqm: 2000,
-                      title: 'Propiedad similar',
-                      address: 'Calle Principal 1234',
-                      rooms: 3,
-                      bathrooms: 2,
-                      area: 90,
-                      image: '/images/property-placeholder.png',
-                      isFavorite: false,
-                    }}
-                  />
-                ))}
+                {(similarPropertiesData[index] ?? []).map((item) => {
+                  const firstImage = (item.images ?? []).find(img => !img.is_blueprint && img.upload_status === 'completed');
+                  const imageUrl = firstImage ? (firstImage.url.includes('http') ? firstImage.url : `${AWS_S3_BUCKET_URL}/${firstImage.url}`) : '/images/property-placeholder.png';
+                  return (
+                    <a href={`/propertyDetail/${item.id}`} key={item.id} style={{ textDecoration: 'none' }}>
+                      <PropertyCard
+                        property={{
+                          id: String(item.id ?? ''),
+                          price: item.price ?? 0,
+                          rent: item.expenses ?? 0,
+                          currency: (item.currency as 'USD' | 'ARS' | 'EUR') ?? 'USD',
+                          currencyRent: item.currency_expenses ?? item.currency ?? '',
+                          pricePerSqm: item.price_square_meter,
+                          title: item.publication_title ?? '',
+                          address: item.street ?? '',
+                          rooms: item.room_amount ?? 0,
+                          bathrooms: item.bathroom_amount ?? 0,
+                          area: item.total_surface ?? 0,
+                          image: imageUrl,
+                          isFavorite: false,
+                        }}
+                      />
+                    </a>
+                  );
+                })}
               </div>
               {similarCanScrollRight[index] && (
                 <button

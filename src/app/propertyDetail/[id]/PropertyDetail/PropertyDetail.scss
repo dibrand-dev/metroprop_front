@@ -874,9 +874,23 @@
   scroll-behavior: smooth;
   flex: 1;
   overflow: hidden;
+  align-items: stretch;
 
   .property-card-wrapper {
-    min-width: 264px;
+    width: 264px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .property-card-wrapper .property-card-info {
+    flex: 1;
+  }
+
+  > a {
+    display: flex;
+    flex-shrink: 0;
+    height: 100%;
   }
 }
 
