@@ -179,6 +179,7 @@ export default function PublishContent({
 
   const removeVideo = (index: number) => {
     setVideos(prev => prev.filter((_, i) => i !== index));
+    setVideosPreview(prev => prev?.filter((_, i) => i !== index));
   };
 
   // Video y multimedia URL management functions
@@ -371,6 +372,12 @@ export default function PublishContent({
       newVideos.splice(draggedIndex, 1);
       newVideos.splice(dropIndex, 0, draggedVideo);
       setVideos(newVideos);
+
+      const newPreviews = [...(videosPreview ?? [])];
+      const draggedPreview = newPreviews[draggedIndex];
+      newPreviews.splice(draggedIndex, 1);
+      newPreviews.splice(dropIndex, 0, draggedPreview);
+      setVideosPreview(newPreviews);
     }
     
     setDraggedIndex(null);
@@ -495,6 +502,7 @@ export default function PublishContent({
                           onDrop={(e) => handleDrop(e, index, 'image')}
                           onDragEnd={handleDragEnd}
                         >
+                          {index === 0 && <div className="publish-content-thumb-main-label">Foto principal</div>}
                           {isUploading ? (
                             <div className="publish-content-upload-loading">
                               <div className="spinner" />
@@ -533,6 +541,7 @@ export default function PublishContent({
                           onDrop={(e) => handleDrop(e, unifiedIndex, 'image')}
                           onDragEnd={handleDragEnd}
                         >
+                          {unifiedIndex === 0 && <div className="publish-content-thumb-main-label"><img src="/icons/star.svg" alt="Star" />Foto principal</div>}
                           <img src={URL.createObjectURL(file)} alt="Foto" />
                           <button
                             type="button"
@@ -784,7 +793,7 @@ export default function PublishContent({
               label={isUploading ? "Subiendo..." : "Continuar"}
               variant="primary"
               onClick={handleContinue}
-              disabled={isUploading}
+              disabled={isUploading || ((images?.length ?? 0) + uploadedImages.length) === 0}
               className="publish-content-continue"
             />
           </div>

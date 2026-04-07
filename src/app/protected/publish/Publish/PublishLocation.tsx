@@ -210,6 +210,7 @@ export default function PublishLocation({
   const handleCoordinatesChange = (lat: number, lng: number) => {
     setGeo_lat(lat);
     setGeo_long(lng);
+    setHasSelectedAutocompleteLocation(true);
   };
 
   // Query for countries (loads on component mount)
@@ -533,7 +534,7 @@ export default function PublishLocation({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <button className="publish-location-continue" type="button" onClick={handleContinue}>
+            <button className="publish-location-continue" type="button" onClick={handleContinue} disabled={!hasSelectedAutocompleteLocation}>
               Continuar
             </button>
           </div>

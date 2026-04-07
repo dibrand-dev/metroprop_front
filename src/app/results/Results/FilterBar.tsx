@@ -119,7 +119,7 @@ function countMasFiltros(f: MasFiltrosState): number {
     (f.antiguedad ? 1 : 0) +
     Object.values(f.tipoAmbientes).filter(Boolean).length +
     Object.values(f.orientation).filter(Boolean).length +
-    f.tags.length +
+    (f.tags.length === 1 && f.tags[0] === 0 ? 0 : f.tags.length) +
     Object.values(f.subtipos).filter(Boolean).length +
     0
   );
@@ -883,7 +883,7 @@ export default function FilterBar({ setViewMode, viewMode }: { setViewMode: Reac
     pushUrl(operacion, selectedTypes, rooms, masFiltros, newPrecio, searchText);
   };
   const handleClearPrecio = () => setTempPrecio(EMPTY_PRECIO);
-
+  console.log("masFiltros", masFiltros)
   // ── Derived
   const filtrosBadge = countMasFiltros(masFiltros);
   const precioLabel = (() => {

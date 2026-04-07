@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { CreateAttached } from '@/types/propiedad';
+import { AWS_S3_BUCKET_URL } from '@/app/constants';
+import GalleryLightboxSection from './GalleryLightboxSection';
 
 const extractYouTubeId = (url: string): string | null => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -27,7 +29,7 @@ export interface GalleryModalProps {
   plans: CreateAttached[];
   initialTab?: GalleryTab;
   initialIndex?: number;
-  gallery360?: string[]
+  gallery360: GalleryVideo[]
 }
 
 export default function GalleryModal({
@@ -36,6 +38,7 @@ export default function GalleryModal({
   images,
   videos,
   plans,
+  gallery360,
   initialTab = 'fotos',
   initialIndex = 0,
 }: GalleryModalProps) {
@@ -43,6 +46,7 @@ export default function GalleryModal({
   const [galleryActiveIndex, setGalleryActiveIndex] = useState(initialIndex);
   const [videoActiveIndex, setVideoActiveIndex] = useState(0);
   const [planActiveIndex, setPlanActiveIndex] = useState(0);
+  const [gallery360ActiveIndex, setGallery360ActiveIndex] = useState(0);
   const galleryThumbsRef = useRef<HTMLDivElement>(null);
 
   // Sync internal state when modal opens with a specific tab / index
@@ -52,6 +56,7 @@ export default function GalleryModal({
       setGalleryActiveIndex(initialIndex);
       setVideoActiveIndex(0);
       setPlanActiveIndex(0);
+      setGallery360ActiveIndex(0);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
@@ -65,11 +70,13 @@ export default function GalleryModal({
         if (galleryTab === 'fotos') setGalleryActiveIndex(prev => Math.min(prev + 1, images.length - 1));
         if (galleryTab === 'videos') setVideoActiveIndex(prev => Math.min(prev + 1, videos.length - 1));
         if (galleryTab === 'planos') setPlanActiveIndex(prev => Math.min(prev + 1, plans.length - 1));
+        if (galleryTab === '360') setGallery360ActiveIndex(prev => Math.min(prev + 1, gallery360?.length ?? 0 - 1));
       }
       if (e.key === 'ArrowLeft') {
         if (galleryTab === 'fotos') setGalleryActiveIndex(prev => Math.max(prev - 1, 0));
         if (galleryTab === 'videos') setVideoActiveIndex(prev => Math.max(prev - 1, 0));
         if (galleryTab === 'planos') setPlanActiveIndex(prev => Math.max(prev - 1, 0));
+        if (galleryTab === '360') setGallery360ActiveIndex(prev => Math.max(prev - 1, 0));
       }
     };
     document.body.style.overflow = 'hidden';
@@ -78,7 +85,7 @@ export default function GalleryModal({
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKey);
     };
-  }, [isOpen, galleryTab, images.length, videos.length, plans.length, onClose]);
+  }, [isOpen, galleryTab, images.length, videos.length, plans.length, gallery360?.length, onClose]);
 
   if (!isOpen) return null;
 
@@ -110,124 +117,135 @@ export default function GalleryModal({
         {plans.length > 0 && (
           <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'planos' ? 'active' : ''}`} onClick={() => { setGalleryTab('planos'); setPlanActiveIndex(0); }}>Planos</button>
         )}
-        <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === '360' ? 'active' : ''}`} onClick={() => setGalleryTab('360')}>360</button>
+        {gallery360.length > 0 && (
+          <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === '360' ? 'active' : ''}`} onClick={() => { setGalleryTab('360'); setGallery360ActiveIndex(0); }}>360</button>
+        )}
       </div>
 
       {/* ── FOTOS ── */}
       {galleryTab === 'fotos' && (
-        <>
-          <div className="property-gallery-lightbox-main">
-            <button
-                type="button"
-                className="property-detail-gallery-arrow property-detail-gallery-arrow-left"
-                aria-label="Anterior" onClick={() => setGalleryActiveIndex(prev => Math.max(prev - 1, 0))} disabled={galleryActiveIndex === 0}
-            >
-                <img src="/icons/chevron-up.svg" alt="" />
-            </button>
-            <img src={images[galleryActiveIndex]} alt={`Foto ${galleryActiveIndex + 1}`} className="property-gallery-lightbox-image" />
-            <button
-                type="button"
-                className="property-detail-gallery-arrow property-detail-gallery-arrow-right"
-                aria-label="Siguiente"
-                onClick={() => setGalleryActiveIndex(prev => Math.min(prev + 1, images.length - 1))} disabled={galleryActiveIndex === images.length - 1}
-            >
-                <img src="/icons/chevron-up.svg" alt="" />
-            </button>
-          </div>
-          <div className="property-gallery-lightbox-counter">{galleryActiveIndex + 1} / {images.length}</div>
-          <div className="property-gallery-lightbox-thumbs" ref={galleryThumbsRef}>
-            {images.map((img, idx) => (
-              <button key={img} type="button" className={`property-gallery-lightbox-thumb ${idx === galleryActiveIndex ? 'is-active' : ''}`} onClick={() => setGalleryActiveIndex(idx)} aria-label={`Ver foto ${idx + 1}`}>
-                <img src={img} alt={`Miniatura ${idx + 1}`} />
-              </button>
-            ))}
-          </div>
-        </>
+        <GalleryLightboxSection
+          items={images}
+          activeIndex={galleryActiveIndex}
+          onIndexChange={setGalleryActiveIndex}
+          thumbsRef={galleryThumbsRef}
+          ariaLabel={idx => `Ver foto ${idx + 1}`}
+          renderMain={(src, idx) => (
+            <img src={src} alt={`Foto ${idx + 1}`} className="property-gallery-lightbox-image" />
+          )}
+          renderThumb={(src, idx) => (
+            <img src={src} alt={`Miniatura ${idx + 1}`} />
+          )}
+        />
       )}
 
       {/* ── VIDEOS ── */}
-      {galleryTab === 'videos' && (() => {
-        const vid = videos[videoActiveIndex];
-        const videoId = vid ? extractYouTubeId(vid.url) : null;
-        return (
-          <>
-            <div className="property-gallery-lightbox-main">
-              <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-prev" aria-label="Anterior" onClick={() => setVideoActiveIndex(prev => Math.max(prev - 1, 0))} disabled={videoActiveIndex === 0}>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-              </button>
-              {videoId ? (
-                <iframe
-                  key={videoId}
-                  src={getYouTubeEmbed(videoId)}
-                  className="property-gallery-lightbox-video"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  title={`Video ${videoActiveIndex + 1}`}
-                />
-              ) : (
-                <div className="property-gallery-lightbox-placeholder">Video no disponible</div>
-              )}
-              <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-next" aria-label="Siguiente" onClick={() => setVideoActiveIndex(prev => Math.min(prev + 1, videos.length - 1))} disabled={videoActiveIndex === videos.length - 1}>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-              </button>
-            </div>
-            <div className="property-gallery-lightbox-counter">{videoActiveIndex + 1} / {videos.length}</div>
-            <div className="property-gallery-lightbox-thumbs">
-              {videos.map((v, idx) => {
-                const vId = extractYouTubeId(v.url);
-                return (
-                  <button key={v.id} type="button" className={`property-gallery-lightbox-thumb ${idx === videoActiveIndex ? 'is-active' : ''}`} onClick={() => setVideoActiveIndex(idx)} aria-label={`Ver video ${idx + 1}`}>
-                    {vId ? <img src={getYouTubeThumbnail(vId)} alt={`Video ${idx + 1}`} /> : <div className="property-gallery-lightbox-thumb-placeholder">▶</div>}
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        );
-      })()}
+      {galleryTab === 'videos' && (
+        <GalleryLightboxSection
+          items={videos}
+          activeIndex={videoActiveIndex}
+          onIndexChange={setVideoActiveIndex}
+          ariaLabel={idx => `Ver video ${idx + 1}`}
+          renderMain={(vid, idx) => {
+            const videoId = extractYouTubeId(vid.url);
+            return videoId ? (
+              <iframe
+                key={videoId}
+                src={getYouTubeEmbed(videoId)}
+                className="property-gallery-lightbox-video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title={`Video ${idx + 1}`}
+              />
+            ) : (
+              <div className="property-gallery-lightbox-placeholder">Video no disponible</div>
+            );
+          }}
+          renderThumb={(v, idx) => {
+            const vId = extractYouTubeId(v.url);
+            return vId
+              ? <img src={getYouTubeThumbnail(vId)} alt={`Video ${idx + 1}`} />
+              : <div className="property-gallery-lightbox-thumb-placeholder">▶</div>;
+          }}
+        />
+      )}
 
       {/* ── PLANOS ── */}
-      {galleryTab === 'planos' && (() => {
-        const plan = plans[planActiveIndex];
-        const isPdf = plan?.file_url?.toLowerCase().endsWith('.pdf');
-        return (
-          <>
-            <div className="property-gallery-lightbox-main">
-              <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-prev" aria-label="Anterior" onClick={() => setPlanActiveIndex(prev => Math.max(prev - 1, 0))} disabled={planActiveIndex === 0}>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-              </button>
-              {isPdf ? (
-                <div className="property-gallery-lightbox-pdf">
-                  <span>PDF</span>
-                  <small>{plan.file_url.split('/').pop()}</small>
-                  <a href={plan.file_url} target="_blank" rel="noopener noreferrer">Abrir PDF</a>
+      {galleryTab === 'planos' && (
+        <GalleryLightboxSection
+          items={plans}
+          activeIndex={planActiveIndex}
+          onIndexChange={setPlanActiveIndex}
+          ariaLabel={idx => `Ver plano ${idx + 1}`}
+          renderMain={(plan, idx) => {
+            const isPdf = plan?.file_url?.toLowerCase().endsWith('.pdf');
+            const src = plan?.file_url?.includes('http') ? plan.file_url : `${AWS_S3_BUCKET_URL}/${plan.file_url}`;
+            return isPdf ? (
+              <div className="property-gallery-lightbox-pdf">
+                <iframe
+                  src={src}
+                  title={`Plano PDF ${idx + 1}`}
+                  className="property-gallery-lightbox-pdf-embed"
+                />
+                <a
+                  href={src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="property-gallery-lightbox-pdf-link"
+                >
+                  Abrir en nueva pestaña
+                </a>
+              </div>
+            ) : (
+              <img
+                src={src}
+                alt={`Plano ${idx + 1}`}
+                className="property-gallery-lightbox-image"
+              />
+            );
+          }}
+          renderThumb={(p, idx) => {
+            const isPdfThumb = p.file_url?.toLowerCase().endsWith('.pdf');
+            return isPdfThumb
+              ? (
+                <div className="property-gallery-lightbox-thumb-pdf">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="9" y1="13" x2="15" y2="13" />
+                    <line x1="9" y1="17" x2="15" y2="17" />
+                  </svg>
+                  <span className="property-gallery-lightbox-thumb-pdf-badge">PDF</span>
                 </div>
-              ) : (
-                <img src={plan?.file_url} alt={`Plano ${planActiveIndex + 1}`} className="property-gallery-lightbox-image" />
-              )}
-              <button type="button" className="property-gallery-lightbox-nav property-gallery-lightbox-nav-next" aria-label="Siguiente" onClick={() => setPlanActiveIndex(prev => Math.min(prev + 1, plans.length - 1))} disabled={planActiveIndex === plans.length - 1}>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-              </button>
-            </div>
-            <div className="property-gallery-lightbox-counter">{planActiveIndex + 1} / {plans.length}</div>
-            <div className="property-gallery-lightbox-thumbs">
-              {plans.map((p, idx) => {
-                const isPdfThumb = p.file_url?.toLowerCase().endsWith('.pdf');
-                return (
-                  <button key={idx} type="button" className={`property-gallery-lightbox-thumb ${idx === planActiveIndex ? 'is-active' : ''}`} onClick={() => setPlanActiveIndex(idx)} aria-label={`Ver plano ${idx + 1}`}>
-                    {isPdfThumb ? <div className="property-gallery-lightbox-thumb-placeholder">PDF</div> : <img src={p.file_url} alt={`Plano ${idx + 1}`} />}
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        );
-      })()}
+              )
+              : <img src={p.file_url.includes('http') ? p.file_url : `${AWS_S3_BUCKET_URL}/${p.file_url}`} alt={`Plano ${idx + 1}`} />;
+          }}
+        />
+      )}
 
       {/* ── 360 ── */}
       {galleryTab === '360' && (
-        <div className="property-gallery-lightbox-main">          
-        </div>
+        <GalleryLightboxSection
+          items={gallery360 || []}
+          activeIndex={gallery360ActiveIndex}
+          onIndexChange={setGallery360ActiveIndex}
+          ariaLabel={idx => `Ver video ${idx + 1}`}
+          renderMain={(vid, idx) => <iframe
+            key={vid.url}
+            src={vid.url}
+            className="property-gallery-lightbox-video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title={`Video ${idx + 1}`}
+          />
+          }
+          renderThumb={(v, idx) => {
+            const vId = extractYouTubeId(v.url);
+            return vId
+              ? <img src={getYouTubeThumbnail(vId)} alt={`Video ${idx + 1}`} />
+              : <div className="property-gallery-lightbox-thumb-placeholder">▶</div>;
+          }}
+        />
       )}
     </div>
   );

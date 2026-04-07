@@ -250,6 +250,29 @@
   cursor: move;
   transition: all 0.2s ease;
 
+  .publish-content-thumb-main-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 28px;
+    background: #006aff;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+    letter-spacing: 0.25%;
+
+    img {
+      height: 24px;
+      width: 24px;
+    }
+  }
+
   &.dragging {
     opacity: 0.5;
     transform: scale(0.95);

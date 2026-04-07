@@ -1,11 +1,12 @@
 'use client';
 import { useState } from 'react';
 import './PropertyCard.scss';
+import { formatNumbers } from '@/utils/utils';
 
 export interface Property {
   id: string;
   price: number;
-  rent: number;
+  expenses: number;
   currency: 'USD' | 'ARS' | 'EUR';
   currencyRent: string;
   pricePerSqm?: number;
@@ -66,10 +67,10 @@ export default function PropertyCard({
         <div className="property-card-price-section">
           <div>
             <p className="property-card-price">
-              {property.currency} {property.price.toLocaleString('en-US')}
+              {property.currency} {formatNumbers(property.price)}
             </p>
-            {property.rent && <p className="property-card-rent">
-              Exp. {property.currencyRent} {property.rent.toLocaleString('en-US')}
+            {property.expenses && <p className="property-card-rent">
+              Exp. {property.currencyRent} {formatNumbers(property.expenses)}
             </p>}
           </div>
           <div className="property-card-logo">
@@ -82,14 +83,14 @@ export default function PropertyCard({
           <p className="property-card-address">{property.address}</p>
           {property.pricePerSqm && (
             <p className="property-card-location">
-              {property.currency} {property.pricePerSqm.toLocaleString('en-US')} m²
+              {property.currency} {formatNumbers(property.pricePerSqm)} m²
             </p>
           )}
         </div>
 
         {/* Property Details */}
         <div className="property-card-details">
-          <span className="property-card-detail">{property.area} m² tot.</span>
+          <span className="property-card-detail">{formatNumbers(property.area)} m² tot.</span>
           <span className="property-card-detail">{property.rooms} amb.</span>
           <span className="property-card-detail">{property.bathrooms} baños</span>
         </div>

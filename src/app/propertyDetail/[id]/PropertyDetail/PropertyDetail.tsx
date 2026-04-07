@@ -177,9 +177,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       .map(img => img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`);
   }, [property]);
 
-  // Gallery videos
+  // Gallery videos (excluding 360)
   const galleryVideos = useMemo(() => {
-    return (property?.videos ?? []).sort((a, b) => a.order - b.order);
+    return ((property?.videos ?? []) as unknown as (GalleryVideo & { is_360?: boolean })[]).filter(v => !v.is_360).sort((a, b) => a.order - b.order);
   }, [property]);
 
   // Gallery plans (attached files)
@@ -187,9 +187,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     return (property?.attached ?? []).filter(a => a.upload_status === 'completed');
   }, [property]);
 
-  // Gallery plans (attached files)
+  // 360 videos (from videos array where is_360 === true)
   const gallery360 = useMemo(() => {
-    return (property?.multimedia360 ?? []).filter(a => a.upload_status === 'completed');
+    return ((property?.videos ?? []) as unknown as (GalleryVideo & { is_360?: boolean })[]).filter(v => v.is_360).sort((a, b) => a.order - b.order);
   }, [property]);
 
   const dynamicFeatures = useMemo(() => {
@@ -216,7 +216,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   // Derived display values
   
-  const priceDisplay = property ? `${property.currency} ${formatNumbers(property.price)}` : '';
+  const priceDisplay = property ? `${property.currency} ${formatNumbers(property.price_square_meter ??  (property.total_surface! > 0 ? (property.price / property.total_surface!) : 0))}` : '';
   const statusDisplay = `${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}${property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}`;
   const agentName = property?.organization?.name ?? 'Metroprop';
   const agentLogoText = agentName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
@@ -431,7 +431,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 <span>{address}</span>
               </div>
               <div className="property-detail-map-image">
-                <PropertyMap address={property?.street ?? ''} />
+                <PropertyMap address={property?.street ?? ''} lat={property?.geo_lat} lng={property?.geo_long} />
               </div>
             </section>
 
@@ -537,7 +537,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                         property={{
                           id: String(item.id ?? ''),
                           price: item.price ?? 0,
-                          rent: item.expenses ?? 0,
+                          expenses: item.expenses ?? 0,
                           currency: (item.currency as 'USD' | 'ARS' | 'EUR') ?? 'USD',
                           currencyRent: item.currency_expenses ?? item.currency ?? '',
                           pricePerSqm: item.price_square_meter,
@@ -575,7 +575,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         images={galleryImages}
         videos={galleryVideos as unknown as GalleryVideo[]}
         plans={galleryPlans}
-        gallery360={gallery360}
+        gallery360={gallery360 as unknown as GalleryVideo[]}
         initialTab={galleryInitialTab}
         initialIndex={galleryInitialIndex}
       />

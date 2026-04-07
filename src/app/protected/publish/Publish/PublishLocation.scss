@@ -419,6 +419,12 @@
     background: #0041d9;
     border-color: #0041d9;
   }
+
+  &:disabled {
+    background: #a6a6a6;
+    border-color: #a6a6a6;
+    cursor: not-allowed;
+  }
 }
 
 @media (max-width: 768px) {

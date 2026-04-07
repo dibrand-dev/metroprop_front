@@ -13,14 +13,20 @@ interface LatLng {
 
 interface PropertyMapProps {
   address: string;
+  lat?: number;
+  lng?: number;
 }
 
 // Must render inside <Map> to access useMap()
 function MapContent({
   initialAddress,
+  initialLat,
+  initialLng,
   inputRef,
 }: {
   initialAddress: string;
+  initialLat?: number;
+  initialLng?: number;
   inputRef: React.RefObject<HTMLInputElement | null>;
 }) {
   const map = useMap();
@@ -28,9 +34,17 @@ function MapContent({
   const placesLib = useMapsLibrary('places');
   const [position, setPosition] = useState<LatLng | null>(null);
 
-  // Geocode the property address on mount
+  // Use provided coordinates or geocode the address
   useEffect(() => {
-    if (!geocodingLib || !initialAddress || !map) return;
+    if (!map) return;
+    if (initialLat != null && initialLng != null) {
+      const latlng = { lat: initialLat, lng: initialLng };
+      setPosition(latlng);
+      map.panTo(latlng);
+      map.setZoom(15);
+      return;
+    }
+    if (!geocodingLib || !initialAddress) return;
     const geocoder = new geocodingLib.Geocoder();
     geocoder.geocode({ address: initialAddress }, (results, status) => {
       if (status === 'OK' && results?.[0]?.geometry?.location) {
@@ -41,7 +55,7 @@ function MapContent({
         map.setZoom(15);
       }
     });
-  }, [geocodingLib, initialAddress, map]);
+  }, [geocodingLib, initialAddress, initialLat, initialLng, map]);
 
   // Wire up Places Autocomplete on the external search input
   useEffect(() => {
@@ -66,7 +80,7 @@ function MapContent({
   return <AdvancedMarker position={position} />;
 }
 
-function InteractiveMap({ initialAddress }: { initialAddress: string }) {
+function InteractiveMap({ initialAddress, initialLat, initialLng }: { initialAddress: string; initialLat?: number; initialLng?: number }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -80,24 +94,27 @@ function InteractiveMap({ initialAddress }: { initialAddress: string }) {
         aria-label="Buscar dirección en el mapa"
       />
       <Map
-        defaultCenter={DEFAULT_CENTER}
+        defaultCenter={initialLat != null && initialLng != null ? { lat: initialLat, lng: initialLng } : DEFAULT_CENTER}
         defaultZoom={13}
         gestureHandling="greedy"
         style={{ width: '100%', height: '100%' }}
       >
-        <MapContent initialAddress={initialAddress} inputRef={inputRef} />
+        <MapContent initialAddress={initialAddress} initialLat={initialLat} initialLng={initialLng} inputRef={inputRef} />
       </Map>
     </div>
   );
 }
 
-export default function PropertyMap({ address }: PropertyMapProps) {
+export default function PropertyMap({ address, lat, lng }: PropertyMapProps) {
   const [isInteractive, setIsInteractive] = useState(false);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
-  const staticUrl = address
-    ? `https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(address)}&zoom=15&size=640x320&markers=color:red%7C${encodeURIComponent(address)}&key=${apiKey}`
-    : '';
+  const hasCoords = lat != null && lng != null;
+  const staticUrl = hasCoords
+    ? `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=640x320&markers=color:red%7C${lat},${lng}&key=${apiKey}`
+    : address
+      ? `https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(address)}&zoom=15&size=640x320&markers=color:red%7C${encodeURIComponent(address)}&key=${apiKey}`
+      : '';
 
   if (!isInteractive) {
     return (
@@ -126,5 +143,5 @@ export default function PropertyMap({ address }: PropertyMapProps) {
     );
   }
 
-  return <InteractiveMap initialAddress={address} />;
+  return <InteractiveMap initialAddress={address} initialLat={lat} initialLng={lng} />;
 }
