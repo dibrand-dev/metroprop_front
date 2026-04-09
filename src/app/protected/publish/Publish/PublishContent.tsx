@@ -258,7 +258,7 @@ export default function PublishContent({
 
   const uploadMultimediaMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const response = await fetch(`http://localhost:3000/properties/${wizardData.draft_id}/save-multimedia`, {
+      const response = await fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/save-multimedia`, {
         method: 'POST',
         body: formData,
       });
@@ -284,7 +284,7 @@ export default function PublishContent({
       // Append existing (already uploaded) plan URLs as strings — backend will skip these
       plans?.forEach((plan) => {
         if (plan.file_url) {
-          formData.append('attached', plan.file_url);
+          formData.append('attached', plan.file_url.includes('http') ? plan.file_url : `${AWS_S3_BUCKET_URL}/${plan.file_url}`);
         }
       });
       // Append new plan files
