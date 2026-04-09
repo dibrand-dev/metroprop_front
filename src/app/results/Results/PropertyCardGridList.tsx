@@ -37,10 +37,9 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
               <div className="main-price">
                 {property.currency} {formatNumbers(property.price)}
               </div>
-              <div className="price-per-sqm">
-                {property.currency} {property.price_square_meter ? formatNumbers(property.price_square_meter) : 
-                 formatNumbers(property.price_square_meter ??  (property.total_surface! > 0 ? (property.price / property.total_surface!) : 0))} m²
-              </div>
+              {property.price_square_meter && property.price_square_meter > 0 && <div className="price-per-sqm">
+                 {`${property.currency} ${formatNumbers(property.price_square_meter)}`}
+              </div>}
             </div>
             
             <div className="address">

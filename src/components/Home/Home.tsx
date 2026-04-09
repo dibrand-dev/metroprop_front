@@ -122,7 +122,7 @@ export default function Home() {
                     value={searchQuery}
                     onChange={setSearchQuery}
                     placeholder="Escribí una ubicación o alguna característica"
-                    onSubmit={(value, locationId) => router.replace(`/results?${value ? `q=${encodeURIComponent(value)}&` : ''}${locationId != null ? `location_id=${locationId}&` : ''}operation_type=${searchActive}&currency=USD&page=1&limit=20`)}
+                    onSubmit={(value, locationId) => router.replace(`/results?${value ? `q=${encodeURIComponent(value)}&` : ''}${locationId != null ? `location_id=${locationId}&` : ''}page=1&limit=20`)}
                   />
                 </div>
               </div>

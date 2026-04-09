@@ -30,7 +30,6 @@ export interface PropertyCardProps {
 }
 
 const heartIcon = "/icons/heart.svg";
-const remaxLogo = "/images/remax.png";
 const defaultImage = "/images/property-placeholder.png";
 
 export default function PropertyCard({
@@ -38,7 +37,7 @@ export default function PropertyCard({
   onFavorite,
 }: PropertyCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-
+  console.log("property.expenses", property.expenses)
   return (
     <div 
       className="property-card-wrapper"
@@ -69,13 +68,13 @@ export default function PropertyCard({
             <p className="property-card-price">
               {property.currency} {formatNumbers(property.price)}
             </p>
-            {property.expenses && <p className="property-card-rent">
+            {property?.expenses! > 0 && <p className="property-card-rent">
               Exp. {property.currencyRent} {formatNumbers(property.expenses)}
             </p>}
           </div>
-          <div className="property-card-logo">
-            <img src={property.agencyLogo || remaxLogo} alt="Agency logo" />
-          </div>
+          {property.agencyLogo && <div className="property-card-logo">
+            <img src={property.agencyLogo} alt="Agency logo" />
+          </div>}
         </div>
 
         {/* Address & Location */}

@@ -25,10 +25,10 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
             <div className="price-section">             
               <div className="total-price">
                 {property.currency} {formatNumbers(property.price)}
-              </div>
-               <div className="price-per-meter">
-                {property.currency} {property.price_square_meter ? formatNumbers(property.price_square_meter) : ''} m²
-              </div>
+              </div>              
+              {property.price_square_meter && property.price_square_meter > 0 && <div className="price-per-meter">
+                {`${property.currency} ${formatNumbers(property.price_square_meter)}`}
+              </div>}
             </div>
             
             <button 

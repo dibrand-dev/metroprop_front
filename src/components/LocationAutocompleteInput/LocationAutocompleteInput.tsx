@@ -97,6 +97,7 @@ export default function LocationAutocompleteInput({
 }: LocationAutocompleteInputProps) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isSelectingRef = useRef(false);
+  const hasSelectedRef = useRef(false);
   const [suggestions, setSuggestions] = useState<Location[]>([]);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -150,6 +151,7 @@ export default function LocationAutocompleteInput({
   const handleSelect = useCallback((location: Location) => {
     const selectedLabel = location.full_location || location.name;
     isSelectingRef.current = true;
+    hasSelectedRef.current = true;
     onChange(selectedLabel);
     onSubmit?.(selectedLabel, location.id);
     setSuggestions([]);
@@ -180,9 +182,12 @@ export default function LocationAutocompleteInput({
             <img src="/icons/lupa.svg" alt="" />
           )}
           value={value}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value)}
-          onIconClick={() => onSubmit?.(value)}
-          onKeyDown={onKeyDown}
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            hasSelectedRef.current = false;
+            onChange(event.target.value);
+          }}
+          onIconClick={() => { if (hasSelectedRef.current) onSubmit?.(value); }}
+          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (hasSelectedRef.current) onKeyDown?.(e); }}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
           autoComplete="off"

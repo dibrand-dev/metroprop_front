@@ -221,7 +221,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   // Derived display values
   
-  const priceDisplay = property ? `${property.currency} ${formatNumbers(property.price_square_meter ??  (property.total_surface! > 0 ? (property.price / property.total_surface!) : 0))}` : '';
+  const priceDisplay = property?.price_square_meter ? `${property.currency} ${formatNumbers(property.price_square_meter)}  /m²` : '';
   const statusDisplay = `${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}${property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}`;
   const agentName = property?.organization?.name ?? 'Metroprop';
   const agentLogoText = agentName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);

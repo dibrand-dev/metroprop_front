@@ -60,10 +60,18 @@ export default function Results() {
 
   const hasFilters = useMemo(() => {
     const ignored = new Set(['page', 'limit']);
+    let hasRelevant = false;
     for (const key of activeSearchParams.keys()) {
-      if (!ignored.has(key)) return true;
+      if (!ignored.has(key)) hasRelevant = true;
     }
-    return false;
+    if (!hasRelevant) return false;
+    // Require a location (q or location_id) or explicit map bounds
+    const q = activeSearchParams.get('q')?.trim();
+    const locationId = activeSearchParams.get('location_id')?.trim();
+    if (q || locationId) return true;
+    const hasBounds = ['northEastLat', 'northEastLng', 'southWestLat', 'southWestLng']
+      .every(k => !!activeSearchParams.get(k)?.trim());
+    return hasBounds;
   }, [activeSearchParams]);
 
   const { data, isLoading, isError } = useQuery({

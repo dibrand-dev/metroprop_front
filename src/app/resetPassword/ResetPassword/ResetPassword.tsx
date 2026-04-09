@@ -8,9 +8,6 @@ import { API_BASE_URL } from '@/utils/utils';
 import './ResetPassword.scss';
 import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
-import { useQuery } from '@tanstack/react-query';
- // Replace fetch with useMutation from tanstack/react-query
-import { useMutation } from '@tanstack/react-query';
 
 const logoMetroprop = "/images/metropropLogo.png";
 
@@ -42,26 +39,7 @@ export default function ResetPassword() {
       return;
     }
 
-      // Replace fetch with useQuery from tanstack/react-query
-      
-      const { data, isLoading, error } = useQuery({
-        queryKey: ['validateResetToken', token],
-        queryFn: async () => {
-          const response = await fetch(`${API_BASE_URL}/users/validate-reset-token/${token}`);
-          if (!response.ok) throw new Error('Token inválido o expirado');
-          return response.json();
-        },
-        enabled: !!token,
-      });
-    
-      if (data?.valid) {
-        setTokenValid(true);
-        setUserInfo(data.user);
-      } else {
-        setTokenError(data?.message || 'El enlace de recuperación no es válido');
-        setTokenValid(false);
-      }
-      setIsValidatingToken(false);
+    validateToken(token);
   }, [token]);
 
   const validateToken = async (resetToken: string) => {
@@ -85,22 +63,6 @@ export default function ResetPassword() {
       setIsValidatingToken(false);
     }
   };
-
-  // Place mutation hook outside handler
-  type ResetPasswordArgs = { token: string | null; newPassword: string };
-  const resetPasswordMutation = useMutation<unknown, Error, ResetPasswordArgs>({
-    mutationFn: async ({ token, newPassword }) => {
-      const response = await fetch(`${API_BASE_URL}/users/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, newPassword }),
-      });
-      if (!response.ok) throw new Error('Error al restablecer la contraseña');
-      return response.json();
-    }
-  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,17 +93,33 @@ export default function ResetPassword() {
     try {
       setIsResettingPassword(true);
       setError('');
-      await resetPasswordMutation.mutateAsync({ token, newPassword });
-      setShowResetPasswordModal(true);
-      setTimeout(() => {
-        router.push('/login');
-      }, 3000);
+
+      const response = await fetch(`${API_BASE_URL}/users/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: token,
+          newPassword: newPassword
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {       
+        setShowResetPasswordModal(true)
+        setTimeout(() => {
+          router.push('/login');
+        }, 3000);
+      } else {
+        setError(data.message || 'Error al actualizar la contraseña');
+      }
     } catch (err) {
       console.error('Error resetting password:', err);
       setError('Error de conexión. Por favor intenta de nuevo.');
     } finally {
       setIsResettingPassword(false);
-    
     }
   };
 
