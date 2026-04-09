@@ -272,6 +272,11 @@
   letter-spacing: 0.32px;
   cursor: pointer;
 
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
   @media (max-width: 768px) {
     width: 100%;
   }

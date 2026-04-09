@@ -149,6 +149,7 @@ export default function PublishPropertyDescription({
               className="publish-property-description-continue"
               type="button"
               onClick={handleContinue}
+              disabled={!title.trim()}
             >
               Continuar
             </button>

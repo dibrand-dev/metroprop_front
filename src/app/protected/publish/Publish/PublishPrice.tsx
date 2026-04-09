@@ -134,7 +134,7 @@ export default function PublishPrice({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <button className="publish-price-continue" type="button" onClick={handleContinue}>
+            <button className="publish-price-continue" type="button" onClick={handleContinue} disabled={!price || price <= 0}>
               Continuar
             </button>
           </div>
