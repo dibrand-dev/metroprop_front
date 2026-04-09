@@ -21,7 +21,7 @@ export const LOCATIONS_QUERY_KEY = ['locations-global'];
  * Fetch all locations from the API
  */
 export const fetchLocations = async (): Promise<Location[]> => {
-  const response = await fetch(`${API_BASE_URL}/location/getAllLocations?country_id=1`);
+  const response = await fetch(`${API_BASE_URL}/location/getAllLocations?countryId=1`);
   if (!response.ok) throw new Error('Error fetching locations');
   return response.json();
 };

@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, OperationType, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
+import type { MapDataItem } from '@/types/property-api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -33,12 +34,54 @@ const ANTIGUEDAD_OPTIONS = [
 
 const SUBTIPOS = Object.values(PROPERTY_SUBTYPE_LABELS);
 
-// Mock histogram bar heights (px, max = 56) for price distribution visualization
-const HIST_PRECIO = [12, 34, 45, 28, 20, 38, 56, 52, 44, 30, 18, 25, 40, 56, 48, 36, 22, 13, 19, 30, 42, 55, 50, 44, 35, 26, 15, 10, 18, 30, 45, 56, 52, 44, 34, 22, 14, 22, 38, 50, 56, 48, 43, 35, 26, 18, 13, 20, 30, 44, 52, 56, 43, 30, 18, 21, 23, 33, 15];
-const HIST_PRECIO_M2 = [43, 56, 52, 44, 30, 13, 21, 23, 33, 18, 15, 43, 56, 52, 44, 30, 13, 21, 23, 33, 18, 15, 34, 56, 52, 44, 34, 56, 52, 44, 34, 56, 52, 44, 43, 56, 52, 44, 30, 13, 21, 23, 33, 18, 15, 43, 56, 52, 44, 30, 13, 21, 23, 33, 18, 15];
+const HIST_BAR_MAX_HEIGHT = 56;
+const HIST_BUCKET_SIZE = 1000;
+const HIST_MAX_BARS = 60;
 
-const PRECIO_USD_MAX = 2_000_000;
+function buildHistogramBars(prices: number[], bucketSize: number, capMax?: number): number[] {
+  if (prices.length === 0) return [];
+  // Clamp prices to capMax so everything >= capMax falls in the last bar
+  const clamped = capMax != null ? prices.map(p => Math.min(p, capMax)) : prices;
+  let min = clamped[0];
+  let max = clamped[0];
+  for (let i = 1; i < clamped.length; i++) {
+    if (clamped[i] < min) min = clamped[i];
+    if (clamped[i] > max) max = clamped[i];
+  }
+  if (min === max) return [HIST_BAR_MAX_HEIGHT];
+  // Always count by the requested bucketSize (e.g. 1000)
+  const bucketStart = Math.floor(min / bucketSize) * bucketSize;
+  const bucketEnd = Math.ceil(max / bucketSize) * bucketSize;
+  const bucketCount = Math.round((bucketEnd - bucketStart) / bucketSize);
+  const counts = new Array(bucketCount).fill(0);
+  for (const p of clamped) {
+    const idx = Math.min(Math.floor((p - bucketStart) / bucketSize), bucketCount - 1);
+    counts[idx]++;
+  }
+  // Downsample to HIST_MAX_BARS for display if needed
+  let display = counts;
+  if (counts.length > HIST_MAX_BARS) {
+    const ratio = counts.length / HIST_MAX_BARS;
+    display = [];
+    for (let i = 0; i < HIST_MAX_BARS; i++) {
+      const from = Math.round(i * ratio);
+      const to = Math.round((i + 1) * ratio);
+      let sum = 0;
+      for (let j = from; j < to; j++) sum += counts[j];
+      display.push(sum);
+    }
+  }
+  let maxCount = 0;
+  for (const c of display) { if (c > maxCount) maxCount = c; }
+  if (maxCount === 0) return display.map(() => 0);
+  return display.map(c => Math.round((c / maxCount) * HIST_BAR_MAX_HEIGHT));
+}
+
+const PRECIO_USD_MAX = 1_000_000;
 const PRECIO_ARS_MAX = 500_000_000;
+
+const PRECIO_M2_USD_MAX = 10_000;
+const PRECIO_M2_ARS_MAX = 5_000_000;
 
 const SUPERFICIE_OPTIONS = [
   { value: '20', label: '20' }, { value: '30', label: '30' }, { value: '40', label: '40' },
@@ -274,6 +317,11 @@ function parseUrlToState(sp: { get: (k: string) => string | null }): ParsedFilte
 
 // ─── PriceRangeSlider ─────────────────────────────────────────────────────────
 
+function formatSliderTooltip(val: number, max: number): string {
+  if (val >= max) return `+${max.toLocaleString('es-AR')}`;
+  return `$${val.toLocaleString('es-AR')}`;
+}
+
 function PriceRangeSlider({
   histBars, min, max, desde, hasta, onDesdeChange, onHastaChange,
 }: {
@@ -285,6 +333,8 @@ function PriceRangeSlider({
   onDesdeChange: (v: string) => void;
   onHastaChange: (v: string) => void;
 }) {
+  const [draggingFrom, setDraggingFrom] = useState(false);
+  const [draggingTo, setDraggingTo] = useState(false);
   const fromVal = desde === '' ? min : Math.max(min, Math.min(Number(desde), max));
   const toVal = hasta === '' ? max : Math.max(min, Math.min(Number(hasta), max));
   const fromPct = ((fromVal - min) / (max - min)) * 100;
@@ -310,9 +360,25 @@ function PriceRangeSlider({
       <div className="precio-range-container">
         <div className="precio-range-track-bg" />
         <div className="precio-range-track-fill" style={{ left: `${fillLeft}%`, right: `${fillRight}%` }} />
+        {/* From tooltip */}
+        {draggingFrom && (
+          <div className="precio-slider-tooltip" style={{ left: `${fromPct}%` }}>
+            {formatSliderTooltip(fromVal, max)}
+          </div>
+        )}
+        {/* To tooltip */}
+        {draggingTo && (
+          <div className="precio-slider-tooltip" style={{ left: `${toPct}%` }}>
+            {formatSliderTooltip(toVal, max)}
+          </div>
+        )}
         <input
           type="range" min="0" max="100" step="0.5"
           value={fromPct}
+          onMouseDown={() => setDraggingFrom(true)}
+          onMouseUp={() => setDraggingFrom(false)}
+          onTouchStart={() => setDraggingFrom(true)}
+          onTouchEnd={() => setDraggingFrom(false)}
           onChange={(e) => {
             const pct = Number(e.target.value);
             const val = Math.round(min + (pct / 100) * (max - min));
@@ -325,6 +391,10 @@ function PriceRangeSlider({
         <input
           type="range" min="0" max="100" step="0.5"
           value={toPct}
+          onMouseDown={() => setDraggingTo(true)}
+          onMouseUp={() => setDraggingTo(false)}
+          onTouchStart={() => setDraggingTo(true)}
+          onTouchEnd={() => setDraggingTo(false)}
           onChange={(e) => {
             const pct = Number(e.target.value);
             const val = Math.round(min + (pct / 100) * (max - min));
@@ -358,15 +428,19 @@ function PriceRangeSlider({
 }
 
 function PrecioSectionBlock({
-  title, radioName, histBars, state, onChange,
+  title, radioName, histBars, state, onChange, maxPrice, usdMax, arsMax,
 }: {
   title: string;
   radioName: string;
   histBars: number[];
   state: PrecioSectionState;
   onChange: (patch: Partial<PrecioSectionState>) => void;
+  maxPrice?: number;
+  usdMax?: number;
+  arsMax?: number;
 }) {
-  const priceMax = state.moneda === 'USD' ? PRECIO_USD_MAX : PRECIO_ARS_MAX;
+  const fallbackMax = state.moneda === 'USD' ? (usdMax ?? PRECIO_USD_MAX) : (arsMax ?? PRECIO_ARS_MAX);
+  const priceMax = fallbackMax;
   return (
     <div className="precio-section">
       <h3 className="precio-section-title">{title}</h3>
@@ -442,24 +516,30 @@ function RoomsSection({ tempRooms, setTempRooms }: {
   </>
 }
 
-function PrecioSection({ tempPrecio, setTempPrecio }: {
+function PrecioSection({ tempPrecio, setTempPrecio, histPrecio, histPrecioM2, maxPrice }: {
   tempPrecio: PrecioFilterState;
   setTempPrecio: React.Dispatch<React.SetStateAction<PrecioFilterState>>;
+  histPrecio: number[];
+  histPrecioM2: number[];
+  maxPrice?: number;
 }) {
   return <>
     <PrecioSectionBlock
       title="Precio"
       radioName="precio-moneda"
-      histBars={HIST_PRECIO}
+      histBars={histPrecio}
       state={tempPrecio.precio}
       onChange={(patch) => setTempPrecio((prev) => ({ ...prev, precio: { ...prev.precio, ...patch } }))}
+      maxPrice={maxPrice}
     />
     <PrecioSectionBlock
       title="Precio m²"
       radioName="preciom2-moneda"
-      histBars={HIST_PRECIO_M2}
+      histBars={histPrecioM2}
       state={tempPrecio.precioM2}
       onChange={(patch) => setTempPrecio((prev) => ({ ...prev, precioM2: { ...prev.precioM2, ...patch } }))}
+      usdMax={PRECIO_M2_USD_MAX}
+      arsMax={PRECIO_M2_ARS_MAX}
     />
     {/* Superficie */}
     <div className="precio-section">
@@ -615,7 +695,7 @@ function CollapsibleTagGroupSection({
 
 // ─── FilterBar ────────────────────────────────────────────────────────────────
 
-export default function FilterBar({ setViewMode, viewMode }: { setViewMode: React.Dispatch<React.SetStateAction<'list' | 'map'>>; viewMode: 'list' | 'map' }) {
+export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { setViewMode: React.Dispatch<React.SetStateAction<'list' | 'map'>>; viewMode: 'list' | 'map'; mapData?: MapDataItem[] }) {
   // ── Router & search params
   const searchParams = useSearchParams();
 
@@ -671,6 +751,18 @@ export default function FilterBar({ setViewMode, viewMode }: { setViewMode: Reac
     []
   );
   const [tempPrecio, setTempPrecio] = useState<PrecioFilterState>(EMPTY_PRECIO);
+
+  // ── Histogram bars computed from mapData prices
+  const mapPrices = useMemo(() => mapData.map(d => Number(d.price)).filter(p => !isNaN(p) && p > 0), [mapData]);
+  const histPrecio = useMemo(() => buildHistogramBars(mapPrices, HIST_BUCKET_SIZE, PRECIO_USD_MAX), [mapPrices]);
+  const mapPricesM2 = useMemo(() => mapData.map(d => Number(d.price_square_meter)).filter(p => !isNaN(p) && p > 0), [mapData]);
+  const histPrecioM2 = useMemo(() => buildHistogramBars(mapPricesM2, HIST_BUCKET_SIZE, PRECIO_M2_USD_MAX), [mapPricesM2]);
+  const maxPriceFromData = useMemo(() => {
+    if (mapPrices.length === 0) return undefined;
+    let m = mapPrices[0];
+    for (let i = 1; i < mapPrices.length; i++) { if (mapPrices[i] > m) m = mapPrices[i]; }
+    return m;
+  }, [mapPrices]);
 
   // ── Refs
   const operacionPopoverRef = useRef<HTMLDivElement>(null);
@@ -983,7 +1075,7 @@ export default function FilterBar({ setViewMode, viewMode }: { setViewMode: Reac
             {precioOpen && (
               <div ref={precioPopoverRef} className="precio-popover">
                 <div className="precio-popover-body">
-                  <PrecioSection tempPrecio={tempPrecio} setTempPrecio={setTempPrecio} />
+                  <PrecioSection tempPrecio={tempPrecio} setTempPrecio={setTempPrecio} histPrecio={histPrecio} histPrecioM2={histPrecioM2} maxPrice={maxPriceFromData} />
                 </div>
                 <div className="operacion-footer">
                   <Button label="Limpiar filtros" variant="secondary" onClick={handleClearPrecio} fullWidth />
@@ -1048,7 +1140,7 @@ export default function FilterBar({ setViewMode, viewMode }: { setViewMode: Reac
                   </div>
 
                   <div className="filtros-section precio-section">
-                    <PrecioSection tempPrecio={tempPrecio} setTempPrecio={setTempPrecio} />
+                    <PrecioSection tempPrecio={tempPrecio} setTempPrecio={setTempPrecio} histPrecio={histPrecio} histPrecioM2={histPrecioM2} maxPrice={maxPriceFromData} />
                   </div>
 
                   <TipoDePropiedadSection tempSelectedTypes={tempSelectedTypes} setTempSelectedTypes={setTempSelectedTypes} typeRows={typeRows} setShowAllTypes={setShowAllTypes} showAllTypes={showAllTypes} />

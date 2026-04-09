@@ -92,6 +92,7 @@ export interface MapDataItem {
   lat: number;
   lng: number;
   price: string;
+  price_square_meter?: string;
   reference_code: string;
 }
 

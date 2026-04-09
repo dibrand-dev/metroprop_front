@@ -307,6 +307,9 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
 
       if (drawingPoints.current.length < 3) return;
 
+      // Log the polygon points like other map tools do
+      console.log('Drawn polygon points:', drawingPoints.current.map(pt => `LatLng(${pt.lat.toFixed(4)},${pt.lng.toFixed(4)})`).join(','));
+
       // Create a filled polygon
       const polygon = new google.maps.Polygon({
         paths: drawingPoints.current,
@@ -331,10 +334,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
       const params = new URLSearchParams(window.location.search);
       params.delete('q');
       params.delete('location_id');
-      params.set('northEastLat', String(maxLat));
-      params.set('northEastLng', String(maxLng));
-      params.set('southWestLat', String(minLat));
-      params.set('southWestLng', String(minLng));
+      params.set('polygon', drawingPoints.current.map(pt => `LatLng(${pt.lat.toFixed(4)},${pt.lng.toFixed(4)})`).join(','));
 
       const nextSearch = params.toString();
       window.history.replaceState(window.history.state, '', `/results?${nextSearch}`);
@@ -356,14 +356,17 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
       polyline.setPath(drawingPoints.current);
     };
 
-    // Listen to native mouseup on the map div so it fires even if released outside markers
-    const mapDiv = map.getDiv();
-    const handleNativeMouseUp = () => finishDrawing();
-    mapDiv.addEventListener('mouseup', handleNativeMouseUp);
+    // Use window-level mouseup to reliably catch mouse release anywhere on screen
+    const handleWindowMouseUp = () => finishDrawing();
+    window.addEventListener('mouseup', handleWindowMouseUp);
 
     const l1 = map.addListener('mousedown', handleMouseDown);
     const l2 = map.addListener('mousemove', handleMouseMove);
-    drawListenersRef.current = [l1, l2, { remove: () => mapDiv.removeEventListener('mouseup', handleNativeMouseUp) } as google.maps.MapsEventListener];
+    drawListenersRef.current = [
+      l1,
+      l2,
+      { remove: () => window.removeEventListener('mouseup', handleWindowMouseUp) } as google.maps.MapsEventListener,
+    ];
   }, [drawnPolygon]);
 
   const clearDrawnArea = useCallback(() => {
@@ -373,10 +376,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
     }
     // Remove bbox params and re-fetch
     const params = new URLSearchParams(window.location.search);
-    params.delete('northEastLat');
-    params.delete('northEastLng');
-    params.delete('southWestLat');
-    params.delete('southWestLng');
+    params.delete('polygon');
     const nextSearch = params.toString();
     window.history.replaceState(window.history.state, '', `/results?${nextSearch}`);
     window.dispatchEvent(

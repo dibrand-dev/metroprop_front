@@ -144,7 +144,7 @@ export default function Results() {
   return (
     <div className="results-page">
       {/* Filter Bar - Desktop only */}
-      <FilterBar setViewMode={setViewMode} viewMode={viewMode}  />
+      <FilterBar setViewMode={setViewMode} viewMode={viewMode} mapData={mapData} />
 
       {/* Error state */}
       {isError && (

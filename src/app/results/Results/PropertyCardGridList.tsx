@@ -27,19 +27,19 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
       
       <div className="info-section">
         <div className="content-wrapper">
-          <img 
-            src={property.agencyLogo ? (property.agencyLogo.includes('http') ? property.agencyLogo : `${AWS_S3_BUCKET_URL}/${property.agencyLogo}`) : defaultLogo}
+          {property.organization?.company_logo && <img 
+            src={property.organization?.company_logo.includes('http') ? property.organization?.company_logo : `${AWS_S3_BUCKET_URL}/${property.organization?.company_logo}`} 
             alt="Agency logo"
             className="agency-logo"
-          />
-          
+          />}
           <div className="property-details">
             <div className="price-row">
               <div className="main-price">
                 {property.currency} {formatNumbers(property.price)}
               </div>
               <div className="price-per-sqm">
-                {property.currency} {property.price_square_meter ? formatNumbers(property.price_square_meter) : ''} m²
+                {property.currency} {property.price_square_meter ? formatNumbers(property.price_square_meter) : 
+                 formatNumbers(property.price_square_meter ??  (property.total_surface! > 0 ? (property.price / property.total_surface!) : 0))} m²
               </div>
             </div>
             

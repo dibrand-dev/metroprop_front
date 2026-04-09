@@ -20,6 +20,7 @@ import { useLocations } from '@/lib/locations';
 import { formatNumbers } from '@/utils/utils';
 import { AWS_S3_BUCKET_URL } from '@/app/constants';
 import { fetchProperties } from '@/lib/properties';
+import { useRouter } from 'next/navigation';
 
 interface PropertyDetailProps {
   propertyId: string;
@@ -36,6 +37,7 @@ const CONTACT_ACTIONS = [
 ];
 
 export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
+  const router = useRouter();
   const { data: locations = [] } = useLocations();
   const [activeTab, setActiveTab] = useState<string>('');
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
@@ -109,7 +111,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     staleTime: 60_000,
   });
 
-  const similarPropertiesData = useMemo(() => [similarByPrice?.data ?? [], similarBySurface?.data ?? []], [similarByPrice?.data, similarBySurface?.data]);
+  const similarPropertiesData = useMemo(() => {
+    const exclude = (items: CreateProperty[]) => items.filter(p => p.id !== property?.id);
+    return [exclude(similarByPrice?.data ?? []), exclude(similarBySurface?.data ?? [])];
+  }, [similarByPrice?.data, similarBySurface?.data, property?.id]);
 
   // Build amenity groups from loaded tags
   useEffect(() => {
@@ -312,7 +317,14 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         isOpen={isWhatsappModalOpen}
         onClose={() => setIsWhatsappModalOpen(false)}
       />
+      <button className="detail-back" onClick={() => router.back()} aria-label="Go back">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width={24} height={24}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Atrás
+      </button>  
       <main className="property-detail-content">
+        
         <section className="property-detail-hero" id="property-detail-fotos">
           <div className="property-detail-hero-row">
             <p className="property-detail-status"><span className='status-icon'></span>{statusDisplay}</p>
