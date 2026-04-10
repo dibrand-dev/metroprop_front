@@ -40,7 +40,10 @@ export default function Results() {
     const handleFiltersChanged = (event: Event) => {
       const detail = (event as CustomEvent<{ search?: string }>).detail;
       const nextSearch = detail?.search;
-      setActiveSearch(typeof nextSearch === 'string' ? nextSearch : window.location.search.slice(1));
+      const searchStr = typeof nextSearch === 'string' ? nextSearch : window.location.search.slice(1);
+      setActiveSearch(searchStr);
+      const p = parseInt(new URLSearchParams(searchStr).get('page') ?? '1', 10);
+      setCurrentPage(isNaN(p) || p < 1 ? 1 : p);
     };
     const handlePopState = () => {
       setActiveSearch(window.location.search.slice(1));

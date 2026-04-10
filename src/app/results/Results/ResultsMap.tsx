@@ -242,6 +242,12 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
     const bounds = mapRef.current.getBounds();
     if (!bounds) return;
 
+    // Clear drawn polygon if present
+    if (drawnPolygon) {
+      drawnPolygon.setMap(null);
+      setDrawnPolygon(null);
+    }
+
     const northEast = bounds.getNorthEast();
     const southWest = bounds.getSouthWest();
 
@@ -249,17 +255,19 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
     // Clear text-based location search — bbox takes over as the spatial filter
     params.delete('q');
     params.delete('location_id');
+    params.delete('polygon');
     params.set('northEastLat', String(northEast.lat()));
     params.set('northEastLng', String(northEast.lng()));
     params.set('southWestLat', String(southWest.lat()));
     params.set('southWestLng', String(southWest.lng()));
+    params.set('page', '1');
 
     const nextSearch = params.toString();
     window.history.replaceState(window.history.state, '', `/results?${nextSearch}`);
     window.dispatchEvent(
       new CustomEvent('results:filters-changed', { detail: { search: nextSearch } })
     );
-  }, []);
+  }, [drawnPolygon]);
 
   const startDrawing = useCallback(() => {
     if (!mapRef.current) return;
@@ -334,6 +342,11 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
       const params = new URLSearchParams(window.location.search);
       params.delete('q');
       params.delete('location_id');
+      params.delete('northEastLat');
+      params.delete('northEastLng');
+      params.delete('southWestLat');
+      params.delete('southWestLng');
+      params.set('page', '1');
       params.set('polygon', drawingPoints.current.map(pt => `LatLng(${pt.lat.toFixed(4)},${pt.lng.toFixed(4)})`).join(','));
 
       const nextSearch = params.toString();
