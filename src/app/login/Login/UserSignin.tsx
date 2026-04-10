@@ -66,6 +66,8 @@ export default function UserSignin() {
     e.preventDefault();
     setError('');
     setFieldErrors({ email: '', password: '' });
+    console.log("email:", email);
+    console.log("password:", password);
 
     if (!email || !password) {
       setFieldErrors({
@@ -76,14 +78,16 @@ export default function UserSignin() {
       return;
     }
 
+    console.log("Validating email format...");
     if (!isValidEmail(email)) {
       setFieldErrors({ email: 'Por favor ingresa un correo electrónico válido', password: '' });
       setError('Por favor ingresa un correo electrónico válido');
       return;
     }
-
+    console.log("startTransition");
     startTransition(async () => {
       try {
+        console.log("TRY")
         setError('');
 
         const result = await signIn('credentials', {
@@ -91,30 +95,41 @@ export default function UserSignin() {
           password,
           redirect: false,
         });
-
+        console.log("result", result)
         if (!result?.ok || result?.error) {
+          console.log("!result?.ok || result?.error")
           setError('Email o contraseña incorrectos. Por favor intenta de nuevo.');
           return;
         }
-
+        console.log("await fetch('/api/auth/session')")
         // Fetch the fresh session to get apiToken + organization written by JWT callback
         const sessionRes = await fetch('/api/auth/session');
+        console.log("sessionRes", sessionRes)
+        console.log("await sessionRes.json()")
         const sessionData = await sessionRes.json();
-        const apiToken: string | undefined = sessionData?.user?.apiToken;
-        const user = sessionData?.user;
+        console.log("sessionData", sessionData)
 
+        const apiToken: string | undefined = sessionData?.user?.apiToken;
+        console.log("apiToken", apiToken);
+        const user = sessionData?.user;
+        console.log("user", user);
         if (apiToken && user) {
+          console.log("if (apiToken && user)")
           localStorage.setItem('authToken', apiToken);
           if (user.organization) {
+            console.log(" if (user.organization)")
+            console.log(" await updateSession({ organization: user.organization })")
             await updateSession({ organization: user.organization });
           }
           try {
+            console.log("Calling set-cookie API with token...", apiToken)
             await setCookieMutation.mutateAsync(apiToken);
           } catch (cookieError) {
+            console.log("catch cookieError", cookieError)
             console.error('Error calling set-cookie API:', cookieError);
           }
         }
-
+        console.log(" router.push('/')")
         router.push('/');
       } catch (err) {
         console.error('Login error:', err);

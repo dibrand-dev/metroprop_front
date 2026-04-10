@@ -15,8 +15,14 @@ export const authOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        console.log("🔐 Authorize called with credentials:", credentials)
+       
+        if (!credentials?.email || !credentials?.password) {  
+          console.log("if (!credentials?.email || !credentials?.password) {  ")
+          return null; 
+        }
         try {
+          console.log("TRY  await fetch(`${API_BASE_URL}/auth/login`")
           const res = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -25,8 +31,10 @@ export const authOptions = {
               password: credentials.password,
             }),
           });
+          console.log("res", res);
           if (!res.ok) return null;
           const data = await res.json();
+          console.log("data", data);
           // Support both { access_token, user } and flat user object responses
           const user = data.user ?? data;
           if (!user?.id) return null;
@@ -38,7 +46,9 @@ export const authOptions = {
             apiToken: data.access_token ?? null,
             organization: user.organization ?? null,
           } as any;
-        } catch {
+        } catch (error) {
+          console.log("catch", error)
+
           return null;
         }
       },
