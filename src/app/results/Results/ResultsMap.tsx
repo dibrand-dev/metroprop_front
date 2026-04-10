@@ -390,7 +390,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
         <Map
           defaultCenter={center}
           defaultZoom={DEFAULT_ZOOM}
-          mapId="DEMO_MAP_ID"
+          mapId="36c9855b62844f229c766850"
           style={{ width: '100%', height: '100%', cursor: isDrawing ? 'crosshair' : '' }}
           gestureHandling="greedy"
           onClick={() => setSelectedId(null)}
@@ -412,9 +412,10 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
             if (!selectedItem) return null;
             return (
               <InfoWindow
-                position={{ lat: selectedItem.lat + 0.005, lng: selectedItem.lng}}
+                position={{ lat: selectedItem.lat, lng: selectedItem.lng}}
                 onCloseClick={() => setSelectedId(null)}
-                style={{ padding: 0, width: 302, height: 190  }}
+                pixelOffset={[0, -14]}
+                style={{ padding: 0, width: 302, height: 190 }}
               >
                 {isFetchingProperty && !selectedProperty ? (
                   <div style={{ padding: '8px' }}>Cargando...</div>

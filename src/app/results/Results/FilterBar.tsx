@@ -797,8 +797,9 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { set
     newSearchText: string,
     locationId?: number,
   ) => {
-    // Start from the current URL params so unknown params (e.g. location_id) are preserved.
-    const params = new URLSearchParams(searchParams.toString());
+    // Read from window.location so we always get the current URL, not the stale
+    // React searchParams which only updates after a re-render.
+    const params = new URLSearchParams(window.location.search);
     const managedFilterKeys = [
       'operation_type',
       'currency',
@@ -828,6 +829,7 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { set
       'northEastLng',
       'southWestLat',
       'southWestLng',
+      'polygon',
     ];
     managedFilterKeys.forEach((key) => params.delete(key));
     // Overwrite with the freshly built filter params.

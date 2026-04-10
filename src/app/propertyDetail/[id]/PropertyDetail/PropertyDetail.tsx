@@ -443,7 +443,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 <span>{address}</span>
               </div>
               <div className="property-detail-map-image">
-                <PropertyMap address={property?.street ?? ''} lat={property?.geo_lat} lng={property?.geo_long} />
+                <PropertyMap address={property?.street ?? ''} lat={isNaN(Number(property?.geo_lat)) ? undefined : Number(property?.geo_lat)} lng={isNaN(Number(property?.geo_long)) ? undefined : Number(property?.geo_long)} />
               </div>
             </section>
 
