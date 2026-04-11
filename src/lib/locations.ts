@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
+import { LOCATION_ARGENTINA_ID } from '@/app/constants';
 
 export interface Location {
   id: number;
@@ -21,7 +22,7 @@ export const LOCATIONS_QUERY_KEY = ['locations-global'];
  * Fetch all locations from the API
  */
 export const fetchLocations = async (): Promise<Location[]> => {
-  const response = await fetch(`${API_BASE_URL}/location/getAllLocations?country_id=1`);
+  const response = await fetch(`${API_BASE_URL}/location/getAllLocations?country_id=${LOCATION_ARGENTINA_ID}`);
   if (!response.ok) throw new Error('Error fetching locations');
   return response.json();
 };
