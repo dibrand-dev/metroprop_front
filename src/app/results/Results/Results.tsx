@@ -40,7 +40,10 @@ export default function Results() {
     const handleFiltersChanged = (event: Event) => {
       const detail = (event as CustomEvent<{ search?: string }>).detail;
       const nextSearch = detail?.search;
-      setActiveSearch(typeof nextSearch === 'string' ? nextSearch : window.location.search.slice(1));
+      const searchStr = typeof nextSearch === 'string' ? nextSearch : window.location.search.slice(1);
+      setActiveSearch(searchStr);
+      const p = parseInt(new URLSearchParams(searchStr).get('page') ?? '1', 10);
+      setCurrentPage(isNaN(p) || p < 1 ? 1 : p);
     };
     const handlePopState = () => {
       setActiveSearch(window.location.search.slice(1));
@@ -71,7 +74,8 @@ export default function Results() {
     if (q || locationId) return true;
     const hasBounds = ['northEastLat', 'northEastLng', 'southWestLat', 'southWestLng']
       .every(k => !!activeSearchParams.get(k)?.trim());
-    return hasBounds;
+    if (hasBounds) return true;
+    return !!activeSearchParams.get('polygon')?.trim();
   }, [activeSearchParams]);
 
   const { data, isLoading, isError } = useQuery({
@@ -98,7 +102,10 @@ export default function Results() {
 
   const properties: CreateProperty[] = (data?.data ?? []);
   const totalProperties = data?.total ?? 0;
-  const totalPages = Math.ceil(totalProperties / limit);
+  const stableTotalRef = useRef(0);
+  if (totalProperties > 0) stableTotalRef.current = totalProperties;
+  const displayTotal = stableTotalRef.current;
+  const totalPages = Math.ceil(displayTotal / limit);
 
   // ─── Stable mapData — only updates when filters change, not on pagination ─
   const filterKey = useMemo(() => {
@@ -164,7 +171,7 @@ export default function Results() {
       {/* Mobile Header with View Toggle */}
       <div className="results-header">
         <div className="results-count">
-          {totalProperties.toLocaleString()} propiedades encontradas
+          {displayTotal.toLocaleString()} propiedades encontradas
         </div>
         <div className="view-toggle">
           <button
@@ -201,7 +208,7 @@ export default function Results() {
         {/* List View - Always visible on desktop, toggle on mobile */}
         <div className={`list-view ${viewMode === 'list' ? 'active' : ''} ${layoutMode === 'grid' ? 'full-width' : ''}`}>
           <div className="list-header" style={{ display: !hasFilters ? 'none' : 'flex' }}>
-              <span className="results-count">{totalProperties.toLocaleString()} propiedades</span>
+              <span className="results-count">{displayTotal.toLocaleString()} propiedades</span>
               <div className='flex items-center h-full gap-4'>
                 <SortDropdown value={sortBy} onChange={handleSortChange} />
                 {/* Grid/List toggle - Desktop only */}

@@ -13,8 +13,8 @@ interface LatLng {
 
 interface PropertyMapProps {
   address: string;
-  lat?: number;
-  lng?: number;
+  lat?: number | string;
+  lng?: number | string;
 }
 
 // Must render inside <Map> to access useMap()
