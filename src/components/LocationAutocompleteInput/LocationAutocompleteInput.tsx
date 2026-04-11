@@ -4,6 +4,7 @@ import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } 
 import InputField2 from '@/ui/InputField2/InputField2';
 import { Location, useLocations } from '@/lib/locations';
 import './LocationAutocompleteInput.scss';
+import { LOCATION_CABA_ID, LOCATION_COSTA_ATLANTICA_ID, LOCATION_GB_INTERIOR_ID, LOCATION_GB_NORTE_ID, LOCATION_GB_OESTE_ID, LOCATION_GB_SUR_ID } from '@/app/constants';
 
 function normalizeText(value: string) {
   return value
@@ -133,13 +134,52 @@ export default function LocationAutocompleteInput({
     setIsLoading(true);
 
     debounceRef.current = setTimeout(() => {
+      // Define type priority: lower is higher priority
+
+      // Prioridad para parent_id específicos
+      const parentPriorityList = [
+        LOCATION_CABA_ID,
+        LOCATION_GB_NORTE_ID,
+        LOCATION_GB_OESTE_ID,
+        LOCATION_GB_SUR_ID,
+        LOCATION_COSTA_ATLANTICA_ID,
+        LOCATION_GB_INTERIOR_ID
+      ];
+
+      const parentPriority = (parentId?: number) => {
+        if (parentId == null) return 99;
+        const idx = parentPriorityList.indexOf(parentId);
+        return idx === -1 ? 99 : idx;
+      };
+
+      const typePriority = (type?: string) => {
+        if (type === 'state') return 0;
+        if (type === 'location') return 1;
+        if (type === 'sub_location') return 2;
+        return 3;
+      };
+
       const filtered = locations
         .map((location) => ({
           location,
           score: getLocationScore(location, normalized),
         }))
         .filter(({ score }) => score > 0)
-        .sort((first, second) => second.score - first.score)
+        .sort((a, b) => {
+          // 1. Prioridad por tipo (state > location > sub_location)
+          const typeDiff = typePriority(a.location.type) - typePriority(b.location.type);
+          if (typeDiff !== 0) return typeDiff;
+          // 2. Prioridad por parent_id
+          const parentDiff = parentPriority(a.location.parent_id) - parentPriority(b.location.parent_id);
+          if (parentDiff !== 0) return parentDiff;
+          // 3. Para sub_location: prioridad por state_id
+          if (a.location.type === 'sub_location' && b.location.type === 'sub_location') {
+            const stateDiff = parentPriority(a.location.state_id) - parentPriority(b.location.state_id);
+            if (stateDiff !== 0) return stateDiff;
+          }
+          // 4. Score de similitud
+          return b.score - a.score;
+        })
         .map(({ location }) => location)
         .slice(0, 10);
       setSuggestions(filtered);
