@@ -166,13 +166,18 @@ export default function LocationAutocompleteInput({
         }))
         .filter(({ score }) => score > 0)
         .sort((a, b) => {
-          // 1. Prioridad por parent_id
-          const parentDiff = parentPriority(a.location.parent_id) - parentPriority(b.location.parent_id);
-          if (parentDiff !== 0) return parentDiff;
-          // 2. Prioridad por tipo
+          // 1. Prioridad por tipo (state > location > sub_location)
           const typeDiff = typePriority(a.location.type) - typePriority(b.location.type);
           if (typeDiff !== 0) return typeDiff;
-          // 3. Score de similitud
+          // 2. Prioridad por parent_id
+          const parentDiff = parentPriority(a.location.parent_id) - parentPriority(b.location.parent_id);
+          if (parentDiff !== 0) return parentDiff;
+          // 3. Para sub_location: prioridad por state_id
+          if (a.location.type === 'sub_location' && b.location.type === 'sub_location') {
+            const stateDiff = parentPriority(a.location.state_id) - parentPriority(b.location.state_id);
+            if (stateDiff !== 0) return stateDiff;
+          }
+          // 4. Score de similitud
           return b.score - a.score;
         })
         .map(({ location }) => location)

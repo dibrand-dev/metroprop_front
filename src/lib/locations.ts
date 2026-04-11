@@ -11,6 +11,7 @@ export interface Location {
   zip_code?: string;
   short_location?: string;
   parent_id?: number;
+  state_id?: number;
   type?: string;
   migrated?: boolean;
   status?: string;
