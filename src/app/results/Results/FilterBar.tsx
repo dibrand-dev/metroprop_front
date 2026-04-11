@@ -796,6 +796,7 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { set
     newPrecio: PrecioFilterState,
     newSearchText: string,
     locationId?: number,
+    resetLocationId?: boolean,
   ) => {
     // Read from window.location so we always get the current URL, not the stale
     // React searchParams which only updates after a re-render.
@@ -835,6 +836,8 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { set
     // Overwrite with the freshly built filter params.
     buildFilterParams(newOperacion, newSelectedTypes, newRooms, newMasFiltros, newPrecio, newSearchText)
       .forEach((v, k) => params.set(k, v));
+    // If resetting from the search box, clear the old location_id first.
+    if (resetLocationId) params.delete('location_id');
     // If a location was explicitly selected, update location_id; otherwise keep the existing one.
     if (locationId != null) params.set('location_id', String(locationId));
     const nextSearch = params.toString();
@@ -1019,10 +1022,10 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { set
               value={searchText}
               onChange={setSearchText}
               placeholder="Dirección, barrio, calle"
-              onSubmit={(value, locationId) => pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, value, locationId)}
+              onSubmit={(value, locationId) => pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, value, locationId, true)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, searchText);
+                  pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, searchText, undefined, true);
                 }
               }}
             />

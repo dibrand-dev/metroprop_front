@@ -103,9 +103,7 @@ export default function Results() {
   const properties: CreateProperty[] = (data?.data ?? []);
   const totalProperties = data?.total ?? 0;
   const stableTotalRef = useRef(0);
-  if (totalProperties > 0) stableTotalRef.current = totalProperties;
-  const displayTotal = stableTotalRef.current;
-  const totalPages = Math.ceil(displayTotal / limit);
+  const stableTotalFilterKeyRef = useRef('');
 
   // ─── Stable mapData — only updates when filters change, not on pagination ─
   const filterKey = useMemo(() => {
@@ -113,6 +111,17 @@ export default function Results() {
     p.delete('page');
     return p.toString();
   }, [activeSearch]);
+
+  // Reset stable total when filters change so new results (even 0) show correctly.
+  if (stableTotalFilterKeyRef.current !== filterKey) {
+    stableTotalFilterKeyRef.current = filterKey;
+    stableTotalRef.current = 0;
+  }
+  // Only keep old total during pagination loading (same filters, different page).
+  if (!isLoading && totalProperties > 0) stableTotalRef.current = totalProperties;
+  if (!isLoading && totalProperties === 0) stableTotalRef.current = 0;
+  const displayTotal = stableTotalRef.current;
+  const totalPages = Math.ceil(displayTotal / limit);
   const stableMapDataRef = useRef<{ key: string; items: MapDataItem[] }>({ key: '', items: [] });
   if (!isLoading && data?.mapData && stableMapDataRef.current.key !== filterKey) {
     stableMapDataRef.current = { key: filterKey, items: data.mapData };
