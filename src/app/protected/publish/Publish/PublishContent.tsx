@@ -108,7 +108,6 @@ export default function PublishContent({
       fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/multimedia`)
         .then(response => response.json())
         .then(data => {
-          console.log("multimedia data", data);
           if (data?.images && Array.isArray(data.images)) {
             setImages(data.images);
           }
@@ -295,7 +294,6 @@ export default function PublishContent({
       formData.append('multimedia360', JSON.stringify(multimedia360));
 
       const result = await uploadMultimediaMutation.mutateAsync(formData);
-      console.log('Upload successful:', result);
       
       // Update wizard data with uploaded file URLs if returned from API
       if (result.images) {

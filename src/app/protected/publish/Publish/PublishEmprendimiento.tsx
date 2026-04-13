@@ -64,13 +64,11 @@ export default function PublishEmprendimiento({
 
   const handleGuardarBorrador = () => {
     // TODO: Implement save as draft logic
-    console.log('Guardar como borrador');
     onBack();
   };
 
   const handleContinuar = () => {
     // TODO: Implement continue logic (validation and save)
-    console.log('Continuar');
     onNext();
   };
 

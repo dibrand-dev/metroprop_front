@@ -11,7 +11,7 @@ import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery } from '@tanstack/react-query';
 import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype } from '@/types/propiedad';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, saveVisitedProperty } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
 import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
@@ -182,6 +182,32 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       .map(img => img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`);
   }, [property]);
 
+  // Save this property to visited history in localStorage
+  useEffect(() => {
+    if (!property) return;
+    const address = [property.street, property.number].filter(Boolean).join(' ');
+    const image = galleryImages[0] ?? '/images/property-placeholder.png';
+    const org = (property as any).organization;
+    saveVisitedProperty({
+      id: String(property.id ?? propertyId),
+      price: property.price ?? 0,
+      expenses: property.expenses ?? 0,
+      currency: (property.currency as 'USD' | 'ARS' | 'EUR') ?? 'USD',
+      currencyRent: property.currency_expenses ?? property.currency ?? '',
+      pricePerSqm: property.price_square_meter,
+      title: property.publication_title ?? '',
+      address,
+      rooms: property.room_amount ?? 0,
+      bathrooms: property.bathroom_amount ?? 0,
+      area: property.total_surface ?? property.roofed_surface ?? 0,
+      image,
+      agencyLogo: org?.logo_url,
+      coordinates: Number.isFinite(Number(property.geo_lat)) && Number.isFinite(Number(property.geo_long))
+        ? { lat: Number(property.geo_lat), lng: Number(property.geo_long) }
+        : undefined,
+    });
+  }, [property, galleryImages, propertyId]);
+
   // Gallery videos (excluding 360)
   const galleryVideos = useMemo(() => {
     return ((property?.videos ?? []) as unknown as (GalleryVideo & { is_360?: boolean })[]).filter(v => !v.is_360).sort((a, b) => a.order - b.order);
@@ -293,7 +319,6 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
 
   const handleSubmenuItemClick = (itemId: string) => {
-    console.log("Submenu item clicked:", itemId);
     const target = document.getElementById(`property-detail-${itemId}`);
     if (!target) return;
     const offset = 180;

@@ -162,7 +162,6 @@ export default function Results() {
 
   const handleToggleFavorite = (propertyId: number) => {
     // Implement favorite toggle
-    console.log('Toggle favorite:', propertyId);
   };
 
   return (

@@ -88,7 +88,6 @@ export default function PublishPlans({
     });
   }, [organization]);
 
-  console.log("sessionData" , sessionData)
   // Update wizard data when plans data changes
   useEffect(() => {
     updateWizardData({

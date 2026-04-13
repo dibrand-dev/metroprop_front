@@ -6,6 +6,7 @@ import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import Button from '@/ui/Button/Button';
 import { useRouter } from 'next/navigation';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
+import { getVisitedProperties, type VisitedProperty } from '@/utils/utils';
 
 export default function Home() {
   const services = [
@@ -38,6 +39,7 @@ export default function Home() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchActive, setSearchActive] = useState<'1' | '2' | '3' | '4'>('1');
+  const [visitedProperties, setVisitedProperties] = useState<VisitedProperty[]>([]);
   const visitedPropertiesRef = useRef<HTMLDivElement>(null);
   const featuredPropertiesRef = useRef<HTMLDivElement>(null);
   
@@ -61,6 +63,8 @@ export default function Home() {
     // Check initial state
     updateScrollState(visitedPropertiesRef, setVisitedCanScrollLeft, setVisitedCanScrollRight);
     updateScrollState(featuredPropertiesRef, setFeaturedCanScrollLeft, setFeaturedCanScrollRight);
+    // Load visited properties from localStorage
+    setVisitedProperties(getVisitedProperties());
   }, []);
 
   const handleVisitedScroll = () => {
@@ -157,6 +161,7 @@ export default function Home() {
           </section>
 
           {/* Properties Visited Section */}
+          {visitedProperties.length > 0 && (
           <section className="properties-section bg-white">
             <h2 className="properties-title font-bold text-[#1e1e1e] tracking-[-0.24px] md:tracking-[-0.055px]">
               Propiedades visitadas
@@ -172,25 +177,10 @@ export default function Home() {
                 </button>
               )}
               <div className="properties-container" ref={visitedPropertiesRef} onScroll={handleVisitedScroll}>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((property) => (
-                  <PropertyCard 
-                    key={property} 
-                    property={{
-                      id: `visited-${property}`,
-                      price: 198000,
-                      rent: 1222,
-                      currency: 'USD',
-                      currencyRent: '$',
-                      pricePerSqm: 2100,
-                      title: 'Departamento en venta',
-                      address: 'Juan Francisco Segui 4500',
-                      rooms: 4,
-                      bathrooms: 2,
-                      area: 310,
-                      image: '/images/property-placeholder.png',
-                      isFavorite: false,
-                    }}
-                  />
+                {visitedProperties.map((property) => (
+                  <a href={`/propertyDetail/${property.id}`} key={property.id} style={{ textDecoration: 'none' }}>
+                    <PropertyCard property={property} />
+                  </a>
                 ))}
               </div>
               {visitedCanScrollRight && (
@@ -204,6 +194,7 @@ export default function Home() {
               )}
             </div>
           </section>
+          )}
 
           {/* Properties Featured Section */}
           <section className="properties-section bg-white">

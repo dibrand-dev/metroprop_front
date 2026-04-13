@@ -37,8 +37,8 @@ function MapContent({
   // Use provided coordinates or geocode the address
   useEffect(() => {
     if (!map) return;
-    if (initialLat != null && initialLng != null) {
-      const latlng = { lat: initialLat, lng: initialLng };
+    if (Number.isFinite(initialLat) && Number.isFinite(initialLng)) {
+      const latlng = { lat: initialLat!, lng: initialLng! };
       setPosition(latlng);
       map.panTo(latlng);
       map.setZoom(15);
@@ -94,7 +94,7 @@ function InteractiveMap({ initialAddress, initialLat, initialLng }: { initialAdd
         aria-label="Buscar dirección en el mapa"
       />
       <Map
-        defaultCenter={initialLat != null && initialLng != null ? { lat: initialLat, lng: initialLng } : DEFAULT_CENTER}
+        defaultCenter={Number.isFinite(initialLat) && Number.isFinite(initialLng) ? { lat: initialLat!, lng: initialLng! } : DEFAULT_CENTER}
         defaultZoom={13}
         gestureHandling="greedy"
         style={{ width: '100%', height: '100%' }}
@@ -143,5 +143,10 @@ export default function PropertyMap({ address, lat, lng }: PropertyMapProps) {
     );
   }
 
-  return <InteractiveMap initialAddress={address} initialLat={lat} initialLng={lng} />;
+  const parsedLat = Number(lat);
+  const parsedLng = Number(lng);
+  const validLat = Number.isFinite(parsedLat) ? parsedLat : undefined;
+  const validLng = Number.isFinite(parsedLng) ? parsedLng : undefined;
+
+  return <InteractiveMap initialAddress={address} initialLat={validLat} initialLng={validLng} />;
 }

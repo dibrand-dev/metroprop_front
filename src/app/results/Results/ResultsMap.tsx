@@ -47,7 +47,6 @@ function logViewportCorners(map: google.maps.Map) {
     southEast: { lat: southWest.lat(), lng: northEast.lng() },
   };
 
-  console.log('Results map viewport corners after requested center:', corners);
 }
 
 function MapBehavior({ initialLocationQuery, initialBounds, onMapReady }: MapBehaviorProps) {
@@ -314,9 +313,6 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
       setIsDrawing(false);
 
       if (drawingPoints.current.length < 3) return;
-
-      // Log the polygon points like other map tools do
-      console.log('Drawn polygon points:', drawingPoints.current.map(pt => `LatLng(${pt.lat.toFixed(4)},${pt.lng.toFixed(4)})`).join(','));
 
       // Create a filled polygon
       const polygon = new google.maps.Polygon({

@@ -270,7 +270,7 @@ function parseUrlToState(sp: { get: (k: string) => string | null }): ParsedFilte
     cocheras: get('parking_lot_amount'),
   };
 
-  const currency = (get('currency') || 'USD') as 'ARS' | 'USD';
+  const currency = (get('currency')) as 'ARS' | 'USD' | null;
   const superficieTipo: 'Cubierta' | 'Total' =
     sp.get('roofed_surface_min') || sp.get('roofed_surface_max') ? 'Cubierta' : 'Total';
   const precio: PrecioFilterState = {
@@ -980,7 +980,6 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { set
     pushUrl(operacion, selectedTypes, rooms, masFiltros, newPrecio, searchText);
   };
   const handleClearPrecio = () => setTempPrecio(EMPTY_PRECIO);
-  console.log("masFiltros", masFiltros)
   // ── Derived
   const filtrosBadge = countMasFiltros(masFiltros);
   const precioLabel = (() => {

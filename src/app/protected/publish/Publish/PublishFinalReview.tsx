@@ -157,7 +157,6 @@ export default function PublishFinalReview({
 
     return features.length > 0 ? features : []; // fallback to default
   };
-  console.log("wizardData",wizardData)
   // Get selected amenities by group, using amenityGroups and wizardData.tags
   const getAmenitiesByTab = () => {
     const result: Record<string, string[]> = {};
@@ -202,7 +201,6 @@ export default function PublishFinalReview({
     }
     onNext(propertyPublishUpdate);
   };
-  console.log("wizardData",wizardData)
   return (
     <div className="publish-review">
       <div className="publish-review-inner">

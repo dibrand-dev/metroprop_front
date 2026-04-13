@@ -114,7 +114,6 @@ export default function PublishPropertyContent({
     onNext(propertyContentUpdate);
   };
 
-  console.log("brightness", brightness)
   return (
     <div className="publish-property-content">
       <div className="publish-property-content-inner">

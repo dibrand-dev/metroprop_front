@@ -68,7 +68,6 @@ export default function Publish() {
   const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.INITIAL);
   const [wizardData, setWizardData] = useState<CreatePropertyDraft>({} as CreatePropertyDraft);
   const { data: sessionData } = useSession();
-  console.log("sessionData", sessionData);
   const getCurrentFlow = useCallback(() => {
     if (wizardData.operation_type === OperationType.EMPRENDIMIENTO) {
       return EMPRENDIMIENTO_FLOW;
@@ -116,7 +115,6 @@ export default function Publish() {
 
   const createDraftMutation = useMutation({
     mutationFn: async (draftData: Partial<CreatePropertyDraft>) => {
-      console.log("sessionData", sessionData);
       const user_id = sessionData?.user?.id;
       const organization_id = sessionData?.user?.organization_id ?? undefined;
       const branch_id = sessionData?.user?.branch_id;

@@ -62,7 +62,6 @@ export default function PublishMainInfo({
 
   // Update wizard data when main info changes
   useEffect(() => {
-    console.log("roomsroomsrooms", rooms)
     updateWizardData({
         surface_measurement,
         roofed_surface_measurement,

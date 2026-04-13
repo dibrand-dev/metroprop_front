@@ -17,7 +17,6 @@ export interface Property {
   area: number;
   image: string;
   agencyLogo?: string;
-  isFavorite: boolean;
   coordinates?: {
     lat: number;
     lng: number;
@@ -37,7 +36,6 @@ export default function PropertyCard({
   onFavorite,
 }: PropertyCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  console.log("property.expenses", property.expenses)
   return (
     <div 
       className="property-card-wrapper"
