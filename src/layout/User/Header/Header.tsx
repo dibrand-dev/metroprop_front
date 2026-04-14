@@ -172,6 +172,16 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
 
           {/* Desktop Navigation */}
           <nav className={`header-nav ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+            <div className='mobile-header-open-nav'>
+              <a href="/" className='home-link'><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /></a>
+              <button
+                className="close-button"
+                onClick={toggleMobileMenu}
+                aria-label="Cerrar"
+              >
+                <img src="/icons/close.svg" alt="" />
+              </button>
+            </div>
             {Object.entries(dropdownItems).map(([key, columns]) => (
               <div key={key} className="header-dropdown-wrapper">
                 <button
