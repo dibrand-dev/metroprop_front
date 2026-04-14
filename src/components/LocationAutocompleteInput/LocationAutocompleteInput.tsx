@@ -134,29 +134,38 @@ export default function LocationAutocompleteInput({
     setIsLoading(true);
 
     debounceRef.current = setTimeout(() => {
-      // Define type priority: lower is higher priority
-
-      // Prioridad para parent_id específicos
+      // IDs de zonas prioritarias, en orden de prioridad descendente
       const parentPriorityList = [
         LOCATION_CABA_ID,
         LOCATION_GB_NORTE_ID,
         LOCATION_GB_OESTE_ID,
         LOCATION_GB_SUR_ID,
         LOCATION_COSTA_ATLANTICA_ID,
-        LOCATION_GB_INTERIOR_ID
+        LOCATION_GB_INTERIOR_ID,
       ];
 
-      const parentPriority = (parentId?: number) => {
-        if (parentId == null) return 99;
-        const idx = parentPriorityList.indexOf(parentId);
-        return idx === -1 ? 99 : idx;
+      // Bonus por tipo: permite que la jerarquía influya pero no aplaste un match mucho mejor
+      const getTypeBonus = (type?: string) => {
+        if (type === 'state') return 300;
+        if (type === 'location') return 150;
+        return 0; // sub_location
       };
 
-      const typePriority = (type?: string) => {
-        if (type === 'state') return 0;
-        if (type === 'location') return 1;
-        if (type === 'sub_location') return 2;
-        return 3;
+      // Bonus por parent_id o state_id: premia zonas prioritarias
+      const getParentBonus = (id?: number) => {
+        if (id == null) return 0;
+        const idx = parentPriorityList.indexOf(id);
+        if (idx === -1) return 0;
+        return (parentPriorityList.length - idx) * 15; // 90, 75, 60, 45, 30, 15
+      };
+
+      // Score combinado: text score + tipo + zona geográfica prioritaria
+      const getCombinedScore = (textScore: number, location: Location) => {
+        let combined = textScore + getTypeBonus(location.type) + getParentBonus(location.parent_id);
+        if (location.type === 'sub_location') {
+          combined += getParentBonus(location.state_id);
+        }
+        return combined;
       };
 
       const filtered = locations
@@ -165,21 +174,7 @@ export default function LocationAutocompleteInput({
           score: getLocationScore(location, normalized),
         }))
         .filter(({ score }) => score > 0)
-        .sort((a, b) => {
-          // 1. Prioridad por tipo (state > location > sub_location)
-          const typeDiff = typePriority(a.location.type) - typePriority(b.location.type);
-          if (typeDiff !== 0) return typeDiff;
-          // 2. Prioridad por parent_id
-          const parentDiff = parentPriority(a.location.parent_id) - parentPriority(b.location.parent_id);
-          if (parentDiff !== 0) return parentDiff;
-          // 3. Para sub_location: prioridad por state_id
-          if (a.location.type === 'sub_location' && b.location.type === 'sub_location') {
-            const stateDiff = parentPriority(a.location.state_id) - parentPriority(b.location.state_id);
-            if (stateDiff !== 0) return stateDiff;
-          }
-          // 4. Score de similitud
-          return b.score - a.score;
-        })
+        .sort((a, b) => getCombinedScore(b.score, b.location) - getCombinedScore(a.score, a.location))
         .map(({ location }) => location)
         .slice(0, 10);
       setSuggestions(filtered);
