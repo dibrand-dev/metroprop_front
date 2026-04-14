@@ -7,3 +7,5 @@ export const LOCATION_GB_OESTE_ID = 148;
 export const LOCATION_GB_SUR_ID = 149;
 export const LOCATION_COSTA_ATLANTICA_ID = 150;
 export const LOCATION_GB_INTERIOR_ID = 151;
+
+export const PROPERTY_NO_IMAGE = '/images/property-noimage.png';
