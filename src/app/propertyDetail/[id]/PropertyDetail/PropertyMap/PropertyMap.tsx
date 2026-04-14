@@ -19,19 +19,13 @@ interface PropertyMapProps {
 
 // Must render inside <Map> to access useMap()
 function MapContent({
-  initialAddress,
   initialLat,
   initialLng,
-  inputRef,
 }: {
-  initialAddress: string;
   initialLat?: number;
   initialLng?: number;
-  inputRef: React.RefObject<HTMLInputElement | null>;
 }) {
   const map = useMap();
-  const geocodingLib = useMapsLibrary('geocoding');
-  const placesLib = useMapsLibrary('places');
   const [position, setPosition] = useState<LatLng | null>(null);
 
   // Use provided coordinates or geocode the address
@@ -44,64 +38,26 @@ function MapContent({
       map.setZoom(15);
       return;
     }
-    if (!geocodingLib || !initialAddress) return;
-    const geocoder = new geocodingLib.Geocoder();
-    geocoder.geocode({ address: initialAddress }, (results, status) => {
-      if (status === 'OK' && results?.[0]?.geometry?.location) {
-        const loc = results[0].geometry.location;
-        const latlng = { lat: loc.lat(), lng: loc.lng() };
-        setPosition(latlng);
-        map.panTo(latlng);
-        map.setZoom(15);
-      }
-    });
-  }, [geocodingLib, initialAddress, initialLat, initialLng, map]);
+  }, [initialLat, initialLng, map]);
 
-  // Wire up Places Autocomplete on the external search input
-  useEffect(() => {
-    if (!placesLib || !inputRef.current || !map) return;
-    const autocomplete = new placesLib.Autocomplete(inputRef.current, {
-      fields: ['geometry', 'formatted_address'],
-    });
-    const listener = autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      if (place.geometry?.location) {
-        const loc = place.geometry.location;
-        const latlng = { lat: loc.lat(), lng: loc.lng() };
-        setPosition(latlng);
-        map.panTo(latlng);
-        map.setZoom(15);
-      }
-    });
-    return () => google.maps.event.removeListener(listener);
-  }, [placesLib, map, inputRef]);
-
+  
   if (!position) return null;
   return <AdvancedMarker position={position} />;
 }
 
-function InteractiveMap({ initialAddress, initialLat, initialLng }: { initialAddress: string; initialLat?: number; initialLng?: number }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-
+function InteractiveMap({ initialLat, initialLng }: { initialLat?: number; initialLng?: number }) {
   return (
     <div className="property-map-interactive">
-      <input
-        ref={inputRef}
-        className="property-map-search"
-        type="text"
-        placeholder="Buscar dirección..."
-        defaultValue={initialAddress}
-        aria-label="Buscar dirección en el mapa"
-      />
       <Map
+        mapId="36c9855b62844f229c766850"
         defaultCenter={Number.isFinite(initialLat) && Number.isFinite(initialLng) ? { lat: initialLat!, lng: initialLng! } : DEFAULT_CENTER}
         defaultZoom={13}
         gestureHandling="greedy"
         style={{ width: '100%', height: '100%' }}
       >
-        <MapContent initialAddress={initialAddress} initialLat={initialLat} initialLng={initialLng} inputRef={inputRef} />
+        <MapContent initialLat={initialLat} initialLng={initialLng} />
       </Map>
-    </div>
+    </div>    
   );
 }
 
@@ -148,5 +104,5 @@ export default function PropertyMap({ address, lat, lng }: PropertyMapProps) {
   const validLat = Number.isFinite(parsedLat) ? parsedLat : undefined;
   const validLng = Number.isFinite(parsedLng) ? parsedLng : undefined;
 
-  return <InteractiveMap initialAddress={address} initialLat={validLat} initialLng={validLng} />;
+  return <InteractiveMap initialLat={validLat} initialLng={validLng} />;
 }
