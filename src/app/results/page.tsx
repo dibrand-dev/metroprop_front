@@ -5,7 +5,7 @@ import Header from '@/layout/User/Header/Header';
 export default function ResultsPage() {
   return (
     <>
-      <Header />
+      <Header showFilter={true} />
       <Suspense fallback={null}>
         <Results />
       </Suspense>

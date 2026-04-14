@@ -51,7 +51,6 @@ $font-family-button: var(--font-montserrat), sans-serif;
  
   @media (max-width: 768px) {
     gap: 16px;
-    flex-wrap: wrap;
   }
 }
 
@@ -63,7 +62,7 @@ $font-family-button: var(--font-montserrat), sans-serif;
   gap: 8px;
   flex-shrink: 0;
   @media (min-width: 768px) {
-    flex: 0 0 260px;
+    /*flex: 0 0 360px;*/
   }
   @media (max-width: 768px) {
     width: auto;
@@ -415,7 +414,7 @@ $font-family-button: var(--font-montserrat), sans-serif;
   flex-shrink: 0;
   justify-content: flex-end;
   @media (min-width: 768px) {
-    flex: 0 0 260px;
+    /*flex: 0 0 100px;*/
   }
   @media (max-width: 768px) {
     width: auto;
@@ -624,3 +623,27 @@ $font-family-button: var(--font-montserrat), sans-serif;
     border-bottom: none;
   }
 }
+
+
+.header-search {
+  /*flex: 0 0 360px;*/
+  @media (min-width: 999px) {
+    display: none;
+  }
+  .location-autocomplete-input-wrap .input-field-2-label {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    
+    @media (max-width: 450px) {
+      width: 89px;
+    }
+
+    @media (max-width: 350px) {
+      width: 75px;
+    }
+
+    
+  }
+}
+

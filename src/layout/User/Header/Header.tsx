@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Header.scss';
 import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
+import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const logoMetroprop = "/images/metropropLogo.png";
 const logoMetropropMobile = "/images/metropropLogo_mobile.png";
@@ -96,7 +98,16 @@ const dropdownItems: DropdownSection = {
   ],
 };
 
-export default function Header() {
+export default function Header({ showFilter = false }: { showFilter?: boolean }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [headerSearchQuery, setHeaderSearchQuery] = useState('');
+
+  useEffect(() => {
+    if (showFilter) {
+      setHeaderSearchQuery(searchParams.get('q') ?? '');
+    }
+  }, [showFilter, searchParams]);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedSubCategory, setExpandedSubCategory] = useState<string | null>(null);
@@ -249,10 +260,28 @@ export default function Header() {
           </nav>
         </div>
 
-        {/* Center Section - Logo */}
-        <div className="header-logo">
-          <a href="/"><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /><img src={logoMetropropMobile} alt="MetroProp" className="metroLogoMobile" /></a>
-        </div>
+        {/* Center Section - Logo / Filter */}
+        {showFilter ? (
+          <div className="header-search">
+            <LocationAutocompleteInput
+              value={headerSearchQuery}
+              onChange={setHeaderSearchQuery}
+              placeholder="Dirección, barrio, calle"
+              onSubmit={(value, locationId) => {
+                const params = new URLSearchParams();
+                if (value) params.set('q', value);
+                if (locationId != null) params.set('location_id', String(locationId));
+                params.set('page', '1');
+                params.set('limit', '20');
+                router.push(`/results?${params.toString()}`);
+              }}
+            />
+          </div>
+        ) : (
+          <div className="header-logo">
+            <a href="/"><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /><img src={logoMetropropMobile} alt="MetroProp" className="metroLogoMobile" /></a>
+          </div>
+        )}
 
         {/* Right Section - Login Button or User Menu */}
         <div className="header-actions">
