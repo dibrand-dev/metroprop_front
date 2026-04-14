@@ -260,7 +260,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
         </div>
 
         {/* Center Section - Logo / Filter */}
-        {showFilter ? (
+        {showFilter && (
           <div className="header-search">
             <LocationAutocompleteInput
               value={headerSearchQuery}
@@ -276,11 +276,10 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
               }}
             />
           </div>
-        ) : (
-          <div className="header-logo">
-            <a href="/"><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /><img src={logoMetropropMobile} alt="MetroProp" className="metroLogoMobile" /></a>
-          </div>
-        )}
+        )} 
+        <div className="header-logo">
+          <a href="/"><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /><img src={logoMetropropMobile} alt="MetroProp" className="metroLogoMobile" /></a>
+        </div>        
 
         {/* Right Section - Login Button or User Menu */}
         <div className="header-actions">
