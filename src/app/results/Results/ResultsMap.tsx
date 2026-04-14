@@ -336,12 +336,14 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
       }
 
       const params = new URLSearchParams(window.location.search);
+      /*
       params.delete('q');
       params.delete('location_id');
       params.delete('northEastLat');
       params.delete('northEastLng');
       params.delete('southWestLat');
       params.delete('southWestLng');
+      */
       params.set('page', '1');
       params.set('polygon', drawingPoints.current.map(pt => `LatLng(${pt.lat.toFixed(4)},${pt.lng.toFixed(4)})`).join(','));
 
