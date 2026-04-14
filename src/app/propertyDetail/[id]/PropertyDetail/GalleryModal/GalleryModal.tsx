@@ -108,7 +108,8 @@ export default function GalleryModal({
         </svg>
     </button>
 
-      {/* Tabs */}
+      {/* Tabs — hidden when only one tab exists */}
+      {[images.length > 0, videos.length > 0, plans.length > 0, gallery360.length > 0].filter(Boolean).length > 1 && (
       <div className="property-gallery-lightbox-tabs">
         <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'fotos' ? 'active' : ''}`} onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); }}>Fotos</button>
         {videos.length > 0 && (
@@ -121,6 +122,7 @@ export default function GalleryModal({
           <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === '360' ? 'active' : ''}`} onClick={() => { setGalleryTab('360'); setGallery360ActiveIndex(0); }}>360</button>
         )}
       </div>
+      )}
 
       {/* ── FOTOS ── */}
       {galleryTab === 'fotos' && (

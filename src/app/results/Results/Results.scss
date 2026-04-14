@@ -601,6 +601,23 @@
       height: 48px;
       min-width: 0;
     }
+
+    .clear-filtros-mobile, .clear-filtros-desktop, .aplicar-filtros-mas {
+      width: 100%;
+    }
+
+    .clear-filtros-desktop {    
+      @media (max-width: 999px) {
+        display: none;
+      }
+    }
+
+    .clear-filtros-mobile {
+      @media (min-width: 1000px) {
+        display: none;
+      }
+    }
+
   }
 
   .filter-search {

@@ -9,6 +9,7 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     color: #1E1E1E;
     min-width: 264px;
+    height: 100%;
     max-width: 264px;
     &:hover .property-card-info {
        background-color: #ffffff;
@@ -64,6 +65,7 @@
 
 .property-card-info {
     display: flex;
+    flex-grow: 1;
     flex-direction: column;
     gap: 0;
     padding: 16px;
@@ -79,6 +81,7 @@
     font-size: 14px;
     font-weight: 500;
     line-height: 18px;
+    height: 36px;
     letter-spacing: 0.25px;
     color: #7a7a7a;
     margin: 0 0 8px 0;
@@ -172,10 +175,11 @@
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
+    /*
     .property-card-wrapper {
         width: 100%;
         max-width: 100%;
-    }
+    }*/
 
     .property-card-title {
         font-size: 12px;

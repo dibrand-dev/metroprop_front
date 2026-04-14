@@ -747,8 +747,9 @@
 }
 
 .property-detail-contact-action-whatsapp {
-  background: #1ac050;
-  border-color: #1ac050;
+  background: #1ac050 !important;
+  border-color: #1ac050 !important;
+   color: #ffffff !important;
 }
 
 .property-detail-contact-action-primary {
@@ -1343,5 +1344,20 @@
   justify-content: center;
   color: rgba(255, 255, 255, 0.5);
   font-size: 16px;
+}
+
+/* Gallery lightbox mobile: hide arrows & thumbs, user swipes */
+@media (max-width: 768px) {
+  .property-gallery-lightbox-main {
+    padding: 16px;
+
+    .property-detail-gallery-arrow {
+      display: none;
+    }
+  }
+
+  .property-gallery-lightbox-thumbs {
+    display: none;
+  }
 }
 

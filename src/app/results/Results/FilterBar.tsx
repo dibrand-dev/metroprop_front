@@ -11,6 +11,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, OperationType, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
 import type { MapDataItem } from '@/types/property-api';
+import type { CreateProperty } from '@/types/propiedad';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -74,11 +75,11 @@ function buildHistogramBars(prices: number[], bucketSize: number, capMax?: numbe
   let maxCount = 0;
   for (const c of display) { if (c > maxCount) maxCount = c; }
   if (maxCount === 0) return display.map(() => 0);
-  return display.map(c => Math.round((c / maxCount) * HIST_BAR_MAX_HEIGHT));
+  return display.map(c => c > 0 ? Math.max(2, Math.round((c / maxCount) * HIST_BAR_MAX_HEIGHT)) : 0);
 }
 
 const PRECIO_USD_MAX = 1_000_000;
-const PRECIO_ARS_MAX = 500_000_000;
+const PRECIO_ARS_MAX = 1_500_000_000;
 
 const PRECIO_M2_USD_MAX = 10_000;
 const PRECIO_M2_ARS_MAX = 5_000_000;
@@ -439,7 +440,7 @@ function PrecioSectionBlock({
   usdMax?: number;
   arsMax?: number;
 }) {
-  const fallbackMax = state.moneda === 'USD' ? (usdMax ?? PRECIO_USD_MAX) : (arsMax ?? PRECIO_ARS_MAX);
+  const fallbackMax = state.moneda === 'ARS' ? (arsMax ?? PRECIO_ARS_MAX) : (usdMax ?? PRECIO_USD_MAX);
   const priceMax = fallbackMax;
   return (
     <div className="precio-section">
@@ -695,7 +696,7 @@ function CollapsibleTagGroupSection({
 
 // ─── FilterBar ────────────────────────────────────────────────────────────────
 
-export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { setViewMode: React.Dispatch<React.SetStateAction<'list' | 'map'>>; viewMode: 'list' | 'map'; mapData?: MapDataItem[] }) {
+export default function FilterBar({ setViewMode, viewMode, mapData = [], properties = [] }: { setViewMode: React.Dispatch<React.SetStateAction<'list' | 'map'>>; viewMode: 'list' | 'map'; mapData?: MapDataItem[]; properties?: CreateProperty[] }) {
   // ── Router & search params
   const searchParams = useSearchParams();
 
@@ -752,10 +753,18 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { set
   );
   const [tempPrecio, setTempPrecio] = useState<PrecioFilterState>(EMPTY_PRECIO);
 
-  // ── Histogram bars computed from mapData prices
-  const mapPrices = useMemo(() => mapData.map(d => Number(d.price)).filter(p => !isNaN(p) && p > 0), [mapData]);
+  // ── Histogram bars computed from mapData prices (fall back to properties list)
+  const mapPrices = useMemo(() => {
+    const fromMap = mapData.map(d => Number(d.price)).filter(p => !isNaN(p) && p > 0);
+    if (fromMap.length > 0) return fromMap;
+    return properties.map(d => d.price).filter(p => !isNaN(p) && p > 0);
+  }, [mapData, properties]);
   const histPrecio = useMemo(() => buildHistogramBars(mapPrices, HIST_BUCKET_SIZE, PRECIO_USD_MAX), [mapPrices]);
-  const mapPricesM2 = useMemo(() => mapData.map(d => Number(d.price_square_meter)).filter(p => !isNaN(p) && p > 0), [mapData]);
+  const mapPricesM2 = useMemo(() => {
+    const fromMap = mapData.map(d => Number(d.price_square_meter)).filter(p => !isNaN(p) && p > 0);
+    if (fromMap.length > 0) return fromMap;
+    return properties.map(d => Number(d.price_square_meter)).filter(p => !isNaN(p) && p > 0);
+  }, [mapData, properties]);
   const histPrecioM2 = useMemo(() => buildHistogramBars(mapPricesM2, HIST_BUCKET_SIZE, PRECIO_M2_USD_MAX), [mapPricesM2]);
   const maxPriceFromData = useMemo(() => {
     if (mapPrices.length === 0) return undefined;
@@ -947,6 +956,14 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { set
     pushUrl(newOp, newTypes, newRooms, newMasFiltros, newPrecio, searchText, );
   };
   const handleClearFiltros = () => setTempMasFiltros(EMPTY_MAS_FILTROS);
+
+  const handleClearFiltrosMobile = () => {
+    setTempMasFiltros(EMPTY_MAS_FILTROS);
+    setTempOperacion(null);
+    setTempSelectedTypes({});
+    setTempRooms(EMPTY_ROOMS);
+    setTempPrecio(EMPTY_PRECIO);
+  };
 
   const updateSection = (
     section: keyof Pick<MasFiltrosState, 'tipoAmbientes' | 'orientation' | 'subtipos'>,
@@ -1202,8 +1219,15 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [] }: { set
 
                 </div>
                 <div className="operacion-footer">
-                  <Button label="Limpiar filtros" variant="secondary" onClick={handleClearFiltros} fullWidth />
-                  <Button label="Aplicar" variant="primary" onClick={handleApplyFiltros} fullWidth />
+                  <div className="clear-filtros-desktop">
+                    <Button label="Limpiar filtros" variant="secondary" onClick={handleClearFiltros} fullWidth  />
+                  </div>
+                  <div className="clear-filtros-mobile">
+                    <Button label="Limpiar filtros" variant="secondary" onClick={handleClearFiltrosMobile} fullWidth />
+                  </div>
+                  <div className='aplicar-filtros-mas'>
+                    <Button label="Aplicar" variant="primary" onClick={handleApplyFiltros} fullWidth />
+                  </div>
                 </div>
               </div>
             )}

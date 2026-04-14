@@ -87,9 +87,9 @@ export default function PropertyCard({
 
         {/* Property Details */}
         <div className="property-card-details">
-          <span className="property-card-detail">{formatNumbers(property.area)} m² tot.</span>
-          <span className="property-card-detail">{property.rooms} amb.</span>
-          <span className="property-card-detail">{property.bathrooms} baños</span>
+          {property.area && property.area > 0 && <span className="property-card-detail">{formatNumbers(property.area)} m² tot.</span>}
+          {property.rooms && property.rooms > 0 && <span className="property-card-detail">{property.rooms} amb.</span>}
+          {property.bathrooms && property.bathrooms > 0 && <span className="property-card-detail">{property.bathrooms} baños</span>}
         </div>
       </div>
     </div>

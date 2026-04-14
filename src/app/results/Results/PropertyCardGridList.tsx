@@ -10,11 +10,7 @@ interface PropertyCardGridListProps {
   onFavorite?: () => void;
 }
 
-
-
 const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, onFavorite }) => {
-  const defaultLogo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/RE-MAX_logo.svg/200px-RE-MAX_logo.svg.png';
-
   return (
     <div className="property-card-grid-list">
       {property.images?.[0]?.url && <div className="image-section">
@@ -35,10 +31,10 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
           <div className="property-details">
             <div className="price-row">
               <div className="main-price">
-                {property.currency} {formatNumbers(property.price)}
+                {property.currency ?? ''} {formatNumbers(property.price)}
               </div>
               {property.price_square_meter && property.price_square_meter > 0 && <div className="price-per-sqm">
-                 {`${property.currency} ${formatNumbers(property.price_square_meter)}`}
+                 {`${property.currency ?? ''} ${formatNumbers(property.price_square_meter)}`}
               </div>}
             </div>
             

@@ -99,6 +99,7 @@ export default function LocationAutocompleteInput({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isSelectingRef = useRef(false);
   const hasSelectedRef = useRef(false);
+  const userTypedRef = useRef(false);
   const [suggestions, setSuggestions] = useState<Location[]>([]);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -117,6 +118,12 @@ export default function LocationAutocompleteInput({
       setIsLoading(false);
       return;
     }
+
+    // Only search when the user has actually typed (skip programmatic value changes)
+    if (!userTypedRef.current) {
+      return;
+    }
+    userTypedRef.current = false;
 
     // setSuggestions([]);
     setOpen(false);
@@ -219,6 +226,7 @@ export default function LocationAutocompleteInput({
           value={value}
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
             hasSelectedRef.current = false;
+            userTypedRef.current = true;
             onChange(event.target.value);
           }}
           onIconClick={() => { if (hasSelectedRef.current) onSubmit?.(value); }}

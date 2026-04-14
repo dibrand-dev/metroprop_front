@@ -63,7 +63,6 @@
 
 .results-map-clear-area-btn {
   position: absolute;
-  bottom: 16px;
   right: 12px;
   z-index: 20;
   border: none;
@@ -210,8 +209,7 @@
   gap: 0;
 }
 
-.main-price {
-  
+.main-price {  
   font-weight: 600;
   font-size: 18px;
   line-height: 22px;
@@ -221,8 +219,7 @@
   white-space: nowrap;
 }
 
-.price-per-sqm {
-  
+.price-per-sqm {  
   font-weight: 500;
   font-size: 14px;
   line-height: 18px;
@@ -256,5 +253,11 @@
     line-height: 20px;
     color: #1E1E1E;
     white-space: nowrap;
+  }
+}
+
+.linkToPropertyInfoWindow .property-card-grid-list {
+  @media (max-width: 500px) {
+    width: 100%;
   }
 }

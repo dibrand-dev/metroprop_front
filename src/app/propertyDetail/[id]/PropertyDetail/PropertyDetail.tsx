@@ -33,7 +33,7 @@ const SIMILAR_SECTIONS = [
 
 const CONTACT_ACTIONS = [
   { id: 'whatsapp', label: 'Whatsapp', icon: '/icons/whatsapp.svg', variant: 'whatsapp' },
-  { id: 'contact', label: 'Contactar', icon: '/icons/envelope.svg', variant: 'primary' },
+  { id: 'contact', label: 'Contactar', icon: '/icons/envelope_w.svg', variant: 'primary' },
 ];
 
 export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
@@ -658,7 +658,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             key={`mobile-${action.id}`}
             label={action.label}
             variant={action.variant === 'primary' ? 'primary' : 'secondary'}
-            className={`property-detail-mobile-action property-detail-mobile-action-${action.variant}`}
+            className={`property-detail-mobile-action property-detail-contact-action-${action.variant}`}
             icon={<img src={action.icon} alt="" aria-hidden="true" />}
             iconPosition="left"
             onClick={() => {

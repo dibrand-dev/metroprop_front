@@ -1,4 +1,4 @@
-import { useRef, type RefObject, type ReactNode } from 'react';
+import { useRef, useCallback, type RefObject, type ReactNode } from 'react';
 
 interface GalleryLightboxSectionProps<T> {
   items: T[];
@@ -21,10 +21,27 @@ export default function GalleryLightboxSection<T>({
 }: GalleryLightboxSectionProps<T>) {
   const internalRef = useRef<HTMLDivElement>(null);
   const resolvedRef = thumbsRef ?? internalRef;
+  const touchStartX = useRef<number | null>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    const threshold = 50;
+    if (diff > threshold) {
+      onIndexChange(Math.min(activeIndex + 1, items.length - 1));
+    } else if (diff < -threshold) {
+      onIndexChange(Math.max(activeIndex - 1, 0));
+    }
+    touchStartX.current = null;
+  }, [activeIndex, items.length, onIndexChange]);
 
   return (
     <>
-      <div className="property-gallery-lightbox-main">
+      <div className="property-gallery-lightbox-main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <button
           type="button"
           className="property-detail-gallery-arrow property-detail-gallery-arrow-left"

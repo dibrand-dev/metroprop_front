@@ -241,7 +241,6 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
                                   href={item.href}
                                   className={`accordion-item ${selectedItem[key] === item.label ? 'active' : ''}`}
                                   onClick={(e) => {
-                                    e.preventDefault();
                                     handleItemClick(key, item.label);
                                   }}
                                 >
