@@ -2,11 +2,15 @@
 import './Home.scss';
 import { useState, useRef, useEffect } from 'react';
 import { APIProvider } from '@vis.gl/react-google-maps';
+import { useQuery } from '@tanstack/react-query';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import Button from '@/ui/Button/Button';
 import { useRouter } from 'next/navigation';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
 import { getVisitedProperties, type VisitedProperty } from '@/utils/utils';
+import { fetchProperties } from '@/lib/properties';
+import { AWS_S3_BUCKET_URL, LOCATION_CABA_ID, PROPERTY_NO_IMAGE } from '@/app/constants';
+import type { CreateProperty } from '@/types/propiedad';
 
 export default function Home() {
   const services = [
@@ -14,25 +18,29 @@ export default function Home() {
       title: 'Comprá la propiedad que estás buscando.',
       desc: 'Accedé a oportunidades reales con datos claros y actualizados.',
       icon: '/images/home_comprar.svg',
-      boton: 'Comprar'
+      boton: 'Comprar',
+      link:  `/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=1&page=1&limit=20`
     },
     {
       title: 'Encontrá el espacio ideal para alquilar.',
       desc: 'Filtrá, compará y encontrá tu próximo alquiler sin complicaciones.',
       icon: '/images/home_alquilar.svg',
-      boton: 'Alquilar'
+      boton: 'Alquilar',
+      link:  `/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=2&page=1&limit=20`
     },
     {
       title: 'Viví donde quieras, por el tiempo que necesites',
       desc: 'Espacios equipados y listos para acompañar tu viaje, trabajo o descanso.',
       icon: '/images/home_temporal.svg',
-      boton: 'Temporal'
+      boton: 'Temporal',
+      link:  `/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=3&page=1&limit=20`
     },
     {
       title: 'Invertí en proyectos en desarrollo.',
       desc: 'Invertí con previsibilidad y descubrí oportunidades de crecimiento a largo plazo.',
       icon: '/images/home_emprendimientos.svg',
-      boton: 'Emprendimientos'
+      boton: 'Emprendimientos',
+      link: ""
     }
   ];
 
@@ -42,6 +50,36 @@ export default function Home() {
   const [visitedProperties, setVisitedProperties] = useState<VisitedProperty[]>([]);
   const visitedPropertiesRef = useRef<HTMLDivElement>(null);
   const featuredPropertiesRef = useRef<HTMLDivElement>(null);
+
+  const { data: featuredData } = useQuery({
+    queryKey: ['featured-properties'],
+    queryFn: () => fetchProperties({ order_by: 'created_at:desc', page: 1, limit: 20 }),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const featuredProperties = (featuredData?.data ?? []).map((prop: CreateProperty) => ({
+    id: String(prop.id),
+    price: prop.price ?? 0,
+    expenses: prop.expenses ?? 0,
+    currency: (prop.currency as 'USD' | 'ARS' | 'EUR') ?? 'USD',
+    currencyRent: prop.currency ?? '$',
+    pricePerSqm: prop.price_square_meter,
+    title: prop.publication_title ?? '',
+    address: prop.street ?? '',
+    rooms: prop.room_amount ?? 0,
+    bathrooms: prop.bathroom_amount ?? 0,
+    area: prop.total_surface ?? prop.surface ?? 0,
+    image: prop.images?.[0]?.url
+      ? prop.images[0].url.includes('http')
+        ? prop.images[0].url
+        : `${AWS_S3_BUCKET_URL}/${prop.images[0].url}`
+      : PROPERTY_NO_IMAGE,
+    agencyLogo: (prop as any).organization?.company_logo
+      ? (prop as any).organization.company_logo.includes('http')
+        ? (prop as any).organization.company_logo
+        : `${AWS_S3_BUCKET_URL}/${(prop as any).organization.company_logo}`
+      : undefined,
+  }));
   
   const [visitedCanScrollLeft, setVisitedCanScrollLeft] = useState(false);
   const [visitedCanScrollRight, setVisitedCanScrollRight] = useState(true);
@@ -66,6 +104,16 @@ export default function Home() {
     // Load visited properties from localStorage
     setVisitedProperties(getVisitedProperties());
   }, []);
+
+  // Re-evaluate featured scroll state after data loads
+  useEffect(() => {
+    if (!featuredData) return;
+    // Wait one tick for the DOM to render the new cards
+    const id = setTimeout(() => {
+      updateScrollState(featuredPropertiesRef, setFeaturedCanScrollLeft, setFeaturedCanScrollRight);
+    }, 0);
+    return () => clearTimeout(id);
+  }, [featuredData]);
 
   const handleVisitedScroll = () => {
     updateScrollState(visitedPropertiesRef, setVisitedCanScrollLeft, setVisitedCanScrollRight);
@@ -154,6 +202,7 @@ export default function Home() {
                     state="default"                 
                     fullWidth={false}
                     size="medium"
+                    onClick={() => router.push(service.link)}
                   />               
                 </div>
               ))}
@@ -213,25 +262,10 @@ export default function Home() {
               )}
             
               <div className="properties-container" ref={featuredPropertiesRef} onScroll={handleFeaturedScroll}>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((property) => (
-                  <PropertyCard 
-                    key={property} 
-                    property={{
-                      id: `featured-${property}`,
-                      rent: 2345,
-                      price: 250000,
-                      currency: 'USD',
-                      currencyRent: '$',
-                      pricePerSqm: 2500,
-                      title: 'Propiedad destacada',
-                      address: 'Av. Libertador 5000',
-                      rooms: 3,
-                      bathrooms: 2,
-                      area: 100,
-                      image: '/images/property-placeholder.png',
-                      isFavorite: false,
-                    }}
-                  />
+                {featuredProperties.map((property) => (
+                  <a href={`/propertyDetail/${property.id}`} key={property.id} style={{ textDecoration: 'none' }}>
+                    <PropertyCard property={property} />
+                  </a>
                 ))}
               </div>
               {featuredCanScrollRight && (
