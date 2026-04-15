@@ -95,30 +95,19 @@ export default function UserSignin() {
           password,
           redirect: false,
         });
-        console.log("result", result)
         if (!result?.ok || result?.error) {
-          console.log("!result?.ok || result?.error")
           setError('Email o contraseña incorrectos. Por favor intenta de nuevo.');
           return;
         }
-        console.log("await fetch('/api/auth/session')")
         // Fetch the fresh session to get apiToken + organization written by JWT callback
         const sessionRes = await fetch('/api/auth/session');
-        console.log("sessionRes", sessionRes)
-        console.log("await sessionRes.json()")
         const sessionData = await sessionRes.json();
-        console.log("sessionData", sessionData)
-
         const apiToken: string | undefined = sessionData?.user?.apiToken;
-        console.log("apiToken", apiToken);
         const user = sessionData?.user;
-        console.log("user", user);
-        if (apiToken && user) {
-          console.log("if (apiToken && user)")
+        
+        if (apiToken && user) {          
           localStorage.setItem('authToken', apiToken);
-          if (user.organization) {
-            console.log(" if (user.organization)")
-            console.log(" await updateSession({ organization: user.organization })")
+          if (user.organization) {            
             await updateSession({ organization: user.organization });
           }
           try {
@@ -129,10 +118,8 @@ export default function UserSignin() {
             console.error('Error calling set-cookie API:', cookieError);
           }
         }
-        console.log(" router.push('/')")
         router.push('/');
       } catch (err) {
-        console.error('Login error:', err);
         setError('Error de conexión. Por favor intenta de nuevo.');
       }
     });

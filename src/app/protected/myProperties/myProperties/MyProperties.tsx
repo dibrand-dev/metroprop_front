@@ -1,0 +1,341 @@
+'use client';
+
+import { useState } from 'react';
+import Checkbox from '@/ui/Checkbox/Checkbox';
+import InputField2 from '@/ui/InputField2/InputField2';
+import './MyProperties.scss';
+import Select from '@/ui/Select/Select';
+import PropertyCardMapList from '@/app/results/Results/PropertyCardMapList';
+
+/* ── Types ──────────────────────────────────────────────────────────── */
+interface PropertyItem {
+  id: string;
+  startDate: string;
+  plan: 'Simple' | 'Destacado' | 'Premium';
+  status: 'Activo' | 'Reservado' | 'Archivado' | 'Borrador' | 'Finalizado';
+  type: string;
+  title: string;
+  address: string;
+  price: string;
+  image: string;
+  quality: number;
+  views: number;
+}
+
+/* ── Mock data ──────────────────────────────────────────────────────── */
+const MOCK_PROPERTIES: PropertyItem[] = Array.from({ length: 8 }, (_, i) => ({
+  id: `57696369`,
+  startDate: '19/11/2025',
+  plan: i % 3 === 0 ? 'Premium' : i % 2 === 0 ? 'Simple' : 'Destacado',
+  status: 'Activo',
+  type: 'Departamento',
+  title: 'Departamento de 3 amb. en Palermo',
+  address: 'Mansilla al 1000',
+  price: '$950.000',
+  image: '',
+  quality: i % 2 === 0 ? 76 : 75,
+  views: 7,
+}));
+
+/* ── Filter data ────────────────────────────────────────────────────── */
+const FILTER_GROUPS = [
+  {
+    key: 'estado',
+    title: 'Estado del aviso',
+    options: [
+      { label: 'Finalizado', count: 9147 },
+      { label: 'Activo', count: 200 },
+      { label: 'Reservado', count: 200 },
+      { label: 'Borrador', count: 74 },
+      { label: 'Archivado', count: 74 },
+    ],
+    expandable: false,
+  },
+  {
+    key: 'plan',
+    title: 'Tipo de plan',
+    options: [
+      { label: 'Simple', count: 97 },
+      { label: 'Destacado', count: 47 },
+      { label: 'Premium', count: 20 },
+    ],
+    expandable: false,
+  },
+  {
+    key: 'inmueble',
+    title: 'Tipo de inmueble',
+    options: [
+      { label: 'Casa', count: 9147 },
+      { label: 'Departamento', count: 200 },
+      { label: 'PH', count: 20 },
+      { label: 'Terrenos', count: 60 },
+      { label: 'Local comercial', count: 94 },
+    ],
+    expandable: true,
+  },
+  {
+    key: 'operacion',
+    title: 'Tipo de operación',
+    options: [
+      { label: 'Venta', count: 9147 },
+      { label: 'Alquiler', count: 200 },
+      { label: 'Temporal', count: 74 },
+      { label: 'Emprendimientos', count: 74 },
+    ],
+    expandable: false,
+  },
+  {
+    key: 'responsable',
+    title: 'Responsable del aviso',
+    options: [
+      { label: 'Leandro Borges Do Canto', count: 9147 },
+      { label: 'Guillermo Borges Do Canto', count: 200 },
+      { label: 'Santiago Borges Do Canto', count: 74 },
+    ],
+    expandable: false,
+  },
+  {
+    key: 'ubicacion',
+    title: 'Ubicación',
+    options: [
+      { label: 'GBA sur', count: 9147 },
+      { label: 'GBA norte', count: 200 },
+      { label: 'Capital Federal', count: 74 },
+      { label: 'Córdoba', count: 60 },
+      { label: 'Mendoza', count: 84 },
+    ],
+    expandable: true,
+  },
+];
+
+/* ── Donut chart ────────────────────────────────────────────────────── */
+const RADIUS = 20;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+function DonutChart({ percent }: { percent: number }) {
+  const filled = (percent / 100) * CIRCUMFERENCE;
+  return (
+    <div className="myprop-donut">
+      <svg width="52" height="52" viewBox="0 0 52 52">
+        <circle className="donut-track" cx="26" cy="26" r={RADIUS} />
+        <circle
+          className="donut-fill"
+          cx="26"
+          cy="26"
+          r={RADIUS}
+          strokeDasharray={`${filled} ${CIRCUMFERENCE - filled}`}
+          strokeDashoffset="0"
+        />
+      </svg>
+      <div className="myprop-donut-text">{percent}%</div>
+    </div>
+  );
+}
+
+/* ── Main component ─────────────────────────────────────────────────── */
+const MyProperties = () => {
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [allSelected, setAllSelected] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const toggleFilter = (groupKey: string, label: string) => {
+    setActiveFilters((prev) =>
+      prev[groupKey] === label ? { ...prev, [groupKey]: '' } : { ...prev, [groupKey]: label }
+    );
+  };
+
+  const toggleExpand = (key: string) => {
+    setExpandedGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const toggleSelectAll = (checked: boolean) => {
+    if (!checked) {
+      setSelectedIds(new Set());
+      setAllSelected(false);
+    } else {
+      setSelectedIds(new Set(MOCK_PROPERTIES.map((_, i) => i)));
+      setAllSelected(true);
+    }
+  };
+
+  const toggleSelect = (idx: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(idx) ? next.delete(idx) : next.add(idx);
+      return next;
+    });
+  };
+
+  const selectedCount = selectedIds.size;
+
+  return (
+    <div className="myprop-wrapper">
+      {/* ── Filters ── */}
+      <aside className="myprop-filters">
+        <h2 className="myprop-filters-title">Filtros</h2>
+
+        {FILTER_GROUPS.map((group) => {
+          const isExpanded = expandedGroups[group.key];
+          const shown = group.expandable && !isExpanded
+            ? group.options.slice(0, 3)
+            : group.options;
+
+          return (
+            <div key={group.key} className="myprop-filter-group">
+              <p className="myprop-filter-group-title">{group.title}</p>
+              {shown.map((opt) => (
+                <button
+                  key={opt.label}
+                  type="button"
+                  className={`myprop-filter-link ${activeFilters[group.key] === opt.label ? 'active' : ''}`}
+                  onClick={() => toggleFilter(group.key, opt.label)}
+                >
+                  <span>{opt.label}</span>
+                  <span className="count">({opt.count.toLocaleString('es-AR')})</span>
+                </button>
+              ))}
+              {group.expandable && (               
+                <button
+                    type="button"
+                    className="myprop-features-toggle"
+                    onClick={() => toggleExpand(group.key)}
+                    aria-expanded={isExpanded}
+                >   
+                    {isExpanded ? 'Ver menos' : 'Ver mas'}
+                    <img
+                        src="/icons/chevron-up.svg"
+                        alt=""
+                        aria-hidden="true"
+                        className={isExpanded ? 'expanded' : ''}
+                    />    
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </aside>
+
+      {/* ── Main content ── */}
+      <main className="myprop-content">
+        <h1 className="myprop-page-title">Mis publicaciones</h1>
+
+        <Select
+            label=""
+            placeholder="Mis destaques disponibles (20)"
+            value={""}
+            onChange={(value) => {}}
+            options={[
+                { value: '1', label: 'Destaque 1' },
+                { value: '2', label: 'Destaque 2' },
+                { value: '3', label: 'Destaque 3' },
+            ]}
+        />
+
+        {/* Toolbar */}
+        <div className="myprop-toolbar">
+          <div className="myprop-toolbar-left">            
+            <Checkbox
+                label={
+                    selectedCount > 0
+                    ? `${selectedCount} Publicación${selectedCount !== 1 ? 'es' : ''} seleccionada${selectedCount !== 1 ? 's' : ''}`
+                    : 'Seleccionar todas'
+                }
+                checked={allSelected}
+                onChange={toggleSelectAll}
+            />
+            <button type="button" className="myprop-toolbar-btn" title="Asignar responsable">
+                <img src="/icons/user.svg" alt="Asignar" />
+            </button>
+            <button type="button" className="myprop-toolbar-btn" title="Sincronizar">
+                <img src="/icons/refresh.svg" alt="Sincronizar" />
+            </button>
+            <button type="button" className="myprop-toolbar-btn" title="Duplicar">
+                <img src="/icons/publicaciones.svg" alt="Duplicar" />
+            </button>
+            <button type="button" className="myprop-toolbar-btn" title="Archivar">
+                <img src="/icons/calendar.svg" alt="Archivar" />
+            </button>
+          </div>
+
+          <div className="myprop-toolbar-right">
+            <div className="myprop-toolbar-search">
+              <InputField2
+                placeholder="ID / Título"
+                value={searchQuery}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                icon={<img src="/icons/search.svg" alt="" width="18" height="18" />}
+                iconPosition="right"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Property list */}
+        <div className="myprop-list">
+          {MOCK_PROPERTIES.map((prop, idx) => {
+            const isSelected = selectedIds.has(idx);
+            return (
+            <div key={idx} className="myprop-card">
+                {/* Checkbox */}
+                <div className="myprop-card-check">
+                <Checkbox
+                    label=""
+                    checked={isSelected}
+                    onChange={() => toggleSelect(idx)}
+                />
+                </div>
+
+                <div className="myprop-card-content">
+                    <div className="myprop-card-content-top">
+                        <div className="myprop-card-infobar">
+                            <p className="myprop-card-infobar-label">ID <span className="myprop-card-infobar-value">{prop.id}</span></p>
+                            <p className="myprop-card-infobar-label">Inicio: <span className="myprop-card-infobar-value">{prop.startDate}</span></p>
+                            <p className="myprop-card-infobar-label">Plan: <span className="myprop-card-infobar-value">{prop.plan}</span></p>
+                        </div>
+                        <div className={`myprop-card-status ${prop.status === 'Activo' ? 'active' : prop.status === 'Reservado' ? 'reserved' : 'inactive'}`}>
+                            <span className="myprop-card-status-dot" />
+                            <span>{prop.status}</span>
+                        </div>
+                    </div>
+                    <div className="myprop-card-content-center">
+                        <PropertyCardMapList property={prop} />                        
+
+                        <div className="myprop-quality">
+                            <span className="myprop-quality-label">Calidad del aviso</span>
+                            <DonutChart percent={prop.quality} />
+                        </div>
+
+                        <div className="myprop-views">
+                            <span className="myprop-views-label">Visualizaciones</span>
+                            <span className="myprop-views-count">{prop.views}</span>
+                        </div>
+                    </div>
+                    <div className="myprop-card-actions">
+                        <button type="button" className="myprop-card-action-btn" title="Editar">
+                        <img src="/icons/pencil.svg" alt="Editar" />
+                        </button>
+                        <button type="button" className="myprop-card-action-btn" title="Duplicar">
+                        <img src="/icons/publicaciones.svg" alt="Duplicar" />
+                        </button>
+                        <button type="button" className="myprop-card-action-btn" title="Compartir">
+                        <img src="/icons/envelope.svg" alt="Compartir" />
+                        </button>
+                        <button type="button" className="myprop-card-action-btn" title="Ver en mapa">
+                        <img src="/icons/map.svg" alt="Mapa" />
+                        </button>
+                        <button type="button" className="myprop-card-action-btn" title="Eliminar">
+                        <img src="/icons/trash.svg" alt="Eliminar" />
+                        </button>
+                    </div>
+                </div>
+            </div>);
+          })}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default MyProperties;

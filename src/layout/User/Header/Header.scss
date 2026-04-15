@@ -649,6 +649,10 @@ $font-family-button: var(--font-montserrat), sans-serif;
 }
 
 .mobile-header-open-nav {
+  display: none;
+}
+
+.mobile-open .mobile-header-open-nav {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   width: 100%;
@@ -662,5 +666,8 @@ $font-family-button: var(--font-montserrat), sans-serif;
   .close-button {
     grid-column: 3;
     justify-self: end;
+  }
+  @media (min-width: 769px) {
+    display: none;
   }
 }

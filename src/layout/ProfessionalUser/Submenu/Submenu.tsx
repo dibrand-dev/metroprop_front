@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import './Submenu.scss';
 
 const iconChevron = "/icons/chevron_blue.svg";
@@ -25,19 +26,40 @@ const items: SubmenuItem[] = [
   { id: 'partners', label: 'Partners', href: "/protected/partners" },
 ];
 
+function getUserRoleId(user: any): number | null {
+  if (!user?.organization) return null;
+  const userId = String(user.id);
+  for (const branch of user.organization.branches ?? []) {
+    const found = (branch.users ?? []).find((u: any) => String(u.id) === userId);
+    if (found) return found.role_id ?? null;
+  }
+  return null;
+}
+
+function getVisibleItems(roleId: number | null): SubmenuItem[] {
+  if (roleId === 4) return items;
+  if (roleId === 1) return items.filter((i) => i.id !== 'partners');
+  return items.filter((i) => i.id === 'datos');
+}
+
 export default function Submenu({ active }: SubmenuProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  const roleId = useMemo(() => getUserRoleId((session as any)?.user), [session]);
+  const visibleItems = useMemo(() => getVisibleItems(roleId), [roleId]);
+
   const activeItemId = useMemo(() => {
     if (!pathname) return '';
     if (pathname.startsWith('/protected/branchForm')) return 'ubicacion';
-    const matched = items.find((item) => item.href === pathname);
+    const matched = visibleItems.find((item) => item.href === pathname);
     return matched?.id ?? '';
-  }, [pathname]);
+  }, [pathname, visibleItems]);
 
   return (
     <div className={`submenu-container ${active ? 'submenu-active' : ''}`}>
       <p className="submenu-header-mobile">Inmobiliaria</p>
-      {items.map((item) => {
+      {visibleItems.map((item) => {
         const isActive = activeItemId === item.id;
         const Component = item.href ? 'a' : 'button';
 
