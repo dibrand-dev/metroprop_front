@@ -152,12 +152,12 @@ export default function LocationAutocompleteInput({
       ];
 
       // Bonus por tipo: permite que la jerarquía influya pero no aplaste un match mucho mejor
-    /*  const getTypeBonus = (type?: string) => {
+      const getTypeBonus = (type?: string) => {
         if (type === 'state') return 300;
         if (type === 'location') return 150;
         return 0; // sub_location
       };
-    */
+    
       // Bonus por parent_id o state_id: premia zonas prioritarias
       const getParentBonus = (id?: number) => {
         if (id == null) return 0;
@@ -168,7 +168,7 @@ export default function LocationAutocompleteInput({
 
       // Score combinado: text score + tipo + zona geográfica prioritaria
       const getCombinedScore = (textScore: number, location: Location) => {
-        let combined = textScore + /*getTypeBonus(location.type) +*/ getParentBonus(location.parent_id);
+        let combined = textScore + getTypeBonus(location.type) + getParentBonus(location.parent_id);
         if (location.type === 'sub_location') {
           combined += getParentBonus(location.state_id);
         }
