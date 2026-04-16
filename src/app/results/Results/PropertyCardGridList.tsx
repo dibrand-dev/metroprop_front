@@ -46,7 +46,8 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
             </div>
             
             <div className="specs-row">
-              {property.total_surface && property.total_surface > 0 && <span>{formatNumbers(property.total_surface)} m² tot.</span>}
+              {property.total_surface && property.total_surface > 0 ? <span>{formatNumbers(property.total_surface)} m² tot.</span> 
+                : property.surface &&  property.surface > 0 ? <span>{formatNumbers(property.surface)} m²</span> : null}
               {property.room_amount && property.room_amount > 0 && <span>{property.room_amount} amb.</span>}
               {property.bathroom_amount && property.bathroom_amount > 0 && <span>{property.bathroom_amount} baños</span>}
             </div>

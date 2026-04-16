@@ -1,5 +1,5 @@
-import Partners from '@/app/protected/partners/Partners/Partners';
+import Collaborators from "./Collaborators/Collaborators";
 
-export default function PartnersPage() {
-  return <Partners />;
+export default function CollaboratorsPage() {
+  return <Collaborators />;
 }

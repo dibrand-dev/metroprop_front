@@ -131,7 +131,7 @@ $font-family-button: var(--font-montserrat), sans-serif;
 
   @media (max-width: 768px) {
     position: absolute;
-    top: 100%;
+    top: -21px;
     left: 0;
     right: 0;
     flex-direction: column;
@@ -150,8 +150,9 @@ $font-family-button: var(--font-montserrat), sans-serif;
     &.mobile-open {
       max-height: 100vh;
       padding: 0;
-      margin-top: 21px;
+      margin-top: 0;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 221;
     }
   }
 }
@@ -647,3 +648,26 @@ $font-family-button: var(--font-montserrat), sans-serif;
   }
 }
 
+.mobile-header-open-nav {
+  display: none;
+}
+
+.mobile-open .mobile-header-open-nav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  width: 100%;
+  padding: 16px;
+  box-shadow: 1px 4px 8px 0px rgba(0, 0, 0, 0.2);
+
+  .home-link {
+    grid-column: 2;
+  }
+
+  .close-button {
+    grid-column: 3;
+    justify-self: end;
+  }
+  @media (min-width: 769px) {
+    display: none;
+  }
+}

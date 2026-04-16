@@ -1,0 +1,410 @@
+@use '@/styles/variables' as *;
+
+/* ── Layout ─────────────────────────────────────────────────────────── */
+.myprop-wrapper {
+  display: flex;
+  align-items: flex-start;
+  min-height: calc(100vh - 64px);
+ 
+}
+
+/* ── Filters sidebar ─────────────────────────────────────────────────── */
+.myprop-filters {
+  width: 361px;
+  height: 100%;
+  top: 80px;
+  padding-top: 48px;
+  padding-right: 35px;
+  padding-bottom: 24px;
+  padding-left: 24px;
+  background: $background-color;
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.myprop-filters-title {
+  font-weight: 600;;
+  font-size: 24px;
+  line-height: 30px;
+  letter-spacing: 0%;
+  margin-left: 24px;
+}
+
+.myprop-filter-group {
+  display: flex;
+  gap: 16px;
+  flex-direction: column;
+  padding: 24px;
+  border-bottom: 1px solid #A6A6A6;
+}
+
+.myprop-filter-group-title {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0.25%;
+}
+
+.myprop-filter-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px 0;
+  color: $text-color;
+  width: 100%;
+
+
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.75%;
+
+
+  &:hover {
+    color: $primary-color;
+  }
+
+  &.active {
+    color: $primary-color;
+    font-weight: 600;
+  }
+
+  span.count {
+    color: $text-secondary;
+    font-size: 12px;
+    margin-left: 4px;
+  }
+}
+
+.myprop-filter-seemore {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: $primary-color;
+  font-weight: 600;
+  padding: 2px 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-align: left;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ── Main content ────────────────────────────────────────────────────── */
+.myprop-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 24px;
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+.myprop-page-title {  
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 36px;
+  line-height: 43px;
+  letter-spacing: 0%;
+  margin: 0;
+}
+
+
+/* ── Toolbar ─────────────────────────────────────────────────────────── */
+.myprop-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.myprop-toolbar-left {
+  justify-content: space-between;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #F5F5F5;
+  display: flex;
+  width: 100%;
+}
+
+.myprop-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.myprop-toolbar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: $border-radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-secondary;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f0f4ff;
+    color: $primary-color;
+  }
+
+  img {
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+  }
+}
+
+.myprop-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.myprop-toolbar-search {
+  width: 359px;
+}
+
+/* ── Property list ───────────────────────────────────────────────────── */
+.myprop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Property row card ───────────────────────────────────────────────── */
+.myprop-card {
+  display: flex;
+  gap: 16px;
+  border-radius: 16px;
+  border: 1px solid #A6A6A6;
+  padding-top: 16px;
+  padding-right: 24px;
+  padding-bottom: 16px;
+  padding-left: 24px;
+}
+
+.myprop-card-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.myprop-card-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 8px;
+
+  .myprop-card-content-top,
+  .myprop-card-content-center,
+  .myprop-card-content-bottom {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .myprop-card-content-top {
+    .myprop-card-infobar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      line-height: 18px;
+      letter-spacing: 0.25%;
+
+      .myprop-card-infobar-label {
+        color:#7A7A7A;
+        font-weight: 500;
+      }
+
+      .myprop-card-infobar-value {
+        font-weight: 500;
+        color: #1e1e1e;
+      }
+    }
+
+
+    
+  }
+
+  .myprop-card-content-center {
+    gap: 24px;
+  }
+
+}
+
+.myprop-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.myprop-card-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: $border-radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f0f4ff;
+  }
+
+  img {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+  }
+}
+
+/* ── Right section (status + quality + views) ────────────────────────── */
+.myprop-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1px solid $border-color;
+  padding: 8px 12px;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.myprop-card-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+
+  &.active {
+    color: #2e7d32;
+  }
+  &.inactive {
+    color: $text-secondary;
+  }
+  &.reserved {
+    color: #e65100;
+  }
+  &.archived {
+    color: $text-secondary;
+  }
+}
+
+.myprop-card-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ── Quality donut ───────────────────────────────────────────────────── */
+.myprop-quality {
+  gap: 8px;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1.3px solid #A6A6A6;
+  flex-direction: column;
+  align-items: center;
+  display: flex;
+  text-wrap-mode: nowrap;
+  flex-direction: column;
+
+  .myprop-quality-label {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    color: #7A7A7A;
+  }
+  
+  .myprop-donut {
+    position: relative;
+    width: 52px;
+    height: 52px;
+
+    svg {
+      transform: rotate(-90deg);
+    }
+
+    .donut-track {
+      fill: none;
+      stroke: #e0e0e0;
+      stroke-width: 5;
+    }
+
+    .donut-fill {
+      fill: none;
+      stroke: $primary-color;
+      stroke-width: 5;
+      stroke-linecap: round;
+      transition: stroke-dasharray 0.4s ease;
+    }
+  }
+
+  .myprop-donut-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-color;
+  }
+}
+
+
+/* ── Views ───────────────────────────────────────────────────────────── */
+.myprop-views {
+  border: 1.3px solid #A6A6A6;
+  display: flex;
+  gap: 4px;
+  border-radius: 8px;
+  padding: 8px 16px;
+  flex-direction: column;
+  align-items: center;
+  color: #7A7A7A;
+  .myprop-views-label {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0%;
+  }
+
+  .myprop-views-count {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+    letter-spacing: 0.25%;
+    text-align: center;
+  }
+
+}
+
+.myprop-features-toggle {  
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 18px;
+  letter-spacing: 0.5%;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+}

@@ -172,6 +172,16 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
 
           {/* Desktop Navigation */}
           <nav className={`header-nav ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+            <div className='mobile-header-open-nav'>
+              <a href="/" className='home-link'><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /></a>
+              <button
+                className="close-button"
+                onClick={toggleMobileMenu}
+                aria-label="Cerrar"
+              >
+                <img src="/icons/close.svg" alt="" />
+              </button>
+            </div>
             {Object.entries(dropdownItems).map(([key, columns]) => (
               <div key={key} className="header-dropdown-wrapper">
                 <button
@@ -260,7 +270,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
         </div>
 
         {/* Center Section - Logo / Filter */}
-        {showFilter ? (
+        {showFilter && (
           <div className="header-search">
             <LocationAutocompleteInput
               value={headerSearchQuery}
@@ -276,11 +286,10 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
               }}
             />
           </div>
-        ) : (
-          <div className="header-logo">
-            <a href="/"><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /><img src={logoMetropropMobile} alt="MetroProp" className="metroLogoMobile" /></a>
-          </div>
-        )}
+        )} 
+        <div className="header-logo">
+          <a href="/"><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /><img src={logoMetropropMobile} alt="MetroProp" className="metroLogoMobile" /></a>
+        </div>        
 
         {/* Right Section - Login Button or User Menu */}
         <div className="header-actions">
