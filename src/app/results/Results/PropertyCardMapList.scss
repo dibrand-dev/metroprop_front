@@ -4,6 +4,43 @@
 .property-card-map-list {
   width: 100%;
   filter: $shadow-md;
+  position: relative;
+
+  &:hover .hover-overlay {
+    opacity: 1;
+  }
+
+  .hover-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: $border-radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1;
+  }
+
+  .overlay-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    background: #fff;
+    color: #1E1E1E;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      background: #006AFF;
+      color: #fff;
+    }
+  }
 
   .card-content {
     background: $background-color;

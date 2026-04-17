@@ -183,7 +183,7 @@
 .myprop-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
 }
 
 /* ── Property row card ───────────────────────────────────────────────── */
@@ -407,4 +407,11 @@
   display: flex;
   align-items: center;
   padding: 8px;
+}
+
+.myprop-loading {
+  text-align: center;
+  padding: 32px;
+  color: $text-secondary;
+  font-size: 14px;
 }

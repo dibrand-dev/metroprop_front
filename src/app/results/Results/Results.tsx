@@ -254,27 +254,23 @@ export default function Results() {
             <PropertyCardSkeleton layout={layoutMode} count={limit} />
           ) : layoutMode === 'grid' ? (
             <div className="property-grid">
-              {properties.map((property) => (
-                <a href={`/propertyDetail/${property.id}`} key={property.id} className="property-link">
-                  <PropertyCardGridList 
-                    key={property.id}
-                    property={property}
-                    onFavorite={() => handleToggleFavorite(property.id ?? 0)}
-                  />
-                </a>
+              {properties.map((property) => (                
+                <PropertyCardGridList 
+                  key={property.id}
+                  property={property}
+                  onFavorite={() => handleToggleFavorite(property.id ?? 0)}
+                />
               ))}
             </div>
           ) : (
             <div className="property-list">
-              {properties.map((property) => (
-                <a href={`/propertyDetail/${property.id}`} key={property.id} className="property-link">
-                  <div className="property-wrapper">
-                    <PropertyCardMapList
-                      property={property}
-                      onFavorite={() => handleToggleFavorite(property.id ?? 0)}
-                    />  
-                  </div>
-                </a>
+              {properties.map((property) => (                
+                <div className="property-wrapper">
+                  <PropertyCardMapList
+                    property={property}
+                    onFavorite={() => handleToggleFavorite(property.id ?? 0)}
+                  />  
+                </div>
               ))}
             </div>
           )}

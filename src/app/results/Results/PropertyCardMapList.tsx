@@ -1,9 +1,11 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import './PropertyCardMapList.scss';
 import { CreateProperty } from '@/types/propiedad';
 import { formatNumbers } from '@/utils/utils';
 import { AWS_S3_BUCKET_URL, PROPERTY_NO_IMAGE } from '@/app/constants';
+import GalleryModal from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
 
 interface PropertyCardMapListProps {
   property: CreateProperty;
@@ -11,7 +13,15 @@ interface PropertyCardMapListProps {
 }
 
 const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onFavorite }) => {
+  const router = useRouter();
+  const [galleryOpen, setGalleryOpen] = useState(false);
+
+  const images = property.images?.map(img =>
+    img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`
+  ) ?? [];
+
   return (
+    <>
     <div className="property-card-map-list">
       <div className="card-content">
         <img 
@@ -62,7 +72,32 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
           </div>
         </div>
       </div>
+      <div className="hover-overlay">
+        <button
+          className="overlay-btn"
+          onClick={() => router.push(`/propertyDetail/${property.id}`)}
+          aria-label="Ver detalle"
+        >
+          Ver detalle
+        </button>
+        <button
+          className="overlay-btn"
+          onClick={() => setGalleryOpen(true)}
+          aria-label="Ver fotos"
+        >
+          Ver fotos
+        </button>
+      </div>
     </div>
+    <GalleryModal
+      isOpen={galleryOpen}
+      onClose={() => setGalleryOpen(false)}
+      images={images}
+      videos={[]}
+      plans={[]}
+      gallery360={[]}
+    />
+    </>
   );
 };
 

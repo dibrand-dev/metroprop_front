@@ -1,41 +1,29 @@
 'use client';
 
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import InputField2 from '@/ui/InputField2/InputField2';
-import './MyProperties.scss';
 import Select from '@/ui/Select/Select';
-import PropertyCardMapList from '@/app/results/Results/PropertyCardMapList';
+import { fetchProperties } from '@/lib/properties';
+import type { CreateProperty } from '@/types/propiedad';
+import './MyProperties.scss';
+import PropertyCardMyProperties from './PropertyCardMyProperties';
 
-/* ── Types ──────────────────────────────────────────────────────────── */
-interface PropertyItem {
-  id: string;
-  startDate: string;
-  plan: 'Simple' | 'Destacado' | 'Premium';
-  status: 'Activo' | 'Reservado' | 'Archivado' | 'Borrador' | 'Finalizado';
-  type: string;
-  title: string;
-  address: string;
-  price: string;
-  image: string;
-  quality: number;
-  views: number;
-}
+/* ── Status / Plan maps ─────────────────────────────────────────────── */
+const STATUS_MAP: Record<number, { label: string; cls: string }> = {
+  1: { label: 'Activo',     cls: 'active'   },
+  2: { label: 'Reservado',  cls: 'reserved' },
+  3: { label: 'Archivado',  cls: 'inactive' },
+  4: { label: 'Borrador',   cls: 'inactive' },
+  5: { label: 'Finalizado', cls: 'inactive' },
+};
 
-/* ── Mock data ──────────────────────────────────────────────────────── */
-const MOCK_PROPERTIES: PropertyItem[] = Array.from({ length: 8 }, (_, i) => ({
-  id: `57696369`,
-  startDate: '19/11/2025',
-  plan: i % 3 === 0 ? 'Premium' : i % 2 === 0 ? 'Simple' : 'Destacado',
-  status: 'Activo',
-  type: 'Departamento',
-  title: 'Departamento de 3 amb. en Palermo',
-  address: 'Mansilla al 1000',
-  price: '$950.000',
-  image: '',
-  quality: i % 2 === 0 ? 76 : 75,
-  views: 7,
-}));
+const PLAN_MAP: Record<number, string> = {
+  1: 'Simple',
+  2: 'Destacado',
+  3: 'Premium',
+};
 
 /* ── Filter data ────────────────────────────────────────────────────── */
 const FILTER_GROUPS = [
@@ -140,6 +128,13 @@ const MyProperties = () => {
   const [allSelected, setAllSelected] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const { data: propertiesData, isLoading } = useQuery({
+    queryKey: ['my-properties'],
+    queryFn: () => fetchProperties({ order_by: 'created_at:desc', page: 1, limit: 20 }),
+    staleTime: 5 * 60 * 1000,
+  });
+  const properties: CreateProperty[] = propertiesData?.data ?? [];
+
   const toggleFilter = (groupKey: string, label: string) => {
     setActiveFilters((prev) =>
       prev[groupKey] === label ? { ...prev, [groupKey]: '' } : { ...prev, [groupKey]: label }
@@ -155,7 +150,7 @@ const MyProperties = () => {
       setSelectedIds(new Set());
       setAllSelected(false);
     } else {
-      setSelectedIds(new Set(MOCK_PROPERTIES.map((_, i) => i)));
+      setSelectedIds(new Set(properties.map((_, i) => i)));
       setAllSelected(true);
     }
   };
@@ -274,10 +269,17 @@ const MyProperties = () => {
 
         {/* Property list */}
         <div className="myprop-list">
-          {MOCK_PROPERTIES.map((prop, idx) => {
+          {isLoading && <p className="myprop-loading">Cargando publicaciones...</p>}
+          {properties.map((prop, idx) => {
             const isSelected = selectedIds.has(idx);
+            const statusNum = prop.status as unknown as number;
+            const statusInfo = STATUS_MAP[statusNum] ?? { label: 'Activo', cls: 'active' };
+            const planLabel = prop.selected_plan ? (PLAN_MAP[prop.selected_plan] ?? '--') : '--';
+            const startDate = (prop as any).created_at
+              ? new Date((prop as any).created_at).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+              : '--';
             return (
-            <div key={idx} className="myprop-card">
+            <div key={prop.id ?? idx} className="myprop-card">
                 {/* Checkbox */}
                 <div className="myprop-card-check">
                 <Checkbox
@@ -291,25 +293,25 @@ const MyProperties = () => {
                     <div className="myprop-card-content-top">
                         <div className="myprop-card-infobar">
                             <p className="myprop-card-infobar-label">ID <span className="myprop-card-infobar-value">{prop.id}</span></p>
-                            <p className="myprop-card-infobar-label">Inicio: <span className="myprop-card-infobar-value">{prop.startDate}</span></p>
-                            <p className="myprop-card-infobar-label">Plan: <span className="myprop-card-infobar-value">{prop.plan}</span></p>
+                            <p className="myprop-card-infobar-label">Inicio: <span className="myprop-card-infobar-value">{startDate}</span></p>
+                            <p className="myprop-card-infobar-label">Plan: <span className="myprop-card-infobar-value">{planLabel}</span></p>
                         </div>
-                        <div className={`myprop-card-status ${prop.status === 'Activo' ? 'active' : prop.status === 'Reservado' ? 'reserved' : 'inactive'}`}>
+                        <div className={`myprop-card-status ${statusInfo.cls}`}>
                             <span className="myprop-card-status-dot" />
-                            <span>{prop.status}</span>
+                            <span>{statusInfo.label}</span>
                         </div>
                     </div>
                     <div className="myprop-card-content-center">
-                        <PropertyCardMapList property={prop} />                        
+                        <PropertyCardMyProperties property={prop} />
 
                         <div className="myprop-quality">
                             <span className="myprop-quality-label">Calidad del aviso</span>
-                            <DonutChart percent={prop.quality} />
+                            <DonutChart percent={0} />
                         </div>
 
                         <div className="myprop-views">
                             <span className="myprop-views-label">Visualizaciones</span>
-                            <span className="myprop-views-count">{prop.views}</span>
+                            <span className="myprop-views-count">--</span>
                         </div>
                     </div>
                     <div className="myprop-card-actions">

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { CreateAttached } from '@/types/propiedad';
 import { AWS_S3_BUCKET_URL } from '@/app/constants';
 import GalleryLightboxSection from './GalleryLightboxSection';
+import '@/app/propertyDetail/[id]/PropertyDetail/PropertyDetail.scss';
 
 const extractYouTubeId = (url: string): string | null => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;

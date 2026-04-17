@@ -53,7 +53,7 @@ export default function Home() {
 
   const { data: featuredData } = useQuery({
     queryKey: ['featured-properties'],
-    queryFn: () => fetchProperties({ order_by: 'created_at:desc', page: 1, limit: 20 }),
+    queryFn: () => fetchProperties({ order_by: 'created_at:desc', country_id: 1, page: 1, limit: 20 }),
     staleTime: 5 * 60 * 1000,
   });
 

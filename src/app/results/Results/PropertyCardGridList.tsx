@@ -1,9 +1,11 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import './PropertyCardGridList.scss';
 import { CreateProperty } from '@/types/propiedad';
 import { formatNumbers } from '@/utils/utils';
 import { AWS_S3_BUCKET_URL, PROPERTY_NO_IMAGE } from '@/app/constants';
+import GalleryModal from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
 
 interface PropertyCardGridListProps {
   property: CreateProperty;
@@ -11,8 +13,15 @@ interface PropertyCardGridListProps {
 }
 
 const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, onFavorite }) => {
-  //  
+  const router = useRouter();
+  const [galleryOpen, setGalleryOpen] = useState(false);
+
+  const images = property.images?.map(img =>
+    img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`
+  ) ?? [];
+
   return (
+    <>
     <div className="property-card-grid-list">
       <div className="image-section">
         <img 
@@ -22,6 +31,22 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
           alt={property.publication_title}
           className="property-image"
         />
+        <div className="hover-overlay">
+          <button
+            className="overlay-btn"
+            onClick={() => router.push(`/propertyDetail/${property.id}`)}
+            aria-label="Ver detalle"
+          >
+            Ver detalle
+          </button>
+          <button
+            className="overlay-btn"
+            onClick={() => setGalleryOpen(true)}
+            aria-label="Ver fotos"
+          >
+            Ver fotos
+          </button>
+        </div>
       </div>
       
       <div className="info-section">
@@ -55,6 +80,15 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
         </div>
       </div>
     </div>
+    <GalleryModal
+      isOpen={galleryOpen}
+      onClose={() => setGalleryOpen(false)}
+      images={images}
+      videos={[]}
+      plans={[]}
+      gallery360={[]}
+    />
+    </>
   );
 };
 

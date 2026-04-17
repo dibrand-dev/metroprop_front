@@ -110,7 +110,7 @@ export default function TopUserMenu() {
       id: 'publicaciones',
       label: 'Mis publicaciones',
       icon: publicacionesIcon,
-      href: '/profile/publications'
+      href: '/protected/myProperties'
     },
     {
       id: 'cuenta',
