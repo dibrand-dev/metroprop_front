@@ -157,7 +157,7 @@ export default function LocationAutocompleteInput({
         if (type === 'location') return 150;
         return 0; // sub_location
       };
-
+    
       // Bonus por parent_id o state_id: premia zonas prioritarias
       const getParentBonus = (id?: number) => {
         if (id == null) return 0;
