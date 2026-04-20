@@ -22,6 +22,10 @@
     opacity: 0;
     transition: opacity 0.2s ease;
     z-index: 1;
+
+    &.overlay-active {
+      opacity: 1;
+    }
   }
 
   .overlay-btn {

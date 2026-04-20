@@ -5,7 +5,10 @@ import './PropertyCardMapList.scss';
 import { CreateProperty } from '@/types/propiedad';
 import { formatNumbers } from '@/utils/utils';
 import { AWS_S3_BUCKET_URL, PROPERTY_NO_IMAGE } from '@/app/constants';
-import GalleryModal from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
+import GalleryModal, { GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
+import { CreateAttached } from '@/types/propiedad';
+
+import { API_BASE_URL } from '@/utils/utils';
 
 interface PropertyCardMapListProps {
   property: CreateProperty;
@@ -15,14 +18,50 @@ interface PropertyCardMapListProps {
 const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onFavorite }) => {
   const router = useRouter();
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryVideos, setGalleryVideos] = useState<GalleryVideo[]>([]);
+  const [galleryPlans, setGalleryPlans] = useState<CreateAttached[]>([]);
+  const [gallery360, setGallery360] = useState<GalleryVideo[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [overlayVisible, setOverlayVisible] = useState(false);
 
   const images = property.images?.map(img =>
     img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`
   ) ?? [];
 
+  const openGallery = async () => {
+    setGalleryOpen(true);
+    setGalleryLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/properties/${property.id}/multimedia`);
+      const data = await res.json();
+      const fetchedImages: string[] = (data?.images ?? []).map((img: { url: string }) =>
+        img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`
+      );
+      setGalleryImages(fetchedImages.length > 0 ? fetchedImages : images);
+      setGalleryVideos((data?.videos ?? []).map((url: string, i: number) => ({ id: i, url, order: i })));
+      setGalleryPlans(data?.attached ?? []);
+      setGallery360((data?.multimedia360 ?? []).map((url: string, i: number) => ({ id: i, url, order: i })));
+    } catch {
+      setGalleryImages(images);
+      setGalleryVideos([]);
+      setGalleryPlans([]);
+      setGallery360([]);
+    } finally {
+      setGalleryLoading(false);
+    }
+  };
+
+  const hasImages = (images.length > 0);
+
   return (
     <>
-    <div className="property-card-map-list">
+    <div
+      className="property-card-map-list"
+      onClick={!hasImages ? () => router.push(`/propertyDetail/${property.id}`) : () => setOverlayVisible(v => !v)}
+      onMouseLeave={() => setOverlayVisible(false)}
+      style={!hasImages ? { cursor: 'pointer' } : undefined}
+    >
       <div className="card-content">
         <img 
           src={property.images?.[0]?.url 
@@ -72,30 +111,33 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
           </div>
         </div>
       </div>
-      <div className="hover-overlay">
+      {hasImages && (
+      <div className={`hover-overlay${overlayVisible ? ' overlay-active' : ''}`}>
         <button
           className="overlay-btn"
-          onClick={() => router.push(`/propertyDetail/${property.id}`)}
+          onClick={(e) => { e.stopPropagation(); router.push(`/propertyDetail/${property.id}`); }}
           aria-label="Ver detalle"
         >
           Ver detalle
         </button>
         <button
           className="overlay-btn"
-          onClick={() => setGalleryOpen(true)}
+          onClick={(e) => { e.stopPropagation(); openGallery(); }}
           aria-label="Ver fotos"
         >
           Ver fotos
         </button>
       </div>
+      )}
     </div>
     <GalleryModal
       isOpen={galleryOpen}
-      onClose={() => setGalleryOpen(false)}
-      images={images}
-      videos={[]}
-      plans={[]}
-      gallery360={[]}
+      onClose={() => { setGalleryOpen(false); setGalleryImages([]); setGalleryVideos([]); setGalleryPlans([]); setGallery360([]); }}
+      images={galleryImages}
+      videos={galleryVideos}
+      plans={galleryPlans}
+      gallery360={gallery360}
+      isLoading={galleryLoading}
     />
     </>
   );

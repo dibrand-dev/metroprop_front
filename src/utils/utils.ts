@@ -50,8 +50,12 @@ export function getVisitedProperties(): VisitedProperty[] {
 export function saveVisitedProperty(property: VisitedProperty): void {
   if (typeof window === 'undefined') return;
   try {
+    const lastSlash = property.image.lastIndexOf('/');
+    const thumbImage = lastSlash !== -1
+      ? property.image.slice(0, lastSlash + 1) + 'thumb_' + property.image.slice(lastSlash + 1)
+      : property.image;
     const current = getVisitedProperties().filter(p => p.id !== property.id);
-    const updated = [property, ...current].slice(0, VISITED_MAX);
+    const updated = [{ ...property, image: thumbImage }, ...current].slice(0, VISITED_MAX);
     localStorage.setItem(VISITED_KEY, JSON.stringify(updated));
   } catch {
     // localStorage unavailable — ignore

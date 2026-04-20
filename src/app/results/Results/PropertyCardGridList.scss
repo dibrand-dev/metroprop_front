@@ -28,6 +28,10 @@
     gap: 12px;
     opacity: 0;
     transition: opacity 0.2s ease;
+
+    &.overlay-active {
+      opacity: 1;
+    }
   }
 
   .overlay-btn {

@@ -1,11 +1,10 @@
 "use client";
-import { Inter, Montserrat } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "../providers/QueryProvider";
 import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({ subsets: ["latin"], display: 'swap', variable: '--font-inter' });
-const montserrat = Montserrat({ subsets: ["latin"], display: 'swap', variable: '--font-montserrat' });
 
 export default function RootLayout({
   children,
@@ -14,6 +13,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com"  />
+      <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
       <body className={`${inter.className}`}>
         <SessionProvider>
           <QueryProvider>

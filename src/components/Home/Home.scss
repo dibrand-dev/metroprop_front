@@ -1,4 +1,4 @@
-@import '../../styles/variables.scss';
+@import '../../styles/_variables.scss';
 
 
 /* Hero Section */
@@ -31,7 +31,7 @@
 }
 
 .properties-title, .service-title  {
-    font-family: var(--font-montserrat), sans-serif;
+    font-family: Montserrat, sans-serif;
 }
 
 .search-input-wrapper {

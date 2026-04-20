@@ -10,7 +10,7 @@ $color-border: #a6a6a6;
 
 // Typography
 $font-family-body: var(--font-inter), sans-serif;
-$font-family-button: var(--font-montserrat), sans-serif;
+$font-family-button: Montserrat, sans-serif;
 
 // Main Header Container
 .header-container {
@@ -51,6 +51,7 @@ $font-family-button: var(--font-montserrat), sans-serif;
  
   @media (max-width: 768px) {
     gap: 16px;
+    z-index: 251;
   }
 }
 

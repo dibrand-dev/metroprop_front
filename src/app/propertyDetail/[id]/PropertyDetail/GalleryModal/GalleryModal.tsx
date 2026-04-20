@@ -30,7 +30,8 @@ export interface GalleryModalProps {
   plans: CreateAttached[];
   initialTab?: GalleryTab;
   initialIndex?: number;
-  gallery360: GalleryVideo[]
+  gallery360: GalleryVideo[];
+  isLoading?: boolean;
 }
 
 export default function GalleryModal({
@@ -42,6 +43,7 @@ export default function GalleryModal({
   gallery360,
   initialTab = 'fotos',
   initialIndex = 0,
+  isLoading = false,
 }: GalleryModalProps) {
   const [galleryTab, setGalleryTab] = useState<GalleryTab>(initialTab);
   const [galleryActiveIndex, setGalleryActiveIndex] = useState(initialIndex);
@@ -93,6 +95,11 @@ export default function GalleryModal({
   return (
     <div className="property-gallery-lightbox" role="dialog" aria-modal="true" aria-label="Galería de fotos">
       <div className="property-gallery-lightbox-backdrop" onClick={onClose} />
+      {isLoading && (
+        <div className="property-gallery-lightbox-loading">
+          <div className="property-gallery-lightbox-spinner" />
+        </div>
+      )}
       <button
         type="button"
         className="property-detail-gallery-modal-close"
@@ -110,7 +117,7 @@ export default function GalleryModal({
     </button>
 
       {/* Tabs — hidden when only one tab exists */}
-      {[images.length > 0, videos.length > 0, plans.length > 0, gallery360.length > 0].filter(Boolean).length > 1 && (
+      {!isLoading && [images.length > 0, videos.length > 0, plans.length > 0, gallery360.length > 0].filter(Boolean).length > 1 && (
       <div className="property-gallery-lightbox-tabs">
         <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'fotos' ? 'active' : ''}`} onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); }}>Fotos</button>
         {videos.length > 0 && (
@@ -126,7 +133,7 @@ export default function GalleryModal({
       )}
 
       {/* ── FOTOS ── */}
-      {galleryTab === 'fotos' && (
+      {!isLoading && galleryTab === 'fotos' && (
         <GalleryLightboxSection
           items={images}
           activeIndex={galleryActiveIndex}
@@ -136,14 +143,15 @@ export default function GalleryModal({
           renderMain={(src, idx) => (
             <img src={src} alt={`Foto ${idx + 1}`} className="property-gallery-lightbox-image" />
           )}
-          renderThumb={(src, idx) => (
-            <img src={src} alt={`Miniatura ${idx + 1}`} />
-          )}
+          renderThumb={(src, idx) => {
+            const lastSlash = src.lastIndexOf('/');
+            return <img src={src.slice(0, lastSlash + 1) + 'thumb_' + src.slice(lastSlash + 1)} alt={`Miniatura ${idx + 1}`} />;
+          }}
         />
       )}
 
       {/* ── VIDEOS ── */}
-      {galleryTab === 'videos' && (
+      {!isLoading && galleryTab === 'videos' && (
         <GalleryLightboxSection
           items={videos}
           activeIndex={videoActiveIndex}
@@ -174,7 +182,7 @@ export default function GalleryModal({
       )}
 
       {/* ── PLANOS ── */}
-      {galleryTab === 'planos' && (
+      {!isLoading && galleryTab === 'planos' && (
         <GalleryLightboxSection
           items={plans}
           activeIndex={planActiveIndex}
@@ -227,7 +235,7 @@ export default function GalleryModal({
       )}
 
       {/* ── 360 ── */}
-      {galleryTab === '360' && (
+      {!isLoading && galleryTab === '360' && (
         <GalleryLightboxSection
           items={gallery360 || []}
           activeIndex={gallery360ActiveIndex}
