@@ -1038,10 +1038,10 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [], propert
               value={searchText}
               onChange={setSearchText}
               placeholder="Dirección, barrio, calle"
-              onSubmit={(value, locationId) => pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, value, locationId, true)}
+              onSubmit={(value, locationId) => pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, value, locationId, locationId != null)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, searchText, undefined, true);
+                  pushUrl(operacion, selectedTypes, rooms, masFiltros, precio, searchText, undefined, false);
                 }
               }}
             />

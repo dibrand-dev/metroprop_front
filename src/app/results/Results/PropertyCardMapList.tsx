@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import './PropertyCardMapList.scss';
 import { CreateProperty } from '@/types/propiedad';
@@ -24,6 +24,7 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
   const [gallery360, setGallery360] = useState<GalleryVideo[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(false);
+  const overlayShownAtRef = useRef(0);
 
   const images = property.images?.map(img =>
     img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`
@@ -58,7 +59,10 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
     <>
     <div
       className="property-card-map-list"
-      onClick={!hasImages ? () => router.push(`/propertyDetail/${property.id}`) : () => setOverlayVisible(v => !v)}
+      onClick={!hasImages ? () => router.push(`/propertyDetail/${property.id}`) : () => setOverlayVisible(v => {
+        if (!v) overlayShownAtRef.current = Date.now();
+        return !v;
+      })}
       onMouseLeave={() => setOverlayVisible(false)}
       style={!hasImages ? { cursor: 'pointer' } : undefined}
     >
@@ -115,14 +119,14 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
       <div className={`hover-overlay${overlayVisible ? ' overlay-active' : ''}`}>
         <button
           className="overlay-btn"
-          onClick={(e) => { e.stopPropagation(); router.push(`/propertyDetail/${property.id}`); }}
+          onClick={(e) => { e.stopPropagation(); if (Date.now() - overlayShownAtRef.current < 400) return; router.push(`/propertyDetail/${property.id}`); }}
           aria-label="Ver detalle"
         >
           Ver detalle
         </button>
         <button
           className="overlay-btn"
-          onClick={(e) => { e.stopPropagation(); openGallery(); }}
+          onClick={(e) => { e.stopPropagation(); if (Date.now() - overlayShownAtRef.current < 400) return; openGallery(); }}
           aria-label="Ver fotos"
         >
           Ver fotos

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import './PropertyCardGridList.scss';
 import { CreateProperty } from '@/types/propiedad';
@@ -24,6 +24,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
   const [gallery360, setGallery360] = useState<GalleryVideo[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(false);
+  const overlayShownAtRef = useRef(0);
 
   const images = property.images?.map(img =>
     img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`
@@ -63,7 +64,10 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
     >
       <div
         className="image-section"
-        onClick={() => hasImages && setOverlayVisible(v => !v)}
+        onClick={() => hasImages && setOverlayVisible(v => {
+          if (!v) overlayShownAtRef.current = Date.now();
+          return !v;
+        })}
         onMouseLeave={() => setOverlayVisible(false)}
       >
         <img 
@@ -77,14 +81,14 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
         <div className={`hover-overlay${overlayVisible ? ' overlay-active' : ''}`}>
           <button
             className="overlay-btn"
-            onClick={(e) => { e.stopPropagation(); router.push(`/propertyDetail/${property.id}`); }}
+            onClick={(e) => { e.stopPropagation(); if (Date.now() - overlayShownAtRef.current < 400) return; router.push(`/propertyDetail/${property.id}`); }}
             aria-label="Ver detalle"
           >
             Ver detalle
           </button>
           <button
             className="overlay-btn"
-            onClick={(e) => { e.stopPropagation(); openGallery(); }}
+            onClick={(e) => { e.stopPropagation(); if (Date.now() - overlayShownAtRef.current < 400) return; openGallery(); }}
             aria-label="Ver fotos"
           >
             Ver fotos
