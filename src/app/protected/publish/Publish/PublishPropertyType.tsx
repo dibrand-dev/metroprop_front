@@ -25,6 +25,7 @@ export default function PublishPropertyType({
   const [selectedProperty, setSelectedProperty] = useState<PropertyType | null>(
     wizardData.property_type || null
   );
+  console.log('Selected property type:', selectedProperty);
   const [selectedSubtype, setSelectedSubtype] = useState<PropertySubtype | undefined>(
     wizardData.property_subtype || undefined
   );
@@ -100,7 +101,7 @@ export default function PublishPropertyType({
                     key={option}
                     type="button"
                     className={`publish-chip ${
-                      selectedProperty === option ? 'publish-chip-active' : ''
+                      parseInt(selectedProperty as any)  === parseInt(option as any) ? 'publish-chip-active' : ''
                     }`}
                     onClick={() => {
                       setSelectedProperty(option);
@@ -123,7 +124,7 @@ export default function PublishPropertyType({
                     key={option}
                     type="button"
                     className={`publish-chip ${
-                      selectedSubtype === option ? 'publish-chip-active' : ''
+                      parseInt(selectedSubtype as any) === parseInt(option as any) ? 'publish-chip-active' : ''
                     }`}
                     onClick={() => setSelectedSubtype(option)}
                   >

@@ -133,6 +133,13 @@
   }
 }
 
+.publish-option--selected {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+}
+
 
 .publish-chip {
   border: 1.3px solid #7a7a7a;

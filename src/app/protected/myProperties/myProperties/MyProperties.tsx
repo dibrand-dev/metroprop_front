@@ -7,6 +7,8 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import Select from '@/ui/Select/Select';
 import { fetchProperties } from '@/lib/properties';
 import type { CreateProperty } from '@/types/propiedad';
+import Paginator from '@/components/Paginator/Paginator';
+import { API_BASE_URL } from '@/utils/utils';
 import './MyProperties.scss';
 import PropertyCardMyProperties from './PropertyCardMyProperties';
 
@@ -120,6 +122,8 @@ function DonutChart({ percent }: { percent: number }) {
   );
 }
 
+const LIMIT = 20;
+
 /* ── Main component ─────────────────────────────────────────────────── */
 const MyProperties = () => {
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
@@ -127,13 +131,52 @@ const MyProperties = () => {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [allSelected, setAllSelected] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchId, setSearchId] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: propertiesData, isLoading } = useQuery({
-    queryKey: ['my-properties'],
-    queryFn: () => fetchProperties({ order_by: 'created_at:desc', page: 1, limit: 20 }),
+    queryKey: ['my-properties', currentPage, searchId],
+    queryFn: async () => {
+      if (searchId !== null) {
+        const res = await fetch(`${API_BASE_URL}/properties/${searchId}`);
+        if (!res.ok) return { data: [], total: 0, page: 1, limit: 1 };
+        const property: CreateProperty = await res.json();
+        return { data: [property], total: 1, page: 1, limit: 1 };
+      }
+      return fetchProperties({ order_by: 'created_at:desc', page: currentPage, limit: LIMIT });
+    },
     staleTime: 5 * 60 * 1000,
   });
   const properties: CreateProperty[] = propertiesData?.data ?? [];
+  const totalPages = Math.max(1, Math.ceil((propertiesData?.total ?? 0) / LIMIT));
+
+  const handleSearchById = () => {
+    const trimmed = searchQuery.trim();
+    const num = Number(trimmed);
+    if (trimmed && !Number.isNaN(num) && num > 0) {
+      setSearchId(num);
+    }
+  };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearchQuery(val);
+    if (val.trim() === '') {
+      setSearchId(null);
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleSearchById();
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    setSelectedIds(new Set());
+    setAllSelected(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const toggleFilter = (groupKey: string, label: string) => {
     setActiveFilters((prev) =>
@@ -241,27 +284,29 @@ const MyProperties = () => {
                 onChange={toggleSelectAll}
             />
             <button type="button" className="myprop-toolbar-btn" title="Asignar responsable">
-                <img src="/icons/user.svg" alt="Asignar" />
+              <img src="/icons/AsignarUser.svg" alt="Asignar" />
             </button>
-            <button type="button" className="myprop-toolbar-btn" title="Sincronizar">
-                <img src="/icons/refresh.svg" alt="Sincronizar" />
-            </button>
-            <button type="button" className="myprop-toolbar-btn" title="Duplicar">
-                <img src="/icons/publicaciones.svg" alt="Duplicar" />
+            <button type="button" className="myprop-toolbar-btn" title="Republicar">
+              <img src="/icons/republicar.svg" alt="Republicar" />
             </button>
             <button type="button" className="myprop-toolbar-btn" title="Archivar">
-                <img src="/icons/calendar.svg" alt="Archivar" />
+              <img src="/icons/archivar.svg" alt="Archivar" />
+            </button>
+            <button type="button" className="myprop-toolbar-btn" title="Dar de baja">
+              <img src="/icons/power.svg" alt="Dar de baja" />
             </button>
           </div>
 
           <div className="myprop-toolbar-right">
             <div className="myprop-toolbar-search">
               <InputField2
-                placeholder="ID / Título"
+                placeholder="ID"
                 value={searchQuery}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                onChange={handleSearchInputChange}
+                onKeyDown={handleSearchKeyDown}
                 icon={<img src="/icons/search.svg" alt="" width="18" height="18" />}
                 iconPosition="right"
+                onIconClick={handleSearchById}
               />
             </div>
           </div>
@@ -315,26 +360,27 @@ const MyProperties = () => {
                         </div>
                     </div>
                     <div className="myprop-card-actions">
-                        <button type="button" className="myprop-card-action-btn" title="Editar">
-                        <img src="/icons/pencil.svg" alt="Editar" />
+                        <button type="button" className="myprop-card-action-btn" title="Republicar">
+                          <img src="/icons/republicar.svg" alt="Republicar" />
                         </button>
-                        <button type="button" className="myprop-card-action-btn" title="Duplicar">
-                        <img src="/icons/publicaciones.svg" alt="Duplicar" />
+                        
+                        <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.location.href = `/protected/publish/${prop.id}`}>
+                          <img src="/icons/pencil.svg" alt="Editar" />
                         </button>
-                        <button type="button" className="myprop-card-action-btn" title="Compartir">
-                        <img src="/icons/envelope.svg" alt="Compartir" />
+                        <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => window.location.href = `/propertyDetail/${prop.id}`}>
+                          <img src="/icons/verDetalle.svg" alt="Ver detalle" />
                         </button>
-                        <button type="button" className="myprop-card-action-btn" title="Ver en mapa">
-                        <img src="/icons/map.svg" alt="Mapa" />
-                        </button>
-                        <button type="button" className="myprop-card-action-btn" title="Eliminar">
-                        <img src="/icons/trash.svg" alt="Eliminar" />
+                        <button type="button" className="myprop-card-action-btn" title="Cambiar estado">
+                          <img src="/icons/cambiarStatus.svg" alt="Cambiar estado" />
                         </button>
                     </div>
                 </div>
             </div>);
           })}
         </div>
+
+        {/* Paginator */}
+        <Paginator currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
       </main>
     </div>
   );

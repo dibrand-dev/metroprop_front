@@ -19,6 +19,7 @@ interface PublishFinalReviewProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onSaveAndExit: (data: Partial<CreatePropertyDraft>) => void;
+  isEditMode?: boolean;
 }
 
 export default function PublishFinalReview({
@@ -26,7 +27,8 @@ export default function PublishFinalReview({
   onNext,
   onBack,
   onSaveAndExit,
-  updateWizardData
+  updateWizardData,
+  isEditMode = false,
 }: PublishFinalReviewProps) {
   const { data: locations = [] } = useLocations();
   const { data: sessionData } = useSession();
@@ -391,7 +393,7 @@ export default function PublishFinalReview({
               Volver
             </button>
             <button className="publish-review-continue" type="button" onClick={handlePublish}>
-              Publicar
+              {isEditMode ? 'Guardar cambios' : 'Publicar'}
             </button>
           </div>
         </div>

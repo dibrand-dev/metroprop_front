@@ -44,6 +44,7 @@ interface PublishContentProps {
 
  // YouTube utility functions
   const extractYouTubeId = (url: string): string | null => {
+    if (!url) return null; 
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
@@ -55,6 +56,13 @@ interface PublishContentProps {
 
   const isValidYouTubeUrl = (url: string): boolean => {
     return extractYouTubeId(url) !== null;
+  };
+
+  const resolveVideoUrl = (v: any): string => typeof v === 'string' ? v : (v?.url ?? '');
+  const buildVideoPreview = (v: any): VideoPreview => {
+    const url = resolveVideoUrl(v);
+    const videoId = extractYouTubeId(url) ?? null;
+    return { url, id: videoId, thumbnail: videoId ? getYouTubeThumbnail(videoId) : '' } as VideoPreview;
   };
 
 
@@ -69,16 +77,12 @@ export default function PublishContent({
   const [images, setImages] = useState<CreateImage[] | undefined>(wizardData.images || []);
   const [plans, setPlans] = useState<CreateImagePlans[] | undefined>(wizardData.plans || []);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [videos, setVideos] = useState<string[]>(wizardData.videos || []);
+  const [videos, setVideos] = useState<string[]>(
+    wizardData.videos?.map(resolveVideoUrl) || []
+  );
   const [videosPreview, setVideosPreview] = useState<VideoPreview[] | undefined>(
-    wizardData.videos?.map(videoUrl => {
-      const videoId = extractYouTubeId(videoUrl) ?? null;
-      return {
-        url: videoUrl,
-        id: videoId,
-        thumbnail: videoId ? getYouTubeThumbnail(videoId) : ''
-      } as VideoPreview;
-    }) || []);
+    wizardData.videos?.map(buildVideoPreview) || []
+  );
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>('');
   const [multimedia360, setMultimedia360] = useState<string[]>(wizardData.multimedia360 || ['']);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
@@ -113,6 +117,10 @@ export default function PublishContent({
           }
           if (data?.attached && Array.isArray(data.attached)) {
             setPlans(data.attached);
+          }
+          if (data?.videos && Array.isArray(data.videos) && data.videos.length > 0) {
+            setVideos(data.videos.map(resolveVideoUrl));
+            setVideosPreview(data.videos.map(buildVideoPreview));
           }
         })
         .catch(error => console.error('Error loading multimedia:', error));

@@ -33,7 +33,9 @@ export default function PublishPropertyContent({
     [AmenityType.Extras]: false
   });
 
-  const [selectedAmenities, setSelectedAmenities] = useState<number[]>(wizardData.tags || []);
+  const [selectedAmenities, setSelectedAmenities] = useState<number[]>(
+    (wizardData.tags || []).map((t: any) => typeof t === 'number' ? t : t.tag_id)
+  );
   const [orientation, setOrientation] = useState(wizardData.orientation || undefined);
   const [floors_amount, setFloors_amount] = useState(wizardData.floors_amount || undefined);
   const [garage_coverage, setGarage_coverage] = useState(wizardData.garage_coverage || undefined);

@@ -9,6 +9,7 @@ import FilterBar from './FilterBar';
 import SortDropdown from './SortDropdown';
 import ResultsMap from './ResultsMap';
 import PropertyCardSkeleton from './PropertyCardSkeleton';
+import Paginator from '@/components/Paginator/Paginator';
 import './Results.scss';
 import { fetchProperties, searchParamsToFilterParams } from '@/lib/properties';
 // import type { PropertyListItem } from '@/types/property-api';
@@ -139,18 +140,6 @@ export default function Results() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getPaginatorPages = (): (number | '...')[] => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    const pages: (number | '...')[] = [1];
-    if (currentPage > 4) pages.push('...');
-    for (let i = Math.max(2, currentPage - 2); i <= Math.min(totalPages - 1, currentPage + 2); i++) {
-      pages.push(i);
-    }
-    if (currentPage < totalPages - 3) pages.push('...');
-    pages.push(totalPages);
-    return pages;
-  };
-
   const handleSortChange = (value: string) => {
     setSortBy(value);
     const params = new URLSearchParams(activeSearch);
@@ -276,43 +265,7 @@ export default function Results() {
           )}
 
           {/* Paginator */}
-          {totalPages > 1 && (
-            <div className="results-paginator">
-              <button
-                className="results-paginator-btn results-paginator-arrow"
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                aria-label="Página anterior"
-              >
-                ‹
-              </button>
-
-              {getPaginatorPages().map((page, idx) =>
-                page === '...' ? (
-                  <span key={`ellipsis-${idx}`} className="results-paginator-ellipsis">…</span>
-                ) : (
-                  <button
-                    key={page}
-                    className={`results-paginator-btn ${currentPage === page ? 'is-active' : ''}`}
-                    onClick={() => handlePageChange(page as number)}
-                    aria-label={`Página ${page}`}
-                    aria-current={currentPage === page ? 'page' : undefined}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
-
-              <button
-                className="results-paginator-btn results-paginator-arrow"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                aria-label="Página siguiente"
-              >
-                ›
-              </button>
-            </div>
-          )}
+          <Paginator currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
         </div>
       </div>
     </div>

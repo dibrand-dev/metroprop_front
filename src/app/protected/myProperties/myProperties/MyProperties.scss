@@ -103,7 +103,6 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
   padding: 24px;
   gap: 16px;
 
@@ -270,9 +269,8 @@
   }
 
   img {
-    width: 16px;
-    height: 16px;
-    opacity: 0.6;
+    width: 24px;
+    height: 24px;
   }
 }
 

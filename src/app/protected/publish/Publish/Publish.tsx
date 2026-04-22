@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import './Publish.scss';
 import { API_BASE_URL } from '@/utils/utils';
@@ -64,10 +64,35 @@ const EMPRENDIMIENTO_FLOW = [
   WizardStep.EMPRENDIMIENTO
 ];
 
-export default function Publish() {
+export default function Publish({ propertyId }: { propertyId?: string } = {}) {
+  const isEditMode = !!propertyId;
   const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.INITIAL);
   const [wizardData, setWizardData] = useState<CreatePropertyDraft>({} as CreatePropertyDraft);
+  const [isLoadingProperty, setIsLoadingProperty] = useState(isEditMode);
   const { data: sessionData } = useSession();
+
+  // ── Load existing property into wizard when editing
+  useEffect(() => {
+    if (!propertyId) return;
+    setIsLoadingProperty(true);
+    fetch(`${API_BASE_URL}/properties/${propertyId}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Error fetching property');
+        return res.json();
+      })
+      .then(data => {
+        // Map the property to the wizard draft shape.
+        // draft_id = property id so all PATCH / multimedia calls target the right endpoint.
+        setWizardData({ ...data, draft_id: data.id });
+        if (data.operation_type === OperationType.EMPRENDIMIENTO) {
+          setCurrentStep(WizardStep.EMPRENDIMIENTO);
+        }
+        // For regular properties, stay at INITIAL so the operation type is shown pre-selected
+      })
+      .catch(err => console.error('Error loading property for edit:', err))
+      .finally(() => setIsLoadingProperty(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyId]);
   const getCurrentFlow = useCallback(() => {
     if (wizardData.operation_type === OperationType.EMPRENDIMIENTO) {
       return EMPRENDIMIENTO_FLOW;
@@ -145,6 +170,23 @@ export default function Publish() {
       goToNextStep();
       return;
     }
+
+    // Edit mode: property already exists, just PATCH and advance
+    if (wizardData.draft_id) {
+      try {
+        await updatePropertyMutation.mutateAsync({
+          operation_type: wizardData.operation_type,
+          property_type: wizardData.property_type,
+          ...(wizardData.property_subtype && { property_subtype: wizardData.property_subtype }),
+        });
+      } catch (error: any) {
+        console.error('Error updating property type:', error?.message || error);
+      }
+      goToNextStep();
+      return;
+    }
+
+    // Create mode: create a new draft
     try {
       const draftData = await createDraftMutation.mutateAsync(wizardData);
       updateWizardData({ draft_id: draftData.id });
@@ -186,8 +228,17 @@ export default function Publish() {
       goToNextStep();
     }
   }
-
+console.log('wizardData:', wizardData);
   const renderCurrentStep = () => {
+    if (isLoadingProperty) {
+      return (
+        <div className="publish-page">
+          <div className="publish-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 200 }}>
+            <p>Cargando propiedad...</p>
+          </div>
+        </div>
+      );
+    }
     switch (currentStep) {
       case WizardStep.INITIAL:
         return (
@@ -201,7 +252,7 @@ export default function Publish() {
                 {operationOptions.map((option) => (
                   <button
                     key={option}
-                    className="publish-option"
+                    className={`publish-option${wizardData.operation_type === option ? ' publish-option--selected' : ''}`}
                     type="button"
                     onClick={() => handleSelect(option)}
                   >
@@ -297,6 +348,7 @@ export default function Publish() {
             onNext={(wizardData) => saveCurrentStep(wizardData, true)}
             onBack={goToPreviousStep}
             onSaveAndExit={(wizardData) => saveCurrentStep(wizardData, false)}
+            isEditMode={isEditMode}
           />
         );
 
