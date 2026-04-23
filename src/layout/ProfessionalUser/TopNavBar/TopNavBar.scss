@@ -17,7 +17,7 @@ $font-family-button: Montserrat, sans-serif;
 .topnavbar-container {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -214,7 +214,7 @@ $font-family-button: Montserrat, sans-serif;
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   min-width: 280px;
-  z-index: 1000;
+  z-index: 2;
   overflow: hidden;
 
   @media (max-width: 768px) {

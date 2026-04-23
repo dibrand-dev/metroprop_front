@@ -6,9 +6,13 @@ import { AWS_S3_BUCKET_URL } from '@/app/constants';
 import GalleryLightboxSection from './GalleryLightboxSection';
 import '@/app/propertyDetail/[id]/PropertyDetail/PropertyDetail.scss';
 
-const extractYouTubeId = (url: string): string | null => {
+const extractYouTubeId = (url: string | { id: number, is_360: boolean, order: number, url: string }): string | null => {
+  if (!url) return null;
+  let _url = "";
+  if (typeof url === 'object' && url.url) _url = url.url; 
+  else if (typeof url === 'string') _url = url;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
+  const match = _url.match(regExp);
   return (match && match[2].length === 11) ? match[2] : null;
 };
 const getYouTubeThumbnail = (videoId: string) => `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;

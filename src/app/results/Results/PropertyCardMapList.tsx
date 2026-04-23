@@ -23,7 +23,6 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
   const [galleryPlans, setGalleryPlans] = useState<CreateAttached[]>([]);
   const [gallery360, setGallery360] = useState<GalleryVideo[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
-  const [overlayVisible, setOverlayVisible] = useState(false);
   const overlayShownAtRef = useRef(0);
 
   const images = property.images?.map(img =>
@@ -59,18 +58,14 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
     <>
     <div
       className="property-card-map-list"
-      onClick={() => {
-        console.log("window.innerWidth", window.innerWidth)
-        if (typeof window !== 'undefined' && window.innerWidth < 999) {
-          router.push(`/propertyDetail/${property.id}`);
-          return;
-        }
-        if (!hasImages) router.push(`/propertyDetail/${property.id}`);        
+      onClick={() => {        
+        router.push(`/propertyDetail/${property.id}`);        
+        if (!hasImages) router.push(`/propertyDetail/${property.id}`);       
+        return ;
       }}
-      onMouseLeave={() => setOverlayVisible(false)}
       style={{ cursor: 'pointer' }}
     >
-      <div className="card-content">
+      <div className="card-content" >
         <img 
           src={property.images?.[0]?.url 
             ? property.images[0].url.includes('http') ? property.images[0].url : `${AWS_S3_BUCKET_URL}/${property.images[0].url}`
@@ -78,14 +73,12 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
           alt={property.publication_title}
           className="property-image"
           onClick={(e) => {
-            console.log("IMAGE window.innerWidth", window.innerWidth)
-            if (typeof window !== 'undefined' && window.innerWidth < 999) {
-              console.log("IF IMAGE hasImages", hasImages)
-              e.stopPropagation();
-              if (hasImages) openGallery();
-              else router.push(`/propertyDetail/${property.id}`);
-            }
+            e.stopPropagation();
+            if (hasImages) openGallery();
+            else router.push(`/propertyDetail/${property.id}`);
+            return;
           }}
+          title="Abrir galería"
         />
         <div className="property-info">
           <div className="title-row">
@@ -127,25 +120,7 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
             </div>
           </div>
         </div>
-      </div>
-      {hasImages && (
-      <div className={`hover-overlay${overlayVisible ? ' overlay-active' : ''}`}>
-        <button
-          className="overlay-btn"
-          onClick={(e) => { e.stopPropagation(); if (Date.now() - overlayShownAtRef.current < 400) return; router.push(`/propertyDetail/${property.id}`); }}
-          aria-label="Ver detalle"
-        >
-          Ver detalle
-        </button>
-        <button
-          className="overlay-btn"
-          onClick={(e) => { e.stopPropagation(); if (Date.now() - overlayShownAtRef.current < 400) return; openGallery(); }}
-          aria-label="Ver fotos"
-        >
-          Ver fotos
-        </button>
-      </div>
-      )}
+      </div>     
     </div>
     <GalleryModal
       isOpen={galleryOpen}

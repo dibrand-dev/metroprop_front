@@ -246,11 +246,16 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const showSummaryToggle = (property?.description?.length ?? 0) > 140;
 
   // Derived display values
-  
+  console.log("property", property)
   const priceDisplay = property?.price_square_meter ? `${property.currency} ${formatNumbers(property.price_square_meter)}  /m²` : '';
   const statusDisplay = `${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}${property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}`;
-  const agentName = property?.organization?.name ?? 'Metroprop';
-  const agentLogoText = agentName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
+  
+  const agentName = property?.organization ? property.organization.company_name : 'USER COMUN';
+  const agentLogo = property?.organization?.company_logo 
+    ? property.organization.company_logo.includes('http') 
+      ? property.organization.company_logo
+      : `${AWS_S3_BUCKET_URL}/${property.organization.company_logo}`
+    : null; 
   
   const countryLabel = locations.find(l => l.id === property?.country_id)?.name;
   const stateLabel = locations.find(l => l.id === property?.state_id)?.name;
@@ -508,20 +513,6 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               </div>
             </section>
             )}
-
-            {/*<section className="property-detail-issues">
-              <div className="property-detail-issues-title">
-                <span className="property-detail-warning" aria-hidden="true">
-                  <img src="/icons/warning.svg" alt="" />
-                </span>
-                <h3>{propertyDetailData.labels.issuesTitle}</h3>
-              </div>
-              <div className="property-detail-issues-actions">
-                {propertyDetailData.issues.map((issue) => (
-                  <Button key={issue} label={issue} variant="outline" buttonType="2" />
-                ))}
-              </div>
-            </section>*/}
           </div>
 
           <aside className="property-detail-right">
@@ -529,10 +520,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
             <div className="property-detail-agent">
               <div className="property-detail-agent-header">
-                <div className="property-detail-agent-logo">{agentLogoText}</div>
+                {agentLogo && <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />}
                 <div>
                   <h4>{agentName}</h4>
-                  <span>{property?.organization?.name ? 'Inmobiliaria' : 'Inmobiliaria'}</span>
+                  <span>{property?.organization?.name ?? ''}</span>
                 </div>
               </div>
               <div className="property-detail-agent-details">

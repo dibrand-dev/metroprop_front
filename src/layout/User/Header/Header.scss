@@ -51,7 +51,6 @@ $font-family-button: Montserrat, sans-serif;
  
   @media (max-width: 768px) {
     gap: 16px;
-    z-index: 251;
   }
 }
 
@@ -146,14 +145,14 @@ $font-family-button: Montserrat, sans-serif;
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
-    z-index: 150;
+    z-index: 2;
 
     &.mobile-open {
       max-height: 100vh;
       padding: 0;
       margin-top: 0;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      z-index: 221;
+      z-index: 3;
     }
   }
 }
@@ -261,7 +260,7 @@ $font-family-button: Montserrat, sans-serif;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   min-width: 200px;
   margin-top: 8px;
-  z-index: 240;
+  z-index: 2;
   overflow: hidden;
 
   @media (max-width: 768px) {

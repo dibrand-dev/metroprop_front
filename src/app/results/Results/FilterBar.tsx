@@ -765,7 +765,7 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [], propert
     if (fromMap.length > 0) return fromMap;
     return properties.map(d => Number(d.price_square_meter)).filter(p => !isNaN(p) && p > 0);
   }, [mapData, properties]);
-  const histPrecioM2 = useMemo(() => buildHistogramBars(mapPricesM2, HIST_BUCKET_SIZE, PRECIO_M2_USD_MAX), [mapPricesM2]);
+  const histPrecioM2 = useMemo(() => buildHistogramBars(mapPricesM2, 100, PRECIO_M2_USD_MAX), [mapPricesM2]);
   const maxPriceFromData = useMemo(() => {
     if (mapPrices.length === 0) return undefined;
     let m = mapPrices[0];

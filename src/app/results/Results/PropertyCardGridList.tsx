@@ -23,8 +23,6 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
   const [galleryPlans, setGalleryPlans] = useState<CreateAttached[]>([]);
   const [gallery360, setGallery360] = useState<GalleryVideo[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
-  const [overlayVisible, setOverlayVisible] = useState(false);
-  const overlayShownAtRef = useRef(0);
 
   const images = property.images?.map(img =>
     img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`
@@ -60,29 +58,21 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
     <div
       className="property-card-grid-list"
       onClick={() => {
-        if (typeof window !== 'undefined' && window.innerWidth < 999) {
-          router.push(`/propertyDetail/${property.id}`);
-          return;
-        }
+        router.push(`/propertyDetail/${property.id}`);
         if (!hasImages) router.push(`/propertyDetail/${property.id}`);
+        return;
       }}
       style={{ cursor: 'pointer' }}
     >
       <div
         className="image-section"
         onClick={(e) => {
-          if (typeof window !== 'undefined' && window.innerWidth < 999) {
-            e.stopPropagation();
-            if (hasImages) openGallery();
-            else router.push(`/propertyDetail/${property.id}`);
-            return;
-          }
-          hasImages && setOverlayVisible(v => {
-            if (!v) overlayShownAtRef.current = Date.now();
-            return !v;
-          });
+          e.stopPropagation();
+          if (hasImages) openGallery();
+          else router.push(`/propertyDetail/${property.id}`);
+          return;                
         }}
-        onMouseLeave={() => setOverlayVisible(false)}
+        title="Abrir galería"
       >
         <img 
           src={property.images?.[0]?.url 
@@ -90,25 +80,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
             : PROPERTY_NO_IMAGE} 
           alt={property.publication_title}
           className="property-image"
-        />
-        {hasImages && (
-        <div className={`hover-overlay${overlayVisible ? ' overlay-active' : ''}`}>
-          <button
-            className="overlay-btn"
-            onClick={(e) => { e.stopPropagation(); if (Date.now() - overlayShownAtRef.current < 400) return; router.push(`/propertyDetail/${property.id}`); }}
-            aria-label="Ver detalle"
-          >
-            Ver detalle
-          </button>
-          <button
-            className="overlay-btn"
-            onClick={(e) => { e.stopPropagation(); if (Date.now() - overlayShownAtRef.current < 400) return; openGallery(); }}
-            aria-label="Ver fotos"
-          >
-            Ver fotos
-          </button>
-        </div>
-        )}
+        />        
       </div>
       
       <div className="info-section">

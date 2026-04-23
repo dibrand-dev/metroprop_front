@@ -6,28 +6,6 @@
   filter: $shadow-md;
   position: relative;
 
-  &:hover .hover-overlay {
-    opacity: 1;
-  }
-
-  .hover-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    border-radius: $border-radius-md;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    z-index: 1;
-
-    &.overlay-active {
-      opacity: 1;
-    }
-  }
-
   .overlay-btn {
     padding: 8px 16px;
     border-radius: 6px;
@@ -54,6 +32,9 @@
     display: flex;
     gap: $spacing-md;
     align-items: center;
+    &:hover {
+      background-color: white;
+    }
   }
 
   .property-image {
@@ -62,6 +43,10 @@
     border-radius: 4px;
     object-fit: cover;
     flex-shrink: 0;
+    border: 1px solid transparent;
+    &:hover {
+      border-color: #006aff;
+    }
   }
 
   .property-info {
@@ -178,7 +163,4 @@
       }
     }
   }
-
- 
-  
 }

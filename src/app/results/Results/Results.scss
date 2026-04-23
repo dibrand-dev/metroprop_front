@@ -327,7 +327,6 @@
         display: flex;
         flex-direction: column;
         box-shadow: rgb(52, 56, 80, 0.4) -4px 0px 4px 0px;
-        z-index: 21;
 
         &.full-width {
           flex: 1;
@@ -511,7 +510,7 @@
     position: absolute;
     top: calc(100% + 17px);
     left: 0;
-    z-index: 251;
+    z-index: 2;
     width: 420px;
     background: #fff;
     border: 1px solid #A6A6A6;
@@ -726,7 +725,7 @@
     position: absolute;
     top: calc(100% + 17px);
     left: 0;
-    z-index: 251;
+    z-index: 2;
     width: 420px;
     background: #fff;
     border: 1px solid #A6A6A6;
@@ -769,7 +768,7 @@
     position: absolute;
     top: calc(100% + 17px);
     right: 0;
-    z-index: 251;
+    z-index: 2;
     width: 420px;
     background: #fff;
     border: 1px solid #A6A6A6;
@@ -785,7 +784,7 @@
       left: 0;
       top: 0;
       bottom: 0;
-      z-index: 251;
+      z-index: 2;
       width: 100%;
       max-height: 100vh;
       border-radius: 0;
@@ -862,7 +861,7 @@
     position: absolute;
     top: calc(100% + 17px);
     left: 0;
-    z-index: 251;
+    z-index: 2;
     width: 420px;
     background: #fff;
     border: 1px solid #A6A6A6;
@@ -940,7 +939,7 @@
       border-radius: 4px;
       white-space: nowrap;
       pointer-events: none;
-      z-index: 10;
+      z-index: 2;
 
       &::after {
         content: '';
@@ -1124,7 +1123,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 99;
+    z-index: 2;
   }
 
   .sort-menu {
@@ -1136,7 +1135,7 @@
     border: 1px solid #E5E5E5;
     border-radius: 8px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+    z-index: 3;
     overflow: hidden;
 
     .sort-option {
@@ -1677,8 +1676,4 @@
     justify-content: center;
   }
   
-}
-
-.results-content {
-  z-index: 250;
 }

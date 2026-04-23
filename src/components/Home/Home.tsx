@@ -37,7 +37,7 @@ export default function Home() {
     },
     {
       title: 'Invertí en proyectos en desarrollo.',
-      desc: 'Invertí con previsibilidad y descubrí oportunidades de crecimiento a largo plazo.',
+      desc: 'Invertí con previsibilidad y descubrí oportunidades reales largo plazo hoy.',
       icon: '/images/home_emprendimientos.svg',
       boton: 'Emprendimientos',
       link: ""
