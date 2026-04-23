@@ -5,6 +5,9 @@ import './Profile.scss';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import { useSession } from 'next-auth/react';
+import Checkbox from '@/ui/Checkbox/Checkbox';
+import { useMutation } from '@tanstack/react-query';
+import { API_BASE_URL } from '@/utils/utils';
 
 const iconEditPencil = "/icons/pencil.svg";
 const iconArrowBack = "/icons/arrow.svg";
@@ -16,28 +19,60 @@ interface PropertyData {
 const formatNumeric = (value: string): string => value.replace(/\D/g, '');
 
 export default function Profile() {
-  const { data: sessionData, status: sessionStatus } = useSession();
+  const { data: sessionData } = useSession();
   const [activeSection, setActiveSection] = useState<'generales' | 'ubicacion' | 'descripcion'>('generales');
   const [showMenu, setShowMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [properties, setProperties] = useState<any>({
     // Generales
+    name: '',
+    document: '',
+    phone: '',
+    phone_additional: '',
+    phone_whatsapp: '',
     email: '',
-    nombre: '',
-    apellido: '',
-    telefono: '',
-    telefonoAdicional: '',
-    // Ubicación
-    provincia: '',
-    ciudad: '',
-    calle: '',
-    numero: '',
-    // Descripción
-    descripcion: '',
+    phone_whatsapp_available: ''
   });
-  useEffect(() => {   
-    sessionData?.user && setProperties(sessionData);
+  useEffect(() => {  
+    if (sessionData?.user) {
+      const data = sessionData.user;
+      setProperties({
+        ...data,
+        phone_whatsapp_available: data.phone_whatsapp && data.phone_whatsapp !== '' ? "1" : "0",
+      });
+    }
   }, [sessionData]);
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const userId = (sessionData?.user as any)?.id;
+      if (!userId) throw new Error('No user id');
+      const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.name,
+          phone: data.phone,
+          phone_additional: data.phone_additional,
+          phone_whatsapp: data.phone_whatsapp,
+          document: data.document,
+        }),
+      });
+      if (!res.ok) throw new Error('Error updating user');
+      return res.json();
+    },
+    onSuccess: () => {
+      setSuccessMessage('Usuario editado correctamente');
+      setErrorMessage('');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    },
+    onError: () => {
+      setErrorMessage('Error al guardar los cambios. Por favor intenta de nuevo.');
+      setSuccessMessage('');
+    },
+  });
 
   const handleInputChange = (field: string, value: string) => {
     const nextValue = ['telefono', 'telefonoAdicional', 'numero'].includes(field)
@@ -50,13 +85,7 @@ export default function Profile() {
   };
 
   const handleSave = () => {
-    console.log('Saving properties:', properties);
-    setIsEditing(false);
-  };
-
-  const handleEditSection = (section: 'generales' | 'ubicacion' | 'descripcion') => {
-    setActiveSection(section);
-    setIsEditing(true);
+    updateUserMutation.mutate(properties);
   };
  
   return (
@@ -68,156 +97,113 @@ export default function Profile() {
           <button className="professional-profile-back-button" onClick={() => setShowMenu(true)}>
             <img src={iconArrowBack} alt="Back"  />
           </button>
-          <span className='professional-profile-title'>Datos de inmobiliaria</span>
+          <span className='professional-profile-title'>Datos</span>
+        </div>
+        <div className="profile-header">
+          <div>
+            <h1>Datos</h1>
+          </div>
+          <button className="professional-profile-save-button-header" onClick={handleSave} disabled={updateUserMutation.isPending}>
+            {updateUserMutation.isPending ? 'Guardando...' : 'Guardar cambios'}
+          </button>
         </div>
 
-        <h1 className='professional-profile-title'>Datos de inmobiliaria</h1>
-
         {/* Main Content */}
-        <div className={`professional-profile-content ${isEditing ? 'is-editing' : ''}`}>
+        <div className={`professional-profile-content is-editing`}>
           {/* Generales Section */}
           <section className="professional-profile-section">
             <div className="professional-profile-section-header">
-              <h2 className="professional-profile-section-title">Generales</h2>
-              <button
-                className="professional-profile-edit-button"
-                onClick={() => handleEditSection('generales')}
-              >
-                <img src={iconEditPencil} alt="Edit" />
-              </button>
+              <h2 className="professional-profile-section-title">Personales</h2>              
             </div>
 
-            <div className="professional-profile-identifier">
-              <div className="professional-profile-identifier-text">
-                <p className="professional-profile-label">Identificador:</p>
-                <p className="professional-profile-value">300090404</p>
+            {(sessionData?.user as any)?.role_id === 3 && (
+              <div className="professional-profile-fields" >
+                <InputField2
+                  type="text"
+                  placeholder="Identificador"
+                  value={properties.id}
+                  label="Identificador"
+                  disabled={true}
+                />
               </div>
-            </div>
+            )}
 
             <div className="professional-profile-fields">
               <InputField2
-                type="email"
-                placeholder="Correo electrónico"
-                value={properties.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                disabled={!(isEditing && activeSection === 'generales')}
-                label="Correo electrónico"
-              />
-              <InputField2
                 type="text"
                 placeholder="Nombre"
-                value={properties.nombre}
-                onChange={(e) => handleInputChange('nombre', e.target.value)}
-                disabled={!(isEditing && activeSection === 'generales')}
+                value={properties.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
                 label="Nombre"
               />
               <InputField2
                 type="text"
-                placeholder="Apellido"
-                value={properties.apellido}
-                onChange={(e) => handleInputChange('apellido', e.target.value)}
-                disabled={!(isEditing && activeSection === 'generales')}
-                label="Apellido"
-              />
-              <InputField2
-                type="tel"
-                placeholder="Teléfono"
-                value={properties.telefono}
-                onChange={(e) => handleInputChange('telefono', e.target.value)}
-                disabled={!(isEditing && activeSection === 'generales')}
-                label="Teléfono"
-              />
-              <InputField2
-                type="tel"
-                placeholder="Teléfono adicional"
-                value={properties.telefonoAdicional}
-                onChange={(e) => handleInputChange('telefonoAdicional', e.target.value)}
-                disabled={!(isEditing && activeSection === 'generales')}
-                label="Teléfono adicional"
-              />
+                placeholder="Número de documento"
+                value={properties.document}
+                onChange={(e) => handleInputChange('document', e.target.value)}
+                label="Número de documento"
+              />               
             </div>
           </section>
 
-          <hr className="professional-profile-divider" />
-
-          {/* Ubicación Section */}
+          {/* Contacto Section */}
           <section className="professional-profile-section">
             <div className="professional-profile-section-header">
-              <h2 className="professional-profile-section-title">Ubicación</h2>
-              <button
-                className="professional-profile-edit-button"
-                onClick={() => handleEditSection('ubicacion')}
-              >
-                <img src={iconEditPencil} alt="Edit" />
-              </button>
+              <h2 className="professional-profile-section-title">Contacto</h2>              
+            </div>
+            <div className="profile-section-description">
+              Usamos estos datos para enviarte información y promociones, y para que puedan comunicarse con vos si publicás un aviso.
             </div>
 
+            <div className="professional-profile-fields" >
+              <InputField2
+                type="email"
+                placeholder="Email"
+                value={properties.email}
+                label="Email"
+                disabled={true}
+              />
+            </div>
+            <div className="professional-profile-fields">              
+              <InputField2
+                type="tel"
+                placeholder="Número de teléfono"
+                value={properties.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                label="Número de teléfono"
+              />
+              <InputField2
+                type="tel"
+                placeholder="Número de teléfono adicional"
+                value={properties.phone_additional}
+                onChange={(e) => handleInputChange('phone_additional', e.target.value)}
+                label="Número de teléfono adicional"
+              />       
+            </div>
             <div className="professional-profile-fields">
-              <InputField2
-                type="text"
-                placeholder="Provincia"
-                value={properties.provincia}
-                onChange={(e) => handleInputChange('provincia', e.target.value)}
-                disabled={!(isEditing && activeSection === 'ubicacion')}
-                label="Provincia"
-              />
-              <InputField2
-                type="text"
-                placeholder="Ciudad"
-                value={properties.ciudad}
-                onChange={(e) => handleInputChange('ciudad', e.target.value)}
-                disabled={!(isEditing && activeSection === 'ubicacion')}
-                label="Ciudad"
-              />
-              <InputField2
-                type="text"
-                placeholder="Calle"
-                value={properties.calle}
-                onChange={(e) => handleInputChange('calle', e.target.value)}
-                disabled={!(isEditing && activeSection === 'ubicacion')}
-                label="Calle"
-              />
-              <InputField2
-                type="text"
-                placeholder="Número"
-                value={properties.numero}
-                onChange={(e) => handleInputChange('numero', e.target.value)}
-                disabled={!(isEditing && activeSection === 'ubicacion')}
-                label="Número"
-              />
+              <div className="telefono-container">
+                <InputField2
+                  type="tel"
+                  placeholder="Número de WhatsApp"
+                  value={properties.whatsapp}
+                  onChange={(e) => handleInputChange('whatsapp', e.target.value)}
+                  label="Número de WhatsApp"
+                  disabled={properties.phone_whatsapp_available === "0"}
+                />
+               <Checkbox label="Permitir contacto por WhatsApp" checked={properties.phone_whatsapp_available === "1"} onChange={(checked) => handleInputChange('phone_whatsapp_available', checked ? "1" : "0")} />
+              </div> 
             </div>
           </section>
+          {/* Save Button */}          
+          <button className="professional-profile-save-button" onClick={handleSave} disabled={updateUserMutation.isPending}>
+            {updateUserMutation.isPending ? 'Guardando...' : 'Guardar cambios'}
+          </button>
 
-          <hr className="professional-profile-divider" />
-
-          {/* Descripción Section */}
-          <section className="professional-profile-section descripcion">
-            <div className="professional-profile-section-header">
-              <h2 className="professional-profile-section-title">Descripción</h2>
-              <button
-                className="professional-profile-edit-button"
-                onClick={() => handleEditSection('descripcion')}
-              >
-                <img src={iconEditPencil} alt="Edit" />
-              </button>
-            </div>
-
-            <InputField2
-              multiline={true}
-              rows={5}
-              placeholder="Descripción"
-              value={properties.descripcion}
-              onChange={(e) => handleInputChange('descripcion', e.target.value)}
-              disabled={!(isEditing && activeSection === 'descripcion')}
-              label="Descripción"
-            />
-          </section>
-
-          {/* Save Button */}
-          {isEditing && (
-            <button className="professional-profile-save-button" onClick={handleSave}>
-              Guardar cambios
-            </button>
+          {successMessage && (
+            <div className="profile-feedback profile-feedback--success">{successMessage}</div>
+          )}
+          {errorMessage && (
+            <div className="profile-feedback profile-feedback--error">{errorMessage}</div>
           )}
         </div>
       </div>

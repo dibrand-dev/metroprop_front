@@ -5,11 +5,11 @@ import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
 
 const logoMetroprop = "/images/metropropLogo.png";
 interface TopNavBarProps {
-  menuItems?: string[];
+  menuItems?: { label: string; link: string }[];
 }
 
 export default function TopNavBar({ 
-  menuItems = ['Mis publicaciones', 'Interesados'],
+  menuItems = [{label:'Mis publicaciones', link: '/protected/myProperties'}, {label: 'Interesados', link: '/protected/interested'}],
 }: TopNavBarProps) {
   
   return (
@@ -19,7 +19,7 @@ export default function TopNavBar({
         <div className="topnavbar-menu-items">
           {menuItems.map((item, index) => (
             <button key={index} className="topnavbar-dropdown">
-              <span>{item}</span>
+              <a href={item.link}>{item.label}</a>
             </button>
           ))}
         </div>

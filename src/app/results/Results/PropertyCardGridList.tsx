@@ -59,15 +59,29 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
     <>
     <div
       className="property-card-grid-list"
-      onClick={!hasImages ? () => router.push(`/propertyDetail/${property.id}`) : undefined}
-      style={!hasImages ? { cursor: 'pointer' } : undefined}
+      onClick={() => {
+        if (typeof window !== 'undefined' && window.innerWidth < 999) {
+          router.push(`/propertyDetail/${property.id}`);
+          return;
+        }
+        if (!hasImages) router.push(`/propertyDetail/${property.id}`);
+      }}
+      style={{ cursor: 'pointer' }}
     >
       <div
         className="image-section"
-        onClick={() => hasImages && setOverlayVisible(v => {
-          if (!v) overlayShownAtRef.current = Date.now();
-          return !v;
-        })}
+        onClick={(e) => {
+          if (typeof window !== 'undefined' && window.innerWidth < 999) {
+            e.stopPropagation();
+            if (hasImages) openGallery();
+            else router.push(`/propertyDetail/${property.id}`);
+            return;
+          }
+          hasImages && setOverlayVisible(v => {
+            if (!v) overlayShownAtRef.current = Date.now();
+            return !v;
+          });
+        }}
         onMouseLeave={() => setOverlayVisible(false)}
       >
         <img 

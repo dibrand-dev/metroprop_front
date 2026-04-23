@@ -113,9 +113,7 @@ export default function InputField({
             maxLength={maxLength}
           />
         )}
-        
-      </div>
-      {displayIcon && (
+        {displayIcon && (
           <button
             type="button"
             className="input-field-icon-button"
@@ -127,6 +125,8 @@ export default function InputField({
             {displayIcon}
           </button>
         )}
+      </div>
+      
       {error && <p className="input-field-error">{error}</p>}
     </div>
   );

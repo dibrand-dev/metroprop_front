@@ -148,7 +148,8 @@
   gap: 16px;
 }
 
-.professional-profile-section-title {  
+.professional-profile-section-title {
+  
   font-size: 22px;
   font-weight: 600;
   line-height: 26px;
@@ -178,13 +179,6 @@
   &:hover {
     opacity: 0.7;
   }
-}
-
-.profile-section-description {
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 20px;
-  letter-spacing: 0.75%;
 }
 
 // Identifier
@@ -363,8 +357,7 @@
 }
 
 // Save Button
-.professional-profile-save-button,
-.professional-profile-save-button-header {
+.professional-profile-save-button {
   background-color: $primary-color;
   border: 1px solid $primary-color;
   border-radius: 8px;
@@ -397,90 +390,14 @@
   }
 
   @media (min-width: 768px) {
-    display: none;
-  }
-}
-
-.professional-profile-save-button-header {
-  @media (min-width: 768px) {
-    display: block;
     width: auto;
-    margin: 0;
   }
-}
-
-.profile-header {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 32px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid #A6A6A6;
-
-  h1 {
-    margin: 0;
-    
-    font-size: 36px;
-    font-weight: 700;
-    line-height: 43px;
-    color: #1e1e1e;
-  }
-
-  p {
-    margin: 0;
-    
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 20px;
-    color: #1e1e1e;
-  }
-
-  @media (max-width: 768px) {
-    h1 {
-      display: none;
-    }
-  }
-
-  @media (min-width: 768px) {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
-  }
-}
-
-
-
-.profile-feedback {
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-
-  &--success {
-    background-color: #d1fae5;
-    border: 1px solid #6ee7b7;
-    color: #065f46;
-  }
-
-  &--error {
-    background-color: #fee2e2;
-    border: 1px solid #fca5a5;
-    color: #991b1b;
-  }
-}
-
-.telefono-container {  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  justify-content: center;
-  align-items: flex-start;
 }
 
 // Responsive Layout
 @media (min-width: 768px) {
+  
+
   .professional-profile-content {
     max-width: 900px;
   }
@@ -506,4 +423,3 @@
     width: 100%;
   }
 }
-

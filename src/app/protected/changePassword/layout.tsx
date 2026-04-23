@@ -3,11 +3,11 @@ import type { Metadata } from "next";
 import './layout.scss';
 
 export const metadata: Metadata = {
-  title: "Datos de Perfil | MetroProp",
-  description: "Administra los datos de tu perfil",
+  title: "Cambiar Contraseña | MetroProp",
+  description: "Administra tu cuenta",
 };
 
-export default function ProfileLayout({
+export default function ChangePasswordLayout({
   children,
 }: {
   children: React.ReactNode;

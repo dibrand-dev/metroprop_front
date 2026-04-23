@@ -59,12 +59,16 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
     <>
     <div
       className="property-card-map-list"
-      onClick={!hasImages ? () => router.push(`/propertyDetail/${property.id}`) : () => setOverlayVisible(v => {
-        if (!v) overlayShownAtRef.current = Date.now();
-        return !v;
-      })}
+      onClick={() => {
+        console.log("window.innerWidth", window.innerWidth)
+        if (typeof window !== 'undefined' && window.innerWidth < 999) {
+          router.push(`/propertyDetail/${property.id}`);
+          return;
+        }
+        if (!hasImages) router.push(`/propertyDetail/${property.id}`);        
+      }}
       onMouseLeave={() => setOverlayVisible(false)}
-      style={!hasImages ? { cursor: 'pointer' } : undefined}
+      style={{ cursor: 'pointer' }}
     >
       <div className="card-content">
         <img 
@@ -73,6 +77,15 @@ const PropertyCardMapList: React.FC<PropertyCardMapListProps> = ({ property, onF
             : PROPERTY_NO_IMAGE} 
           alt={property.publication_title}
           className="property-image"
+          onClick={(e) => {
+            console.log("IMAGE window.innerWidth", window.innerWidth)
+            if (typeof window !== 'undefined' && window.innerWidth < 999) {
+              console.log("IF IMAGE hasImages", hasImages)
+              e.stopPropagation();
+              if (hasImages) openGallery();
+              else router.push(`/propertyDetail/${property.id}`);
+            }
+          }}
         />
         <div className="property-info">
           <div className="title-row">

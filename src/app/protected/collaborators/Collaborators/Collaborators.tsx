@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Collaborators.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
+import { useSession } from 'next-auth/react';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconLock = '/icons/lock.svg';
@@ -20,28 +21,37 @@ const actionIcons: Record<CollaboratorAction, { src: string; label: string }> = 
   delete: { src: iconTrash, label: 'Eliminar colaborador' },
 };
 
-const initialCollaborators = [
-  {
-    id: 'dibrand',
-    name: 'Dibrand',
-    email: 'dibrand@gmail.com.ar',
-    company: 'Dibrand empresa',
-    role: 'Administrador',
-    actions: [] as CollaboratorAction[],
-  },
-  {
-    id: 'rodrigo',
-    name: 'Rodrigo',
-    email: 'rodrigoperez@gmail.com',
-    company: 'Rodrigo Perez',
-    role: 'Vendedor',
-    actions: ['lock', 'edit', 'delete'] as CollaboratorAction[],
-  },
-];
+interface CollaboratorItem {
+  id: number;
+  name: string;
+  email: string;
+  branchName: string;
+  role_id: number | null;
+  actions: CollaboratorAction[];
+}
 
 export default function Collaborators() {
+  const { data: sessionData } = useSession();
   const [showMenu, setShowMenu] = useState(false);
-  const [collaborators] = useState(initialCollaborators);
+  const [collaborators, setCollaborators] = useState<CollaboratorItem[]>([]);
+
+  useEffect(() => {
+    const branches: any[] = (sessionData?.user as any)?.organization?.branches ?? [];
+    const items: CollaboratorItem[] = [];
+    branches.forEach((branch) => {
+      (branch.users ?? []).forEach((user: any) => {
+        items.push({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          branchName: branch.branch_name,
+          role_id: user.role_id ?? null,
+          actions: ['lock', 'edit', 'delete'],
+        });
+      });
+    });
+    setCollaborators(items);
+  }, [sessionData]);
 
   return (
     <div className={`professionalContainer ${!showMenu ? 'activeMenuMobile' : ''}`}>
@@ -77,25 +87,23 @@ export default function Collaborators() {
                     {collaborator.name} - {collaborator.email}
                   </p>
                   <p className="collaborators-card-subtitle">
-                    {collaborator.company}
+                    Sucursal: {collaborator.branchName}
                   </p>
                 </div>
                 <div className="collaborators-card-actions">
-                  <span className="collaborators-role-chip">{collaborator.role}</span>
-                  {collaborator.actions.length > 0 ? (
-                    <div className="collaborators-card-tools">
-                      {collaborator.actions.map((action) => (
-                        <button
-                          key={action}
-                          className="collaborators-action-button"
-                          type="button"
-                          aria-label={actionIcons[action].label}
-                        >
-                          <img src={actionIcons[action].src} alt="" />
-                        </button>
-                      ))}
-                    </div>
-                  ) : null}
+                  <span className="collaborators-role-chip">Role {collaborator.role_id ?? '-'}</span>
+                  <div className="collaborators-card-tools">
+                    {collaborator.actions.map((action) => (
+                      <button
+                        key={action}
+                        className="collaborators-action-button"
+                        type="button"
+                        aria-label={actionIcons[action].label}
+                      >
+                        <img src={actionIcons[action].src} alt="" />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}

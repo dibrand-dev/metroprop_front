@@ -99,6 +99,7 @@ export default function UserSignin() {
           setError('Email o contraseña incorrectos. Por favor intenta de nuevo.');
           return;
         }
+        console.log("result", result)
         // Fetch the fresh session to get apiToken + organization written by JWT callback
         const sessionRes = await fetch('/api/auth/session');
         const sessionData = await sessionRes.json();
@@ -106,7 +107,6 @@ export default function UserSignin() {
         const user = sessionData?.user;
         
         if (apiToken && user) {          
-          localStorage.setItem('authToken', apiToken);
           if (user.organization) {            
             await updateSession({ organization: user.organization });
           }

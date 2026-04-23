@@ -44,6 +44,7 @@ export const authOptions = {
             name: user.name,
             phone: user.phone,
             apiToken: data.access_token ?? null,
+            role_id: user.role_id,
             organization: user.organization ?? null,
           } as any;
         } catch (error) {
