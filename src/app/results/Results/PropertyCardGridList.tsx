@@ -13,9 +13,10 @@ import { API_BASE_URL } from '@/utils/utils';
 interface PropertyCardGridListProps {
   property: CreateProperty;
   onFavorite?: () => void;
+  fromMap?: boolean
 }
 
-const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, onFavorite }) => {
+const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, fromMap, onFavorite }) => {
   const router = useRouter();
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
@@ -68,11 +69,11 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, o
         className="image-section"
         onClick={(e) => {
           e.stopPropagation();
-          if (hasImages) openGallery();
+          if (hasImages && !fromMap) openGallery();
           else router.push(`/propertyDetail/${property.id}`);
           return;                
         }}
-        title="Abrir galería"
+        title={fromMap ? "Ver detalle" : "Abrir galería"}
       >
         <img 
           src={property.images?.[0]?.url 

@@ -335,15 +335,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
         if (pt.lng > maxLng) maxLng = pt.lng;
       }
 
-      const params = new URLSearchParams(window.location.search);
-      /*
-      params.delete('q');
-      params.delete('location_id');
-      params.delete('northEastLat');
-      params.delete('northEastLng');
-      params.delete('southWestLat');
-      params.delete('southWestLng');
-      */
+      const params = new URLSearchParams(window.location.search);      
       params.set('page', '1');
       params.set('polygon', drawingPoints.current.map(pt => `LatLng(${pt.lat.toFixed(4)},${pt.lng.toFixed(4)})`).join(','));
 
@@ -431,7 +423,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                 {isFetchingProperty && !selectedProperty ? (
                   <div style={{ padding: '8px' }}>Cargando...</div>
                 ) : selectedProperty ? (
-                  <a href={`/propertyDetail/${selectedProperty.id}`} className='linkToPropertyInfoWindow'><PropertyCardGridList property={selectedProperty} /></a>
+                  <a href={`/propertyDetail/${selectedProperty.id}`} className='linkToPropertyInfoWindow'><PropertyCardGridList property={selectedProperty} fromMap={true} /></a>
                 ) : null}
               </InfoWindow>
             );
