@@ -38,6 +38,7 @@ export default function Profile() {
   useEffect(() => {  
     if (sessionData?.user) {
       const data = sessionData.user;
+      console.log("data, data", data)
       setProperties({
         ...data,
         phone_whatsapp_available: data.phone_whatsapp && data.phone_whatsapp !== '' ? "1" : "0",

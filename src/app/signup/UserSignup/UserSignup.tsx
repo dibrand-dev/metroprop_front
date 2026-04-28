@@ -160,7 +160,7 @@ export default function UserSignup() {
       return;
     }
 
-    registerUserMutation.mutate({ email, password });
+    registerUserMutation.mutate({ email: email.toLowerCase(), password });
   };
 
   const { isGoogleLoading, googleError, handleGoogleAuth } = useGoogleAuth({

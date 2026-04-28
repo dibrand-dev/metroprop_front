@@ -53,7 +53,7 @@ export function useGoogleAuth({
 
   const storeAuthData = async (data: any) => {
     if (!(data?.access_token && data?.user)) return;
-
+    console.log("storeAuth data", data)
     const sessionUpdate: Record<string, unknown> = {};
     if (data.user?.id) sessionUpdate.id = String(data.user.id);
     if (data.user?.organization) sessionUpdate.organization = data.user.organization;

@@ -26,23 +26,22 @@ export default function ChangeEmail() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [fieldErrors, setFieldErrors] = useState({ newEmail: '', confirmEmail: '' });
+  const [fieldErrors, setFieldErrors] = useState({ oldEmail: '', newEmail: '' });
   const [properties, setProperties] = useState<any>({
-    newEmail: '',
-    confirmEmail: ''
+    oldEmail: '',
+    newEmail: ''
   });
 
   const updateUserMutation = useMutation({
     mutationFn: async (data: any) => {
       const userId = (sessionData?.user as any)?.id;
-      const currentEmail = (sessionData?.user as any)?.email;
       if (!userId) throw new Error('No user id');
       const res = await fetch(`${API_BASE_URL}/users/${userId}/change-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: userId,
-          oldEmail: currentEmail,
+          oldEmail: data.oldEmail,
           newEmail: data.newEmail,
         }),
       });
@@ -53,7 +52,7 @@ export default function ChangeEmail() {
     onSuccess: (result) => {
       setSuccessMessage(result.message || 'Email cambiado correctamente');
       setErrorMessage('');
-      setProperties((prev: any) => ({ ...prev, newEmail: '', confirmEmail: '' }));
+      setProperties((prev: any) => ({ ...prev, oldEmail: '', newEmail: '' }));
       setTimeout(() => setSuccessMessage(''), 4000);
     },
     onError: (err: any) => {
@@ -63,34 +62,33 @@ export default function ChangeEmail() {
   });
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const currentEmail = (sessionData?.user as any)?.email ?? '';
 
   const handleInputChange = (field: string, value: string) => {
     const next = { ...properties, [field]: value };
     setProperties(next);
 
-    const errors = { newEmail: '', confirmEmail: '' };
+    const errors = { oldEmail: '', newEmail: '' };
+    const oe = field === 'oldEmail' ? value : next.oldEmail;
     const ne = field === 'newEmail' ? value : next.newEmail;
-    const ce = field === 'confirmEmail' ? value : next.confirmEmail;
     if (ne && !isValidEmail(ne)) errors.newEmail = 'Ingresa un email válido';
-    if (ce && !isValidEmail(ce)) errors.confirmEmail = 'Ingresa un email válido';
-    else if (ce && ne && ce === ne) errors.confirmEmail = 'La nueva dirección de email es igual a la anterior';
+    if (oe && !isValidEmail(oe)) errors.oldEmail = 'Ingresa un email válido';
+    else if (oe && ne && oe === ne) errors.oldEmail = 'La nueva dirección de email es igual a la anterior';
     setFieldErrors(errors);
   };
 
   const validate = (): boolean => {
-    const errors = { newEmail: '', confirmEmail: '' };
+    const errors = { oldEmail: '', newEmail: '' };
     if (!properties.newEmail) errors.newEmail = 'Ingresa el nuevo email';
     else if (!isValidEmail(properties.newEmail)) errors.newEmail = 'Ingresa un email válido';
-    if (!properties.confirmEmail) errors.confirmEmail = 'Ingresa el email de confirmación';
-    else if (!isValidEmail(properties.confirmEmail)) errors.confirmEmail = 'Ingresa un email válido';
-    else if (properties.confirmEmail === properties.newEmail) errors.confirmEmail = 'La nueva dirección de email es igual a la anterior';
+    if (!properties.oldEmail) errors.oldEmail = 'Ingresa el email actual';
+    else if (!isValidEmail(properties.oldEmail)) errors.oldEmail = 'Ingresa un email válido';
+    else if (properties.oldEmail === properties.newEmail) errors.oldEmail = 'La nueva dirección de email es igual a la anterior';
     setFieldErrors(errors);
-    return !errors.newEmail && !errors.confirmEmail;
+    return !errors.newEmail && !errors.oldEmail;
   };
 
-  const hasErrors = !!(fieldErrors.newEmail || fieldErrors.confirmEmail);
-  const isFormEmpty = !properties.newEmail && !properties.confirmEmail;
+  const hasErrors = !!(fieldErrors.newEmail || fieldErrors.oldEmail);
+  const isFormEmpty = !properties.newEmail && !properties.oldEmail;
 
   const handleSave = () => {
     if (!validate()) return;
@@ -129,19 +127,19 @@ export default function ChangeEmail() {
             <div className="professional-profile-fields">
               <InputField
                 type="email"
+                placeholder="Email actual"
+                value={properties.oldEmail}
+                onChange={(e) => handleInputChange('oldEmail', e.target.value)}
+                label="Email actual"
+                error={fieldErrors.oldEmail}
+              />
+              <InputField
+                type="email"
                 placeholder="Nuevo Email"
                 value={properties.newEmail}
                 onChange={(e) => handleInputChange('newEmail', e.target.value)}
                 label="Nuevo Email"
                 error={fieldErrors.newEmail}
-              />
-              <InputField
-                type="email"
-                placeholder="Repetir Nuevo Email"
-                value={properties.confirmEmail}
-                onChange={(e) => handleInputChange('confirmEmail', e.target.value)}
-                label="Repetir Nuevo Email"
-                error={fieldErrors.confirmEmail}
               />
             </div>
           </section>

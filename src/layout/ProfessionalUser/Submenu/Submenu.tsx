@@ -33,6 +33,7 @@ const items: SubmenuItem[] = [
 ];
 
 function getUserRoleId(user: any): number | null {
+  console.log("USER", user)
   if (!user?.organization) return 2; // role_id 2 = user sin organización
   const userId = String(user.id);
   for (const branch of user.organization.branches ?? []) {

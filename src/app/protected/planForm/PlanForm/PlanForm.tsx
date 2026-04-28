@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import './PartnerForm.scss';
+import './PlanForm.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';

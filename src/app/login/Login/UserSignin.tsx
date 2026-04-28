@@ -66,8 +66,6 @@ export default function UserSignin() {
     e.preventDefault();
     setError('');
     setFieldErrors({ email: '', password: '' });
-    console.log("email:", email);
-    console.log("password:", password);
 
     if (!email || !password) {
       setFieldErrors({
@@ -78,20 +76,17 @@ export default function UserSignin() {
       return;
     }
 
-    console.log("Validating email format...");
     if (!isValidEmail(email)) {
       setFieldErrors({ email: 'Por favor ingresa un correo electrónico válido', password: '' });
       setError('Por favor ingresa un correo electrónico válido');
       return;
     }
-    console.log("startTransition");
     startTransition(async () => {
       try {
-        console.log("TRY")
         setError('');
 
         const result = await signIn('credentials', {
-          email,
+          email: email.toLowerCase(),
           password,
           redirect: false,
         });
@@ -99,10 +94,11 @@ export default function UserSignin() {
           setError('Email o contraseña incorrectos. Por favor intenta de nuevo.');
           return;
         }
-        console.log("result", result)
+        console.log("resultresultresult", result)
         // Fetch the fresh session to get apiToken + organization written by JWT callback
         const sessionRes = await fetch('/api/auth/session');
         const sessionData = await sessionRes.json();
+        console.log("sessionData", sessionData)
         const apiToken: string | undefined = sessionData?.user?.apiToken;
         const user = sessionData?.user;
         

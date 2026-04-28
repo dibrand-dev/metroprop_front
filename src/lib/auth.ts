@@ -18,11 +18,9 @@ export const authOptions = {
         console.log("🔐 Authorize called with credentials:", credentials)
        
         if (!credentials?.email || !credentials?.password) {  
-          console.log("if (!credentials?.email || !credentials?.password) {  ")
           return null; 
         }
         try {
-          console.log("TRY  await fetch(`${API_BASE_URL}/auth/login`")
           const res = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -38,6 +36,17 @@ export const authOptions = {
           // Support both { access_token, user } and flat user object responses
           const user = data.user ?? data;
           if (!user?.id) return null;
+          console.log("RETURN",  {
+            id: String(user.id),
+            email: user.email,
+            name: user.name,
+            phone: user.phone,
+            apiToken: data.access_token ?? null,
+            role_id: user.role_id,
+            organization: user.organization ?? null,
+            accept_newsletters: user.accept_newsletters ?? null,            
+          });
+
           return {
             id: String(user.id),
             email: user.email,
@@ -46,6 +55,7 @@ export const authOptions = {
             apiToken: data.access_token ?? null,
             role_id: user.role_id,
             organization: user.organization ?? null,
+            accept_newsletters: user.accept_newsletters ?? null,            
           } as any;
         } catch (error) {
           console.log("catch", error)
@@ -87,15 +97,16 @@ export const authOptions = {
         token.provider = account.provider;
       }
       if (user) {
-        console.log("👤 User details:", {
-          id: user.id,
-          email: user.email,
-          name: user.name
-        });
+        console.log("👤 User details:", user);
         token.id = user.id;
         // Credentials provider: persist backend API token and organization
         if (user.apiToken) token.apiToken = user.apiToken;
         if (user.organization !== undefined) token.organization = user.organization;
+        if (user.accept_newsletters !== undefined) token.accept_newsletters = user.accept_newsletters;
+        if (user.phone !== undefined) token.phone = user.phone;
+        if (user.phone_additional !== undefined) token.phone_additional = user.phone_additional;
+        if (user.document !== undefined) token.document = user.document;
+        if (user.phone_whatsapp !== undefined) token.phone_whatsapp = user.phone_whatsapp;
       }
       
       console.log("🔄 Final JWT token:", {
@@ -112,19 +123,27 @@ export const authOptions = {
       console.log("   - Token:", token ? "✅ EXISTS" : "❌ NULL");
       
       if (session?.user) {
-        console.log("👥 Session user before:", {
-          id: session.user.id,
-          email: session.user.email
-        });
+       
         session.user.id = token.id || token.sub;
         if (token.apiToken) session.user.apiToken = token.apiToken;
         if (token.organization !== undefined) {
           session.user.organization = token.organization;
         }
-        console.log("👥 Session user after:", {
-          id: session.user.id,
-          email: session.user.email
-        });
+        if (token.accept_newsletters !== undefined) {
+          session.user.accept_newsletters = token.accept_newsletters;
+        }
+        if (token.phone !== undefined) {
+          session.user.phone = token.phone;
+        }
+        if (token.phone_additional !== undefined) {
+          session.user.phone_additional = token.phone_additional;
+        }
+        if (token.document !== undefined) {
+          session.user.document = token.document;
+        }
+        if (token.phone_whatsapp !== undefined) {
+          session.user.phone_whatsapp = token.phone_whatsapp;
+        }
       }
       
       console.log("✅ Final session:", {

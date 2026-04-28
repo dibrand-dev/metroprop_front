@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import './DeleteAccount.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import InputField from '@/ui/InputField/InputField';
@@ -33,8 +33,9 @@ export default function DeleteAccount() {
       return null;
     },
     onSuccess: () => {
-      setSuccessMessage('Tu cuenta ha sido eliminada correctamente.');
+      setSuccessMessage('Tu cuenta ha sido eliminada correctamente. Serás desconectado en 5 segundos...');
       setErrorMessage('');
+      setTimeout(() => signOut({ callbackUrl: '/' }), 5000);
     },
     onError: (err: any) => {
       setErrorMessage(err.message || 'Error al eliminar la cuenta. Por favor intenta de nuevo.');

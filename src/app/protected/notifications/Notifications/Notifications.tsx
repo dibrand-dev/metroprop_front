@@ -1,33 +1,49 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import './Notifications.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
+import { API_BASE_URL } from '@/utils/utils';
 
 const iconArrowBack = '/icons/arrow.svg';
 
 const initialNotifications = [
   {
-    id: '17010603',
+    id: '1',
     name: 'Newsletter',
     description: 'Recibí noticias del mercado inmobiliario, oportunidades de inversión y tendencias del sector.',
-    active: true,
+    active: false,
   },
 ];
 
 export default function Notifications() {
   const [showMenu, setShowMenu] = useState(false);
   const [notifications, setNotifications] = useState(initialNotifications);
-  const router = useRouter();
+  const { data: sessionData, update } = useSession();
 
-  const handleToggle = (id: string, nextValue: boolean) => {
+  useEffect(() => {
+    const acceptNewsletters = (sessionData?.user as any)?.accept_newsletters ?? false;
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === '1' ? { ...n, active: acceptNewsletters } : n))
+    );
+  }, [sessionData]);
+
+  const handleToggle = async (id: string, nextValue: boolean) => {
     setNotifications((prev) =>
       prev.map((notification) =>
         notification.id === id ? { ...notification, active: nextValue } : notification
       )
     );
+    const userId = (sessionData?.user as any)?.id;
+    if (!userId) return;
+    await fetch(`${API_BASE_URL}/users/${userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accept_newsletters: nextValue }),
+    });
+    await update({ accept_newsletters: nextValue });
   };
 
   return (
