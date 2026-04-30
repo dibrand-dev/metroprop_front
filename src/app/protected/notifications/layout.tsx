@@ -2,11 +2,11 @@ import TopNavBar from '@/layout/ProfessionalUser/TopNavBar/TopNavBar';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Sucursales | MetroProp',
-  description: 'Administra las sucursales de tu inmobiliaria',
+  title: 'Notificaciones | MetroProp',
+  description: 'Administra las notificaciones de tu cuenta',
 };
 
-export default function BranchesLayout({
+export default function NotificationsLayout({
   children,
 }: {
   children: React.ReactNode;

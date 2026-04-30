@@ -24,10 +24,17 @@ export default function Notifications() {
   const { data: sessionData, update } = useSession();
 
   useEffect(() => {
-    const acceptNewsletters = (sessionData?.user as any)?.accept_newsletters ?? false;
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === '1' ? { ...n, active: acceptNewsletters } : n))
-    );
+    const userId = (sessionData?.user as any)?.id;
+    if (!userId) return;
+
+    fetch(`${API_BASE_URL}/users/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const acceptNewsletters = data?.accept_newsletters ?? false;
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === '1' ? { ...n, active: acceptNewsletters } : n))
+        );
+      });
   }, [sessionData]);
 
   const handleToggle = async (id: string, nextValue: boolean) => {

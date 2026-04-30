@@ -20,9 +20,7 @@ const formatNumeric = (value: string): string => value.replace(/\D/g, '');
 
 export default function Profile() {
   const { data: sessionData } = useSession();
-  const [activeSection, setActiveSection] = useState<'generales' | 'ubicacion' | 'descripcion'>('generales');
-  const [showMenu, setShowMenu] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);  
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [properties, setProperties] = useState<any>({
@@ -35,15 +33,18 @@ export default function Profile() {
     email: '',
     phone_whatsapp_available: ''
   });
-  useEffect(() => {  
-    if (sessionData?.user) {
-      const data = sessionData.user;
-      console.log("data, data", data)
-      setProperties({
-        ...data,
-        phone_whatsapp_available: data.phone_whatsapp && data.phone_whatsapp !== '' ? "1" : "0",
+  useEffect(() => {
+    const userId = (sessionData?.user as any)?.id;
+    if (!userId) return;
+
+    fetch(`${API_BASE_URL}/users/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        setProperties({
+          ...data,
+          phone_whatsapp_available: data.phone_whatsapp && data.phone_whatsapp !== '' ? "1" : "0",
+        });
       });
-    }
   }, [sessionData]);
 
   const updateUserMutation = useMutation({
@@ -186,8 +187,8 @@ export default function Profile() {
                 <InputField2
                   type="tel"
                   placeholder="Número de WhatsApp"
-                  value={properties.whatsapp}
-                  onChange={(e) => handleInputChange('whatsapp', e.target.value)}
+                  value={properties.phone_whatsapp}
+                  onChange={(e) => handleInputChange('phone_whatsapp', e.target.value)}
                   label="Número de WhatsApp"
                   disabled={properties.phone_whatsapp_available === "0"}
                 />

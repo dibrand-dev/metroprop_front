@@ -1,5 +1,5 @@
-import Profile from "@/app/protected/organization/Profile/Profile";
+import OrganizationProfile from "@/app/protected/organization/Profile/OrganizationProfile";
 
 export default function ProfilePage() {
-  return <Profile />
+  return <OrganizationProfile />
 }

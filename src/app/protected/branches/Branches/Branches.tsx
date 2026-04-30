@@ -8,6 +8,7 @@ import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
 import { useSession } from 'next-auth/react';
 import { API_BASE_URL } from '@/utils/utils';
 import Button from '@/ui/Button/Button';
+import { useQuery } from '@tanstack/react-query';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconEditPencil = '/icons/pencil.svg';
@@ -21,13 +22,23 @@ export default function Branches() {
   const [branches, setBranches] = useState<any[]>([]);
   const router = useRouter();
 
+  const orgId = (sessionData?.user as any)?.organization?.id ?? null;
+
+  const { data: fetchedBranches } = useQuery({
+    queryKey: ['branches', orgId],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/branches/organization/${orgId}`);
+      if (!res.ok) throw new Error('Error fetching branches');
+      return res.json();
+    },
+    enabled: !!orgId,
+  });
+
   useEffect(() => {
-    const sessionBranches = (sessionData?.user as any)?.organization?.branches;
-    console.log("sessionBranches", sessionBranches)
-    if (Array.isArray(sessionBranches)) {
-      setBranches(sessionBranches);
+    if (Array.isArray(fetchedBranches)) {
+      setBranches(fetchedBranches);
     }
-  }, [sessionData]);
+  }, [fetchedBranches]);
 
   const handleToggle = async (id: string, nextValue: boolean) => {
     setBranches((prev) =>
@@ -72,7 +83,7 @@ export default function Branches() {
 
         <div className="branches-content">
           <div className="branches-header">
-            <div>
+            <div className="branches-header-container">
               <h1>Sucursales</h1>
               <p>{branchDescription}</p>
             </div>

@@ -45,13 +45,13 @@ export default function ChangePassword() {
 
   const updateUserMutation = useMutation({
     mutationFn: async (data: any) => {
-      const userId = (sessionData?.user as any)?.id;
+      const userId:number = (sessionData?.user as any)?.id;
       if (!userId) throw new Error('No user id');
-      const res = await fetch(`${API_BASE_URL}/users/${userId}/change-password`, {
+      const res = await fetch(`${API_BASE_URL}/users/change-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: userId,
+          id: parseInt(userId.toString()),
           oldPassword: data.password,
           newPassword: data.newPassword,
         }),
@@ -168,7 +168,7 @@ export default function ChangePassword() {
                 placeholder="Repetir Contraseña Nueva"
                 value={properties.confirmPassword}
                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                label={" "}
+                label={"\u00A0"}
                 error={fieldErrors.confirmPassword}
               />               
             </div>

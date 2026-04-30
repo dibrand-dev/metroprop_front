@@ -212,7 +212,7 @@ export default function ProfessionalSignup() {
 
     // Call mutation for registration
     registerProfessionalMutation.mutate({
-      email,
+      email: email.toLowerCase(),
       password,
       name,
       company_name: businessName,

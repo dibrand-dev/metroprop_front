@@ -21,18 +21,27 @@ interface BranchFormProps {
 export default function BranchForm({ branchId }: BranchFormProps) {
   const { data: sessionData, update: updateSession } = useSession();
   const [showMenu, setShowMenu] = useState(false);
-  const [branchName, setBranchName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
-  const [sameForRent, setSameForRent] = useState(false);
-  const [address, setAddress] = useState('');
-  const [province, setProvince] = useState('');
-  const [city, setCity] = useState('');
-  const [neighborhood, setNeighborhood] = useState('');
-  const [logoFileName, setLogoFileName] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const [formData, setFormData] = useState<any>({
+    branch_name: '',
+    email: '',
+    phone: '',
+    alternative_phone: '',
+    sameForRent: false,
+    address: '',
+    province: '',
+    city: '',
+    neighborhood: '',
+  });
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  };
 
   const { data: provinces = [] } = useQuery({
     queryKey: ['provinces', LOCATION_ARGENTINA_ID],
@@ -44,23 +53,23 @@ export default function BranchForm({ branchId }: BranchFormProps) {
   });
 
   const { data: cities = [] } = useQuery({
-    queryKey: ['locations', province],
+    queryKey: ['locations', formData.province],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${province}`);
+      const res = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${formData.province}`);
       if (!res.ok) throw new Error('Error fetching cities');
       return res.json();
     },
-    enabled: !!province,
+    enabled: !!formData.province,
   });
 
   const { data: neighborhoods = [] } = useQuery({
-    queryKey: ['zones', city],
+    queryKey: ['zones', formData.city],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${city}`);
+      const res = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${formData.city}`);
       if (!res.ok) throw new Error('Error fetching neighborhoods');
       return res.json();
     },
-    enabled: !!city,
+    enabled: !!formData.city,
   });
 
   const provinceOptions = provinces.map((p: any) => ({ value: String(p.id), label: p.name }));
@@ -71,53 +80,59 @@ export default function BranchForm({ branchId }: BranchFormProps) {
   const pageTitle = isEditing ? 'Modificar sucursal' : 'Agregar sucursal';
   const formatPhone = (value: string) => value.replace(/\D/g, '');
   const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-  const isPhoneValid = phoneRegex.test(contactPhone.trim());
-  const isFormValid = branchName.trim().length > 0 && isPhoneValid;
+  const isPhoneValid = phoneRegex.test(formData.phone.trim());
+  const isAlternativePhoneValid = phoneRegex.test(formData.alternative_phone.trim());
+  const isFormValid = formData.branch_name.trim().length > 0 && isPhoneValid;
 
   useEffect(() => {
     if (!branchId) return;
-    const branches: any[] = (sessionData?.user as any)?.organization?.branches ?? [];
-    const branch = branches.find((b: any) => String(b.id) === String(branchId));
-    if (!branch) return;
-    setBranchName(branch.branch_name ?? '');
-    setContactEmail(branch.email ?? '');
-    setContactPhone(formatPhone(branch.phone ?? ''));
-    setAddress(branch.address ?? '');
-    setProvince(branch.state_id != null ? String(branch.state_id) : '');
-    setCity(branch.location_id != null ? String(branch.location_id) : '');
-    setNeighborhood(branch.sub_location_id != null ? String(branch.sub_location_id) : '');
-  }, [branchId, sessionData]);
+    fetch(`${API_BASE_URL}/branches/${branchId}`)
+      .then(res => res.json())
+      .then(branch => {
+        setFormData({
+          branch_name: branch.branch_name ?? '',
+          email: branch.email ?? '',
+          phone: formatPhone(branch.phone ?? ''),
+          alternative_phone: formatPhone(branch.alternative_phone ?? ''),
+          sameForRent: false,
+          address: branch.address ?? '',
+          province: branch.state_id != null ? String(branch.state_id) : '',
+          city: branch.location_id != null ? String(branch.location_id) : undefined,
+          neighborhood: branch.sub_location_id != null ? String(branch.sub_location_id) : undefined,
+        });
+        if (branch.branch_logo) setLogoPreview(branch.branch_logo);
+      });
+  }, [branchId]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
       const organizationId = (sessionData?.user as any)?.organization?.id ?? null;
-      const payload: any = {
-        address: address || null,
-        alternative_phone: null,
-        branch_logo: null,
-        branch_name: branchName,
-        contact_time: null,
-        country_id: LOCATION_ARGENTINA_ID,
-        email: contactEmail || null,
-        external_reference: false,
-        full_location: null,
-        geo_lat: null,
-        geo_long: null,
-        location_id: city ? parseInt(city) : null,
-        phone: contactPhone,
-        state_id: province ? parseInt(province) : null,
-        sub_location_id: neighborhood ? parseInt(neighborhood) : null,
-      };
+      const payload = new FormData();
+      payload.append('address', formData.address || '');
+      if (formData.alternative_phone !== '') payload.append('alternative_phone', formData.alternative_phone);
+      payload.append('branch_name', formData.branch_name);
+      payload.append('contact_time', '');
+      payload.append('country_id', String(LOCATION_ARGENTINA_ID));
+      payload.append('email', formData.email || '');
+      payload.append('external_reference', 'false');
+      formData.city ? payload.append('location_id', String(parseInt(formData.city))) : null;
+      payload.append('phone', formData.phone || '');
+      formData.province ? payload.append('state_id', String(parseInt(formData.province))) : null;
+      formData.sub_location_id ? payload.append('sub_location_id', String(parseInt(formData.sub_location_id))) : null;
+      if (logoFile) {
+        payload.append('branch_logo', logoFile);
+      } else if (logoPreview) {
+        payload.append('branch_logo', logoPreview);
+      }
       if (!isEditing && organizationId) {
-        payload.organizationId = organizationId;
+        payload.append('organizationId', String(organizationId));
       }
       const url = isEditing
         ? `${API_BASE_URL}/branches/${branchId}`
         : `${API_BASE_URL}/branches`;
       const res = await fetch(url, {
-        method: isEditing ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        method: isEditing ? 'PATCH' : 'POST',
+        body: payload,
       });
       if (!res.ok) throw new Error('Error al guardar la sucursal');
       return { status: res.status, data: await res.json() };
@@ -135,15 +150,19 @@ export default function BranchForm({ branchId }: BranchFormProps) {
       const currentOrg = (sessionData?.user as any)?.organization ?? {};
       updateSession({ organization: { ...currentOrg, branches: updatedBranches } });
       if (!isEditing && result.status === 201) {
-        setBranchName('');
-        setContactEmail('');
-        setContactPhone('');
-        setSameForRent(false);
-        setAddress('');
-        setProvince('');
-        setCity('');
-        setNeighborhood('');
-        setLogoFileName('');
+        setFormData({
+          branch_name: '',
+          email: '',
+          phone: '',
+          alternative_phone: '',
+          sameForRent: false,
+          address: '',
+          province: '',
+          city: '',
+          neighborhood: '',
+        });
+        setLogoFile(null);
+        setLogoPreview('');
       }
     },
     onError: (err: any) => {
@@ -154,6 +173,8 @@ export default function BranchForm({ branchId }: BranchFormProps) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setSubmitted(true);
+    if (!isFormValid) return;
     saveMutation.mutate();
   };
 
@@ -163,7 +184,10 @@ export default function BranchForm({ branchId }: BranchFormProps) {
 
   const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    setLogoFileName(file?.name || '');
+    if (!file) return;
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+    event.target.value = '';
   };
 
   return (
@@ -199,9 +223,9 @@ export default function BranchForm({ branchId }: BranchFormProps) {
               label="Nombre de la sucursal"
               type="text"
               placeholder="Nombre de la sucursal"
-              value={branchName}
-              onChange={(event) => setBranchName(event.target.value)}
-              required={true}
+              value={formData.branch_name}
+              onChange={(event) => handleInputChange('branch_name', event.target.value)}
+              error={submitted && formData.branch_name.trim().length === 0 ? 'El nombre es obligatorio' : undefined}
             />
           </div>
 
@@ -213,8 +237,8 @@ export default function BranchForm({ branchId }: BranchFormProps) {
                   label="Email (opcional)"
                   type="email"
                   placeholder="Email"
-                  value={contactEmail}
-                  onChange={(event) => setContactEmail(event.target.value)}
+                  value={formData.email}
+                  onChange={(event) => handleInputChange('email', event.target.value)}
                 />
               </div>
               <div className="branch-form-field">
@@ -222,34 +246,54 @@ export default function BranchForm({ branchId }: BranchFormProps) {
                   label="Teléfono"
                   type="tel"
                   placeholder="Número de teléfono"
-                  value={contactPhone}
-                  onChange={(event) => setContactPhone(formatPhone(event.target.value))}
-                  required={true}
-                  error={contactPhone.trim().length > 0 && !isPhoneValid ? 'Formato inválido. Ej: 541130475755' : undefined}
+                  value={formData.phone}
+                  onChange={(event) => handleInputChange('phone', formatPhone(event.target.value))}
+                  error={submitted && formData.phone.trim().length === 0 ? 'El teléfono es obligatorio' : formData.phone.trim().length > 0 && !isPhoneValid ? 'Formato inválido. Ej: 541130475755' : undefined}
                 />
-                <button className="branch-form-link" type="button">
-                  + Agregar otro teléfono
-                </button>
+              </div>
+              <div className="branch-form-field">
+                <InputField
+                  label="Teléfono adicional (opcional)"
+                  type="tel"
+                  placeholder="Número de teléfono adicional"
+                  value={formData.alternative_phone}
+                  onChange={(event) => handleInputChange('alternative_phone', formatPhone(event.target.value))}
+                  error={formData.alternative_phone.trim().length > 0 && !isAlternativePhoneValid ? 'Formato inválido. Ej: 541130475755' : undefined}
+                />
               </div>
             </div>
             <Checkbox
               label="Los datos de contacto para venta son los mismos que para alquiler"
-              checked={sameForRent}
-              onChange={setSameForRent}
+              checked={formData.sameForRent}
+              onChange={(v) => handleInputChange('sameForRent', v)}
             />
           </div>
 
           <div className="branch-form-section">
-            <h2>Agregar logo</h2>
+            <label className="branch-form-logo-label">Agregar logo</label>
             <div className="branch-form-logo">
-              <div className="branch-form-logo-preview" />
               <button
                 className="branch-form-logo-upload"
                 type="button"
                 onClick={handleLogoClick}
               >
-                <span>{logoFileName || 'Agregar logo'}</span>
+                <img src={'/icons/upload.svg'} alt="" />
+                <span>{logoFile ? 'Cambiar logo' : 'Agregar logo'}</span>
               </button>
+              {logoPreview && (
+                <div className="branch-form-logo-preview">
+                  <img src={logoPreview} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                </div>
+              )}
+              {logoPreview && (
+                <button
+                  className="branch-form-logo-remove"
+                  type="button"
+                  onClick={() => { setLogoFile(null); setLogoPreview(''); }}
+                >
+                  Quitar logo
+                </button>
+              )}
               <input
                 ref={logoInputRef}
                 className="branch-form-logo-input"
@@ -270,16 +314,16 @@ export default function BranchForm({ branchId }: BranchFormProps) {
                   label="Dirección (opcional)"
                   type="text"
                   placeholder="Dirección"
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
+                  value={formData.address}
+                  onChange={(event) => handleInputChange('address', event.target.value)}
                 />
               </div>
               <div className="branch-form-field">
                 <Select
                   label="Provincia (opcional)"
                   placeholder="Seleccionar"
-                  value={province}
-                  onChange={(value) => { setProvince(value); setCity(''); setNeighborhood(''); }}
+                  value={formData.province}
+                  onChange={(value) => { handleInputChange('province', value); handleInputChange('city', ''); handleInputChange('neighborhood', ''); }}
                   options={provinceOptions}
                 />
               </div>
@@ -287,20 +331,20 @@ export default function BranchForm({ branchId }: BranchFormProps) {
                 <Select
                   label="Ciudad (opcional)"
                   placeholder="Seleccionar"
-                  value={city}
-                  onChange={(value) => { setCity(value); setNeighborhood(''); }}
+                  value={formData.city}
+                  onChange={(value) => { handleInputChange('city', value); handleInputChange('neighborhood', ''); }}
                   options={cityOptions}
-                  disabled={!province}
+                  disabled={!formData.province}
                 />
               </div>
               <div className="branch-form-field">
                 <Select
                   label="Barrio (opcional)"
                   placeholder="Seleccionar"
-                  value={neighborhood}
-                  onChange={(value) => setNeighborhood(value)}
+                  value={formData.neighborhood}
+                  onChange={(value) => handleInputChange('neighborhood', value)}
                   options={neighborhoodOptions}
-                  disabled={!city}
+                  disabled={!formData.city}
                 />
               </div>
             </div>

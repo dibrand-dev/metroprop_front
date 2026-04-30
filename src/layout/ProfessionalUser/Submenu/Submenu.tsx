@@ -24,17 +24,17 @@ const items: SubmenuItem[] = [
   { id: 'sucursales', label: 'Sucursales', href: "/protected/branches", roles: [1, 4] },
   { id: 'destaques', label: 'Destaques', href: "/protected/highlights", roles: [1, 4] },
   { id: 'colaboradores', label: 'Colaboradores', href: "/protected/collaborators", roles: [1, 4] },
+  { id: 'datos', label: 'Datos', href: "/protected/profile", roles: [1, 2, 3, 4] },
+  { id: 'cambiar_contraseña', label: 'Cambiar contraseña', href: "/protected/changePassword", roles: [1, 2, 3, 4] },
+  { id: 'cambiar_email', label: 'Cambiar email', href: "/protected/changeEmail", roles: [1, 2, 3, 4] },
+  { id: 'notificaciones', label: 'Notificaciones', href: "/protected/notifications", roles: [1, 2, 3, 4] },
+  { id: 'eliminar_cuenta', label: 'Eliminar cuenta', href: "/protected/deleteAccount", roles: [1, 2, 3, 4] },
   { id: 'partners', label: 'Partners', href: "/protected/partners", roles: [4] },
-  { id: 'datos', label: 'Datos', href: "/protected/profile", roles: [2, 3] },
-  { id: 'cambiar_contraseña', label: 'Cambiar contraseña', href: "/protected/changePassword", roles: [2, 3] },
-  { id: 'cambiar_email', label: 'Cambiar email', href: "/protected/changeEmail", roles: [2] },
-  { id: 'notificaciones', label: 'Notificaciones', href: "/protected/notifications", roles: [2, 3] },
-  { id: 'eliminar_cuenta', label: 'Eliminar cuenta', href: "/protected/deleteAccount", roles: [2, 3] },
 ];
 
 function getUserRoleId(user: any): number | null {
   console.log("USER", user)
-  if (!user?.organization) return 2; // role_id 2 = user sin organización
+  return 4; // role_id 2 = user sin organización
   const userId = String(user.id);
   for (const branch of user.organization.branches ?? []) {
     const found = (branch.users ?? []).find((u: any) => String(u.id) === userId);

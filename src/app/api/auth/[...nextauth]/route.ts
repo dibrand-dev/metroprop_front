@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
 
-/* LOGS y mejoras de manejo de errores añadidos para depuración por ahora comment */
+/* LOGS y mejoras de manejo de errores añadidos para depuración por ahora comment
 
 
 console.log("🔥 NEXTAUTH ROUTE - Initializing NextAuth handler...");
@@ -14,7 +14,7 @@ console.log("  NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET );
 console.log("  GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID );
 console.log("  GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET );
 console.log("  NODE_ENV:", process.env.NODE_ENV);
-
+ */
 /*
 // Wrapper para capturar errores
 const createHandler = () => {

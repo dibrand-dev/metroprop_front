@@ -4,42 +4,35 @@ import { useState } from 'react';
 import './Highlights.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import Select from '@/ui/Select/Select';
+import { useSession } from 'next-auth/react';
 
 const iconArrowBack = '/icons/arrow.svg';
 
 const highlightDescription =
   'Los productos se actualizarán automáticamente según las adquisiciones y usos.';
 
-const branchOptions = [
-  { value: 'todas', label: 'Todas' },
-  { value: 'galas', label: 'Estudio Galas' },
-  { value: 'galas-2', label: 'Estudio Galas 2' },
-];
-
-const highlightData = [
-  {
-    id: 'galas',
-    name: 'Estudio Galas',
-    products: [
-      { name: 'Premium', purchased: 4, available: 0, active: 4 },
-      { name: 'Destacados', purchased: 12, available: 1, active: 11 },
-      { name: 'Simple', purchased: 120, available: 64, active: 127 },
-    ],
-  },
-  {
-    id: 'galas-2',
-    name: 'Nombre de la sucursal 2',
-    products: [
-      { name: 'Premium', purchased: 4, available: 0, active: 4 },
-      { name: 'Destacados', purchased: 12, available: 1, active: 11 },
-      { name: 'Simple', purchased: 120, available: 64, active: 127 },
-    ],
-  },
+const defaultProducts = [
+  { name: 'Premium', purchased: 4, available: 0, active: 4 },
+  { name: 'Destacados', purchased: 12, available: 1, active: 11 },
+  { name: 'Simple', purchased: 120, available: 64, active: 127 },
 ];
 
 export default function Highlights() {
+  const { data: sessionData } = useSession();
   const [showMenu, setShowMenu] = useState(false);
   const [branchFilter, setBranchFilter] = useState('todas');
+
+  const branches: any[] = (sessionData?.user as any)?.organization?.branches ?? [];
+  const branchOptions = [
+    { value: 'todas', label: 'Todas' },
+    ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
+  ];
+
+  const highlightData = branches.map((b: any) => ({
+    id: String(b.id),
+    name: b.branch_name ?? b.name ?? String(b.id),
+    products: defaultProducts,
+  }));
 
   const filteredBranches =
     branchFilter === 'todas'
@@ -62,16 +55,13 @@ export default function Highlights() {
         </div>
 
         <div className="highlights-content">
-          <div className="highlights-header">
-            <div>
-              <h1>Destaques</h1>
-              <h2>Productos disponibles</h2>
-              <p>{highlightDescription}</p>
-            </div>
+          <div className="highlights-header">            
+            <h1>Destaques</h1>
+            <h2>Productos disponibles</h2>
+            <p>{highlightDescription}</p>
           </div>
 
           <div className="highlights-filter">
-            <label className="highlights-label">Sucursal</label>
             <Select
               label="Sucursal"
               placeholder="Todas"
