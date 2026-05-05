@@ -1,5 +1,6 @@
 import { API_BASE_URL } from '@/utils/utils';
 import type { PropertyFilterParams, PropertiesResponse } from '@/types/property-api';
+import { apiFetch } from '@/lib/apiFetch';
 
 /**
  * Fetch properties from the API using the given filter params.
@@ -9,28 +10,10 @@ export async function fetchProperties(
   params: PropertyFilterParams,
   token?: string,
 ): Promise<PropertiesResponse> {
-  const qs = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      qs.set(key, String(value));
-    }
+  return apiFetch<PropertiesResponse>(`${API_BASE_URL}/properties/filter`, {
+    params: params as Record<string, string | number | boolean | null | undefined>,
+    token,
   });
-
-  const authToken = token ?? (typeof window !== 'undefined' ? localStorage.getItem('token') ?? '' : '');
-
-  const res = await fetch(`${API_BASE_URL}/properties/filter?${qs.toString()}`, {
-    cache: 'no-store',
-    headers: {
-      Authorization: `Bearer ${authToken}`,
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch properties: ${res.status}`);
-  }
-
-  return res.json() as Promise<PropertiesResponse>;
 }
 
 /**

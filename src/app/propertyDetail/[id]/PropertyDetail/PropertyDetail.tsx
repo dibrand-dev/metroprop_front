@@ -21,6 +21,7 @@ import { formatNumbers } from '@/utils/utils';
 import { AWS_S3_BUCKET_URL, ORGANIZATION_NO_IMAGE } from '@/app/constants';
 import { fetchProperties } from '@/lib/properties';
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface PropertyDetailProps {
   propertyId: string;
@@ -64,22 +65,14 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   // Fetch property detail
   const { data: property, isLoading, isError } = useQuery<CreateProperty>({
     queryKey: ['property', propertyId],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/properties/${propertyId}`);
-      if (!res.ok) throw new Error('Error fetching property');
-      return res.json();
-    },
+    queryFn: async () => apiFetch<CreateProperty>(`${API_BASE_URL}/properties/${propertyId}`),
     enabled: !!propertyId,
   });
 
   // Fetch tags for amenity tab names
   const { data: tagsData = [] } = useQuery<AmenityTag[]>({
     queryKey: ['tags'],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/tags`);
-      if (!res.ok) throw new Error('Error fetching tags');
-      return res.json();
-    },
+    queryFn: async () => apiFetch<AmenityTag[]>(`${API_BASE_URL}/tags`),
   });
 
   // Fetch similar properties by price

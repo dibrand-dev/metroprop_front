@@ -8,6 +8,7 @@ import Button from '@/ui/Button/Button';
 import Select from '@/ui/Select/Select';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
+import { apiFetch } from '@/lib/apiFetch';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, OperationType, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
 import type { MapDataItem } from '@/types/property-api';
@@ -723,11 +724,7 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [], propert
 
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/tags`);
-      if (!res.ok) throw new Error('Error fetching tags');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
   });
 
   const amenityGroups = useMemo<AmenityGroup[]>(() => {

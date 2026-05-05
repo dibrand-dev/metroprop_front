@@ -11,6 +11,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import { useMutation } from '@tanstack/react-query';
 import { useGoogleAuth } from '@/lib/useGoogleAuth';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconGoogle = '/icons/google.svg';
 
@@ -133,17 +134,10 @@ export default function UserSignin() {
     const processValidation = async () => {
       const token = searchParams.get('verifyMailToken') || '';
       try {
-        const response = await fetch(`${API_BASE_URL}/users/verify-email`, {
+        const responseData = await apiFetch<any>(`${API_BASE_URL}/users/verify-email`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            token
-          })
+          body: { token },
         });
-
-        const responseData = await response.json();
         if (responseData.success) {
           setShowEmailVerificatedModal(true)
           setTimeout(() => {

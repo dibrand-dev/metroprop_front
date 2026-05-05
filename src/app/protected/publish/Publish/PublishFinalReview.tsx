@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
 import { ORGANIZATION_NO_IMAGE } from '@/app/constants';
+import { apiFetch } from '@/lib/apiFetch';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import { useLocations } from '@/lib/locations';
 import { formatNumbers } from '@/utils/utils';
@@ -44,11 +45,7 @@ export default function PublishFinalReview({
 
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/tags`);
-      if (!res.ok) throw new Error('Error fetching tags');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
   });
 
   useEffect(() => {
@@ -71,12 +68,11 @@ export default function PublishFinalReview({
   
   useEffect(() => {
     if (wizardData.draft_id) {
-      fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/multimedia`)
-        .then(response => response.json())
+      apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/multimedia`)
         .then(data => {
           const _wizardData = {...wizardData};
-          _wizardData.images = data?.images || wizardData.images;
-          _wizardData.attached = data?.attached || wizardData.attached;
+          _wizardData.images = (data as any)?.images || wizardData.images;
+          _wizardData.attached = (data as any)?.attached || wizardData.attached;
           updateWizardData(_wizardData);
         })
         .catch(error => console.error('Error loading multimedia:', error));

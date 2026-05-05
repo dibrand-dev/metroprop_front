@@ -8,6 +8,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import './ResetPassword.scss';
 import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
+import { apiFetch } from '@/lib/apiFetch';
 
 const logoMetroprop = "/images/metropropLogo.png";
 
@@ -45,10 +46,8 @@ export default function ResetPassword() {
   const validateToken = async (resetToken: string) => {
     try {
       setIsValidatingToken(true);
-      const response = await fetch(`${API_BASE_URL}/users/validate-reset-token/${resetToken}`);
-      const data = await response.json();
-
-      if (response.ok && data.valid) {
+      const data = await apiFetch<any>(`${API_BASE_URL}/users/validate-reset-token/${resetToken}`);
+      if (data.valid) {
         setTokenValid(true);
         setUserInfo(data.user);
       } else {
@@ -94,20 +93,12 @@ export default function ResetPassword() {
       setIsResettingPassword(true);
       setError('');
 
-      const response = await fetch(`${API_BASE_URL}/users/reset-password`, {
+      const data = await apiFetch<any>(`${API_BASE_URL}/users/reset-password`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token: token,
-          newPassword: newPassword
-        }),
+        body: { token: token, newPassword: newPassword },
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {       
+      if (data.success) {       
         setShowResetPasswordModal(true)
         setTimeout(() => {
           router.push('/login');

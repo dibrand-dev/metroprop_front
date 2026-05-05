@@ -5,6 +5,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface UseGoogleAuthOptions {
   /** Page path for the Google OAuth callback, e.g. '/login' */
@@ -70,16 +71,7 @@ export function useGoogleAuth({
 
   const googleRegistrationMutation = useMutation({
     mutationFn: async (payload: any) => {
-      const response = await fetch(`${API_BASE_URL}/registration/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al iniciar sesión con Google');
-      }
-      return response.json();
+      return apiFetch(`${API_BASE_URL}/registration/google`, { method: 'POST', body: payload });
     },
     onSuccess: async (data: any) => {
       await storeAuthData(data);

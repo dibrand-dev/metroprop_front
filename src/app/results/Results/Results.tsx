@@ -17,6 +17,7 @@ import { fetchProperties, searchParamsToFilterParams } from '@/lib/properties';
 import { CreateProperty } from '@/types/propiedad';
 import type { MapDataItem } from '@/types/property-api';
 import { API_BASE_URL } from '@/utils/utils';
+import { apiFetch } from '@/lib/apiFetch';
 
 
 export default function Results() {
@@ -112,11 +113,7 @@ export default function Results() {
 
   const { data: favoritesData } = useQuery({
     queryKey: ['favorites', userId],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/favourites/user/${userId}`);
-      if (!res.ok) throw new Error('Error fetching favorites');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/favourites/user/${userId}`),
     enabled: !!userId,
   });
 
@@ -174,10 +171,9 @@ export default function Results() {
     if (!userId) return;
     const nextStatus = !favorites.has(propertyId);
     try {
-      await fetch(`${API_BASE_URL}/favourites/toggle`, {
+      await apiFetch(`${API_BASE_URL}/favourites/toggle`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ property_id: propertyId, user_id: Number(userId), status: nextStatus }),
+        body: { property_id: propertyId, user_id: Number(userId), status: nextStatus },
       });
       queryClient.invalidateQueries({ queryKey: ['favorites', userId] });
     } catch {

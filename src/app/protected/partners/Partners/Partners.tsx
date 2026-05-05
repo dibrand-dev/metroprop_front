@@ -7,6 +7,7 @@ import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import { API_BASE_URL } from '@/utils/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconRefresh = '/icons/refresh.svg';
@@ -26,51 +27,27 @@ export default function Partners() {
 
   const { data: partnersData, isLoading, isError } = useQuery({
     queryKey: ['partners'],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/partners`);
-      if (!res.ok) throw new Error('Error fetching partners');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/partners`),
     staleTime: 30_000,
   });
 
   const refreshMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`${API_BASE_URL}/partners/${id}/refresh-access-key`);
-      if (!res.ok) throw new Error('Error refreshing access key');
-      if (res.status === 204 || res.headers.get('content-length') === '0') return null;
-      return res.json().catch(() => null);
-    },
+    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/partners/${id}/refresh-access-key`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['partners'] }),
   });
 
   const disableMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`${API_BASE_URL}/partners/${id}/disable`, { method: 'PATCH' });
-      if (!res.ok) throw new Error('Error disabling partner');
-      if (res.status === 204 || res.headers.get('content-length') === '0') return null;
-      return res.json().catch(() => null);
-    },
+    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/partners/${id}/disable`, { method: 'PATCH' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['partners'] }),
   });
 
   const enableMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`${API_BASE_URL}/partners/${id}/enable`, { method: 'PATCH' });
-      if (!res.ok) throw new Error('Error enabling partner');
-      if (res.status === 204 || res.headers.get('content-length') === '0') return null;
-      return res.json().catch(() => null);
-    },
+    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/partners/${id}/enable`, { method: 'PATCH' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['partners'] }),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`${API_BASE_URL}/partners/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Error deleting partner');
-      if (res.status === 204 || res.headers.get('content-length') === '0') return null;
-      return res.json().catch(() => null);
-    },
+    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/partners/${id}`, { method: 'DELETE' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['partners'] }),
   });
 

@@ -9,6 +9,7 @@ import type { MapDataItem } from '@/types/property-api';
 import './ResultsMap.scss';
 import { API_BASE_URL } from '@/utils/utils';
 import PropertyCardGridList from './PropertyCardGridList';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface Bounds {
   northEastLat: number;
@@ -221,11 +222,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
 
   const { data: fetchedProperty, isLoading: isFetchingProperty } = useQuery<CreateProperty>({
     queryKey: ['property', selectedId],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/properties/${selectedId}?format=card`);
-      if (!res.ok) throw new Error('Error fetching property');
-      return res.json();
-    },
+    queryFn: async () => apiFetch<CreateProperty>(`${API_BASE_URL}/properties/${selectedId}?format=card`),
     enabled: needsFetch,
     staleTime: 60_000,
   });

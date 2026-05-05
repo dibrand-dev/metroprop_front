@@ -9,6 +9,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import Select from '@/ui/Select/Select';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconEditPencil = "/icons/pencil.svg";
 const iconArrowBack = "/icons/arrow.svg";
@@ -52,31 +53,19 @@ export default function OrganizationProfile() {
 
   const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
     queryKey: ['provinces', country_id],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getCountryStates?countryId=${country_id}`);
-      if (!res.ok) throw new Error('Error fetching states');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: country_id } }),
     enabled: !!country_id,
   });
 
   const { data: locations = [], isLoading: loadingLocations } = useQuery({
     queryKey: ['locations', state_id],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${state_id}`);
-      if (!res.ok) throw new Error('Error fetching locations');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: state_id } }),
     enabled: !!state_id,
   });
 
   const { data: zones = [], isLoading: loadingZones } = useQuery({
     queryKey: ['zones', location_id],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${location_id}`);
-      if (!res.ok) throw new Error('Error fetching zones');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: location_id } }),
     enabled: !!location_id,
   });
 
@@ -90,9 +79,7 @@ export default function OrganizationProfile() {
     queryKey: ['organization', orgId],
     queryFn: async () => {
       console.log("Fetching organization data for orgId:", orgId);
-      const res = await fetch(`${API_BASE_URL}/organizations/${orgId}`);
-      if (!res.ok) throw new Error('Error fetching organization');
-      return res.json();
+      return apiFetch(`${API_BASE_URL}/organizations/${orgId}`);
     },
     enabled: !!orgId,
   });

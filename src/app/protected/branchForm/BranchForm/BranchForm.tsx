@@ -11,6 +11,7 @@ import InputField from '@/ui/InputField/InputField';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -45,30 +46,18 @@ export default function BranchForm({ branchId }: BranchFormProps) {
 
   const { data: provinces = [] } = useQuery({
     queryKey: ['provinces', LOCATION_ARGENTINA_ID],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getCountryStates?countryId=${LOCATION_ARGENTINA_ID}`);
-      if (!res.ok) throw new Error('Error fetching provinces');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: LOCATION_ARGENTINA_ID } }),
   });
 
   const { data: cities = [] } = useQuery({
     queryKey: ['locations', formData.province],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${formData.province}`);
-      if (!res.ok) throw new Error('Error fetching cities');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: formData.province } }),
     enabled: !!formData.province,
   });
 
   const { data: neighborhoods = [] } = useQuery({
     queryKey: ['zones', formData.city],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${formData.city}`);
-      if (!res.ok) throw new Error('Error fetching neighborhoods');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: formData.city } }),
     enabled: !!formData.city,
   });
 
@@ -87,8 +76,7 @@ export default function BranchForm({ branchId }: BranchFormProps) {
 
   useEffect(() => {
     if (!branchId) return;
-    fetch(`${API_BASE_URL}/branches/${branchId}`)
-      .then(res => res.json())
+    apiFetch<any>(`${API_BASE_URL}/branches/${branchId}`)
       .then(branch => {
         setFormData({
           branch_name: branch.branch_name ?? '',
@@ -102,7 +90,8 @@ export default function BranchForm({ branchId }: BranchFormProps) {
           neighborhood: branch.sub_location_id != null ? String(branch.sub_location_id) : undefined,
         });
         if (branch.branch_logo) setLogoPreview(branch.branch_logo);
-      });
+      })
+      .catch(console.error);
   }, [branchId]);
 
   const saveMutation = useMutation({

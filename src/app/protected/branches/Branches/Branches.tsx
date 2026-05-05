@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 import { API_BASE_URL } from '@/utils/utils';
 import Button from '@/ui/Button/Button';
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconEditPencil = '/icons/pencil.svg';
@@ -26,11 +27,7 @@ export default function Branches() {
 
   const { data: fetchedBranches } = useQuery({
     queryKey: ['branches', orgId],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/branches/organization/${orgId}`);
-      if (!res.ok) throw new Error('Error fetching branches');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/branches/organization/${orgId}`),
     enabled: !!orgId,
   });
 
@@ -47,10 +44,9 @@ export default function Branches() {
       )
     );
     try {
-      await fetch(`${API_BASE_URL}/branches/${id}`, {
+      await apiFetch(`${API_BASE_URL}/branches/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: nextValue }),
+        body: { is_active: nextValue },
       });
     } catch {
       // revert on error

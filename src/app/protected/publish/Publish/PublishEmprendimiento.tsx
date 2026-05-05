@@ -12,6 +12,7 @@ import InputField from '@/ui/InputField/InputField';
 import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import PublishLocationMap from './PublishLocationMap/PublishLocationMap';
 import { CreateImage, CreateImagePlans, CreatePropertyDraft } from '@/types/propiedad';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconTrash = '/icons/trash.svg';
 const iconUpload = '/icons/upload.svg';
@@ -276,9 +277,7 @@ export default function PublishEmprendimiento({
 
   const uploadMultimediaMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const res = await fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/save-multimedia`, { method: 'POST', body: formData });
-      if (!res.ok) throw new Error('Error uploading files');
-      return res.json();
+      return apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/save-multimedia`, { method: 'POST', body: formData });
     },
   });
 
@@ -304,40 +303,24 @@ export default function PublishEmprendimiento({
   // ── Location queries ──────────────────────────────────────────────────────
   const { data: countries = [], isLoading: loadingCountries } = useQuery({
     queryKey: ['countries'],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/countries`);
-      if (!res.ok) throw new Error('Error fetching countries');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/countries`),
   });
 
   const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
     queryKey: ['provinces', country_id],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getCountryStates?countryId=${country_id}`);
-      if (!res.ok) throw new Error('Error fetching states');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: country_id } }),
     enabled: !!country_id,
   });
 
   const { data: locations = [], isLoading: loadingLocations } = useQuery({
     queryKey: ['locations', state_id],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${state_id}`);
-      if (!res.ok) throw new Error('Error fetching locations');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: state_id } }),
     enabled: !!state_id,
   });
 
   const { data: zones = [], isLoading: loadingZones } = useQuery({
     queryKey: ['zones', location_id],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${location_id}`);
-      if (!res.ok) throw new Error('Error fetching zones');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: location_id } }),
     enabled: !!location_id,
   });
 

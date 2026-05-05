@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import './Publish.scss';
 import { API_BASE_URL } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
+import { apiFetch } from '@/lib/apiFetch';
 
 // Import all step components
 import PublishPropertyType from './PublishPropertyType';
@@ -77,16 +78,12 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   useEffect(() => {
     if (!propertyId) return;
     setIsLoadingProperty(true);
-    fetch(`${API_BASE_URL}/properties/${propertyId}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Error fetching property');
-        return res.json();
-      })
+    apiFetch(`${API_BASE_URL}/properties/${propertyId}`)
       .then(data => {
         // Map the property to the wizard draft shape.
         // draft_id = property id so all PATCH / multimedia calls target the right endpoint.
-        setWizardData({ ...data, draft_id: data.id });
-        if (data.operation_type === OperationType.EMPRENDIMIENTO) {
+        setWizardData({ ...data, draft_id: (data as any).id });
+        if ((data as any).operation_type === OperationType.EMPRENDIMIENTO) {
           setCurrentStep(WizardStep.EMPRENDIMIENTO);
         } else {
           // Skip steps 1 and 2 (operation type & property type) when editing
@@ -149,22 +146,17 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
       const branch_id = sessionData?.user?.branch_id;
       if (!user_id) throw new Error('User not authenticated');
 
-      const response = await fetch(`${API_BASE_URL}/properties/draft`, {
+      return apiFetch(`${API_BASE_URL}/properties/draft`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+        body: {
           user_id,
           organization_id,
           branch_id,
           operation_type: draftData.operation_type,
           property_type: draftData.property_type,
           ...(draftData.property_subtype && { property_subtype: draftData.property_subtype }),
-        }),
+        },
       });
-      if (!response.ok) throw new Error('Error creating draft');
-      return response.json();
     }
   });
 
@@ -203,15 +195,10 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   
   const updatePropertyMutation = useMutation({
     mutationFn: async (updateData: Partial<CreatePropertyDraft>) => {
-      const response = await fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}`, {
+      return apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData),
+        body: updateData,
       });
-      if (!response.ok) throw new Error('Error updating property');
-      return response.json();
     }
   });
 

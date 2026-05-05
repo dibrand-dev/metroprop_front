@@ -9,6 +9,7 @@ import { CreateImage, CreateImagePlans, CreatePropertyDraft, OPERATION_TYPE_LABE
 // Replace fetch with useMutation for multimedia upload
 import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL, setImagePath } from '@/utils/utils';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconTrash = '/icons/trash.svg';
@@ -108,18 +109,17 @@ export default function PublishContent({
   useEffect(() => {
     // call  APIURL /PROPERTYID/getMultimedia to get already uploaded multimedia (images and plans) and set them in state
     if (wizardData.draft_id) {
-      fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/multimedia`)
-        .then(response => response.json())
+      apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/multimedia`)
         .then(data => {
-          if (data?.images && Array.isArray(data.images)) {
-            setImages(data.images);
+          if ((data as any)?.images && Array.isArray((data as any).images)) {
+            setImages((data as any).images);
           }
-          if (data?.attached && Array.isArray(data.attached)) {
-            setPlans(data.attached);
+          if ((data as any)?.attached && Array.isArray((data as any).attached)) {
+            setPlans((data as any).attached);
           }
-          if (data?.videos && Array.isArray(data.videos) && data.videos.length > 0) {
-            setVideos(data.videos.map(resolveVideoUrl));
-            setVideosPreview(data.videos.map(buildVideoPreview));
+          if ((data as any)?.videos && Array.isArray((data as any).videos) && (data as any).videos.length > 0) {
+            setVideos((data as any).videos.map(resolveVideoUrl));
+            setVideosPreview((data as any).videos.map(buildVideoPreview));
           }
         })
         .catch(error => console.error('Error loading multimedia:', error));
@@ -264,13 +264,8 @@ export default function PublishContent({
 
   const uploadMultimediaMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const response = await fetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/save-multimedia`, {
-        method: 'POST',
-        body: formData,
-      });
-      if (!response.ok) throw new Error('Error uploading files');
-      return response.json();
-    }
+      return apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/save-multimedia`, { method: 'POST', body: formData });
+    },
   });
 
   const handleFormSubmit = async () => {

@@ -8,6 +8,7 @@ import InputField from '@/ui/InputField/InputField';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 import { API_BASE_URL } from '@/utils/utils';
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -47,11 +48,7 @@ export default function PublishPropertyContent({
 
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/tags`);
-      if (!res.ok) throw new Error('Error fetching tags');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
   });
 
   useEffect(() => {

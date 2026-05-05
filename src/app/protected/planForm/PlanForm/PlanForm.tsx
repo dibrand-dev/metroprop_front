@@ -9,6 +9,7 @@ import Button from '@/ui/Button/Button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -30,11 +31,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
 
   const { isLoading: isLoadingPlan, data: planData } = useQuery({
     queryKey: ['plan', planId],
-    queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/plans/${planId}`);
-      if (!res.ok) throw new Error('Error fetching plan data');
-      return res.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/plans/${planId}`),
     enabled: Boolean(planId),
     staleTime: 30_000,
   });
@@ -57,13 +54,10 @@ export default function PlanForm({ planId }: PlanFormProps) {
       const url = isEditing
         ? `${API_BASE_URL}/plans/${planId}`
         : `${API_BASE_URL}/plans`;
-      const res = await fetch(url, {
+      return apiFetch(url, {
         method: isEditing ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: payload,
       });
-      if (!res.ok) throw new Error('Error al guardar el plan');
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['plans'] });

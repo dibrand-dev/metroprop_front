@@ -8,6 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import InputField from '@/ui/InputField/InputField';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconArrowBack = "/icons/arrow.svg";
 
@@ -26,10 +27,7 @@ export default function DeleteAccount() {
     mutationFn: async () => {
       const userId = (sessionData?.user as any)?.id;
       if (!userId) throw new Error('No user id');
-      const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Error al eliminar la cuenta');
+      await apiFetch(`${API_BASE_URL}/users/${userId}`, { method: 'DELETE' });
       return null;
     },
     onSuccess: () => {

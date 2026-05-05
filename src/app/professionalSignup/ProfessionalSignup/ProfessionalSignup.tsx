@@ -11,6 +11,7 @@ import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import EmailVerificationModal from '../../../components/EmailVerificationModal/EmailVerificationModal';
 import { useRouter } from 'next/navigation';
 import { API_BASE_URL } from '@/utils/utils';
+import { apiFetch } from '@/lib/apiFetch';
 
 // Email validation helper
 const isValidEmail = (email: string): boolean => {
@@ -99,18 +100,7 @@ export default function ProfessionalSignup() {
   // Mutation for professional registration
   const registerProfessionalMutation = useMutation({
     mutationFn: async (formData: any) => {
-      const response = await fetch(`${API_BASE_URL}/registration/professional`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error registering professional');
-      }
-      return response.json();
+      return apiFetch(`${API_BASE_URL}/registration/professional`, { method: 'POST', body: formData });
     },
     onSuccess: () => {
       setShowEmailVerificationModal(true);
@@ -123,18 +113,7 @@ export default function ProfessionalSignup() {
   // Mutation for resend email
   const resendEmailMutation = useMutation({
     mutationFn: async (email: string) => {
-      const response = await fetch(`${API_BASE_URL}/registration/resend-welcome`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al reenviar el correo de verificación');
-      }
-      return response.json();
+      return apiFetch(`${API_BASE_URL}/registration/resend-welcome`, { method: 'POST', body: { email } });
     },
     onSuccess: () => {
       // Set 1-hour cooldown (3600 seconds)

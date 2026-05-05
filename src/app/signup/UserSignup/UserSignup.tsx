@@ -42,18 +42,7 @@ export default function UserSignup() {
   // Mutation for user registration
   const registerUserMutation = useMutation({
     mutationFn: async (formData: { email: string; password?: string; name?: string; google?: boolean }) => {
-      const response = await fetch(`${API_BASE_URL}/registration/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error registering user');
-      }
-      return response.json();
+      return apiFetch(`${API_BASE_URL}/registration/`, { method: 'POST', body: formData });
     },
     onSuccess: () => {
       setShowEmailVerificationModal(true);
@@ -185,12 +174,9 @@ export default function UserSignup() {
     }
 
     try {
-      await fetch(`${API_BASE_URL}/registration/resend-welcome`, {
+      await apiFetch(`${API_BASE_URL}/registration/resend-welcome`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
+        body: { email },
       });
 
       // (40 segundos para reenviar)

@@ -16,6 +16,7 @@ import {
 } from '@/types/propiedad';
 import PublishLocationMap from './PublishLocationMap/PublishLocationMap';
 import InputField2 from '@/ui/InputField2/InputField2';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconClose = '/icons/close.svg';
@@ -218,21 +219,13 @@ export default function PublishLocation({
   // Query for countries (loads on component mount)
   const { data: countries = [], isLoading: loadingCountries } = useQuery({
     queryKey: ['countries'],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/location/countries`);
-      if (!response.ok) throw new Error('Error fetching countries');
-      return response.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/countries`),
   });
 
   // Query for states/provinces (loads when country is selected)
   const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
     queryKey: ['provinces', country_id],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/location/getCountryStates?countryId=${country_id}`);
-      if (!response.ok) throw new Error('Error fetching states');
-      return response.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: country_id } }),
     enabled: !!country_id,
   });
 
@@ -240,9 +233,7 @@ export default function PublishLocation({
   const { data: locations = [], isLoading: loadingLocations } = useQuery({
     queryKey: ['locations', state_id],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/location/getStateLocations?stateId=${state_id}`);
-      if (!response.ok) throw new Error('Error fetching locations');
-      const locations = await response.json();
+      const locations = await apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: state_id } });
       return locations;
     },
     enabled: !!state_id,
@@ -251,11 +242,7 @@ export default function PublishLocation({
   // Query for zones (loads when location is selected)
   const { data: zones = [], isLoading: loadingZones } = useQuery({
     queryKey: ['zones', sub_location_id],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/location/getLocationChildrens?locationId=${location_id}`);
-      if (!response.ok) throw new Error('Error fetching location children');
-      return response.json();
-    },
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: location_id } }),
     enabled: !!sub_location_id,
   });
   

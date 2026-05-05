@@ -9,6 +9,7 @@ import GalleryModal, { GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDe
 import { CreateAttached } from '@/types/propiedad';
 
 import { API_BASE_URL } from '@/utils/utils';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface PropertyCardGridListProps {
   property: CreateProperty;
@@ -33,8 +34,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, f
     setGalleryOpen(true);
     setGalleryLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/properties/${property.id}/multimedia`);
-      const data = await res.json();
+      const data = await apiFetch<any>(`${API_BASE_URL}/properties/${property.id}/multimedia`);
       const fetchedImages: string[] = (data?.images ?? []).map((img: { url: string }) =>
         setImagePath(img.url)
       );

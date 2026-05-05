@@ -9,6 +9,7 @@ import './ForgotPassword.scss';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import EmailVerificationModal from '@/components/EmailVerificationModal/EmailVerificationModal';
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/lib/apiFetch';
 
 // Email validation helper
 const isValidEmail = (email: string): boolean => {
@@ -26,15 +27,10 @@ export default function ForgotPassword() {
 
   const requestPasswordResetMutation = useMutation({
     mutationFn: async (email: string) => {
-      const response = await fetch(`${API_BASE_URL}/users/request-password-reset`, {
+      return apiFetch(`${API_BASE_URL}/users/request-password-reset`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
+        body: { email },
       });
-      if (!response.ok) throw new Error('Error requesting password reset');
-      return response.json();
     }
   });
 

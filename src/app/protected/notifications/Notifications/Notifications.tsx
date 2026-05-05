@@ -6,6 +6,7 @@ import './Notifications.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
 import { API_BASE_URL } from '@/utils/utils';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -45,10 +46,9 @@ export default function Notifications() {
     );
     const userId = (sessionData?.user as any)?.id;
     if (!userId) return;
-    await fetch(`${API_BASE_URL}/users/${userId}`, {
+    await apiFetch(`${API_BASE_URL}/users/${userId}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accept_newsletters: nextValue }),
+      body: { accept_newsletters: nextValue },
     });
     await update({ accept_newsletters: nextValue });
   };

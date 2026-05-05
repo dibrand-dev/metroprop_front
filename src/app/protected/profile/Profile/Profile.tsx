@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconEditPencil = "/icons/pencil.svg";
 const iconArrowBack = "/icons/arrow.svg";
@@ -37,33 +38,30 @@ export default function Profile() {
     const userId = (sessionData?.user as any)?.id;
     if (!userId) return;
 
-    fetch(`${API_BASE_URL}/users/${userId}`)
-      .then(res => res.json())
+    apiFetch<any>(`${API_BASE_URL}/users/${userId}`)
       .then(data => {
         setProperties({
           ...data,
           phone_whatsapp_available: data.phone_whatsapp && data.phone_whatsapp !== '' ? "1" : "0",
         });
-      });
+      })
+      .catch(console.error);
   }, [sessionData]);
 
   const updateUserMutation = useMutation({
     mutationFn: async (data: any) => {
       const userId = (sessionData?.user as any)?.id;
       if (!userId) throw new Error('No user id');
-      const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      return apiFetch<any>(`${API_BASE_URL}/users/${userId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           name: data.name,
           phone: data.phone,
           phone_additional: data.phone_additional,
           phone_whatsapp: data.phone_whatsapp,
           document: data.document,
-        }),
+        },
       });
-      if (!res.ok) throw new Error('Error updating user');
-      return res.json();
     },
     onSuccess: () => {
       setSuccessMessage('Usuario editado correctamente');

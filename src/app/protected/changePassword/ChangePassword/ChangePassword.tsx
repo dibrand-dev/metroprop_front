@@ -10,6 +10,7 @@ import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import InputField from '@/ui/InputField/InputField';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconEditPencil = "/icons/pencil.svg";
 const iconArrowBack = "/icons/arrow.svg";
@@ -47,16 +48,14 @@ export default function ChangePassword() {
     mutationFn: async (data: any) => {
       const userId:number = (sessionData?.user as any)?.id;
       if (!userId) throw new Error('No user id');
-      const res = await fetch(`${API_BASE_URL}/users/change-password`, {
+      const result = await apiFetch<any>(`${API_BASE_URL}/users/change-password`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           id: parseInt(userId.toString()),
           oldPassword: data.password,
           newPassword: data.newPassword,
-        }),
+        },
       });
-      const result = await res.json();
       if (!result.success) throw new Error(result.message || 'Error al cambiar la contraseña');
       return result;
     },
