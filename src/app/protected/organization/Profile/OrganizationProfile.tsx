@@ -39,12 +39,12 @@ export default function OrganizationProfile() {
     email: '',
     name: '',
     phone: '',
-    phone_additional: '',
+    alternative_phone: '',
     social_reason: '',
     cuit: '',
     fiscal_condition: '',
     // Ubicación
-    street: '',
+    address: '',
     // Descripción
     description: '',
   });
@@ -116,7 +116,7 @@ export default function OrganizationProfile() {
       email: org.email ?? '',
       company_name: org.company_name ?? org.name ?? '',
       phone: org.phone ?? '',
-      phone_additional: org.phone_additional ?? org.alternative_phone ?? '',
+      alternative_phone: org.alternative_phone ?? org.alternative_phone ?? '',
       address: org.address ?? '',
       description: org.description ?? '',
       social_reason: org.social_reason ?? '',
@@ -129,19 +129,19 @@ export default function OrganizationProfile() {
     mutationFn: async (data: any) => {
       if (!organizationId) throw new Error('No organization id');
       const payload = new FormData();
-      payload.append('email', data.email || '');
-      payload.append('company_name', data.company_name || '');
-      payload.append('phone', data.phone || '');
-      payload.append('alternative_phone', data.phone_additional || '');
+      if (data.email) payload.append('email', data.email);
+      if (data.company_name) payload.append('company_name', data.company_name);
+      if (data.phone) payload.append('phone', data.phone);
+      if (data.alternative_phone) payload.append('alternative_phone', data.alternative_phone);
       if (country_id) payload.append('country_id', String(country_id));
       if (state_id) payload.append('state_id', String(state_id));
       if (location_id) payload.append('location_id', String(location_id));
       if (sub_location_id) payload.append('sub_location_id', String(sub_location_id));
-      payload.append('address', data.address || '');
-      payload.append('description', data.description || '');
-      payload.append('social_reason', data.social_reason || '');
-      payload.append('cuit', data.cuit || '');
-      payload.append('fiscal_condition', data.fiscal_condition || '');
+      if (data.address) payload.append('address', data.address);
+      if (data.description) payload.append('description', data.description);
+      if (data.social_reason) payload.append('social_reason', data.social_reason);
+      if (data.cuit) payload.append('cuit', data.cuit);
+      if (data.fiscal_condition) payload.append('fiscal_condition', data.fiscal_condition);
       if (logoFile) {
         payload.append('company_logo', logoFile);
       } else if (logoPreview) {
@@ -228,7 +228,7 @@ export default function OrganizationProfile() {
             <div className="professional-profile-fields">               
               <div className="professional-profile-identifier-text">
                 <p className="professional-profile-label">Identificador:</p>
-                <p className="professional-profile-value">300090404</p>
+                <p className="professional-profile-value">????????????????</p>
               </div>
               <div className="branch-form-logo">
                 <button
@@ -341,8 +341,8 @@ export default function OrganizationProfile() {
               <InputField2
                 type="text"
                 placeholder="Dirección"
-                value={properties.street}
-                onChange={(e) => handleInputChange('street', e.target.value)}
+                value={properties.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
                 disabled={!(isEditing && activeSection === 'ubicacion')}
                 label="Dirección"
               />              

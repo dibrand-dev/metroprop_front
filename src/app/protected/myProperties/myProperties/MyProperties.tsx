@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Select from '@/ui/Select/Select';
-import { fetchProperties } from '@/lib/properties';
 import type { CreateProperty } from '@/types/propiedad';
 import Paginator from '@/components/Paginator/Paginator';
 import { API_BASE_URL } from '@/utils/utils';
@@ -126,6 +126,8 @@ const LIMIT = 20;
 
 /* ── Main component ─────────────────────────────────────────────────── */
 const MyProperties = () => {
+  const { data: sessionData } = useSession();
+  const apiToken = sessionData?.user?.apiToken as string | undefined;
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -135,15 +137,31 @@ const MyProperties = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: propertiesData, isLoading } = useQuery({
-    queryKey: ['my-properties', currentPage, searchId],
+    queryKey: ['my-properties', currentPage, searchId, apiToken],
     queryFn: async () => {
       if (searchId !== null) {
-        const res = await fetch(`${API_BASE_URL}/properties/${searchId}`);
+        const res = await fetch(`${API_BASE_URL}/properties/my-properties?property_id=${searchId}`, {
+          headers: apiToken ? { Authorization: `Bearer ${apiToken}` } : {},
+        });
         if (!res.ok) return { data: [], total: 0, page: 1, limit: 1 };
         const property: CreateProperty = await res.json();
         return { data: [property], total: 1, page: 1, limit: 1 };
+      } else {
+        const params: Record<string, string | number | boolean | undefined> = { order_by: 'created_at:desc', page: currentPage, limit: LIMIT };
+        const qs = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            qs.set(key, String(value));
+          }
+        });
+        const res = await fetch(`${API_BASE_URL}/properties/my-properties?${qs.toString()}`, {
+          headers: apiToken ? { Authorization: `Bearer ${apiToken}` } : {},
+        });
+        if (!res.ok) return { data: [], total: 0, page: 1, limit: 1 };
+        const properties = await res.json();
+        return { data: properties, total: properties.total, page: 1, limit: properties.length };
       }
-      return fetchProperties({ order_by: 'created_at:desc', page: currentPage, limit: LIMIT });
+      // return fetchProperties({ order_by: 'created_at:desc', page: currentPage, limit: LIMIT }, apiToken);
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -367,7 +385,7 @@ const MyProperties = () => {
                         <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.location.href = `/protected/publish/${prop.id}`}>
                           <img src="/icons/pencil.svg" alt="Editar" />
                         </button>
-                        <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => window.location.href = `/propertyDetail/${prop.id}`}>
+                        <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => window.open(`/propertyDetail/${prop.id}`, '_blank')}>
                           <img src="/icons/verDetalle.svg" alt="Ver detalle" />
                         </button>
                         <button type="button" className="myprop-card-action-btn" title="Cambiar estado">

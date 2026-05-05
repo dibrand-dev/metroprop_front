@@ -2,8 +2,8 @@
 import React from 'react';
 import './PropertyCardMyProperties.scss';
 import { CreateProperty } from '@/types/propiedad';
-import { formatNumbers } from '@/utils/utils';
-import { AWS_S3_BUCKET_URL, PROPERTY_NO_IMAGE } from '@/app/constants';
+import { formatNumbers, setImagePath } from '@/utils/utils';
+import { PROPERTY_NO_IMAGE } from '@/app/constants';
 
 interface PropertyCardMyPropertiesProps {
   property: CreateProperty;
@@ -15,8 +15,8 @@ const PropertyCardMyProperties: React.FC<PropertyCardMyPropertiesProps> = ({ pro
     <div className="property-card-map-list">
       <div className="card-content">
         <img 
-          src={property.images?.[0]?.url 
-            ? property.images[0].url.includes('http') ? property.images[0].url : `${AWS_S3_BUCKET_URL}/${property.images[0].url}`
+          src={ property.images?.[0]?.url 
+            ? setImagePath(property.images[0].url)
             : PROPERTY_NO_IMAGE} 
           alt={property.publication_title}
           className="property-image"

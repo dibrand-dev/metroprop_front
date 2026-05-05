@@ -8,8 +8,7 @@ import { CreateImage, CreateImagePlans, CreatePropertyDraft, OPERATION_TYPE_LABE
 
 // Replace fetch with useMutation for multimedia upload
 import { useMutation } from '@tanstack/react-query';
-import { API_BASE_URL } from '@/utils/utils';
-import { AWS_S3_BUCKET_URL } from '@/app/constants';
+import { API_BASE_URL, setImagePath } from '@/utils/utils';
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconTrash = '/icons/trash.svg';
@@ -281,7 +280,7 @@ export default function PublishContent({
       // Append existing (already uploaded) image URLs as strings — backend will skip these
       images?.forEach((img) => {
         if (img.url) {
-          formData.append('images', img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`);
+          formData.append('images', setImagePath(img.url));
         }
       });
       // Append new image files
@@ -291,7 +290,7 @@ export default function PublishContent({
       // Append existing (already uploaded) plan URLs as strings — backend will skip these
       plans?.forEach((plan) => {
         if (plan.file_url) {
-          formData.append('attached', plan.file_url.includes('http') ? plan.file_url : `${AWS_S3_BUCKET_URL}/${plan.file_url}`);
+          formData.append('attached', setImagePath(plan.file_url));
         }
       });
       // Append new plan files
@@ -515,7 +514,7 @@ export default function PublishContent({
                               <span>Subiendo...</span>
                             </div>
                           ) : isCompleted ? (
-                            <img src={image.url.includes('http') ? image.url : `${AWS_S3_BUCKET_URL}/${image.url}`} alt="Foto" />
+                            <img src={ setImagePath(image.url) } alt="Foto" />
                           ) : hasError ? (
                             <div className="publish-content-upload-error">
                               <span className="error-icon">!</span>

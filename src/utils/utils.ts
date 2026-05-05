@@ -2,6 +2,8 @@
  * 🌐 API Configuration
  */
 
+import { AWS_S3_BUCKET_URL } from "@/app/constants";
+
 // 🔗 API Endpoints
 export const API_ENDPOINTS = {
   PRODUCTION: 'https://api.metroprop.co',
@@ -60,4 +62,8 @@ export function saveVisitedProperty(property: VisitedProperty): void {
   } catch {
     // localStorage unavailable — ignore
   }
+}
+
+export function setImagePath(imagePath: string) {
+  return imagePath.includes('http') ? imagePath : `${AWS_S3_BUCKET_URL}/${imagePath}`;  
 }

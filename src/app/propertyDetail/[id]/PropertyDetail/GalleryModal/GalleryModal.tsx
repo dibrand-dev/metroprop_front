@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { CreateAttached } from '@/types/propiedad';
-import { AWS_S3_BUCKET_URL } from '@/app/constants';
 import GalleryLightboxSection from './GalleryLightboxSection';
 import '@/app/propertyDetail/[id]/PropertyDetail/PropertyDetail.scss';
+import { setImagePath } from '@/utils/utils';
 
 const extractYouTubeId = (url: string | { id: number, is_360: boolean, order: number, url: string }): string | null => {
   if (!url) return null;
@@ -194,7 +194,7 @@ export default function GalleryModal({
           ariaLabel={idx => `Ver plano ${idx + 1}`}
           renderMain={(plan, idx) => {
             const isPdf = plan?.file_url?.toLowerCase().endsWith('.pdf');
-            const src = plan?.file_url?.includes('http') ? plan.file_url : `${AWS_S3_BUCKET_URL}/${plan.file_url}`;
+            const src = setImagePath(plan?.file_url);
             return isPdf ? (
               <div className="property-gallery-lightbox-pdf">
                 <iframe
@@ -233,7 +233,7 @@ export default function GalleryModal({
                   <span className="property-gallery-lightbox-thumb-pdf-badge">PDF</span>
                 </div>
               )
-              : <img src={p.file_url.includes('http') ? p.file_url : `${AWS_S3_BUCKET_URL}/${p.file_url}`} alt={`Plano ${idx + 1}`} />;
+              : <img src={setImagePath(p.file_url)} alt={`Plano ${idx + 1}`} />;
           }}
         />
       )}

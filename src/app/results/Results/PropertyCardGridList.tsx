@@ -3,8 +3,8 @@ import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import './PropertyCardGridList.scss';
 import { CreateProperty } from '@/types/propiedad';
-import { formatNumbers } from '@/utils/utils';
-import { AWS_S3_BUCKET_URL, PROPERTY_NO_IMAGE } from '@/app/constants';
+import { formatNumbers, setImagePath } from '@/utils/utils';
+import { PROPERTY_NO_IMAGE } from '@/app/constants';
 import GalleryModal, { GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
 import { CreateAttached } from '@/types/propiedad';
 
@@ -26,7 +26,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, f
   const [galleryLoading, setGalleryLoading] = useState(false);
 
   const images = property.images?.map(img =>
-    img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`
+    setImagePath(img.url)
   ) ?? [];
 
   const openGallery = async () => {
@@ -36,7 +36,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, f
       const res = await fetch(`${API_BASE_URL}/properties/${property.id}/multimedia`);
       const data = await res.json();
       const fetchedImages: string[] = (data?.images ?? []).map((img: { url: string }) =>
-        img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`
+        setImagePath(img.url)
       );
       setGalleryImages(fetchedImages.length > 0 ? fetchedImages : images);
       setGalleryVideos((data?.videos ?? []).map((url: string, i: number) => ({ id: i, url, order: i })));
@@ -77,7 +77,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, f
       >
         <img 
           src={property.images?.[0]?.url 
-            ? property.images[0].url.includes('http') ? property.images[0].url : `${AWS_S3_BUCKET_URL}/${property.images[0].url}`
+            ? setImagePath(property.images[0].url)
             : PROPERTY_NO_IMAGE} 
           alt={property.publication_title}
           className="property-image"
@@ -87,7 +87,7 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, f
       <div className="info-section">
         <div className="content-wrapper">
           {property.organization?.company_logo && <img 
-            src={property.organization?.company_logo.includes('http') ? property.organization?.company_logo : `${AWS_S3_BUCKET_URL}/${property.organization?.company_logo}`} 
+            src={setImagePath(property.organization?.company_logo)} 
             alt="Agency logo"
             className="agency-logo"
           />}

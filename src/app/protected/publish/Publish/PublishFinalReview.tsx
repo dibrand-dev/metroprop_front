@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import './PublishFinalReview.scss';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
 import { useQuery } from '@tanstack/react-query';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
+import { ORGANIZATION_NO_IMAGE } from '@/app/constants';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import { useLocations } from '@/lib/locations';
 import { formatNumbers } from '@/utils/utils';
-import { AWS_S3_BUCKET_URL } from '@/app/constants';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -201,8 +201,13 @@ export default function PublishFinalReview({
     const propertyPublishUpdate = { 
       status: PropertyStatus.DISPONIBLE
     }
+    // redirect to myProperties
     onNext(propertyPublishUpdate);
   };
+
+  const agentLogo: string = setImagePath((sessionData?.user as any)?.organization?.company_logo) || ORGANIZATION_NO_IMAGE;
+  const agentName: string = (sessionData?.user as any)?.organization?.company_name || sessionData?.user?.name || '';
+
   return (
     <div className="publish-review">
       <div className="publish-review-inner">
@@ -263,12 +268,12 @@ export default function PublishFinalReview({
 
                 <div className="publish-review-gallery">
                   <div className="publish-review-gallery-main">
-                    {wizardData?.images?.[0]?.url && <img src={wizardData?.images?.[0]?.url.includes('http') ? wizardData?.images?.[0]?.url : `${AWS_S3_BUCKET_URL}/${wizardData?.images?.[0]?.url}`} alt="Vista principal" />}
+                    {wizardData?.images?.[0]?.url && <img src={setImagePath(wizardData?.images?.[0]?.url)} alt="Vista principal" />}
                   </div>
                   <div className="publish-review-gallery-grid">
                     {wizardData?.images?.slice(1).map((image, index) => (
                       <div key={image.url} className="publish-review-gallery-item">
-                        <img src={image.url.includes('http') ? image.url : `${AWS_S3_BUCKET_URL}/${image.url}`} alt={`Vista ${index + 2}`} />
+                        <img src={setImagePath(image.url)} alt={`Vista ${index + 2}`} />
                       </div>
                     ))}
                   </div>
@@ -375,10 +380,10 @@ export default function PublishFinalReview({
                 <p>Estos son los datos que veran los interesados</p>
                 <div className="publish-review-contact-card">
                   <div className="publish-review-contact-logo">
-                    <img src="/images/metropropLogo.png" alt="Metroprop" />
+                    {agentLogo && <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />}
                   </div>
                   {sessionData?.user && <div className="publish-review-contact-info">
-                    <div className="publish-review-contact-name">{sessionData?.user?.name}</div>
+                    <div className="publish-review-contact-name">{agentName}</div>
                     <div className="publish-review-contact-name">{sessionData?.user?.email ?? ''}</div>
                     <div className="publish-review-contact-phone">{sessionData?.user?.phone ?? ''}</div>
                   </div>}

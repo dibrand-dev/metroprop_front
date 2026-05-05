@@ -7,6 +7,7 @@ import type { PropertyFilterParams, PropertiesResponse } from '@/types/property-
  */
 export async function fetchProperties(
   params: PropertyFilterParams,
+  token?: string,
 ): Promise<PropertiesResponse> {
   const qs = new URLSearchParams();
 
@@ -16,8 +17,13 @@ export async function fetchProperties(
     }
   });
 
+  const authToken = token ?? (typeof window !== 'undefined' ? localStorage.getItem('token') ?? '' : '');
+
   const res = await fetch(`${API_BASE_URL}/properties/filter?${qs.toString()}`, {
     cache: 'no-store',
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
   });
 
   if (!res.ok) {

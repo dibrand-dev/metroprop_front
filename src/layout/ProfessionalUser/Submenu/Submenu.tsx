@@ -33,14 +33,7 @@ const items: SubmenuItem[] = [
 ];
 
 function getUserRoleId(user: any): number | null {
-  console.log("USER", user)
-  return 4; // role_id 2 = user sin organización
-  const userId = String(user.id);
-  for (const branch of user.organization.branches ?? []) {
-    const found = (branch.users ?? []).find((u: any) => String(u.id) === userId);
-    if (found) return found.role_id ?? null;
-  }
-  return null;
+  return user?.role_id ?? null;
 }
 
 export default function Submenu({ active }: SubmenuProps) {

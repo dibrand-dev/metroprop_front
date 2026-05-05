@@ -180,6 +180,7 @@ interface PublishLocationProps {
   onNext: (locationUpdate: any) => void;
   onBack: () => void;
   onSaveAndExit: (locationUpdate: any) => void;
+  isEditMode?: boolean;
 }
 
 export default function PublishLocation({
@@ -188,6 +189,7 @@ export default function PublishLocation({
   onNext,
   onBack,
   onSaveAndExit,
+  isEditMode,
 }: PublishLocationProps) {
   const [street, setStreet] = useState(wizardData.street || '');
   const [country_id, setCountry_id] = useState<number | undefined>(wizardData.country_id || undefined);
@@ -530,7 +532,7 @@ export default function PublishLocation({
           </div>
 
           <div className="publish-location-footer">
-            <button className="publish-location-back" type="button" onClick={handleBack}>
+            <button className="publish-location-back" type="button" onClick={handleBack} disabled={isEditMode}>
               <img src={iconChevron} alt="" />
               Volver
             </button>

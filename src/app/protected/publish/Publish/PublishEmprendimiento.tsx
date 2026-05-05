@@ -9,8 +9,7 @@ import Button from '@/ui/Button/Button';
 import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
 import './PublishEmprendimiento.scss';
 import InputField from '@/ui/InputField/InputField';
-import { API_BASE_URL } from '@/utils/utils';
-import { AWS_S3_BUCKET_URL } from '@/app/constants';
+import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import PublishLocationMap from './PublishLocationMap/PublishLocationMap';
 import { CreateImage, CreateImagePlans, CreatePropertyDraft } from '@/types/propiedad';
 
@@ -287,9 +286,9 @@ export default function PublishEmprendimiento({
     setIsUploading(true);
     try {
       const formData = new FormData();
-      images.forEach(img => { if (img.url) formData.append('images', img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`); });
+      images.forEach(img => { if (img.url) formData.append('images', setImagePath(img.url)); });
       uploadedImages.forEach(file => formData.append('images', file));
-      plans.forEach(plan => { if (plan.file_url) formData.append('attached', plan.file_url.includes('http') ? plan.file_url : `${AWS_S3_BUCKET_URL}/${plan.file_url}`); });
+      plans.forEach(plan => { if (plan.file_url) formData.append('attached', setImagePath(plan.file_url)); });
       uploadedPlans.forEach(file => formData.append('attached', file));
       formData.append('multimedia360', JSON.stringify(multimedia360));
       const result = await uploadMultimediaMutation.mutateAsync(formData);
@@ -728,7 +727,7 @@ export default function PublishEmprendimiento({
                         >
                           {index === 0 && <div className="publish-content-thumb-main-label">Foto principal</div>}
                           {isUp ? <div className="publish-content-upload-loading"><div className="spinner" /><span>Subiendo...</span></div>
-                            : isCompleted ? <img src={image.url.includes('http') ? image.url : `${AWS_S3_BUCKET_URL}/${image.url}`} alt="Foto" />
+                            : isCompleted ? <img src={setImagePath(image.url)} alt="Foto" />
                             : hasError ? <div className="publish-content-upload-error"><span className="error-icon">!</span><small>{image.error_message || 'Error'}</small></div>
                             : null}
                           <button type="button" className="publish-content-thumb-action" onClick={() => setImages(prev => prev.filter((_, i) => i !== index))}><img src={iconTrash} alt="" /></button>

@@ -11,14 +11,14 @@ import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery } from '@tanstack/react-query';
 import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype } from '@/types/propiedad';
-import { API_BASE_URL, saveVisitedProperty } from '@/utils/utils';
+import { API_BASE_URL, saveVisitedProperty, setImagePath } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
 import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
 import ContactForm from './ContactForm/ContactForm';
 import { useLocations } from '@/lib/locations';
 import { formatNumbers } from '@/utils/utils';
-import { AWS_S3_BUCKET_URL } from '@/app/constants';
+import { AWS_S3_BUCKET_URL, ORGANIZATION_NO_IMAGE } from '@/app/constants';
 import { fetchProperties } from '@/lib/properties';
 import { useRouter } from 'next/navigation';
 
@@ -179,7 +179,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const galleryImages = useMemo(() => {
     return (property?.images ?? [])
       .filter(img => !img.is_blueprint && img.upload_status === 'completed')
-      .map(img => img.url.includes('http') ? img.url : `${AWS_S3_BUCKET_URL}/${img.url}`);
+      .map(img => setImagePath(img.url));
   }, [property]);
 
   // Save this property to visited history in localStorage
@@ -255,7 +255,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     ? property.organization.company_logo.includes('http') 
       ? property.organization.company_logo
       : `${AWS_S3_BUCKET_URL}/${property.organization.company_logo}`
-    : null; 
+    : ORGANIZATION_NO_IMAGE; 
   
   const countryLabel = locations.find(l => l.id === property?.country_id)?.name;
   const stateLabel = locations.find(l => l.id === property?.state_id)?.name;
@@ -520,7 +520,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
             <div className="property-detail-agent">
               <div className="property-detail-agent-header">
-                {agentLogo && <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />}
+                <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />
                 <div>
                   <h4>{agentName}</h4>
                   <span>{property?.organization?.name ?? ''}</span>
@@ -558,7 +558,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               >
                 {(similarPropertiesData[index] ?? []).map((item) => {
                   const firstImage = (item.images ?? []).find(img => !img.is_blueprint && img.upload_status === 'completed');
-                  const imageUrl = firstImage ? (firstImage.url.includes('http') ? firstImage.url : `${AWS_S3_BUCKET_URL}/${firstImage.url}`) : '/images/property-placeholder.png';
+                  const imageUrl = firstImage ? setImagePath(firstImage.url) : '/images/property-placeholder.png';
                   return (
                     <a href={`/propertyDetail/${item.id}`} key={item.id} style={{ textDecoration: 'none' }}>
                       <PropertyCard

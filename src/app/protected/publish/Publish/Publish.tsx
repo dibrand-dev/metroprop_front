@@ -21,6 +21,7 @@ import PublishCheckoutPayment from './PublishCheckoutPayment';
 import PublishCheckoutSuccess from './PublishCheckoutSuccess';
 import PublishEmprendimiento from './PublishEmprendimiento';
 import { OperationType, OPERATION_TYPE_LABELS, CreatePropertyDraft } from '@/types/propiedad';
+import SuccessModal from '@/components/SuccessModal/SuccessModal';
 
 const operationOptions: OperationType[] = [OperationType.VENTA, OperationType.ALQUILER, OperationType.ALQUILER_TEMPORAL, OperationType.EMPRENDIMIENTO];
 
@@ -70,6 +71,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   const [wizardData, setWizardData] = useState<CreatePropertyDraft>({} as CreatePropertyDraft);
   const [isLoadingProperty, setIsLoadingProperty] = useState(isEditMode);
   const { data: sessionData } = useSession();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);  
 
   // ── Load existing property into wizard when editing
   useEffect(() => {
@@ -86,8 +88,10 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
         setWizardData({ ...data, draft_id: data.id });
         if (data.operation_type === OperationType.EMPRENDIMIENTO) {
           setCurrentStep(WizardStep.EMPRENDIMIENTO);
+        } else {
+          // Skip steps 1 and 2 (operation type & property type) when editing
+          setCurrentStep(WizardStep.LOCATION);
         }
-        // For regular properties, stay at INITIAL so the operation type is shown pre-selected
       })
       .catch(err => console.error('Error loading property for edit:', err))
       .finally(() => setIsLoadingProperty(false));
@@ -282,6 +286,7 @@ console.log('wizardData:', wizardData);
             onNext={(locationData) => saveCurrentStep(locationData, true)}
             onBack={goToPreviousStep}
             onSaveAndExit={(locationData) => saveCurrentStep(locationData, false)}
+            isEditMode={isEditMode}
           />
         );
 
@@ -342,14 +347,24 @@ console.log('wizardData:', wizardData);
 
       case WizardStep.FINAL_REVIEW:
         return (
-          <PublishFinalReview
-            wizardData={wizardData}
-            updateWizardData={updateWizardData}
-            onNext={(wizardData) => saveCurrentStep(wizardData, true)}
-            onBack={goToPreviousStep}
-            onSaveAndExit={(wizardData) => saveCurrentStep(wizardData, false)}
-            isEditMode={isEditMode}
-          />
+          <>
+            <PublishFinalReview
+              wizardData={wizardData}
+              updateWizardData={updateWizardData}
+              onNext={(wizardData) => saveCurrentStep(wizardData, false).then(() => {
+                // show message under button "Propiedad publicada con éxito" for 3 seconds before redirecting to myProperties page
+                setShowSuccessModal(true);
+                setTimeout(() => {
+                  window.location.href = '/protected/myProperties';
+                }, 3000);
+              })}
+              onBack={goToPreviousStep}
+              onSaveAndExit={(wizardData) => saveCurrentStep(wizardData, false)}
+              isEditMode={isEditMode}
+            />
+            {showSuccessModal && <SuccessModal title="¡Propiedad publicada con éxito!" text="Tu propiedad ya está disponible en el sitio. Serás redirigido a Mis Propiedades en unos segundos." />}
+          
+          </>
         );
 
       case WizardStep.PLANS:

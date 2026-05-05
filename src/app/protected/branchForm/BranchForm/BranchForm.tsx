@@ -82,7 +82,8 @@ export default function BranchForm({ branchId }: BranchFormProps) {
   const phoneRegex = /^\+?[1-9]\d{1,14}$/;
   const isPhoneValid = phoneRegex.test(formData.phone.trim());
   const isAlternativePhoneValid = phoneRegex.test(formData.alternative_phone.trim());
-  const isFormValid = formData.branch_name.trim().length > 0 && isPhoneValid;
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim());
+  const isFormValid = formData.branch_name.trim().length > 0 && formData.email.trim().length > 0 && isEmailValid && isPhoneValid;
 
   useEffect(() => {
     if (!branchId) return;
@@ -234,11 +235,12 @@ export default function BranchForm({ branchId }: BranchFormProps) {
             <div className="branch-form-grid">
               <div className="branch-form-field">
                 <InputField
-                  label="Email (opcional)"
+                  label="Email"
                   type="email"
                   placeholder="Email"
                   value={formData.email}
                   onChange={(event) => handleInputChange('email', event.target.value)}
+                  error={submitted && formData.email.trim().length > 0 && !isEmailValid ? 'Formato de email inválido' : undefined}
                 />
               </div>
               <div className="branch-form-field">

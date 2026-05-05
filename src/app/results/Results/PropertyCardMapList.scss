@@ -126,6 +126,7 @@
     gap: 8px;
     padding-right: 16px;
     color: #1E1E1E;
+    
     @media (max-width: 767px) {
       flex-direction: column;
       padding: 0;
@@ -143,6 +144,11 @@
       text-overflow: ellipsis;
       flex-shrink: 1;
       max-width: 100%;
+
+      text-transform: lowercase;
+      &:first-letter {
+        text-transform: uppercase;
+      }
       @media (max-width: 767px) {
         border-right: 0;
         padding-right: 0;

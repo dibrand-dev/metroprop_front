@@ -101,6 +101,7 @@ export const authOptions = {
         token.id = user.id;
         // Credentials provider: persist backend API token and organization
         if (user.apiToken) token.apiToken = user.apiToken;
+        if (user.role_id) token.role_id = user.role_id;
         if (user.organization !== undefined) token.organization = user.organization;
         if (user.accept_newsletters !== undefined) token.accept_newsletters = user.accept_newsletters;
         if (user.phone !== undefined) token.phone = user.phone;
@@ -143,6 +144,9 @@ export const authOptions = {
         }
         if (token.phone_whatsapp !== undefined) {
           session.user.phone_whatsapp = token.phone_whatsapp;
+        }
+        if (token.role_id !== undefined) {
+          session.user.role_id = token.role_id;
         }
       }
       

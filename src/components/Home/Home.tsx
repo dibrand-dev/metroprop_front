@@ -7,9 +7,9 @@ import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import Button from '@/ui/Button/Button';
 import { useRouter } from 'next/navigation';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
-import { getVisitedProperties, type VisitedProperty } from '@/utils/utils';
+import { getVisitedProperties, setImagePath, type VisitedProperty } from '@/utils/utils';
 import { fetchProperties } from '@/lib/properties';
-import { AWS_S3_BUCKET_URL, LOCATION_CABA_ID, PROPERTY_NO_IMAGE } from '@/app/constants';
+import { LOCATION_CABA_ID, PROPERTY_NO_IMAGE } from '@/app/constants';
 import type { CreateProperty } from '@/types/propiedad';
 
 export default function Home() {
@@ -70,14 +70,10 @@ export default function Home() {
     bathrooms: prop.bathroom_amount ?? 0,
     area: prop.total_surface ?? prop.surface ?? 0,
     image: prop.images?.[0]?.url
-      ? prop.images[0].url.includes('http')
-        ? prop.images[0].url
-        : `${AWS_S3_BUCKET_URL}/${prop.images[0].url}`
+      ? setImagePath(prop.images[0].url)
       : PROPERTY_NO_IMAGE,
     agencyLogo: (prop as any).organization?.company_logo
-      ? (prop as any).organization.company_logo.includes('http')
-        ? (prop as any).organization.company_logo
-        : `${AWS_S3_BUCKET_URL}/${(prop as any).organization.company_logo}`
+      ? setImagePath((prop as any).organization.company_logo)
       : undefined,
   }));
   
