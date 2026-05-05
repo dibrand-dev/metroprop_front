@@ -65,5 +65,6 @@ export function saveVisitedProperty(property: VisitedProperty): void {
 }
 
 export function setImagePath(imagePath: string) {
+  if (!imagePath) return '';
   return imagePath.includes('http') ? imagePath : `${AWS_S3_BUCKET_URL}/${imagePath}`;  
 }

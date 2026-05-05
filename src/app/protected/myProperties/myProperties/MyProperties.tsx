@@ -159,12 +159,15 @@ const MyProperties = () => {
         });
         if (!res.ok) return { data: [], total: 0, page: 1, limit: 1 };
         const properties = await res.json();
-        return { data: properties, total: properties.total, page: 1, limit: properties.length };
+        return properties;
       }
       // return fetchProperties({ order_by: 'created_at:desc', page: currentPage, limit: LIMIT }, apiToken);
     },
     staleTime: 5 * 60 * 1000,
   });
+
+  console.log("propertiesData", propertiesData)
+
   const properties: CreateProperty[] = propertiesData?.data ?? [];
   const totalPages = Math.max(1, Math.ceil((propertiesData?.total ?? 0) / LIMIT));
 
@@ -333,7 +336,7 @@ const MyProperties = () => {
         {/* Property list */}
         <div className="myprop-list">
           {isLoading && <p className="myprop-loading">Cargando publicaciones...</p>}
-          {properties.map((prop, idx) => {
+          {properties?.map((prop, idx) => {
             const isSelected = selectedIds.has(idx);
             const statusNum = prop.status as unknown as number;
             const statusInfo = STATUS_MAP[statusNum] ?? { label: 'Activo', cls: 'active' };
