@@ -1,26 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Select from '@/ui/Select/Select';
 import type { CreateProperty } from '@/types/propiedad';
+import { PROPERTY_STATUS_LABELS, PropertyStatus } from '@/types/propiedad';
 import Paginator from '@/components/Paginator/Paginator';
 import { API_BASE_URL } from '@/utils/utils';
 import './MyProperties.scss';
 import PropertyCardMyProperties from './PropertyCardMyProperties';
+import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
+import MyPropertiesFilters from './MyPropertiesFilters';
 
-/* ── Status / Plan maps ─────────────────────────────────────────────── */
-const STATUS_MAP: Record<number, { label: string; cls: string }> = {
-  1: { label: 'Activo',     cls: 'active'   },
-  2: { label: 'Reservado',  cls: 'reserved' },
-  3: { label: 'Archivado',  cls: 'inactive' },
-  4: { label: 'Borrador',   cls: 'inactive' },
-  5: { label: 'Finalizado', cls: 'inactive' },
-};
 
 const PLAN_MAP: Record<number, string> = {
   1: 'Simple',
@@ -28,76 +22,13 @@ const PLAN_MAP: Record<number, string> = {
   3: 'Premium',
 };
 
-/* ── Filter data ────────────────────────────────────────────────────── */
-const FILTER_GROUPS = [
-  {
-    key: 'estado',
-    title: 'Estado del aviso',
-    options: [
-      { label: 'Finalizado', count: 9147 },
-      { label: 'Activo', count: 200 },
-      { label: 'Reservado', count: 200 },
-      { label: 'Borrador', count: 74 },
-      { label: 'Archivado', count: 74 },
-    ],
-    expandable: false,
-  },
-  {
-    key: 'plan',
-    title: 'Tipo de plan',
-    options: [
-      { label: 'Simple', count: 97 },
-      { label: 'Destacado', count: 47 },
-      { label: 'Premium', count: 20 },
-    ],
-    expandable: false,
-  },
-  {
-    key: 'inmueble',
-    title: 'Tipo de inmueble',
-    options: [
-      { label: 'Casa', count: 9147 },
-      { label: 'Departamento', count: 200 },
-      { label: 'PH', count: 20 },
-      { label: 'Terrenos', count: 60 },
-      { label: 'Local comercial', count: 94 },
-    ],
-    expandable: true,
-  },
-  {
-    key: 'operacion',
-    title: 'Tipo de operación',
-    options: [
-      { label: 'Venta', count: 9147 },
-      { label: 'Alquiler', count: 200 },
-      { label: 'Temporal', count: 74 },
-      { label: 'Emprendimientos', count: 74 },
-    ],
-    expandable: false,
-  },
-  {
-    key: 'responsable',
-    title: 'Responsable del aviso',
-    options: [
-      { label: 'Leandro Borges Do Canto', count: 9147 },
-      { label: 'Guillermo Borges Do Canto', count: 200 },
-      { label: 'Santiago Borges Do Canto', count: 74 },
-    ],
-    expandable: false,
-  },
-  {
-    key: 'ubicacion',
-    title: 'Ubicación',
-    options: [
-      { label: 'GBA sur', count: 9147 },
-      { label: 'GBA norte', count: 200 },
-      { label: 'Capital Federal', count: 74 },
-      { label: 'Córdoba', count: 60 },
-      { label: 'Mendoza', count: 84 },
-    ],
-    expandable: true,
-  },
-];
+const STATUS_COLOR_MAP: Record<number, string> = {
+  [PropertyStatus.DRAFT]: '#9e9e9e',
+  [PropertyStatus.A_COTIZAR]: '#2196f3',
+  [PropertyStatus.DISPONIBLE]: '#4caf50',
+  [PropertyStatus.RESERVADA]: '#ff9800',
+  [PropertyStatus.NO_DISPONIBLE]: '#f44336',
+};
 
 /* ── Donut chart ────────────────────────────────────────────────────── */
 const RADIUS = 20;
@@ -125,41 +56,91 @@ function DonutChart({ percent }: { percent: number }) {
 
 const LIMIT = 20;
 
+/* ── Property completeness ──────────────────────────────────────────── */
+const COMPLETENESS_CHECKS: Array<(p: CreateProperty) => boolean> = [
+  p => !!p.publication_title,
+  p => !!p.description,
+  p => p.property_type !== undefined,
+  p => p.price !== undefined && p.price > 0,
+  p => !!p.currency,
+  p => !!p.street,
+  p => p.country_id !== undefined,
+  p => p.state_id !== undefined,
+  p => p.location_id !== undefined,
+  p => p.geo_lat !== undefined,
+  p => p.geo_long !== undefined,
+  p => p.room_amount !== undefined,
+  p => p.bathroom_amount !== undefined,
+  p => (p.surface !== undefined && p.surface > 0) || (p.total_surface !== undefined && (p.total_surface ?? 0) > 0),
+  p => (p.images?.length ?? 0) > 0,
+  p => (p.tags?.length ?? 0) > 0,
+  p => (p.videos?.length ?? 0) > 0,
+  p => (p.plans?.length ?? 0) > 0,
+  p => (p.multimedia360?.length ?? 0) > 0,
+];
+
+function calcPropertyCompleteness(prop: CreateProperty): number {
+  const filled = COMPLETENESS_CHECKS.filter(fn => fn(prop)).length;
+  return Math.round((filled / COMPLETENESS_CHECKS.length) * 100);
+}
+
 /* ── Main component ─────────────────────────────────────────────────── */
 const MyProperties = () => {
-  const { data: sessionData } = useSession();
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [allSelected, setAllSelected] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchId, setSearchId] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [statusPopoverId, setStatusPopoverId] = useState<number | null>(null);
+  const [pendingAction, setPendingAction] = useState<{ ids: number[]; status?: number; label: string; action: 'status' | 'republica' } | null>(null);
+
+  const confirmAction = () => {
+    if (!pendingAction) return;
+    statusMutation.mutate({ ids: pendingAction.ids, status: pendingAction.status! });
+    setPendingAction(null);
+  };
+
+  const requestStatusChange = (ids: number[], status: number, label: string) => {
+    setStatusPopoverId(null);
+    setPendingAction({ ids, status, label, action: 'status' });
+  };
+
+  const statusMutation = useMutation({
+    mutationFn: ({ ids, status }: { ids: number[]; status: number }) =>
+      apiFetch(`${API_BASE_URL}/properties/status`, { method: 'PATCH', body: { ids, status } }),
+  });
 
   const { data: propertiesData, isLoading } = useQuery({
-    queryKey: ['my-properties', currentPage, searchId],
+    queryKey: ['my-properties', currentPage, searchId, activeFilters],
     queryFn: async () => {
       if (searchId !== null) {
         const property: CreateProperty = await apiFetch<CreateProperty>(`${API_BASE_URL}/properties/my-properties`, {
           params: { property_id: searchId },
         });
-        return { data: [property], total: 1, page: 1, limit: 1 };
+        return property;
       }
       return apiFetch(`${API_BASE_URL}/properties/my-properties`, {
-        params: { order_by: 'created_at:desc', page: currentPage, limit: LIMIT },
+        params: { order_by: 'created_at:desc', page: currentPage, limit: LIMIT, ...activeFilters },
       });
     },
     staleTime: 5 * 60 * 1000,
   });
-
   console.log("propertiesData", propertiesData)
-
   const properties: CreateProperty[] = propertiesData?.data ?? [];
   const totalPages = Math.max(1, Math.ceil((propertiesData?.total ?? 0) / LIMIT));
+
+  const facets: Record<string, { value: number; count: number }[]> = (propertiesData as any)?.facets ?? {};
+
+  const getSelectedPropertyIds = (singleId?: number): number[] => {
+    if (singleId !== undefined) return [singleId];
+    return properties.filter((_, i) => selectedIds.has(i)).map(p => p.id!).filter(Boolean);
+  };
 
   const handleSearchById = () => {
     const trimmed = searchQuery.trim();
     const num = Number(trimmed);
+    console.log("trimmed", trimmed, "num", num)
     if (trimmed && !Number.isNaN(num) && num > 0) {
       setSearchId(num);
     }
@@ -185,14 +166,21 @@ const MyProperties = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const toggleFilter = (groupKey: string, label: string) => {
-    setActiveFilters((prev) =>
-      prev[groupKey] === label ? { ...prev, [groupKey]: '' } : { ...prev, [groupKey]: label }
-    );
+  const toggleFilter = (facetKey: string, value: string) => {
+    setCurrentPage(1);
+    setActiveFilters((prev) => {
+      if (prev[facetKey] === value) {
+        const next = { ...prev };
+        delete next[facetKey];
+        return next;
+      }
+      return { ...prev, [facetKey]: value };
+    });
   };
 
-  const toggleExpand = (key: string) => {
-    setExpandedGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+  const clearFilters = () => {
+    setActiveFilters({});
+    setCurrentPage(1);
   };
 
   const toggleSelectAll = (checked: boolean) => {
@@ -217,50 +205,12 @@ const MyProperties = () => {
 
   return (
     <div className="myprop-wrapper">
-      {/* ── Filters ── */}
-      <aside className="myprop-filters">
-        <h2 className="myprop-filters-title">Filtros</h2>
-
-        {FILTER_GROUPS.map((group) => {
-          const isExpanded = expandedGroups[group.key];
-          const shown = group.expandable && !isExpanded
-            ? group.options.slice(0, 3)
-            : group.options;
-
-          return (
-            <div key={group.key} className="myprop-filter-group">
-              <p className="myprop-filter-group-title">{group.title}</p>
-              {shown.map((opt) => (
-                <button
-                  key={opt.label}
-                  type="button"
-                  className={`myprop-filter-link ${activeFilters[group.key] === opt.label ? 'active' : ''}`}
-                  onClick={() => toggleFilter(group.key, opt.label)}
-                >
-                  <span>{opt.label}</span>
-                  <span className="count">({opt.count.toLocaleString('es-AR')})</span>
-                </button>
-              ))}
-              {group.expandable && (               
-                <button
-                    type="button"
-                    className="myprop-features-toggle"
-                    onClick={() => toggleExpand(group.key)}
-                    aria-expanded={isExpanded}
-                >   
-                    {isExpanded ? 'Ver menos' : 'Ver mas'}
-                    <img
-                        src="/icons/chevron-up.svg"
-                        alt=""
-                        aria-hidden="true"
-                        className={isExpanded ? 'expanded' : ''}
-                    />    
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </aside>
+      <MyPropertiesFilters
+        facets={facets}
+        activeFilters={activeFilters}
+        onToggleFilter={toggleFilter}
+        onClearFilters={clearFilters}
+      />
 
       {/* ── Main content ── */}
       <main className="myprop-content">
@@ -293,13 +243,13 @@ const MyProperties = () => {
             <button type="button" className="myprop-toolbar-btn" title="Asignar responsable">
               <img src="/icons/AsignarUser.svg" alt="Asignar" />
             </button>
-            <button type="button" className="myprop-toolbar-btn" title="Republicar">
+            <button type="button" className="myprop-toolbar-btn" title="Republicar" onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DISPONIBLE, 'Republicar')}>
               <img src="/icons/republicar.svg" alt="Republicar" />
             </button>
-            <button type="button" className="myprop-toolbar-btn" title="Archivar">
+            <button type="button" className="myprop-toolbar-btn" title="Archivar" onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
               <img src="/icons/archivar.svg" alt="Archivar" />
             </button>
-            <button type="button" className="myprop-toolbar-btn" title="Dar de baja">
+            <button type="button" className="myprop-toolbar-btn" title="Dar de baja" onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DRAFT, 'Dar de baja')}>
               <img src="/icons/power.svg" alt="Dar de baja" />
             </button>
           </div>
@@ -324,8 +274,9 @@ const MyProperties = () => {
           {isLoading && <p className="myprop-loading">Cargando publicaciones...</p>}
           {properties?.map((prop, idx) => {
             const isSelected = selectedIds.has(idx);
-            const statusNum = prop.status as unknown as number;
-            const statusInfo = STATUS_MAP[statusNum] ?? { label: 'Activo', cls: 'active' };
+            const completeness = calcPropertyCompleteness(prop);
+            const statusNum = prop.status as PropertyStatus || PropertyStatus.DISPONIBLE;
+            const statusInfo = PROPERTY_STATUS_LABELS[statusNum];
             const planLabel = prop.selected_plan ? (PLAN_MAP[prop.selected_plan] ?? '--') : '--';
             const startDate = (prop as any).created_at
               ? new Date((prop as any).created_at).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -335,51 +286,72 @@ const MyProperties = () => {
                 {/* Checkbox */}
                 <div className="myprop-card-check">
                 <Checkbox
-                    label=""
-                    checked={isSelected}
-                    onChange={() => toggleSelect(idx)}
+                  label=""
+                  checked={isSelected}
+                  onChange={() => toggleSelect(idx)}
                 />
                 </div>
 
                 <div className="myprop-card-content">
-                    <div className="myprop-card-content-top">
-                        <div className="myprop-card-infobar">
-                            <p className="myprop-card-infobar-label">ID <span className="myprop-card-infobar-value">{prop.id}</span></p>
-                            <p className="myprop-card-infobar-label">Inicio: <span className="myprop-card-infobar-value">{startDate}</span></p>
-                            <p className="myprop-card-infobar-label">Plan: <span className="myprop-card-infobar-value">{planLabel}</span></p>
-                        </div>
-                        <div className={`myprop-card-status ${statusInfo.cls}`}>
-                            <span className="myprop-card-status-dot" />
-                            <span>{statusInfo.label}</span>
-                        </div>
+                  <div className="myprop-card-content-top">
+                    <div className="myprop-card-infobar">
+                      <p className="myprop-card-infobar-label">ID <span className="myprop-card-infobar-value">{prop.id}</span></p>
+                      <p className="myprop-card-infobar-label">Inicio: <span className="myprop-card-infobar-value">{startDate}</span></p>
+                      <p className="myprop-card-infobar-label">Plan: <span className="myprop-card-infobar-value">{planLabel}</span></p>
                     </div>
+                    <div className={`myprop-card-status`} style={{ color: STATUS_COLOR_MAP[statusNum] }}>
+                      <span className="myprop-card-status-dot" />
+                      <span>{statusInfo}</span>
+                    </div>
+                  </div>
                     <div className="myprop-card-content-center">
                         <PropertyCardMyProperties property={prop} />
 
                         <div className="myprop-quality">
-                            <span className="myprop-quality-label">Calidad del aviso</span>
-                            <DonutChart percent={0} />
+                          <span className="myprop-quality-label">Calidad del aviso</span>
+                          <DonutChart percent={completeness} />
                         </div>
 
                         <div className="myprop-views">
-                            <span className="myprop-views-label">Visualizaciones</span>
-                            <span className="myprop-views-count">--</span>
+                          <span className="myprop-views-label">Visualizaciones</span>
+                          <span className="myprop-views-count">{prop.view_count}</span>
                         </div>
                     </div>
                     <div className="myprop-card-actions">
-                        <button type="button" className="myprop-card-action-btn" title="Republicar">
+                        <button type="button" className="myprop-card-action-btn" title="Republicar" onClick={() => prop.id && requestStatusChange([prop.id], PropertyStatus.DISPONIBLE, 'Republicar')}>
                           <img src="/icons/republicar.svg" alt="Republicar" />
-                        </button>
-                        
+                        </button>                        
                         <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.location.href = `/protected/publish/${prop.id}`}>
                           <img src="/icons/pencil.svg" alt="Editar" />
                         </button>
                         <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => window.open(`/propertyDetail/${prop.id}`, '_blank')}>
                           <img src="/icons/verDetalle.svg" alt="Ver detalle" />
                         </button>
-                        <button type="button" className="myprop-card-action-btn" title="Cambiar estado">
-                          <img src="/icons/cambiarStatus.svg" alt="Cambiar estado" />
-                        </button>
+                        <div style={{ position: 'relative' }}>
+                          <button type="button" className="myprop-card-action-btn" title="Cambiar estado" onClick={() => setStatusPopoverId(prev => prev === prop.id ? null : (prop.id ?? null))}>
+                            <img src="/icons/cambiarStatus.svg" alt="Cambiar estado" />
+                          </button>
+                          {statusPopoverId === prop.id && (
+                            <>
+                              <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setStatusPopoverId(null)} />
+                              <div style={{ position: 'absolute', bottom: '100%', right: 0, zIndex: 100, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', padding: '8px 0', minWidth: 180 }}>
+                                {(Object.entries(PROPERTY_STATUS_LABELS) as [string, string][]).map(([key, label]) => (
+                                  <button
+                                    key={key}
+                                    type="button"
+                                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: '#333', textAlign: 'left' }}
+                                    onClick={() => {
+                                      if (prop.id) requestStatusChange([prop.id], Number(key), label);
+                                    }}
+                                  >
+                                    <span className="myprop-card-status-dot" style={{ backgroundColor: STATUS_COLOR_MAP[Number(key)], flexShrink: 0 }} />
+                                    {label}
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </div>
                     </div>
                 </div>
             </div>);
@@ -389,6 +361,15 @@ const MyProperties = () => {
         {/* Paginator */}
         <Paginator currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
       </main>
+
+      {pendingAction && (
+        <AreYouSureModal
+          title="¿Estás seguro?"
+          text={`Estás por cambiar el estado de ${pendingAction.ids.length} propiedad${pendingAction.ids.length !== 1 ? 'es' : ''} a "${pendingAction.label}".`}
+          onAccept={confirmAction}
+          onCancel={() => setPendingAction(null)}
+        />
+      )}
     </div>
   );
 };

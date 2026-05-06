@@ -175,6 +175,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       .map(img => setImagePath(img.url));
   }, [property]);
 
+  // Register a view on the backend
+  useEffect(() => {
+    if (!property?.id) return;
+    apiFetch(`${API_BASE_URL}/properties/${property.id}/view`, { method: 'POST' }).catch(() => {});
+  }, [property?.id]);
+
   // Save this property to visited history in localStorage
   useEffect(() => {
     if (!property) return;
@@ -239,9 +245,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const showSummaryToggle = (property?.description?.length ?? 0) > 140;
 
   // Derived display values
-  console.log("property", property)
   const priceDisplay = property?.price_square_meter ? `${property.currency} ${formatNumbers(property.price_square_meter)}  /m²` : '';
-  const statusDisplay = `${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}${property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}`;
+  const statusDisplay = `${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `- ${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}${property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}`;
   
   const agentName = property?.organization ? property.organization.company_name : 'USER COMUN';
   const agentLogo = property?.organization?.company_logo 
@@ -249,7 +254,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       ? property.organization.company_logo
       : `${AWS_S3_BUCKET_URL}/${property.organization.company_logo}`
     : ORGANIZATION_NO_IMAGE; 
-  
+  console.log("PROPERTYY", property)
   const countryLabel = locations.find(l => l.id === property?.country_id)?.name;
   const stateLabel = locations.find(l => l.id === property?.state_id)?.name;
   const locationLabel = locations.find(l => l.id === property?.location_id)?.name;

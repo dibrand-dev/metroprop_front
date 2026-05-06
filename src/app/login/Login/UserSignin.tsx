@@ -95,11 +95,9 @@ export default function UserSignin() {
           setError('Email o contraseña incorrectos. Por favor intenta de nuevo.');
           return;
         }
-        console.log("resultresultresult", result)
         // Fetch the fresh session to get apiToken + organization written by JWT callback
         const sessionRes = await fetch('/api/auth/session');
         const sessionData = await sessionRes.json();
-        console.log("sessionData", sessionData)
         const apiToken: string | undefined = sessionData?.user?.apiToken;
         const user = sessionData?.user;
         
@@ -116,6 +114,10 @@ export default function UserSignin() {
           }
         }
         router.push('/');
+        setTimeout(() => {
+          router.refresh();
+        }, 1000); 
+        
       } catch (err) {
         setError('Error de conexión. Por favor intenta de nuevo.');
       }

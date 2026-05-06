@@ -30,14 +30,10 @@ export async function apiFetch<TResponse = unknown, TBody = unknown>(
   const { method = 'GET', body, params, token: explicitToken } = options;
   // ── Resolve auth token ────────────────────────────────────────────────────
   let token = explicitToken;
-console.log("TOKEN", token)
-
   if (!token) {
     const session = await getSession();
     token = (session?.user as any)?.apiToken ?? undefined;
   }
-console.log("TOKEN 2", token)
-
 
   // ── Build URL with query params ───────────────────────────────────────────
   let fullUrl = url;

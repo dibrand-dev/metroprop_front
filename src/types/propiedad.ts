@@ -115,6 +115,7 @@ export enum PropertyStatus {
   DISPONIBLE = 2,    // Disponible (default)
   RESERVADA = 3,     // Reservada
   NO_DISPONIBLE = 4, // No disponible
+  ARCHIVADA = 5,      // Archivada (oculta para usuarios)
 }
 
 /**
@@ -385,6 +386,7 @@ export interface CreateProperty {
   attached?: CreateAttached[];
   currency_expenses: string; // Moneda de los gastos (ej: "ARS", "USD")
   selected_plan?: number; // Plan seleccionado para la publicación (ej: "bonificado", "premium", etc)
+  view_count?: number;
 }
 
 // ==========================================================================
@@ -431,6 +433,7 @@ export const PROPERTY_STATUS_LABELS: Record<PropertyStatus, string> = {
   [PropertyStatus.DISPONIBLE]: 'Disponible',
   [PropertyStatus.RESERVADA]: 'Reservada',
   [PropertyStatus.NO_DISPONIBLE]: 'No disponible',
+  [PropertyStatus.ARCHIVADA]: 'Archivada',
 };
 
 /**
