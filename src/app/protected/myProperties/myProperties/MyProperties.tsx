@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import { apiFetch } from '@/lib/apiFetch';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import InputField2 from '@/ui/InputField2/InputField2';
@@ -86,6 +87,20 @@ function calcPropertyCompleteness(prop: CreateProperty): number {
 
 /* ── Main component ─────────────────────────────────────────────────── */
 const MyProperties = () => {
+  const { data: sessionData } = useSession();
+  const hasOrganization = !!(sessionData?.user as any)?.organization;
+  const orgUsers: { id: number; name: string }[] = [];
+  if (hasOrganization) {
+    const branches: any[] = (sessionData?.user as any)?.organization?.branches ?? [];
+    branches.forEach((branch) => {
+      (branch.users ?? []).forEach((u: any) => {
+        if (u.id != null && u.name && !orgUsers.find(x => x.id === u.id)) {
+          orgUsers.push({ id: u.id, name: u.name });
+        }
+      });
+    });
+  }
+
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [allSelected, setAllSelected] = useState(false);
@@ -94,6 +109,10 @@ const MyProperties = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [statusPopoverId, setStatusPopoverId] = useState<number | null>(null);
   const [pendingAction, setPendingAction] = useState<{ ids: number[]; status?: number; label: string; action: 'status' | 'republica' } | null>(null);
+  const [assignPopoverOpen, setAssignPopoverOpen] = useState(false);
+  const [assignSelectedUserId, setAssignSelectedUserId] = useState<number | null>(null);
+
+  const queryClient = useQueryClient();
 
   const confirmAction = () => {
     if (!pendingAction) return;
@@ -109,6 +128,13 @@ const MyProperties = () => {
   const statusMutation = useMutation({
     mutationFn: ({ ids, status }: { ids: number[]; status: number }) =>
       apiFetch(`${API_BASE_URL}/properties/status`, { method: 'PATCH', body: { ids, status } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-properties'] }),
+  });
+
+  const assignMutation = useMutation({
+    mutationFn: ({ ids, user_id }: { ids: number[]; user_id: number }) =>
+      apiFetch(`${API_BASE_URL}/properties/change-user`, { method: 'PATCH', body: { ids, user_id } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-properties'] }),
   });
 
   const { data: propertiesData, isLoading } = useQuery({
@@ -240,16 +266,56 @@ const MyProperties = () => {
                 checked={allSelected}
                 onChange={toggleSelectAll}
             />
-            <button type="button" className="myprop-toolbar-btn" title="Asignar responsable">
-              <img src="/icons/AsignarUser.svg" alt="Asignar" />
-            </button>
-            <button type="button" className="myprop-toolbar-btn" title="Republicar" onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DISPONIBLE, 'Republicar')}>
+            {hasOrganization && (
+              <div style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className="myprop-toolbar-btn"
+                  title="Asignar responsable"
+                  disabled={selectedCount === 0}
+                  onClick={() => { setAssignPopoverOpen(prev => !prev); setAssignSelectedUserId(null); }}
+                >
+                  <img src="/icons/AsignarUser.svg" alt="Asignar" />
+                </button>
+                {assignPopoverOpen && (
+                  <>
+                    <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setAssignPopoverOpen(false)} />
+                    <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 100, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', padding: 16, minWidth: 220 }}>
+                      <select
+                        value={assignSelectedUserId ?? ''}
+                        onChange={e => setAssignSelectedUserId(e.target.value ? Number(e.target.value) : null)}
+                        style={{ width: '100%', padding: '8px', marginBottom: 12, borderRadius: 4, border: '1px solid #ccc', fontSize: 14 }}
+                      >
+                        <option value="">Seleccionar asesor...</option>
+                        {orgUsers.map(u => (
+                          <option key={u.id} value={u.id}>{u.name}</option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        disabled={assignSelectedUserId === null}
+                        style={{ width: '100%', padding: '8px 0', background: assignSelectedUserId !== null ? '#1976d2' : '#ccc', color: '#fff', border: 'none', borderRadius: 4, cursor: assignSelectedUserId !== null ? 'pointer' : 'not-allowed', fontSize: 14 }}
+                        onClick={() => {
+                          if (assignSelectedUserId === null) return;
+                          assignMutation.mutate({ ids: getSelectedPropertyIds(), user_id: assignSelectedUserId });
+                          setAssignPopoverOpen(false);
+                          setAssignSelectedUserId(null);
+                        }}
+                      >
+                        Aceptar
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+            <button type="button" className="myprop-toolbar-btn" title="Republicar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DISPONIBLE, 'Republicar')}>
               <img src="/icons/republicar.svg" alt="Republicar" />
             </button>
-            <button type="button" className="myprop-toolbar-btn" title="Archivar" onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
+            <button type="button" className="myprop-toolbar-btn" title="Archivar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
               <img src="/icons/archivar.svg" alt="Archivar" />
             </button>
-            <button type="button" className="myprop-toolbar-btn" title="Dar de baja" onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DRAFT, 'Dar de baja')}>
+            <button type="button" className="myprop-toolbar-btn" title="Dar de baja" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DRAFT, 'Dar de baja')}>
               <img src="/icons/power.svg" alt="Dar de baja" />
             </button>
           </div>
@@ -321,7 +387,7 @@ const MyProperties = () => {
                         <button type="button" className="myprop-card-action-btn" title="Republicar" onClick={() => prop.id && requestStatusChange([prop.id], PropertyStatus.DISPONIBLE, 'Republicar')}>
                           <img src="/icons/republicar.svg" alt="Republicar" />
                         </button>                        
-                        <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.location.href = `/protected/publish/${prop.id}`}>
+                        <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.open(`/protected/publish/${prop.id}`, '_blank')}>
                           <img src="/icons/pencil.svg" alt="Editar" />
                         </button>
                         <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => window.open(`/propertyDetail/${prop.id}`, '_blank')}>
