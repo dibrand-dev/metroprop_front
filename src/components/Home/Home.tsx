@@ -7,11 +7,11 @@ import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import Button from '@/ui/Button/Button';
 import { useRouter } from 'next/navigation';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
-import { getVisitedProperties, setImagePath, type VisitedProperty } from '@/utils/utils';
+import { getVisitedProperties, type VisitedProperty } from '@/utils/utils';
 import { fetchProperties } from '@/lib/properties';
-import { LOCATION_CABA_ID, PROPERTY_NO_IMAGE } from '@/app/constants';
+import { LOCATION_CABA_ID } from '@/app/constants';
 import type { CreateProperty } from '@/types/propiedad';
-import { useToggleFavorite } from '@/lib/useFavoriteIds';
+import { useToggleFavorite, useFavoriteIds } from '@/lib/useFavoriteIds';
 
 export default function Home() {
   const services = [
@@ -47,6 +47,7 @@ export default function Home() {
 
   const router = useRouter();
   const handleToggleFavorite = useToggleFavorite();
+  const favoriteIds = useFavoriteIds();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchActive, setSearchActive] = useState<'1' | '2' | '3' | '4'>('1');
   const [visitedProperties, setVisitedProperties] = useState<VisitedProperty[]>([]);
@@ -59,25 +60,7 @@ export default function Home() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const featuredProperties = (featuredData?.data ?? []).map((prop: CreateProperty) => ({
-    id: prop.id,
-    price: prop.price ?? 0,
-    expenses: prop.expenses ?? 0,
-    currency: (prop.currency as 'USD' | 'ARS' | 'EUR') ?? 'USD',
-    currencyRent: prop.currency ?? '$',
-    pricePerSqm: prop.price_square_meter,
-    title: prop.publication_title ?? '',
-    address: prop.street ?? '',
-    rooms: prop.room_amount ?? 0,
-    bathrooms: prop.bathroom_amount ?? 0,
-    area: prop.total_surface ?? prop.surface ?? 0,
-    image: prop.images?.[0]?.url
-      ? setImagePath(prop.images[0].url)
-      : PROPERTY_NO_IMAGE,
-    agencyLogo: (prop as any).organization?.company_logo
-      ? setImagePath((prop as any).organization.company_logo)
-      : undefined,
-  }));
+  const featuredProperties: CreateProperty[] = featuredData?.data ?? [];
   
   const [visitedCanScrollLeft, setVisitedCanScrollLeft] = useState(false);
   const [visitedCanScrollRight, setVisitedCanScrollRight] = useState(true);
@@ -224,11 +207,35 @@ export default function Home() {
                 </button>
               )}
               <div className="properties-container" ref={visitedPropertiesRef} onScroll={handleVisitedScroll}>
-                {visitedProperties.map((property) => (
-                  <a href={`/propertyDetail/${property.id}`} key={property.id} style={{ textDecoration: 'none' }}>
-                    <PropertyCard property={property} onFavorite={() => handleToggleFavorite(property.id ?? 0)} />
-                  </a>
-                ))}
+                {visitedProperties.map((p) => {
+                  const vp: CreateProperty = {
+                    id: parseInt(String(p.id)) || 0,
+                    reference_code: '',
+                    publication_title: p.title,
+                    property_type: 1 as any,
+                    status: 1 as any,
+                    operation_type: 1 as any,
+                    price: p.price,
+                    currency: p.currency,
+                    expenses: p.expenses,
+                    street: p.address,
+                    room_amount: p.rooms,
+                    bathroom_amount: p.bathrooms,
+                    total_surface: p.area,
+                    price_square_meter: p.pricePerSqm,
+                    images: p.image ? [{ url: p.image, order: 0 } as any] : [],
+                    ...(p.agencyLogo ? { organization: { company_logo: p.agencyLogo } as any } : {}),
+                    isFavorite: favoriteIds.has(parseInt(String(p.id)) || 0),
+                  } as any;
+                  return (
+                    <PropertyCard
+                      key={p.id}
+                      property={vp}
+                      cardType="home"
+                      onFavorite={handleToggleFavorite}
+                    />
+                  );
+                })}
               </div>
               {visitedCanScrollRight && (
                 <button 
@@ -261,9 +268,12 @@ export default function Home() {
             
               <div className="properties-container" ref={featuredPropertiesRef} onScroll={handleFeaturedScroll}>
                 {featuredProperties.map((property) => (
-                  <a href={`/propertyDetail/${property.id}`} key={property.id} style={{ textDecoration: 'none' }}>
-                    <PropertyCard property={property} onFavorite={() => handleToggleFavorite(property.id ?? 0)} />
-                  </a>
+                  <PropertyCard
+                    key={property.id}
+                    property={{ ...property, isFavorite: favoriteIds.has(property.id ?? 0) } as any}
+                    cardType="home"
+                    onFavorite={handleToggleFavorite}
+                  />
                 ))}
               </div>
               {featuredCanScrollRight && (

@@ -50,7 +50,7 @@ $font-family-button: Montserrat, sans-serif;
   margin: 0 auto;
  
   @media (max-width: 768px) {
-    gap: 16px;
+    gap: 0;
   }
 }
 
@@ -61,12 +61,7 @@ $font-family-button: Montserrat, sans-serif;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  @media (min-width: 768px) {
-    width: 33.3%;  
-  }
-  @media (max-width: 768px) {
-    width: auto;
-  }
+  width: 33.3%; 
 }
 
 // Hamburger Button
@@ -384,17 +379,7 @@ $font-family-button: Montserrat, sans-serif;
     display: block;
 
     @media (max-width: 990px) {
-      display: none;
-    }
-  }
-
-  img.metroLogoMobile {
-    width: auto;
-    display: none;
-
-    @media (max-width: 990px) {
-      display: block;
-      height: 32px;
+      height: 26px;
     }
   }
 
@@ -414,12 +399,8 @@ $font-family-button: Montserrat, sans-serif;
   align-items: center;
   flex-shrink: 0;
   justify-content: flex-end;
-  @media (min-width: 768px) {
-    width: 33.3%;
-  }
-  @media (max-width: 768px) {
-    width: auto;
-  }
+  width: 33.3%;
+  
 }
 
 // Primary Button

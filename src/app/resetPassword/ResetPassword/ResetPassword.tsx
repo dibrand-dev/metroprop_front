@@ -10,8 +10,6 @@ import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import BackButtonLogo from '@/ui/BackButtonLogo/BackButtonLogo';
 import { apiFetch } from '@/lib/apiFetch';
 
-const logoMetroprop = "/images/metroprop.svg";
-
 interface UserInfo {
   email: string;
   name: string;

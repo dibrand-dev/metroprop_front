@@ -4,8 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
-import PropertyCardMapList from './PropertyCardMapList';
-import PropertyCardGridList from './PropertyCardGridList';
+import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import FilterBar from './FilterBar';
 import SortDropdown from './SortDropdown';
 import ResultsMap from './ResultsMap';
@@ -246,8 +245,9 @@ export default function Results() {
           ) : layoutMode === 'grid' ? (
             <div className="property-grid">
               {properties.map((property) => (                
-                <PropertyCardGridList 
+                <PropertyCard 
                   key={property.id}
+                  cardType="gridList"
                   property={{ ...property, isFavorite: favorites.has(property.id ?? 0) } as any}
                   onFavorite={() => handleToggleFavorite(property.id ?? 0)}
                   isLoggedIn={isLoggedIn}
@@ -258,7 +258,8 @@ export default function Results() {
             <div className="property-list">
               {properties.map((property) => (                
                 <div className="property-wrapper">
-                  <PropertyCardMapList
+                  <PropertyCard
+                    cardType="map"
                     property={{ ...property, isFavorite: favorites.has(property.id ?? 0) } as any}
                     onFavorite={() => handleToggleFavorite(property.id ?? 0)}
                     isLoggedIn={isLoggedIn}

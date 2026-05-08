@@ -878,6 +878,11 @@
   position: relative;
   display: flex;
   align-items: center;
+
+  .property-card-grid-list {
+    max-width: 264px;
+    min-width: 264px;
+  }
 }
 
 .property-detail-cards {
@@ -891,18 +896,13 @@
   .property-card-wrapper {
     min-width: 264px;
     max-width: 264px;
-    height: 100%;
+    height: auto;
     display: flex;
     flex-direction: column;
   }
 
   .property-card-wrapper .property-card-info {
     flex: 1;
-  }
-
-  > a {
-    display: flex;
-    flex-shrink: 0;
   }
 }
 

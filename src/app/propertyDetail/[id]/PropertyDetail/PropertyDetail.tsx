@@ -554,31 +554,11 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 }}
                 onScroll={() => handleSimilarScroll(index)}
               >
-                {(similarPropertiesData[index] ?? []).map((item) => {
-                  const firstImage = (item.images ?? []).find(img => !img.is_blueprint && img.upload_status === 'completed');
-                  const imageUrl = firstImage ? setImagePath(firstImage.url) : '/images/property-placeholder.png';
-                  return (
-                    <a href={`/propertyDetail/${item.id}`} key={item.id} style={{ textDecoration: 'none' }}>
-                      <PropertyCard
-                        property={{
-                          id: String(item.id ?? ''),
-                          price: item.price ?? 0,
-                          expenses: item.expenses ?? 0,
-                          currency: (item.currency as 'USD' | 'ARS' | 'EUR') ?? 'USD',
-                          currencyRent: item.currency_expenses ?? item.currency ?? '',
-                          pricePerSqm: item.price_square_meter,
-                          title: item.publication_title ?? '',
-                          address: item.street ?? '',
-                          rooms: item.room_amount ?? 0,
-                          bathrooms: item.bathroom_amount ?? 0,
-                          area: item.total_surface ?? 0,
-                          image: imageUrl,
-                          isFavorite: false,
-                        }}
-                      />
-                    </a>
-                  );
-                })}
+                {(similarPropertiesData[index] ?? []).map((item) => <PropertyCard
+                  key={item.id}
+                  property={{ ...item, isFavorite: false } as any}
+                  cardType="home"
+                />)}
               </div>
               {similarCanScrollRight[index] && (
                 <button

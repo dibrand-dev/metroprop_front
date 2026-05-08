@@ -8,7 +8,7 @@ import { CreateProperty } from '@/types/propiedad';
 import type { MapDataItem } from '@/types/property-api';
 import './ResultsMap.scss';
 import { API_BASE_URL } from '@/utils/utils';
-import PropertyCardGridList from './PropertyCardGridList';
+import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import { apiFetch } from '@/lib/apiFetch';
 
 interface Bounds {
@@ -420,7 +420,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                 {isFetchingProperty && !selectedProperty ? (
                   <div style={{ padding: '8px' }}>Cargando...</div>
                 ) : selectedProperty ? (
-                  <a href={`/propertyDetail/${selectedProperty.id}`} className='linkToPropertyInfoWindow'><PropertyCardGridList property={selectedProperty} fromMap={true} /></a>
+                  <a href={`/propertyDetail/${selectedProperty.id}`} className='linkToPropertyInfoWindow'><PropertyCard property={selectedProperty} cardType="gridList" fromMap={true} /></a>
                 ) : null}
               </InfoWindow>
             );
