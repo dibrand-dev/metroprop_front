@@ -1,7 +1,7 @@
 import { useRouter } from 'next/navigation';
 import './BackButtonLogo.scss';
 
-const logoMetroprop = "/images/metropropLogo.png";
+const logoMetroprop = "/images/metroprop.svg";
 
 export default function BackButtonLogo({ showLogo = true }: { showLogo?: boolean }) {
   const router = useRouter();

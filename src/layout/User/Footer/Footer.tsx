@@ -3,7 +3,7 @@
 import { LOCATION_CABA_ID } from '@/app/constants';
 import './Footer.scss';
 
-const logoMetroprop = "/images/metropropLogo.png";
+const logoMetroprop = "/images/metroprop.svg";
 const qrCode = "/images/qr.png";
 
 export default function Footer() {
