@@ -245,3 +245,35 @@
     padding-bottom: 120px;
   }
 }
+
+
+.modal-credential-row {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+
+
+  .modal-message-text {
+    margin: 0;
+    word-break: break-all;
+    width: 100%;
+    text-align: left;
+
+    button {
+      float: right;
+      flex-shrink: 0;
+      background: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 2px 8px;
+      font-size: 12px;
+    }
+    p {
+      font-size: 0.9em;
+    }
+  }
+  
+}

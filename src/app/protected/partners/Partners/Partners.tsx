@@ -24,7 +24,8 @@ export default function Partners() {
   const [showMenu, setShowMenu] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
   const router = useRouter();
-  const [refreshCredentials, setRefreshCredentials] = useState<{ app_key: string; app_secret: string } | null>(null);
+  const [viewCredentials, setViewCredentials] = useState<{ app_key: string; app_secret: string } | null>(null);
+  const [copiedField, setCopiedField] = useState<'app_key' | 'app_secret' | null>(null);
   const queryClient = useQueryClient();
 
   const { data: partnersData, isLoading, isError } = useQuery({
@@ -64,7 +65,7 @@ export default function Partners() {
     setConfirmAction(null);
     if (type === 'refresh') {
       const response = await refreshMutation.mutateAsync(id);
-      setRefreshCredentials({ app_key: response.data.app_key, app_secret: response.data.app_secret });
+      setViewCredentials({ app_key: response.data.app_key, app_secret: response.data.app_secret });
     } else if (type === 'disable') {
       disableMutation.mutate(id);
     } else if (type === 'enable') {
@@ -130,7 +131,7 @@ export default function Partners() {
                       className="partners-action-button"
                       type="button"
                       aria-label="Ver Api key"
-                      onClick={() => setRefreshCredentials({ app_key: partner.app_key, app_secret: partner.app_secret })}
+                      onClick={() => setViewCredentials({ app_key: partner.app_key, app_secret: partner.app_secret })}
                     >
                       <img src={iconEye} alt="Ver Api key" />
                     </button>                   
@@ -191,19 +192,42 @@ export default function Partners() {
         />
       )}
 
-      {refreshCredentials && (<AreYouSureModal
+      {viewCredentials && (<AreYouSureModal
           title="Keys"
           subTitle="Credenciales del partner"
           text={<>
-            <p className="modal-message-text mb-2">
-              <strong>App Key:</strong> {refreshCredentials.app_key}
-            </p>
-            <p className="modal-message-text">
-              <strong>App Secret:</strong> {refreshCredentials.app_secret}
-            </p></>}
+            <div className="modal-credential-row">
+              <div className="modal-message-text">
+                <strong>App Key: </strong> 
+                <button
+                  type="button"
+                  title="Copiar App Key"
+                  style={{ color: copiedField === 'app_key' ? '#2e7d32' : undefined }}
+                  onClick={() => { navigator.clipboard.writeText(viewCredentials.app_key); setCopiedField('app_key'); setTimeout(() => setCopiedField(null), 3000); }}
+                >
+                  {copiedField === 'app_key' ? 'Copiado' : 'Copiar'}
+                </button>
+              </div>
+              <p style={{ fontSize: '0.9em' }}>{viewCredentials.app_key}</p>
+            </div>
+            <div className="modal-credential-row">
+              <div className="modal-message-text">
+                <strong>App Secret: </strong>
+                <button
+                  type="button"
+                  title="Copiar App Secret"
+                  style={{ color: copiedField === 'app_secret' ? '#2e7d32' : undefined }}
+                  onClick={() => { navigator.clipboard.writeText(viewCredentials.app_secret); setCopiedField('app_secret'); setTimeout(() => setCopiedField(null), 3000); }}
+                >
+                  {copiedField === 'app_secret' ? 'Copiado' : 'Copiar'}
+                </button>
+              </div>
+              <p style={{ fontSize: '0.9em' }}>{viewCredentials.app_secret}</p>              
+            </div>
+          </>}
           icon={iconEye}
           iconBackgroundColor="#FFD700"
-          onCancel={() => setRefreshCredentials(null)}
+          onCancel={() => setViewCredentials(null)}
           cancelText='Cerrar'
         />)}
     </div>
