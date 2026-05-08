@@ -17,10 +17,11 @@
     display: flex;
     flex-direction: column;
     gap: 32px;
+    padding: 24px;
     text-align: center;
     align-items: center;
     justify-content: center;
-    word-break: break-all;
+    word-break: break-word;
 }
 
 .are-you-sure-modal {
@@ -28,7 +29,6 @@
   flex-direction: column;
   background-color: $background-color;
   border-radius: 8px;
-  padding: 24px;
   width: 100%;
   max-width: 600px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -39,6 +39,38 @@
     padding: 8px 16px 24px 16px;
     border-radius: 4px;
   }
+
+  .modal-header {
+    border-bottom: 1.3px solid #A6A6A6;    
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    h2 {
+      font-weight: 700;
+      font-size: 26px;
+      line-height: 34px;
+      letter-spacing: 0%;
+    }
+  }
+
+  .modal-message-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-message-title {
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 30px;
+    letter-spacing: 0%;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
 }
 
 @keyframes areYouSureSlideUp {

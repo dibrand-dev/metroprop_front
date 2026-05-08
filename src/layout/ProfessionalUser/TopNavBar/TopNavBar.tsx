@@ -3,7 +3,7 @@
 import './TopNavBar.scss';
 import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
 
-const logoMetroprop = "/images/metropropLogo.png";
+const logoMetroprop = "/images/metroprop.svg";
 interface TopNavBarProps {
   menuItems?: { label: string; link: string }[];
 }

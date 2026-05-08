@@ -12,6 +12,7 @@ import { apiFetch } from '@/lib/apiFetch';
 const iconArrowBack = '/icons/arrow.svg';
 const iconRefresh = '/icons/refresh.svg';
 const iconLock = '/icons/lock.svg';
+const iconWhiteTrash = '/icons/whiteTrash.svg';
 const iconTrash = '/icons/trash.svg';
 const iconCheck = '/icons/check_black.svg';
 const iconPencil = '/icons/pencil.svg';
@@ -75,11 +76,11 @@ export default function Partners() {
     }
   };
 
-  const confirmMessages: Record<string, { title: string; text: string; icon: string }> = {
-    refresh: { title: 'Refresh API Key', text: '¿Estás seguro que desea refrescar la API key del partner?', icon: iconRefresh },
-    disable: { title: 'Deshabilitar Partner', text: '¿Estás seguro que desea deshabilitar el partner?', icon: iconLock },
-    enable: { title: 'Habilitar Partner', text: '¿Estás seguro que desea habilitar el partner?', icon: iconCheck },
-    delete: { title: 'Eliminar Partner', text: '¿Estás seguro que desea eliminar el partner?', icon: iconTrash },
+  const confirmMessages: Record<string, { title: string; text?: string; subTitle?: string; icon: string, iconBackgroundColor?: string }> = {
+    refresh: { title: 'Refresh API Key', subTitle: '¿Estás seguro que desea refrescar la API key del partner?', icon: iconRefresh, iconBackgroundColor: '#FFD700' },
+    disable: { title: 'Deshabilitar Partner', subTitle: '¿Estás seguro que desea deshabilitar el partner?', icon: iconLock, iconBackgroundColor: '#FFD700' },
+    enable: { title: 'Habilitar Partner', subTitle: '¿Estás seguro que desea habilitar el partner?', icon: iconCheck, iconBackgroundColor: '#4DE04A' },
+    delete: { title: 'Eliminar Partner', subTitle: '¿Estás seguro que desea eliminar el partner?', icon: iconWhiteTrash, iconBackgroundColor: '#E84545' },
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -182,15 +183,17 @@ export default function Partners() {
       {confirmAction && (
         <AreYouSureModal
           title={confirmMessages[confirmAction.type].title}
-          text={confirmMessages[confirmAction.type].text}
+          subTitle={confirmMessages[confirmAction.type].subTitle}
           icon={confirmMessages[confirmAction.type].icon}
           onAccept={handleConfirm}
           onCancel={() => setConfirmAction(null)}
+          iconBackgroundColor={confirmMessages[confirmAction.type].iconBackgroundColor}
         />
       )}
 
       {refreshCredentials && (<AreYouSureModal
           title="Keys"
+          subTitle="Credenciales del partner"
           text={<>
             <p className="modal-message-text mb-2">
               <strong>App Key:</strong> {refreshCredentials.app_key}
@@ -199,7 +202,9 @@ export default function Partners() {
               <strong>App Secret:</strong> {refreshCredentials.app_secret}
             </p></>}
           icon={iconEye}
+          iconBackgroundColor="#FFD700"
           onCancel={() => setRefreshCredentials(null)}
+          cancelText='Cerrar'
         />)}
     </div>
   );

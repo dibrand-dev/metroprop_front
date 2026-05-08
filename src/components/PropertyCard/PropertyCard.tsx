@@ -25,7 +25,7 @@ export interface Property {
 
 export interface PropertyCardProps {
   property: Property;
-  onFavorite?: () => void;
+  onFavorite?: (id: string) => void;
 }
 
 const heartIcon = "/icons/heart.svg";
@@ -47,9 +47,11 @@ export default function PropertyCard({
         <img src={property.image || defaultImage} alt={property.title} />        
         <button 
           className="property-card-heart"
-          onClick={onFavorite}
-          aria-label="Add to favorites"
-          style={{ display: 'none' }}
+          onClick={e => {
+            e.stopPropagation();
+            onFavorite && onFavorite(property.id);
+          }}
+          aria-label="Add to favorites"          
         >
           <img src={heartIcon} alt="Favorite" />
         </button>

@@ -12,7 +12,7 @@ interface PropertyCardMyPropertiesProps {
 
 const PropertyCardMyProperties: React.FC<PropertyCardMyPropertiesProps> = ({ property, onFavorite }) => {
   return (
-    <div className="property-card-map-list">
+    <div className="property-card-myProperties-list">
       <div className="card-content">
         <img 
           src={ property.images?.[0]?.url 

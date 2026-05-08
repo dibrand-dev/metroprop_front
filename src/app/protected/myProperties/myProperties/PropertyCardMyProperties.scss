@@ -1,11 +1,10 @@
 @use '@/styles/variables' as *;
 
-.property-card-map-list {
+.property-card-myProperties-list {
   width: 100%;
   filter: $shadow-md;
 
   .card-content {
-    background: $background-color;
     border: 1.3px solid $border-color;
     border-radius: $border-radius-md;
     padding: 16px;

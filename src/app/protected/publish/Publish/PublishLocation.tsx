@@ -403,7 +403,7 @@ export default function PublishLocation({
 
           <div className="publish-location-section">
             <div className="publish-location-title">
-              <h1>Ingresa la ubicacion de la propiedad</h1>
+              <h1>Ingresa la ubicación de la propiedad</h1>
               <span className={showMapPreview ? 'hide-desktop' : ''}>Datos obligatorios(*)</span>
             </div>
 

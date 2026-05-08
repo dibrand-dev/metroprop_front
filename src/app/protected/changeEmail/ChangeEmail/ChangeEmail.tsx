@@ -157,8 +157,9 @@ export default function ChangeEmail() {
       {showConfirm && (
         <AreYouSureModal
           title="Cambiar email"
-          text="¿Estás seguro que deseas cambiar tu dirección de email?"
+          subTitle="¿Estás seguro que deseas cambiar tu dirección de email?"
           icon="/icons/envelope_w.svg"
+          iconBackgroundColor="#FFD700"
           onAccept={handleConfirm}
           onCancel={() => setShowConfirm(false)}
         />

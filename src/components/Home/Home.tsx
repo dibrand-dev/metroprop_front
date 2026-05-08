@@ -11,6 +11,7 @@ import { getVisitedProperties, setImagePath, type VisitedProperty } from '@/util
 import { fetchProperties } from '@/lib/properties';
 import { LOCATION_CABA_ID, PROPERTY_NO_IMAGE } from '@/app/constants';
 import type { CreateProperty } from '@/types/propiedad';
+import { useToggleFavorite } from '@/lib/useFavoriteIds';
 
 export default function Home() {
   const services = [
@@ -45,6 +46,7 @@ export default function Home() {
   ];
 
   const router = useRouter();
+  const handleToggleFavorite = useToggleFavorite();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchActive, setSearchActive] = useState<'1' | '2' | '3' | '4'>('1');
   const [visitedProperties, setVisitedProperties] = useState<VisitedProperty[]>([]);
@@ -58,7 +60,7 @@ export default function Home() {
   });
 
   const featuredProperties = (featuredData?.data ?? []).map((prop: CreateProperty) => ({
-    id: String(prop.id),
+    id: prop.id,
     price: prop.price ?? 0,
     expenses: prop.expenses ?? 0,
     currency: (prop.currency as 'USD' | 'ARS' | 'EUR') ?? 'USD',
@@ -224,7 +226,7 @@ export default function Home() {
               <div className="properties-container" ref={visitedPropertiesRef} onScroll={handleVisitedScroll}>
                 {visitedProperties.map((property) => (
                   <a href={`/propertyDetail/${property.id}`} key={property.id} style={{ textDecoration: 'none' }}>
-                    <PropertyCard property={property} />
+                    <PropertyCard property={property} onFavorite={() => handleToggleFavorite(property.id ?? 0)} />
                   </a>
                 ))}
               </div>
@@ -260,7 +262,7 @@ export default function Home() {
               <div className="properties-container" ref={featuredPropertiesRef} onScroll={handleFeaturedScroll}>
                 {featuredProperties.map((property) => (
                   <a href={`/propertyDetail/${property.id}`} key={property.id} style={{ textDecoration: 'none' }}>
-                    <PropertyCard property={property} />
+                    <PropertyCard property={property} onFavorite={() => handleToggleFavorite(property.id ?? 0)} />
                   </a>
                 ))}
               </div>
