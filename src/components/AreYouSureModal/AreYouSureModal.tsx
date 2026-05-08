@@ -2,9 +2,9 @@ import './AreYouSureModal.scss';
 
 interface AreYouSureModalProps {
   title: string;
-  text: string;
+  text: string | JSX.Element;
   icon?: string;
-  onAccept: () => void;
+  onAccept?: () => void;
   onCancel: () => void;
 }
 
@@ -24,7 +24,7 @@ export default function AreYouSureModal({ title, text, icon, onAccept, onCancel 
           <div className="modal-message-section">
             <div className="modal-message">
               <h3 className="modal-message-title">{title}</h3>
-              <p className="modal-message-text">{text}</p>
+              {typeof text === 'string' ? <p className="modal-message-text">{text}</p> : text}
             </div>
           </div>
 
@@ -32,9 +32,11 @@ export default function AreYouSureModal({ title, text, icon, onAccept, onCancel 
             <button className="are-you-sure-btn are-you-sure-btn--cancel" type="button" onClick={onCancel}>
               Cancelar
             </button>
-            <button className="are-you-sure-btn are-you-sure-btn--accept" type="button" onClick={onAccept}>
-              Aceptar
-            </button>
+            {onAccept && (
+              <button className="are-you-sure-btn are-you-sure-btn--accept" type="button" onClick={onAccept}>
+                Aceptar
+              </button>
+            )}
           </div>
         </div>
       </div>

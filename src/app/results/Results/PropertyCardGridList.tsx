@@ -7,17 +7,15 @@ import { formatNumbers, setImagePath } from '@/utils/utils';
 import { PROPERTY_NO_IMAGE } from '@/app/constants';
 import GalleryModal, { GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
 import { CreateAttached } from '@/types/propiedad';
-
 import { API_BASE_URL } from '@/utils/utils';
-import { apiFetch } from '@/lib/apiFetch';
-
-interface PropertyCardGridListProps {
+import { apiFetch } from '@/lib/apiFetch';interface PropertyCardGridListProps {
   property: CreateProperty;
-  onFavorite?: () => void;
-  fromMap?: boolean
+  onFavorite?: (id: number) => void;
+  isLoggedIn?: boolean;
+  fromMap?: boolean;
 }
 
-const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, fromMap, onFavorite }) => {
+const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, fromMap, onFavorite, isLoggedIn = false }) => {
   const router = useRouter();
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
@@ -81,7 +79,26 @@ const PropertyCardGridList: React.FC<PropertyCardGridListProps> = ({ property, f
             : PROPERTY_NO_IMAGE} 
           alt={property.publication_title}
           className="property-image"
-        />        
+        />
+        {isLoggedIn && (
+            <button 
+              className="favorite-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onFavorite?.(property.id ?? 0);
+              }}
+              aria-label="Agregar a favoritos"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path 
+                  d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z" 
+                  stroke={property.isFavorite ? "#006AFF" : "#000000"}
+                  fill={property.isFavorite ? "#006AFF" : "none"}
+                  strokeWidth="1.5"
+                />
+              </svg>
+            </button>
+            )}
       </div>
       
       <div className="info-section">

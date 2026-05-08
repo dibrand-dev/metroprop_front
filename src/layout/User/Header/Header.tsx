@@ -6,7 +6,7 @@ import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const logoMetroprop = "/images/metropropLogo.png";
+const logoMetroprop = "/images/metroprop.svg";
 const logoMetropropMobile = "/images/metropropLogo_mobile.png";
 const chevronIcon = "/icons/chevron-up.svg";
 

@@ -266,15 +266,18 @@ export default function OrganizationProfile() {
                 onChange={(e) => handleInputChange('social_reason', e.target.value)}
                 disabled={!(isEditing && activeSection === 'generales')}
                 label="Razón social"
-              />
-              <InputField2
-                type="text"
-                placeholder="Condición fiscal"
-                value={properties.fiscal_condition}
-                onChange={(e) => handleInputChange('fiscal_condition', e.target.value)}
+              />          
+              <Select
                 disabled={!(isEditing && activeSection === 'generales')}
-                label="Condición fiscal"
-              />             
+                placeholder="Seleccionar"
+                value={properties.fiscal_condition}
+                onChange={(value) => handleInputChange('fiscal_condition', value)}
+                options={[
+                  { value: 'responsable-inscripto', label: 'Responsable Inscripto' },
+                  { value: 'monotributista', label: 'Monotributista' },
+                  { value: 'exento', label: 'Exento' },
+                ]}                
+              />
               <InputField2
                 type="text"
                 placeholder="Número de matrícula"
@@ -365,7 +368,7 @@ export default function OrganizationProfile() {
 
           <hr className="professional-profile-divider" />
 
-          {/* Descripción Section */}
+          {/* Descripción Section }
           <section className="professional-profile-section descripcion">
             <div className="professional-profile-section-header">
               <h2 className="professional-profile-section-title">Descripción</h2>
@@ -386,7 +389,7 @@ export default function OrganizationProfile() {
               disabled={!(isEditing && activeSection === 'descripcion')}
               label="Descripción"
             />
-          </section>
+          </section> */}
 
           {/* Save Button */}
           {isEditing && (

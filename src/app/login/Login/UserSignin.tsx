@@ -35,16 +35,10 @@ export default function UserSignin() {
 
   const setCookieMutation = useMutation({
     mutationFn: async (token: string) => {
-      const response = await fetch('/api/auth/set-cookie', {
+      return apiFetch('/api/auth/set-cookie', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-        credentials: 'include',
+        body: { token },
       });
-      if (!response.ok) throw new Error('Error setting cookie');
-      return response.json();
     }
   });
 

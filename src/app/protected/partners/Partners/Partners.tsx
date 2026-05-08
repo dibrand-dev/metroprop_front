@@ -15,6 +15,7 @@ const iconLock = '/icons/lock.svg';
 const iconTrash = '/icons/trash.svg';
 const iconCheck = '/icons/check_black.svg';
 const iconPencil = '/icons/pencil.svg';
+const iconEye = '/icons/eye.svg';
 
 type ConfirmAction = { type: 'refresh' | 'edit' | 'disable' | 'enable' | 'delete'; id: number } | null;
 
@@ -130,10 +131,7 @@ export default function Partners() {
                       aria-label="Ver Api key"
                       onClick={() => setRefreshCredentials({ app_key: partner.app_key, app_secret: partner.app_secret })}
                     >
-                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
+                      <img src={iconEye} alt="Ver Api key" />
                     </button>                   
                     <button
                       className="partners-action-button"
@@ -191,31 +189,18 @@ export default function Partners() {
         />
       )}
 
-      {refreshCredentials && (
-        <div className="are-you-sure-modal-container" onClick={() => setRefreshCredentials(null)}>
-          <div className="are-you-sure-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content-container">
-              <div className="modal-message">
-                <p className="modal-message-text">
-                  <strong>App Key:</strong> {refreshCredentials.app_key}
-                </p>
-                <p className="modal-message-text">
-                  <strong>App Secret:</strong> {refreshCredentials.app_secret}
-                </p>
-              </div>
-              <div className="are-you-sure-actions">
-                <button
-                  className="are-you-sure-btn are-you-sure-btn--accept"
-                  type="button"
-                  onClick={() => setRefreshCredentials(null)}
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {refreshCredentials && (<AreYouSureModal
+          title="Keys"
+          text={<>
+            <p className="modal-message-text mb-2">
+              <strong>App Key:</strong> {refreshCredentials.app_key}
+            </p>
+            <p className="modal-message-text">
+              <strong>App Secret:</strong> {refreshCredentials.app_secret}
+            </p></>}
+          icon={iconEye}
+          onCancel={() => setRefreshCredentials(null)}
+        />)}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import './PartnerForm.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import InputField2 from '@/ui/InputField2/InputField2';
@@ -19,6 +20,7 @@ interface PartnerFormProps {
 }
 
 export default function PartnerForm({ partnerId }: PartnerFormProps) {
+  const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -68,7 +70,10 @@ export default function PartnerForm({ partnerId }: PartnerFormProps) {
         setHabilitado(false);
       }
       setShowSuccessModal(true);
-      setTimeout(() => setShowSuccessModal(false), 3000);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        router.push('/protected/partners'); 
+      }, 3000);
     },
   });
 

@@ -43,7 +43,7 @@ export async function middleware(req: NextRequest) {
   // Role-based access: only role_id 4 can access /protected/partners
   if (pathname.startsWith("/protected/partners")) {
     const roleId = getUserRoleIdFromToken(nextAuthToken);
-    if (roleId !== 4) {
+    if (roleId !== 4 && roleId !== 1) {
       return NextResponse.redirect(new URL("/protected/profile", req.url));
     }
   }

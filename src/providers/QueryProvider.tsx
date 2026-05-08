@@ -2,10 +2,30 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { LOCATIONS_QUERY_KEY, fetchLocations } from '@/lib/locations';
+import { FAVORITE_IDS_QUERY_KEY } from '@/lib/useFavoriteIds';
+import { apiFetch } from '@/lib/apiFetch';
+import { API_BASE_URL } from '@/utils/utils';
 
 interface QueryProviderProps {
   children: React.ReactNode;
+}
+
+function PrefetchOnSession({ queryClient }: { queryClient: QueryClient }) {
+  const { data: session } = useSession();
+  const isLoggedIn = !!session?.user;
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    queryClient.prefetchQuery({
+      queryKey: FAVORITE_IDS_QUERY_KEY,
+      queryFn: () => apiFetch<number[]>(`${API_BASE_URL}/favourites/list-ids`),
+      staleTime: 5 * 60 * 1000,
+    });
+  }, [isLoggedIn, queryClient]);
+
+  return null;
 }
 
 export default function QueryProvider({ children }: QueryProviderProps) {
@@ -14,7 +34,7 @@ export default function QueryProvider({ children }: QueryProviderProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000, // 1 minute
+            staleTime: 60 * 1000,
             refetchOnWindowFocus: false,
             retry: 1,
           },
@@ -27,13 +47,14 @@ export default function QueryProvider({ children }: QueryProviderProps) {
     queryClient.prefetchQuery({
       queryKey: LOCATIONS_QUERY_KEY,
       queryFn: fetchLocations,
-      staleTime:0, //  60 * 60 * 1000, // 1 hour
-      gcTime:0 // 24 * 60 * 60 * 1000, // 24 hours
+      staleTime: 0,
+      gcTime: 0,
     });
   }, [queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
+      <PrefetchOnSession queryClient={queryClient} />
       {children}
     </QueryClientProvider>
   );

@@ -92,13 +92,13 @@ export default function TopUserMenu() {
       id: 'contactos',
       label: 'Contactos',
       icon: contactosIcon,
-      href: '/profile/contacts'
+      href: '/protected/contacts'
     },
     {
       id: 'favoritos',
       label: 'Favoritos',
       icon: favoritosIcon,
-      href: '/profile/favorites'
+      href: '/protected/favorites'
     },
     {
       id: 'alertas',

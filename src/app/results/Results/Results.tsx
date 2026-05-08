@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import PropertyCardMapList from './PropertyCardMapList';
 import PropertyCardGridList from './PropertyCardGridList';
 import FilterBar from './FilterBar';
@@ -13,16 +13,17 @@ import PropertyCardSkeleton from './PropertyCardSkeleton';
 import Paginator from '@/components/Paginator/Paginator';
 import './Results.scss';
 import { fetchProperties, searchParamsToFilterParams } from '@/lib/properties';
-// import type { PropertyListItem } from '@/types/property-api';
 import { CreateProperty } from '@/types/propiedad';
 import type { MapDataItem } from '@/types/property-api';
 import { API_BASE_URL } from '@/utils/utils';
-import { apiFetch } from '@/lib/apiFetch';
+import { useFavoriteIds, useToggleFavorite } from '@/lib/useFavoriteIds';
 
 
 export default function Results() {
   const { data: sessionData } = useSession();
-  const queryClient = useQueryClient();
+  const isLoggedIn = !!sessionData?.user;
+  const favorites = useFavoriteIds();
+  const handleToggleFavorite = useToggleFavorite();
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('list');
   const [sortBy, setSortBy] = useState('relevant');
@@ -108,19 +109,6 @@ export default function Results() {
 
   const properties: CreateProperty[] = (data?.data ?? []);
   const totalProperties = data?.total ?? 0;
-
-  const userId = (sessionData?.user as any)?.id ?? null;
-
-  const { data: favoritesData } = useQuery({
-    queryKey: ['favorites', userId],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/favourites/user/${userId}`),
-    enabled: !!userId,
-  });
-
-  const favorites = useMemo<Set<number>>(() => {
-    if (!Array.isArray(favoritesData)) return new Set();
-    return new Set(favoritesData.map((f: any) => f.property_id ?? f.id));
-  }, [favoritesData]);
   const stableTotalRef = useRef(0);
   const stableTotalFilterKeyRef = useRef('');
 
@@ -165,20 +153,6 @@ export default function Results() {
     const nextSearch = params.toString();
     window.history.replaceState(window.history.state, '', `/results?${nextSearch}`);
     window.dispatchEvent(new CustomEvent('results:filters-changed', { detail: { search: nextSearch } }));
-  };
-
-  const handleToggleFavorite = async (propertyId: number) => {
-    if (!userId) return;
-    const nextStatus = !favorites.has(propertyId);
-    try {
-      await apiFetch(`${API_BASE_URL}/favourites/toggle`, {
-        method: 'POST',
-        body: { property_id: propertyId, user_id: Number(userId), status: nextStatus },
-      });
-      queryClient.invalidateQueries({ queryKey: ['favorites', userId] });
-    } catch {
-      // silently ignore — list stays as-is
-    }
   };
 
   return (
@@ -276,6 +250,7 @@ export default function Results() {
                   key={property.id}
                   property={{ ...property, isFavorite: favorites.has(property.id ?? 0) } as any}
                   onFavorite={() => handleToggleFavorite(property.id ?? 0)}
+                  isLoggedIn={isLoggedIn}
                 />
               ))}
             </div>
@@ -286,6 +261,7 @@ export default function Results() {
                   <PropertyCardMapList
                     property={{ ...property, isFavorite: favorites.has(property.id ?? 0) } as any}
                     onFavorite={() => handleToggleFavorite(property.id ?? 0)}
+                    isLoggedIn={isLoggedIn}
                   />  
                 </div>
               ))}

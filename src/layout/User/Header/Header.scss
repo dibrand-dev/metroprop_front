@@ -380,10 +380,8 @@ $font-family-button: Montserrat, sans-serif;
   }
 
   img.metroLogoDesktop {
-    height: 100%;
-    width: auto;
+    width: 300px;
     display: block;
-    max-width: 160px;
 
     @media (max-width: 768px) {
       display: none;

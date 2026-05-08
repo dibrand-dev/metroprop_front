@@ -29,7 +29,7 @@ const items: SubmenuItem[] = [
   { id: 'cambiar_email', label: 'Cambiar email', href: "/protected/changeEmail", roles: [1, 2, 3, 4] },
   { id: 'notificaciones', label: 'Notificaciones', href: "/protected/notifications", roles: [1, 2, 3, 4] },
   { id: 'eliminar_cuenta', label: 'Eliminar cuenta', href: "/protected/deleteAccount", roles: [1, 2, 3, 4] },
-  { id: 'partners', label: 'Partners', href: "/protected/partners", roles: [4] },
+  { id: 'partners', label: 'Partners', href: "/protected/partners", roles: [4,1] },
 ];
 
 function getUserRoleId(user: any): number | null {

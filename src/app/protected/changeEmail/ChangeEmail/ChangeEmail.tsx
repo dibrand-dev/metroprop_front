@@ -2,17 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import './ChangeEmail.scss';
-import InputField2 from '@/ui/InputField2/InputField2';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import { useSession } from 'next-auth/react';
-import Checkbox from '@/ui/Checkbox/Checkbox';
 import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import InputField from '@/ui/InputField/InputField';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import { apiFetch } from '@/lib/apiFetch';
 
-const iconEditPencil = "/icons/pencil.svg";
 const iconArrowBack = "/icons/arrow.svg";
 
 interface PropertyData {
