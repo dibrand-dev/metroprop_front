@@ -380,26 +380,25 @@ $font-family-button: Montserrat, sans-serif;
   }
 
   img.metroLogoDesktop {
-    width: 300px;
+    height: 32px;
     display: block;
 
-    @media (max-width: 768px) {
+    @media (max-width: 990px) {
       display: none;
     }
   }
 
   img.metroLogoMobile {
-    height: 100%;
     width: auto;
     display: none;
-    max-width: 120px;
 
-    @media (max-width: 768px) {
+    @media (max-width: 990px) {
       display: block;
+      height: 32px;
     }
   }
 
-   @media (max-width: 768px) {
+   @media (max-width: 990px) {
     flex-grow: 1;
   }
 

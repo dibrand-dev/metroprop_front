@@ -7,7 +7,7 @@ import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/Lo
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const logoMetroprop = "/images/metroprop.svg";
-const logoMetropropMobile = "/images/metropropLogo_mobile.png";
+const logoMetropropMobile = "/images/metropropLogo_mobile.svg";
 const chevronIcon = "/icons/chevron-up.svg";
 
 interface DropdownSubItem {
@@ -288,7 +288,10 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           </div>
         )} 
         <div className="header-logo">
-          <a href="/"><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /><img src={logoMetropropMobile} alt="MetroProp" className="metroLogoMobile" /></a>
+          <a href="/">
+            <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
+            <img src={logoMetropropMobile} alt="MetroProp" className="metroLogoMobile" />
+          </a>
         </div>        
 
         {/* Right Section - Login Button or User Menu */}
