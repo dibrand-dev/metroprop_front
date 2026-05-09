@@ -6,7 +6,7 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import { useSession } from 'next-auth/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, getIdentificador, setImagePath } from '@/utils/utils';
 import Select from '@/ui/Select/Select';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
@@ -98,7 +98,7 @@ export default function OrganizationProfile() {
     if (org.state_id) setState_id(org.state_id);
     if (org.location_id) setLocation_id(org.location_id);
     if (org.sub_location_id) setSub_location_id(org.sub_location_id);
-    if (org.company_logo) setLogoPreview(org.company_logo);
+    if (org.company_logo) setLogoPreview(setImagePath(org.company_logo));
     setProperties({
       email: org.email ?? '',
       company_name: org.company_name ?? org.name ?? '',
@@ -134,12 +134,11 @@ export default function OrganizationProfile() {
       } else if (logoPreview) {
         payload.append('company_logo', logoPreview);
       }
-      const res = await fetch(`${API_BASE_URL}/organizations/${organizationId}`, {
+      const res = await apiFetch(`${API_BASE_URL}/organizations/${organizationId}`, {
         method: 'PATCH',
         body: payload,
       });
-      if (!res.ok) throw new Error('Error updating organization');
-      return res.json();
+      return res;
     },
     onSuccess: () => {
       setSuccessMessage('Organización editada correctamente');
@@ -171,7 +170,7 @@ export default function OrganizationProfile() {
     const file = event.target.files?.[0];
     if (!file) return;
     setLogoFile(file);
-    setLogoPreview(URL.createObjectURL(file));
+    setLogoPreview(setImagePath(URL.createObjectURL(file)));
     event.target.value = '';
   };
 
@@ -213,10 +212,12 @@ export default function OrganizationProfile() {
             </div>
             
             <div className="professional-profile-fields">               
-              <div className="professional-profile-identifier-text">
-                <p className="professional-profile-label">Identificador:</p>
-                <p className="professional-profile-value">????????????????</p>
-              </div>
+              {organizationData?.id && (
+                <div className="professional-profile-identifier-text">
+                  <p className="professional-profile-label">Identificador:</p>
+                  <p className="professional-profile-value">{getIdentificador(organizationData.id)}</p>
+                </div>
+              )}
               <div className="branch-form-logo">
                 <button
                   className="branch-form-logo-upload"
@@ -281,8 +282,8 @@ export default function OrganizationProfile() {
               <InputField2
                 type="text"
                 placeholder="Número de matrícula"
-                value={properties.matricula}
-                onChange={(e) => handleInputChange('matricula', e.target.value)}
+                value={properties.license_number}
+                onChange={(e) => handleInputChange('license_number', e.target.value)}
                 disabled={!(isEditing && activeSection === 'generales')}
                 label="Número de matrícula"
               />

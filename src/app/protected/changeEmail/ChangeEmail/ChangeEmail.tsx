@@ -32,12 +32,9 @@ export default function ChangeEmail() {
 
   const updateUserMutation = useMutation({
     mutationFn: async (data: any) => {
-      const userId = (sessionData?.user as any)?.id;
-      if (!userId) throw new Error('No user id');
-      const result = await apiFetch<any>(`${API_BASE_URL}/users/${userId}/change-email`, {
+      const result = await apiFetch<any>(`${API_BASE_URL}/users/change-email`, {
         method: 'POST',
         body: {
-          id: userId,
           oldEmail: data.oldEmail,
           newEmail: data.newEmail,
         },

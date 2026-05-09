@@ -8,7 +8,7 @@ import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
 import { useSession } from 'next-auth/react';
 import { API_BASE_URL } from '@/utils/utils';
 import Button from '@/ui/Button/Button';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 
 const iconArrowBack = '/icons/arrow.svg';
@@ -24,6 +24,7 @@ export default function Branches() {
   const router = useRouter();
 
   const orgId = (sessionData?.user as any)?.organization?.id ?? null;
+  const queryClient = useQueryClient();
 
   const { data: fetchedBranches } = useQuery({
     queryKey: ['branches', orgId],
@@ -45,9 +46,10 @@ export default function Branches() {
     );
     try {
       await apiFetch(`${API_BASE_URL}/branches/${id}`, {
-        method: 'PUT',
-        body: { is_active: nextValue },
+        method: 'PATCH',
+        body: { deleted: !nextValue },
       });
+      queryClient.invalidateQueries({ queryKey: ['branches', orgId] });
     } catch {
       // revert on error
       setBranches((prev) =>
@@ -83,7 +85,7 @@ export default function Branches() {
               <h1>Sucursales</h1>
               <p>{branchDescription}</p>
             </div>
-            <Button  onClick={() => router.push('/protected/branchForm')} label="Agregar sucursal" />
+            <Button onClick={() => router.push('/protected/branchForm')} label="Agregar sucursal" />
           </div>
 
           <div className="branches-list">
@@ -101,11 +103,11 @@ export default function Branches() {
                 <div className="branches-card-actions">
                   <div className="branches-card-status">
                     <SwitchToggle
-                      checked={branch.active}
+                      checked={!branch.deleted}
                       onChange={(nextValue) => handleToggle(branch.id, nextValue)}
                       ariaLabel={`Cambiar estado de ${branch.name}`}
                     />
-                    <span className="branches-status-chip">Activa</span>
+                    <span className={`branches-status-chip ${!branch.deleted ? '' : 'inactive'}`}>{!branch.deleted ? 'Activa' : 'Inactiva'}</span>
                   </div>
                   <button
                     className="branches-card-edit"

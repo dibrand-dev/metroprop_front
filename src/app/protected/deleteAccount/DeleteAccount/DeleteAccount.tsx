@@ -50,7 +50,7 @@ export default function DeleteAccount() {
     const errors = { password: '' };
     if (field === 'password' || next.password) {
       const pw = field === 'password' ? nextValue : next.password;
-      if (pw && pw.length < 8) errors.password = 'La contraseña debe tener al menos 8 caracteres';
+      if (pw && pw.length < 6) errors.password = 'La contraseña debe tener al menos 6 caracteres';
     }
     setFieldErrors(errors);
   };
@@ -58,7 +58,7 @@ export default function DeleteAccount() {
   const validate = (): boolean => {
     const errors = { password: '', newPassword: '', confirmPassword: '' };
     if (!properties.password) errors.password = 'Ingresa tu contraseña actual';
-    else if (properties.password.length < 8) errors.password = 'La contraseña debe tener al menos 8 caracteres';
+    else if (properties.password.length < 6) errors.password = 'La contraseña debe tener al menos 6 caracteres';
     setFieldErrors(errors);
     return !errors.password;
   };
@@ -103,6 +103,7 @@ export default function DeleteAccount() {
             <ul>
               <li>Se perderán publicaciones activas</li>
               <li>Se eliminarán datos guardados (favoritos, borradores, historial)</li>
+              <li>Para dar de baja tus avisos, deshabilita la publicacion con Metroprop desde tu CRM</li>
             </ul>
           </section>
           <section className="professional-profile-section">                     

@@ -60,6 +60,11 @@
     gap: 16px;
     align-items: center;
     justify-content: center;
+    width: 100%;
+
+    .modal-message {
+      width: 100%;
+    }
   }
 
   .modal-message-title {

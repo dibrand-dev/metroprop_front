@@ -245,3 +245,32 @@
     padding-bottom: 120px;
   }
 }
+
+
+.reset-collaborator-password {
+  text-align: left;
+
+  h2 {
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 26px;
+    letter-spacing: 0%;
+    margin-bottom: 32px;
+  }
+
+  .reset-modal-inputs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .form-help-text {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 22px;
+    letter-spacing: 0%;
+    color: #7A7A7A;
+    margin-top: -10px;
+  }
+}

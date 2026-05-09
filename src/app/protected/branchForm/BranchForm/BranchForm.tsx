@@ -1,15 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import './BranchForm.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
+import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import Select from '@/ui/Select/Select';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
 import { useSession } from 'next-auth/react';
 import InputField from '@/ui/InputField/InputField';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
 
@@ -20,12 +22,13 @@ interface BranchFormProps {
 }
 
 export default function BranchForm({ branchId }: BranchFormProps) {
+  const router = useRouter();
   const { data: sessionData, update: updateSession } = useSession();
   const [showMenu, setShowMenu] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   const [formData, setFormData] = useState<any>({
@@ -89,7 +92,7 @@ export default function BranchForm({ branchId }: BranchFormProps) {
           city: branch.location_id != null ? String(branch.location_id) : undefined,
           neighborhood: branch.sub_location_id != null ? String(branch.sub_location_id) : undefined,
         });
-        if (branch.branch_logo) setLogoPreview(branch.branch_logo);
+        if (branch.branch_logo) setLogoPreview(setImagePath(branch.branch_logo));
       })
       .catch(console.error);
   }, [branchId]);
@@ -120,17 +123,14 @@ export default function BranchForm({ branchId }: BranchFormProps) {
       const url = isEditing
         ? `${API_BASE_URL}/branches/${branchId}`
         : `${API_BASE_URL}/branches`;
-      const res = await fetch(url, {
+      const data = await apiFetch<any>(url, {
         method: isEditing ? 'PATCH' : 'POST',
         body: payload,
       });
-      if (!res.ok) throw new Error('Error al guardar la sucursal');
-      return { status: res.status, data: await res.json() };
+      return { status: isEditing ? 200 : 201, data };
     },
     onSuccess: (result) => {
-      setSuccessMessage(isEditing ? 'Sucursal actualizada correctamente.' : 'Sucursal creada correctamente.');
       setErrorMessage('');
-      setTimeout(() => setSuccessMessage(''), 4000);
       // Update session with new/updated branch
       const currentBranches: any[] = (sessionData?.user as any)?.organization?.branches ?? [];
       const savedBranch = result.data;
@@ -139,7 +139,7 @@ export default function BranchForm({ branchId }: BranchFormProps) {
         : [...currentBranches, savedBranch];
       const currentOrg = (sessionData?.user as any)?.organization ?? {};
       updateSession({ organization: { ...currentOrg, branches: updatedBranches } });
-      if (!isEditing && result.status === 201) {
+      if (!isEditing) {
         setFormData({
           branch_name: '',
           email: '',
@@ -154,6 +154,11 @@ export default function BranchForm({ branchId }: BranchFormProps) {
         setLogoFile(null);
         setLogoPreview('');
       }
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        router.push('/protected/branches');
+      }, 3000);
     },
     onError: (err: any) => {
       setErrorMessage(err?.message ?? 'Error al guardar la sucursal. Intenta de nuevo.');
@@ -176,7 +181,7 @@ export default function BranchForm({ branchId }: BranchFormProps) {
     const file = event.target.files?.[0];
     if (!file) return;
     setLogoFile(file);
-    setLogoPreview(URL.createObjectURL(file));
+    setLogoPreview(setImagePath(URL.createObjectURL(file)));
     event.target.value = '';
   };
 
@@ -342,8 +347,11 @@ export default function BranchForm({ branchId }: BranchFormProps) {
           </div>
         </form>
 
-        {successMessage && (
-          <div className="branch-form-feedback branch-form-feedback--success">{successMessage}</div>
+        {showSuccessModal && (
+          <SuccessModal
+            title={isEditing ? '¡Sucursal actualizada!' : '¡Sucursal creada!'}
+            text={isEditing ? 'Los datos de la sucursal fueron guardados exitosamente.' : 'La sucursal fue creada exitosamente.'}
+          />
         )}
         {errorMessage && (
           <div className="branch-form-feedback branch-form-feedback--error">{errorMessage}</div>

@@ -210,6 +210,9 @@
   letter-spacing: 0.08px;
   padding: 4px;
   border-radius: 2px;
+  &.inactive {
+    color: #ff0000;
+  }
 }
 
 .branches-card-edit {

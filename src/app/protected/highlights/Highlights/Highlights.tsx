@@ -5,17 +5,14 @@ import './Highlights.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import Select from '@/ui/Select/Select';
 import { useSession } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/apiFetch';
+import { API_BASE_URL } from '@/utils/utils';
 
 const iconArrowBack = '/icons/arrow.svg';
 
 const highlightDescription =
   'Los productos se actualizarán automáticamente según las adquisiciones y usos.';
-
-const defaultProducts = [
-  { name: 'Premium', purchased: 4, available: 0, active: 4 },
-  { name: 'Destacados', purchased: 12, available: 1, active: 11 },
-  { name: 'Simple', purchased: 120, available: 64, active: 127 },
-];
 
 export default function Highlights() {
   const { data: sessionData } = useSession();
@@ -28,16 +25,11 @@ export default function Highlights() {
     ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
   ];
 
-  const highlightData = branches.map((b: any) => ({
-    id: String(b.id),
-    name: b.branch_name ?? b.name ?? String(b.id),
-    products: defaultProducts,
-  }));
-
-  const filteredBranches =
-    branchFilter === 'todas'
-      ? highlightData
-      : highlightData.filter((branch) => branch.id === branchFilter);
+  const { data: plans = [], isLoading: loadingPlans } = useQuery<any[]>({
+    queryKey: ['branch-plans', branchFilter],
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}`),
+    enabled: branchFilter !== 'todas',
+  });
 
   return (
     <div className={`professionalContainer ${!showMenu ? 'activeMenuMobile' : ''}`}>
@@ -71,10 +63,10 @@ export default function Highlights() {
             />
           </div>
 
-          <div className="highlights-list">
-            {filteredBranches.map((branch) => (
-              <div key={branch.id} className="highlights-card">
-                <h3>{branch.name}</h3>
+          {branchFilter !== 'todas' && (
+            <div className="highlights-list">
+              <div className="highlights-card">
+                <h3>{branchOptions.find(o => o.value === branchFilter)?.label}</h3>
                 <div className="highlights-table">
                   <div className="highlights-row highlights-row-header">
                     <span>Productos</span>
@@ -82,12 +74,18 @@ export default function Highlights() {
                     <span>Disponibles</span>
                     <span>Activos</span>
                   </div>
-                  {branch.products.map((product) => (
-                    <div key={product.name} className="highlights-row">
-                      <span>{product.name}</span>
-                      <span>{product.purchased}</span>
-                      <span>{product.available}</span>
-                      <span>{product.active}</span>
+                  {loadingPlans && (
+                    <div className="highlights-row"><span>Cargando...</span></div>
+                  )}
+                  {!loadingPlans && plans.length === 0 && (
+                    <div className="highlights-row"><span>Sin productos disponibles</span></div>
+                  )}
+                  {plans.map((plan: any, idx: number) => (
+                    <div key={plan.id ?? idx} className="highlights-row">
+                      <span>{plan.name}</span>
+                      <span>{plan.purchased ?? plan.total ?? '-'}</span>
+                      <span>{plan.available ?? plan.remaining ?? '-'}</span>
+                      <span>{plan.active ?? plan.used ?? '-'}</span>
                     </div>
                   ))}
                 </div>
@@ -95,8 +93,8 @@ export default function Highlights() {
                   <div className="highlights-progress-bar" />
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -80,11 +80,11 @@ export default function ChangePassword() {
     const errors = { password: '', newPassword: '', confirmPassword: '' };
     if (field === 'password' || next.password) {
       const pw = field === 'password' ? nextValue : next.password;
-      if (pw && pw.length < 8) errors.password = 'La contraseña debe tener al menos 8 caracteres';
+      if (pw && pw.length < 6) errors.password = 'La contraseña debe tener al menos 6 caracteres';
     }
     if (field === 'newPassword' || next.newPassword) {
       const npw = field === 'newPassword' ? nextValue : next.newPassword;
-      if (npw && npw.length < 8) errors.newPassword = 'La contraseña debe tener al menos 8 caracteres';
+      if (npw && npw.length < 6) errors.newPassword = 'La contraseña debe tener al menos 6 caracteres';
     }
     if (field === 'confirmPassword' || next.confirmPassword) {
       const cpw = field === 'confirmPassword' ? nextValue : next.confirmPassword;
@@ -97,9 +97,9 @@ export default function ChangePassword() {
   const validate = (): boolean => {
     const errors = { password: '', newPassword: '', confirmPassword: '' };
     if (!properties.password) errors.password = 'Ingresa tu contraseña actual';
-    else if (properties.password.length < 8) errors.password = 'La contraseña debe tener al menos 8 caracteres';
+    else if (properties.password.length < 6) errors.password = 'La contraseña debe tener al menos 6 caracteres';
     if (!properties.newPassword) errors.newPassword = 'Ingresa la nueva contraseña';
-    else if (properties.newPassword.length < 8) errors.newPassword = 'La contraseña debe tener al menos 8 caracteres';
+    else if (properties.newPassword.length < 6) errors.newPassword = 'La contraseña debe tener al menos 6 caracteres';
     if (!properties.confirmPassword) errors.confirmPassword = 'Repite la nueva contraseña';
     else if (properties.newPassword !== properties.confirmPassword) errors.confirmPassword = 'Las contraseñas no coinciden';
     setFieldErrors(errors);
