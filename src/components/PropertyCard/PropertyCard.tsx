@@ -10,14 +10,15 @@ import { apiFetch } from '@/lib/apiFetch';
 import './PropertyCard.scss';
 import './PropertyCardGridList.scss';
 import './PropertyCardMapList.scss';
+import './PropertyCardFavoritesList.scss';
+import Button from '@/ui/Button/Button';
 
-export type PropertyCardType = 'home' | 'gridList' | 'map';
+export type PropertyCardType = 'home' | 'gridList' | 'map' | 'favorites';
 
 export interface PropertyCardProps {
   property: CreateProperty;
   cardType: PropertyCardType;
   onFavorite?: (id: number) => void;
-  /** Show the favorite button (gridList / map types only show it when true) */
   isLoggedIn?: boolean;
   /** When true, image click navigates to detail instead of opening gallery */
   fromMap?: boolean;
@@ -83,8 +84,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
 
   const goToDetail = () => router.push(`/propertyDetail/${property.id}`);
   const handleFavorite = (e: React.MouseEvent) => { e.stopPropagation(); onFavorite?.(property.id ?? 0); };
-  const showFavoriteBtn = cardType === 'home' || isLoggedIn || !!onFavorite;
-
+  const showFavoriteBtn = isLoggedIn;
   const org = (property as any).organization;
 
   const galleryModal = (
@@ -111,9 +111,9 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
               onClick={gallery.openGallery}
               style={{ cursor: gallery.hasImages ? 'pointer' : 'default' }}
             />
-            <button className="property-card-heart" onClick={handleFavorite} aria-label="Add to favorites">
+            {showFavoriteBtn && (<button className="property-card-heart" onClick={handleFavorite} aria-label="Add to favorites">
               <HeartIcon isFavorite={isFavorite} />
-            </button>
+            </button>)}
           </div>
           <div className="property-card-info">
             <h3 className="property-card-title">{property.publication_title}</h3>
@@ -193,46 +193,100 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
     );
   }
 
-  // ── MAP ───────────────────────────────────────────────────────────────────
-  return (
-    <>
-      <div className="property-card-map-list" onClick={goToDetail}>
-        <div className="card-content">
-          <img
-            src={gallery.firstImage}
-            alt={property.publication_title}
-            className="property-image"
-            onClick={gallery.openGallery}
-            title="Abrir galería"
-          />
-          <div className="property-info">
-            <div className="title-row">
-              <div className="price-section">
-                <div className="total-price">{property.currency} {formatNumbers(property.price)}</div>
-                {(property.price_square_meter ?? 0) > 0 && (
-                  <div className="price-per-meter">{property.currency} {formatNumbers(property.price_square_meter!)}</div>
+  if (cardType === 'map') {
+    return (
+      <>
+        <div className="property-card-map-list" onClick={goToDetail}>
+          <div className="card-content">
+            <img
+              src={gallery.firstImage}
+              alt={property.publication_title}
+              className="property-image"
+              onClick={gallery.openGallery}
+              title="Abrir galería"
+            />
+            <div className="property-info">
+              <div className="title-row">
+                <div className="price-section">
+                  <div className="total-price">{property.currency} {formatNumbers(property.price)}</div>
+                  {(property.price_square_meter ?? 0) > 0 && (
+                    <div className="price-per-meter">{property.currency} {formatNumbers(property.price_square_meter!)}</div>
+                  )}
+                </div>
+                {showFavoriteBtn && (
+                  <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
+                    <HeartIcon isFavorite={isFavorite} />
+                  </button>
                 )}
               </div>
-              {showFavoriteBtn && (
-                <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
-                  <HeartIcon isFavorite={isFavorite} />
-                </button>
-              )}
-            </div>
-            <div className="details-row">
-              <div className="address">{property.street}</div>
-              <div className="specs">
-                {(property.room_amount ?? 0) > 0 && <span>{property.room_amount} amb.</span>}
-                {(property.bathroom_amount ?? 0) > 0 && <span>{property.bathroom_amount} baños</span>}
-                {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m² tot.</span>
-                  : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m²</span> : null}
+              <div className="details-row">
+                <div className="address">{property.street}</div>
+                <div className="specs">
+                  {(property.room_amount ?? 0) > 0 && <span>{property.room_amount} amb.</span>}
+                  {(property.bathroom_amount ?? 0) > 0 && <span>{property.bathroom_amount} baños</span>}
+                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m² tot.</span>
+                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m²</span> : null}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      {galleryModal}
-    </>
-  );
+        {galleryModal}
+      </>
+    );
+  }
+
+  if (cardType === 'favorites') {
+    return (
+      <>
+        <div className="property-card-favorites-list" onClick={goToDetail}>
+          <div className="card-content">
+            <img
+              src={gallery.firstImage}
+              alt={property.publication_title}
+              className="property-image"
+              onClick={gallery.openGallery}
+              title="Abrir galería"
+            />
+            <div className="property-info">
+              {org?.company_logo && (
+                <div>
+                  <img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />
+                </div>
+              )}
+              <div className="title-row">
+                <div className="price-section">
+                  <div className="total-price">{property.currency} {formatNumbers(property.price)}</div>
+                  {property.price_square_meter! > 0 && (
+                    <div className="price-per-meter">{property.currency} {formatNumbers(property.price_square_meter!)}</div>
+                  )}
+                </div>
+                {property.expenses! > 0 && (
+                  <div className="expenses">{property.currency} {formatNumbers(property.expenses!)} expensas</div>
+                )}
+                {showFavoriteBtn && (
+                  <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
+                    <HeartIcon isFavorite={true} />
+                  </button>
+                )}
+              </div>
+              <div className="details-row">
+                <div className="address">{property.street}</div>
+                <div className="specs">
+                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m² tot.</span>
+                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m²</span> : null}
+                  {(property.room_amount ?? 0) > 0 && <span>{property.room_amount} amb.</span>}
+                  {(property.bathroom_amount ?? 0) > 0 && <span>{property.bathroom_amount} baños</span>}
+                </div>
+                <p>{property.publication_title}</p>
+                <Button label="Contactar" variant="primary" buttonType="1" size="small" onClick={goToDetail} />
+              </div>
+            </div>
+          </div>
+        </div>
+        {galleryModal}
+      </>
+    );
+  }
 }
 

@@ -1,0 +1,174 @@
+
+@import '../../styles/variables';
+
+.property-card-favorites-list {
+  width: 100%;
+  filter: $shadow-md;
+  position: relative;
+
+  .card-content {
+    background: $background-color;
+    border: 1.3px solid $border-color;
+    border-radius: $border-radius-md;
+    display: flex;
+    padding: 0;
+    align-items: stretch;
+    gap: 0;
+    &:hover {
+      background-color: white;
+    }
+
+    .property-image {
+      width: 460px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid transparent;
+      &:hover {
+        border-color: #006aff;
+      }
+    }
+    
+    .property-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px 16px 16px 16px;
+      width: 100%;
+      justify-content: space-between;
+
+      .agency-logo {
+        max-height: 48px;
+      }
+  
+      .expenses {
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 20px;
+        letter-spacing: 0.75%;
+      }
+
+      .details-row {
+        border-top: 1px solid #A6A6A6;
+        padding-top: 8px;
+        flex-direction: column;
+        display: flex;
+        gap: 8px;
+        padding-right: 0;
+        color: #1E1E1E;
+        
+        @media (max-width: 767px) {
+          flex-direction: column;
+          padding: 0;
+          justify-content: center;
+          align-items: flex-start;
+        }
+        .address {    
+          font-weight: 400;
+          font-size: 16px;
+          line-height: 20px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          flex-shrink: 1;
+          max-width: 100%;
+
+          text-transform: lowercase;
+          &:first-letter {
+            text-transform: uppercase;
+          }
+          @media (max-width: 767px) {
+            border-right: 0;
+            padding-right: 0;
+          }
+        }
+        .specs {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-shrink: 0;
+
+          span {
+            
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 20px;
+            white-space: nowrap;
+          }
+        }
+
+        button.btn {
+          height: 48px;;
+        }
+      }
+    }
+
+   
+  }
+
+  
+
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .price-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .price-per-sqm {    
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 22px;
+    color: #7A7A7A;
+    border-left: 1px solid #1E1E1E;
+    padding-left: 8px;
+  }
+
+  .total-price {
+    
+    color: var(--Metroprop-Texto-principal, #1E1E1E);
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 22px;
+  }
+
+  .price-per-meter {    
+    padding: 0 8px 1px 8px;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 10px;
+    color: #7A7A7A;
+    border-left: 1px solid #7A7A7A;
+    
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 22px; 
+  }
+
+  .favorite-button {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  
+}

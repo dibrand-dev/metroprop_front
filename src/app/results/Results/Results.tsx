@@ -249,7 +249,7 @@ export default function Results() {
                   key={property.id}
                   cardType="gridList"
                   property={{ ...property, isFavorite: favorites.has(property.id ?? 0) } as any}
-                  onFavorite={() => handleToggleFavorite(property.id ?? 0)}
+                  //onFavorite={() => handleToggleFavorite(property.id ?? 0)}
                   isLoggedIn={isLoggedIn}
                 />
               ))}
