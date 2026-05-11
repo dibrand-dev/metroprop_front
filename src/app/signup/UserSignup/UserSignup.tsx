@@ -13,6 +13,7 @@ import { useMutation } from '@tanstack/react-query';
 import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import Button from '@/ui/Button/Button';
 import { useGoogleAuth } from '@/lib/useGoogleAuth';
+import { apiFetch } from '@/lib/apiFetch';
 
 const iconGoogle = "/icons/google.svg";
 
