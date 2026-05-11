@@ -22,6 +22,7 @@ import { AWS_S3_BUCKET_URL, ORGANIZATION_NO_IMAGE } from '@/app/constants';
 import { fetchProperties } from '@/lib/properties';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/apiFetch';
+import { useFavoriteIds, useToggleFavorite } from '@/lib/useFavoriteIds';
 
 interface PropertyDetailProps {
   propertyId: string;
@@ -168,6 +169,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   };
 
   const dynamicAmenities = getAmenitiesByTab();
+  const favoriteIds = useFavoriteIds();
+  const toggleFavorite = useToggleFavorite();
+
   // Gallery images (non-blueprint, completed uploads)
   const galleryImages = useMemo(() => {
     return (property?.images ?? [])
@@ -328,6 +332,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     const top = target.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: 'smooth' });
   };
+
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
     <div className="property-detail-page">
@@ -336,14 +341,25 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         className={isSubmenuVisible ? 'is-visible' : ''}
         style={{ top: submenuOffset }}
         onItemClick={handleSubmenuItemClick}
+        isFavorite={property?.id != null && favoriteIds.has(property.id)}
+        onToggleFavorite={() => property?.id != null && toggleFavorite(property.id)}
       />
       <PhoneRevealModal
         isOpen={isPhoneModalOpen}
         onClose={() => setIsPhoneModalOpen(false)}
+        propertyId={property?.id}
+        userId={property?.user_id}
+        organizationId={(property as any)?.user?.organization_id ?? property?.organization_id}
+        ownerName={property?.owner_name}
+        ownerEmail={property?.owner_email}
+        ownerPhone={property?.owner_phone}
+        user={(property as any)?.user}
       />
       <WhatsappModal
         isOpen={isWhatsappModalOpen}
         onClose={() => setIsWhatsappModalOpen(false)}
+        phoneNumber={property?.user ? property.user.phone : property?.owner_phone ?? ''}
+        propertyId={property?.id ?? 0}
       />
       <button className="detail-back" onClick={() => router.back()} aria-label="Go back">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width={24} height={24}>
@@ -514,7 +530,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           </div>
 
           <aside className="property-detail-right">
-            <ContactForm />
+            <ContactForm
+              propertyId={property?.id}
+              userId={property?.user_id}
+              organizationId={(property as any)?.user?.organization_id ?? property?.organization_id}
+              phoneNumber={property?.user ? property.user.phone : property?.owner_phone ?? ''}
+            />
 
             <div className="property-detail-agent">
               <div className="property-detail-agent-header">
@@ -616,7 +637,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             </button>
           </div>
           <div className="property-detail-contact-modal-body">
-            <ContactForm isModal />
+            <ContactForm
+              isModal
+              propertyId={property?.id}
+              userId={property?.user_id}
+              organizationId={(property as any)?.user?.organization_id ?? property?.organization_id}
+              onClose={() => setIsContactModalOpen(false)}
+            />
           </div>
         </div>
       </div>

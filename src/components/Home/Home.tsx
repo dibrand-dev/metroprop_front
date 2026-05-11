@@ -12,6 +12,7 @@ import { fetchProperties } from '@/lib/properties';
 import { LOCATION_CABA_ID } from '@/app/constants';
 import type { CreateProperty } from '@/types/propiedad';
 import { useToggleFavorite, useFavoriteIds } from '@/lib/useFavoriteIds';
+import { useSession } from 'next-auth/react';
 
 export default function Home() {
   const services = [
@@ -44,7 +45,8 @@ export default function Home() {
       link: ""
     }
   ];
-
+  const { data: sessionData } = useSession();
+  const isLoggedIn = !!sessionData?.user;
   const router = useRouter();
   const handleToggleFavorite = useToggleFavorite();
   const favoriteIds = useFavoriteIds();
@@ -272,6 +274,7 @@ export default function Home() {
                     key={property.id}
                     property={{ ...property, isFavorite: favoriteIds.has(property.id ?? 0) } as any}
                     cardType="home"
+                    isLoggedIn={isLoggedIn}
                     onFavorite={handleToggleFavorite}
                   />
                 ))}

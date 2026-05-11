@@ -79,6 +79,14 @@
   &:hover {
     color: #006aff;
   }
+
+  &.is-favorite {
+    color: #e53935;
+
+    img {
+      filter: invert(20%) sepia(90%) saturate(400%) hue-rotate(330deg) brightness(90%);
+    }
+  }
 }
 
 @media (max-width: 1024px) {

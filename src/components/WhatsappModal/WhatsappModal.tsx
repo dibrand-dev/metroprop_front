@@ -7,13 +7,15 @@ import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 interface WhatsappModalProps {
   isOpen: boolean;
   onClose: () => void;
+  phoneNumber: string;
+  propertyId: number;
 }
 
 const closeIcon = '/icons/close.svg';
 const flagIcon = '/icons/flag.svg';
 const chevronIcon = '/icons/chevron-up.svg';
 
-export default function WhatsappModal({ isOpen, onClose }: WhatsappModalProps) {
+export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId }: WhatsappModalProps) {
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [formState, setFormState] = useState({
     name: '',
@@ -63,6 +65,11 @@ export default function WhatsappModal({ isOpen, onClose }: WhatsappModalProps) {
       countryCode: dialCode || prev.countryCode,
       country: name || prev.country,
     }));
+  };
+
+  const openWhatsApp = () => {
+    const message = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a>`);
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
   };
 
   return (
@@ -156,7 +163,7 @@ export default function WhatsappModal({ isOpen, onClose }: WhatsappModalProps) {
             </label>
           </div>
 
-          <button type="button" className="whatsapp-modal-submit">
+          <button type="button" className="whatsapp-modal-submit" onClick={openWhatsApp}>
             Iniciar chat
           </button>
         </div>

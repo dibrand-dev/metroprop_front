@@ -3,6 +3,7 @@
 
 .property-card-favorites-list {
   width: 100%;
+  max-height: 300px;
   filter: $shadow-md;
   position: relative;
 
@@ -20,6 +21,7 @@
 
     .property-image {
       width: 460px;
+      max-height: 300px;
       object-fit: cover;
       flex-shrink: 0;
       border: 1px solid transparent;
@@ -100,13 +102,8 @@
           height: 48px;;
         }
       }
-    }
-
-   
+    }   
   }
-
-  
-
 
   .title-row {
     display: flex;
@@ -168,7 +165,15 @@
     &:hover {
       opacity: 0.7;
     }
-  }
+  }  
+}
 
-  
+.contacts-button-container {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+
+  button {
+    width: 100%;
+  }
 }

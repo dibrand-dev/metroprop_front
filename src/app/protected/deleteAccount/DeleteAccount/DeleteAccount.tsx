@@ -101,12 +101,12 @@ export default function DeleteAccount() {
           <section className='section-warning'>
             <h2>Esta acción eliminará tus datos de forma permanente</h2>
             <ul>
-              <li>Se perderán publicaciones activas</li>
-              <li>Se eliminarán datos guardados (favoritos, borradores, historial)</li>
               <li>Para dar de baja tus avisos, deshabilita la publicacion con Metroprop desde tu CRM</li>
+              <li>Se perderán publicaciones activas</li>
+              <li>Se eliminarán datos guardados (favoritos, borradores, historial)</li>              
             </ul>
           </section>
-          <section className="professional-profile-section">                     
+          {/*<section className="professional-profile-section">                     
             <div className="professional-profile-fields">
               <InputField
                 type="password"
@@ -119,7 +119,7 @@ export default function DeleteAccount() {
             </div>
           </section>
 
-          {/* Save Button */}          
+          {/* Save Button           
           <button className="professional-profile-save-button" onClick={handleSave} disabled={updateUserMutation.isPending || hasErrors || isFormEmpty}>
             {updateUserMutation.isPending ? 'Eliminando...' : 'Eliminar cuenta'}
           </button>
@@ -129,7 +129,7 @@ export default function DeleteAccount() {
           )}
           {errorMessage && (
             <div className="profile-feedback profile-feedback--error">{errorMessage}</div>
-          )}
+          )}*/}
         </div>
       </div>
 

@@ -11,7 +11,7 @@
 
 .phone-reveal-modal {
   width: 100%;
-  max-width: 480px;
+  max-width: 650px;
   background: #ffffff;
   border: 1px solid #a6a6a6;
   border-radius: 8px;
@@ -60,6 +60,10 @@
     font-weight: 800;
     line-height: 30px;
     color: #1e1e1e;
+  }
+
+  ul.phone-reveal-contact-list {
+    margin: 24px 0;
   }
 }
 

@@ -75,15 +75,14 @@ export default function Plans() {
   };
 
   const confirmMessages: Record<string, { title: string; text: string; icon: string }> = {
-    refresh: { title: 'Refresh API Key', text: '¿Estás seguro que desea refrescar la API key del partner?', icon: iconRefresh },
-    disable: { title: 'Deshabilitar Partner', text: '¿Estás seguro que desea deshabilitar el partner?', icon: iconLock },
-    enable: { title: 'Habilitar Partner', text: '¿Estás seguro que desea habilitar el partner?', icon: iconCheck },
-    delete: { title: 'Eliminar Partner', text: '¿Estás seguro que desea eliminar el partner?', icon: iconTrash },
+    disable: { title: 'Deshabilitar Plan', text: '¿Estás seguro que desea deshabilitar el plan?', icon: iconLock },
+    enable: { title: 'Habilitar Plan', text: '¿Estás seguro que desea habilitar el plan?', icon: iconCheck },
+    delete: { title: 'Eliminar Plan', text: '¿Estás seguro que desea eliminar el plan?', icon: iconTrash },
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading partners</div>;
-
+  if (isLoading) return <div>Cargando...</div>;
+  if (isError) return <div>Error cargando los planes</div>;
+  console.log("plansData", plansData)
   return (
     <div className={`professionalContainer ${!showMenu ? 'activeMenuMobile' : ''}`}>
       <Submenu active={showMenu} />
@@ -95,49 +94,39 @@ export default function Plans() {
             onClick={() => setShowMenu(true)}
           >
             <img src={iconArrowBack} alt="Back" />
-            <span>Partners</span>
+            <span>Planes</span>
           </button>
         </div>
 
         <div className="partners-content">
           <div className="partners-header">
             <div>
-              <h1>Partners</h1>
-              <p>Aca podes crear, eliminar, deshabilitar y actualizar keys de los partners</p>
+              <h1>Planes</h1>
+              <p>Aca podes crear, eliminar, deshabilitar y actualizar los planes</p>
             </div>
-            <button className="partners-add-button" type="button" onClick={() => router.push('/protected/partnerForm')}>
-              Agregar partner
+            <button className="partners-add-button" type="button" onClick={() => router.push('/protected/planForm')}>
+              Agregar plan
             </button>
           </div>
 
           <div className="partners-list">
-            {plansData?.plans?.map((plan) => (
+            {plansData?.map((plan) => (
               <div key={plan.id} className="partners-card">
                 <div className="partners-card-info">
                   <p className="partners-card-title">
-                    {plan.name ?? ''}
+                    {plan.plan_name ?? ''}
                   </p>
                   <p className="partners-card-subtitle">
-                    {plan.description ?? ''}
+                    {plan.plan_description ?? ''}
                   </p>
                 </div>
                 <div className="partners-card-actions">
-                  <span className="partners-role-chip">{plan.status === 1 ? 'Habilitado' : 'Deshabilitado'}</span>                  
-                  <div className="partners-card-tools">
+                  <span className="partners-role-chip">{plan.is_active ? 'Habilitado' : 'Deshabilitado'}</span>                  
+                  <div className="partners-card-tools">                                  
                     <button
                       className="partners-action-button"
                       type="button"
-                      aria-label="Ver Api key"
-                      onClick={() => setRefreshCredentials({ app_key: plan.app_key, app_secret: plan.app_secret })}
-                    >
-                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>                   
-                    <button
-                      className="partners-action-button"
-                      type="button"
+                      title="Editar plan"
                       aria-label="Editar plan"
                       onClick={() => router.push(`/protected/planForm/${plan.id}`)}
                     >
@@ -146,22 +135,16 @@ export default function Plans() {
                     <button
                       className="partners-action-button"
                       type="button"
-                      aria-label="Refresh Api key"
-                      onClick={() => refresh(plan.id)}
+                      title={plan.is_active ? "Deshabilitar plan" : "Habilitar plan"}
+                      aria-label={plan.is_active ? "Deshabilitar plan" : "Habilitar plan"}
+                      onClick={() => plan.is_active ? desHabilitar(plan.id) : habilitar(plan.id)}
                     >
-                      <img src={iconRefresh} alt="Refresh Api key" />
+                      <img src={plan.is_active ? iconLock : iconCheck} alt={plan.is_active ? "Deshabilitar plan" : "Habilitar plan"} />
                     </button>
                     <button
                       className="partners-action-button"
                       type="button"
-                      aria-label={plan.status === 1 ? "Deshabilitar plan" : "Habilitar plan"}
-                      onClick={() => plan.status === 1 ? desHabilitar(plan.id) : habilitar(plan.id)}
-                    >
-                      <img src={plan.status === 1 ? iconLock : iconCheck} alt={plan.status === 1 ? "Deshabilitar plan" : "Habilitar plan"} />
-                    </button>
-                    <button
-                      className="partners-action-button"
-                      type="button"
+                      title="Eliminar plan"
                       aria-label="Eliminar plan"
                       onClick={() => eliminar(plan.id)}
                     >

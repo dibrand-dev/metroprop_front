@@ -19,7 +19,14 @@ export default function Highlights() {
   const [showMenu, setShowMenu] = useState(false);
   const [branchFilter, setBranchFilter] = useState('todas');
 
-  const branches: any[] = (sessionData?.user as any)?.organization?.branches ?? [];
+  const orgId = (sessionData?.user as any)?.organization?.id ?? null;
+
+  const { data: fetchedBranches = [] } = useQuery<any[]>({
+    queryKey: ['branches', orgId],
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/branches/organization/${orgId}`),
+    enabled: !!orgId,
+  });
+  const branches: any[] = Array.isArray(fetchedBranches) ? fetchedBranches : [];
   const branchOptions = [
     { value: 'todas', label: 'Todas' },
     ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),

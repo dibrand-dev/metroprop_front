@@ -1,10 +1,13 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './PublishPlans.scss';
 import Select from '@/ui/Select/Select';
 import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 import { useSession } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/apiFetch';
+import { API_BASE_URL } from '@/utils/utils';
 
 interface PublishPlansProps {
   wizardData: CreatePropertyDraft;
@@ -27,27 +30,6 @@ const planOptions = [
   },
 ];
 
-const extraPlans = [
-  {
-    id: 'premium',
-    label: '1 Premium',
-    price: '$20.000,25',
-    period: '/mes',
-  },
-  {
-    id: 'destacada',
-    label: '1 Destacada',
-    price: '$20.000,25',
-    period: '/mes',
-  },
-  {
-    id: 'simple',
-    label: '1 Simple',
-    price: '$20.000,25',
-    period: '/mes',
-  },
-];
-
 const planBenefits = [
   'Detalle o beneficio del plan a definir con producto',
   'Detalle o beneficio del plan a definir con producto',
@@ -64,29 +46,45 @@ export default function PublishPlans({
 }: PublishPlansProps) {
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
   const [selected_plan, setSelected_plan] = useState(wizardData.selected_plan || 1);
+  const [branchFilter, setBranchFilter] = useState('todas');
   const { data: sessionData } = useSession();
 
-  type Collaborator = { id: number; name: string };
-  type Branch = { id: number; branch_name: string; users?: Collaborator[] };
-  type Organization = { branches?: Branch[] };
-  const organization = (sessionData as { user?: { organization?: Organization } } | null)?.user?.organization;
+  const orgId = (sessionData?.user as any)?.organization?.id ?? null;
 
-  const collaboratorOptions = useMemo(() => {
-    const branches = [...(organization?.branches ?? [])].sort((a: Branch, b: Branch) =>
-      (a.branch_name ?? '').localeCompare(b.branch_name ?? '', 'es', { sensitivity: 'base' })
-    );
+  const { data: fetchedBranches = [] } = useQuery<any[]>({
+    queryKey: ['branches', orgId],
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/branches/organization/${orgId}`),
+    enabled: !!orgId,
+  });
+  const branches: any[] = Array.isArray(fetchedBranches) ? fetchedBranches : [];
+  const branchOptions = [
+    { value: 'todas', label: 'Todas' },
+    ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
+  ];
 
-    return branches.flatMap((branch: Branch) => {
-      const users = [...(branch.users ?? [])].sort((a: Collaborator, b: Collaborator) =>
-        (a.name ?? '').localeCompare(b.name ?? '', 'es', { sensitivity: 'base' })
-      );
+  const { data: usersData } = useQuery<any>({
+    queryKey: ['collaborators-users'],
+    queryFn: () => apiFetch<any>(`${API_BASE_URL}/users`),
+  });
+  const rawData: any = usersData;
+  const rawUsers: any[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
 
-      return users.map((user: Collaborator) => ({
-        value: user.id.toString(),
-        label: `${user.name} - ${branch.branch_name}`,
-      }));
-    });
-  }, [organization]);
+  const { data: branchPlans = [], isLoading: loadingPlans } = useQuery<any[]>({
+    queryKey: ['branch-plans', branchFilter],
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}`),
+    enabled: branchFilter !== 'todas',
+  });
+
+  const collaboratorOptions = rawUsers
+    .filter((user: any) => {
+      if (branchFilter === 'todas') return true;
+      const userBranchId = String(user.branch_id ?? user.branch?.id ?? '');
+      return userBranchId === branchFilter;
+    })
+    .map((user: any) => ({
+      value: String(user.id),
+      label: user.name ?? user.first_name ?? user.email ?? String(user.id),
+    }));
 
   // Update wizard data when plans data changes
   useEffect(() => {
@@ -133,8 +131,17 @@ export default function PublishPlans({
           <div className="publish-plans-section">
             <h1>Ya casi terminas</h1>
 
-            {organization && <div className="publish-plans-block">
+            {branches.length > 0 && <div className="publish-plans-block">
               <h2>Asigna este aviso a un colaborador</h2>
+              <div className="publish-plans-field">
+                <Select
+                  label="Sucursal"
+                  placeholder="Todas"
+                  value={branchFilter}
+                  onChange={(value) => { setBranchFilter(value); setUser_id(undefined); }}
+                  options={branchOptions}
+                />
+              </div>
               <div className="publish-plans-field">
                 <Select
                   label="Tus colaboradores"
@@ -168,19 +175,28 @@ export default function PublishPlans({
 
               <div className="publish-plans-group">
                 <h3>Mas planes para vos</h3>
+                {branchFilter === 'todas' && (
+                  <p style={{ fontSize: 13, color: '#888' }}>Seleccioná una sucursal para ver los planes disponibles.</p>
+                )}
+                {branchFilter !== 'todas' && loadingPlans && (
+                  <p style={{ fontSize: 13, color: '#888' }}>Cargando planes...</p>
+                )}
+                {branchFilter !== 'todas' && !loadingPlans && branchPlans.length === 0 && (
+                  <p style={{ fontSize: 13, color: '#888' }}>Sin planes disponibles para esta sucursal.</p>
+                )}
                 <div className="publish-plans-cards">
-                  {extraPlans.map((plan) => (
-                    <div key={plan.id} className="publish-plans-card-item">
+                  {branchPlans.map((plan: any, idx: number) => (
+                    <div key={plan.id ?? idx} className="publish-plans-card-item">
                       <div className="publish-plans-card-header">
-                        <span className="publish-plans-card-label">{plan.label}</span>
+                        <span className="publish-plans-card-label">{plan.name ?? plan.label ?? `Plan ${idx + 1}`}</span>
                         <div className="publish-plans-card-price">
-                          <strong>{plan.price}</strong>
-                          <span>{plan.period}</span>
+                          <strong>{plan.price ?? plan.amount ?? '-'}</strong>
+                          <span>{plan.period ?? '/mes'}</span>
                         </div>
                       </div>
                       <ul>
                         {planBenefits.map((benefit, index) => (
-                          <li key={`${plan.id}-${index}`}>
+                          <li key={`${plan.id ?? idx}-${index}`}>
                             <img src={iconCheck} alt="" />
                             {benefit}
                           </li>

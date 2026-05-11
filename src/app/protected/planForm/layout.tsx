@@ -2,11 +2,11 @@ import TopNavBar from '@/layout/ProfessionalUser/TopNavBar/TopNavBar';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Partner | MetroProp',
-  description: 'Administra un partner de tu inmobiliaria',
+  title: 'Planes | MetroProp',
+  description: 'Administra los planes de tu inmobiliaria',
 };
 
-export default function PartnerFormLayout({
+export default function PlanFormLayout({
   children,
 }: {
   children: React.ReactNode;

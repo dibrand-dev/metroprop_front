@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import './PlanForm.scss';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import InputField2 from '@/ui/InputField2/InputField2';
@@ -10,6 +11,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { apiFetch } from '@/lib/apiFetch';
+import Select from '@/ui/Select/Select';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -17,12 +19,23 @@ interface PlanFormProps {
   planId?: string;
 }
 
+const currencyOptions = ['ARS', 'USD', 'EUR'];
+const currencySelectOptions = currencyOptions.map(option => ({
+  value: option,
+  label: option,
+}));
+
 export default function PlanForm({ planId }: PlanFormProps) {
+  const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [habilitado, setHabilitado] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState({ name: '', description: '' });
+  const [price, setPrice] = useState('');
+  const [currency, setCurrency] = useState('');
+  const [propertyLimit, setPropertyLimit] = useState('');
+  const [highlightLimit, setHighlightLimit] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({ name: '', description: '', price: '', currency: '', propertyLimit: '', highlightLimit: '' });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const isEditing = Boolean(planId);
@@ -39,17 +52,25 @@ export default function PlanForm({ planId }: PlanFormProps) {
   useEffect(() => {
     if (!planData) return;
     const plan = planData?.plan ?? planData;
-    setName(plan.name ?? '');
-    setDescription(plan.description ?? '');
-    setHabilitado(plan.status === 1);
+    setName(plan.plan_name ?? '');
+    setDescription(plan.plan_description ?? '');
+    setHabilitado(plan.is_active);
+    setPrice(plan.price ? String(plan.price) : '');
+    setCurrency(plan.currency ?? '');
+    setPropertyLimit(plan.property_limit ? String(plan.property_limit) : '');
+    setHighlightLimit(plan.highlight_limit ? String(plan.highlight_limit) : '');
   }, [planData]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
       const payload = {
-        name: name.trim(),
-        description: description.trim(),
-        status: habilitado ? 1 : 0,
+        plan_name: name.trim(),
+        plan_description: description.trim(),
+        is_active: habilitado ? 1 : 0,
+        price: parseFloat(price),
+        currency: currency.trim(),
+        property_limit: parseInt(propertyLimit),
+        highlight_limit: parseInt(highlightLimit),
       };
       const url = isEditing
         ? `${API_BASE_URL}/plans/${planId}`
@@ -67,15 +88,18 @@ export default function PlanForm({ planId }: PlanFormProps) {
         setHabilitado(false);
       }
       setShowSuccessModal(true);
-      setTimeout(() => setShowSuccessModal(false), 3000);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        router.push('/protected/plans'); 
+      }, 3000);
     },
   });
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setFieldErrors({ name: '', description: '' });
+    setFieldErrors({ name: '', description: '', price: '', currency: '', propertyLimit: '', highlightLimit: '' });
 
-    const errors = { name: '', description: '' };
+    const errors = { name: '', description: '', price: '', currency: '', propertyLimit: '', highlightLimit: '' };
     if (!name.trim()) errors.name = 'El nombre es requerido';
     if (!description.trim()) errors.description = 'La descripción es requerida';
 
@@ -120,7 +144,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
               type="text"
               placeholder="Nombre del plan"
               value={name}
-              onChange={(event) => setName(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
               required={true}
               error={fieldErrors.name}
             />
@@ -133,11 +157,57 @@ export default function PlanForm({ planId }: PlanFormProps) {
               type="text"
               placeholder="Descripción"
               value={description}
-              onChange={(event) => setDescription(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDescription(event.target.value)}
               required={true}
               error={fieldErrors.description}
             />
           </div>
+
+          <div className="partner-form-section">
+            <label className="partner-form-label">Precio</label>
+            <div className="currency-price-container">
+              <Select
+                options={currencySelectOptions}
+                value={currency}
+                onChange={(value) => setCurrency(value)}
+              />
+              <InputField2
+                label="Precio"
+                type="text"
+                placeholder="Precio"
+                value={price}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPrice(event.target.value)}
+                required={true}
+                error={fieldErrors.price}
+              />
+            </div>
+          </div>
+          <div className="partner-form-section">
+            <label className="partner-form-label">Límite de propiedades</label>
+            <InputField2
+              label="Límite de propiedades"
+              type="text"
+              placeholder="Límite de propiedades"
+              value={propertyLimit}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPropertyLimit(event.target.value)}
+              required={true}
+              error={fieldErrors.propertyLimit}
+            />
+          </div>
+
+          <div className="partner-form-section">
+            <label className="partner-form-label">Límite de destacados</label>
+            <InputField2
+              label="Límite de destacados"
+              type="text"
+              placeholder="Límite de destacados"
+              value={highlightLimit}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setHighlightLimit(event.target.value)}
+              required={true}
+              error={fieldErrors.highlightLimit}
+            />
+          </div>
+
 
 
           <div className="partner-form-section">
@@ -151,14 +221,14 @@ export default function PlanForm({ planId }: PlanFormProps) {
 
         {showSuccessModal && (
           <SuccessModal
-            title={isEditing ? '¡Partner actualizado!' : '¡Partner creado!'}
-            text={isEditing ? 'Los datos del partner fueron guardados exitosamente.' : 'El partner fue creado exitosamente.'}
+            title={isEditing ? 'Plan actualizado!' : '¡Plan creado!'}
+            text={isEditing ? 'Los datos del plan fueron guardados exitosamente.' : 'El plan fue creado exitosamente.'}
           />
         )}
 
         <div className="partner-form-mobile-footer">
           <Button
-            label="Guardar partner"
+            label="Guardar plan"
             type="submit"
             variant="primary"
             buttonType="1"

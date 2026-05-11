@@ -6,27 +6,53 @@ import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
+import { apiFetch } from '@/lib/apiFetch';
+import { API_BASE_URL } from '@/utils/utils';
+
+interface PropertyUser {
+  name?: string;
+  email?: string;
+  phone?: string;
+  phone_additional?: string;
+  phone_whatsapp?: string;
+}
 
 interface PhoneRevealModalProps {
   isOpen: boolean;
   onClose: () => void;
+  propertyId?: number;
+  userId?: number;
+  organizationId?: number;
+  ownerName?: string;
+  ownerEmail?: string;
+  ownerPhone?: string;
+  user?: PropertyUser;
 }
 
 const closeIcon = '/icons/close.svg';
 const flagIcon = '/icons/flag.svg';
 const chevronIcon = '/icons/chevron-up.svg';
 
-export default function PhoneRevealModal({ isOpen, onClose }: PhoneRevealModalProps) {
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+const EMPTY_FORM = {
+  name: '',
+  email: '',
+  countryCode: '+54',
+  country: 'Argentina',
+  phone: '',
+};
+
+export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, organizationId, ownerName, ownerEmail, ownerPhone, user }: PhoneRevealModalProps) {
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    countryCode: '+54',
-    country: 'Argentina',
-    phone: '',
-    termsAccepted: false,
-    privacyAccepted: false,
-  });
+  const [formState, setFormState] = useState(EMPTY_FORM);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -41,7 +67,7 @@ export default function PhoneRevealModal({ isOpen, onClose }: PhoneRevealModalPr
 
   if (!isOpen) return null;
 
-  const handleChange = (field: keyof typeof formState, value: string | boolean) => {
+  const handleChange = (field: keyof typeof formState, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -54,6 +80,51 @@ export default function PhoneRevealModal({ isOpen, onClose }: PhoneRevealModalPr
       countryCode: dialCode || prev.countryCode,
       country: name || prev.country,
     }));
+  };
+
+  const fieldErrors = touched ? {
+    name: !formState.name.trim(),
+    email: !formState.email.trim() || !isValidEmail(formState.email),
+    phone: !formState.phone.trim(),
+    terms: !termsAccepted,
+    privacy: !privacyAccepted,
+  } : { name: false, email: false, phone: false, terms: false, privacy: false };
+
+  const isValid =
+    formState.name.trim() &&
+    isValidEmail(formState.email) &&
+    formState.phone.trim() &&
+    termsAccepted &&
+    privacyAccepted;
+
+  const handleSubmit = async () => {
+    setTouched(true);
+    if (!isValid) return;
+    setIsSubmitting(true);
+    try {
+      await apiFetch(`${API_BASE_URL}/leads`, {
+        method: 'POST',
+        body: {
+          name: formState.name,
+          email: formState.email,
+          country_code: formState.countryCode,
+          phone: formState.phone,
+          message: 'Vio teléfono',
+          property_id: propertyId,
+          owner_user_id: userId,
+          organization_id: organizationId,
+        },
+      });
+      setFormState(EMPTY_FORM);
+      setTermsAccepted(false);
+      setPrivacyAccepted(false);
+      setTouched(false);
+      setShowSuccess(true);
+    } catch {
+      // silently fail
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -73,75 +144,105 @@ export default function PhoneRevealModal({ isOpen, onClose }: PhoneRevealModalPr
         </div>
 
         <div className="phone-reveal-modal-body">
-          <h4>
-            Completa tus datos y podras ver el
-            <br />
-            telefono del anunciante.
-          </h4>
-
-          <div className="phone-reveal-form">
-            <div className="phone-reveal-row">
-              <InputField2
-                label="Nombre"
-                type="text"
-                placeholder="Nombre"
-                value={formState.name}
-                onChange={(event) => handleChange('name', event.target.value)}
-              />
-              <InputField2
-                label="Email"
-                type="email"
-                placeholder="unemail@dibrand.com"
-                value={formState.email}
-                onChange={(event) => handleChange('email', event.target.value)}
-              />
+          {showSuccess ? (
+            <div className="phone-reveal-success">
+              <h4>¡Listo! Estos son los datos de contacto:</h4>
+              {user && (user.name || user.email || user.phone || user.phone_additional || user.phone_whatsapp) ? (
+                <ul className="phone-reveal-contact-list">
+                  {user.name && <li><strong>Nombre:</strong> {user.name}</li>}
+                  {user.email && <li><strong>Email:</strong> {user.email}</li>}
+                  {user.phone && <li><strong>Teléfono:</strong> {user.phone}</li>}
+                  {user.phone_additional && <li><strong>Teléfono adicional:</strong> {user.phone_additional}</li>}
+                  {user.phone_whatsapp && <li><strong>WhatsApp:</strong> {user.phone_whatsapp}</li>}
+                </ul>
+              ) : (
+                <ul className="phone-reveal-contact-list">
+                  {ownerName && <li><strong>Nombre:</strong> {ownerName}</li>}
+                  {ownerEmail && <li><strong>Email:</strong> {ownerEmail}</li>}
+                  {ownerPhone && <li><strong>Teléfono:</strong> {ownerPhone}</li>}
+                </ul>
+              )}
+              <Button label="Cerrar" variant="primary" type="button" fullWidth onClick={onClose} />
             </div>
+          ) : (
+            <>
+              <h4>
+                Completa tus datos y podras ver el
+                <br />
+                telefono del anunciante.
+              </h4>
 
-            <div className="phone-reveal-row">
-              <div className="phone-reveal-field">
-                
-                <button
-                  type="button"
-                  className="phone-reveal-country"
-                  onClick={() => setIsCountryModalOpen(true)}
-                >
-                  <span>Pais</span>
-                  <span className="phone-reveal-flag" aria-hidden="true">
-                    <img src={flagIcon} alt="" />
-                  </span>
-                  <span>{formState.countryCode}</span>
-                  <img src={chevronIcon} alt="" className="phone-reveal-chevron" />
-                </button>
+              <div className="phone-reveal-form">
+                <div className="phone-reveal-row">
+                  <InputField2
+                    label="Nombre"
+                    type="text"
+                    placeholder="Nombre"
+                    value={formState.name}
+                    onChange={(event) => handleChange('name', event.target.value)}
+                    error={fieldErrors.name ? ' ' : ''}
+                  />
+                  <InputField2
+                    label="Email"
+                    type="email"
+                    placeholder="unemail@dibrand.com"
+                    value={formState.email}
+                    onChange={(event) => handleChange('email', event.target.value)}
+                    error={fieldErrors.email ? ' ' : ''}
+                  />
+                </div>
+
+                <div className="phone-reveal-row">
+                  <div className="phone-reveal-field">
+                    <button
+                      type="button"
+                      className="phone-reveal-country"
+                      onClick={() => setIsCountryModalOpen(true)}
+                    >
+                      <span>Pais</span>
+                      <span className="phone-reveal-flag" aria-hidden="true">
+                        <img src={flagIcon} alt="" />
+                      </span>
+                      <span>{formState.countryCode}</span>
+                      <img src={chevronIcon} alt="" className="phone-reveal-chevron" />
+                    </button>
+                  </div>
+                  <InputField2
+                    label="Telefono"
+                    type="tel"
+                    placeholder="1526458466"
+                    value={formState.phone}
+                    onChange={(event) => handleChange('phone', event.target.value)}
+                    error={fieldErrors.phone ? ' ' : ''}
+                  />
+                </div>
               </div>
-              <InputField2
-                label="Telefono"
-                type="tel"
-                placeholder="1526458466"
-                value={formState.phone}
-                onChange={(event) => handleChange('phone', event.target.value)}
+
+              <div className="phone-reveal-terms">
+                <Checkbox
+                  label="Acepto los Terminos y condiciones de Uso"
+                  checked={termsAccepted}
+                  onChange={(checked) => setTermsAccepted(checked)}
+                  error={fieldErrors.terms ? ' ' : undefined}
+                />
+                <Checkbox
+                  label="Acepto la Politica de Privacidad"
+                  checked={privacyAccepted}
+                  onChange={(checked) => setPrivacyAccepted(checked)}
+                  error={fieldErrors.privacy ? ' ' : undefined}
+                />
+              </div>
+
+              <Button
+                label={isSubmitting ? 'Enviando...' : 'Ver telefono'}
+                variant="primary"
+                type="button"
+                fullWidth
+                onClick={handleSubmit}
+                disabled={isSubmitting}
               />
-            </div>
-          </div>
-
-          <div className="phone-reveal-terms">
-            <Checkbox
-              label="Acepto los Terminos y condiciones de Uso"
-              checked={formState.termsAccepted}
-              onChange={(checked) => handleChange('termsAccepted', checked)}
-            />
-            <Checkbox
-              label="Acepto la Politica de Privacidad"
-              checked={formState.privacyAccepted}
-              onChange={(checked) => handleChange('privacyAccepted', checked)}
-            />
-          </div>
-
-          <Button
-            label="Ver telefono"
-            variant="primary"
-            type="button"
-            fullWidth
-          />
+            </>
+          )}
         </div>
       </div>
     </div>

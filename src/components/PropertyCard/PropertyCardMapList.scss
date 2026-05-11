@@ -4,6 +4,7 @@
 .property-card-map-list {
   width: 100%;
   filter: $shadow-md;
+  cursor: pointer;
   position: relative;
 
   .overlay-btn {

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreateProperty, CreateAttached } from '@/types/propiedad';
-import { formatNumbers, setImagePath } from '@/utils/utils';
+import { formatNumbers, HeartIcon, setImagePath } from '@/utils/utils';
 import { PROPERTY_NO_IMAGE } from '@/app/constants';
 import GalleryModal, { GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
 import { API_BASE_URL } from '@/utils/utils';
@@ -13,7 +13,7 @@ import './PropertyCardMapList.scss';
 import './PropertyCardFavoritesList.scss';
 import Button from '@/ui/Button/Button';
 
-export type PropertyCardType = 'home' | 'gridList' | 'map' | 'favorites';
+export type PropertyCardType = 'home' | 'gridList' | 'map' | 'favorites' | 'contacts';
 
 export interface PropertyCardProps {
   property: CreateProperty;
@@ -22,6 +22,7 @@ export interface PropertyCardProps {
   isLoggedIn?: boolean;
   /** When true, image click navigates to detail instead of opening gallery */
   fromMap?: boolean;
+  onWhatsapp?: () => void;
 }
 
 function useGallery(property: CreateProperty, fromMap?: boolean) {
@@ -64,20 +65,7 @@ function useGallery(property: CreateProperty, fromMap?: boolean) {
   return { open, images, videos, plans, gallery360, loading, firstImage, hasImages, openGallery, close };
 }
 
-function HeartIcon({ isFavorite }: { isFavorite?: boolean }) {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z"
-        stroke={isFavorite ? '#006AFF' : '#000000'}
-        fill={isFavorite ? '#006AFF' : 'none'}
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-export default function PropertyCard({ property, cardType, onFavorite, isLoggedIn = false, fromMap = false }: PropertyCardProps) {
+export default function PropertyCard({ property, cardType, onFavorite, isLoggedIn = false, fromMap = false, onWhatsapp }: PropertyCardProps) {
   const router = useRouter();
   const gallery = useGallery(property, fromMap);
   const isFavorite = (property as any).isFavorite as boolean | undefined;
@@ -86,7 +74,6 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
   const handleFavorite = (e: React.MouseEvent) => { e.stopPropagation(); onFavorite?.(property.id ?? 0); };
   const showFavoriteBtn = isLoggedIn;
   const org = (property as any).organization;
-
   const galleryModal = (
     <GalleryModal
       isOpen={gallery.open}
@@ -280,6 +267,62 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 </div>
                 <p>{property.publication_title}</p>
                 <Button label="Contactar" variant="primary" buttonType="1" size="small" onClick={goToDetail} />
+              </div>
+            </div>
+          </div>
+        </div>
+        {galleryModal}
+      </>
+    );
+  }
+
+  if (cardType === 'contacts') {
+    return (
+      <>
+        <div className="property-card-favorites-list" onClick={goToDetail}>
+          <div className="card-content">
+            <img
+              src={gallery.firstImage}
+              alt={property.publication_title}
+              className="property-image"
+              onClick={gallery.openGallery}
+              title="Abrir galería"
+            />
+            <div className="property-info">
+              {org?.company_logo && (
+                <div>
+                  <img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />
+                </div>
+              )}
+              <div className="title-row">
+                <div className="price-section">
+                  <div className="total-price">{property.currency} {formatNumbers(property.price)}</div>
+                  {property.price_square_meter! > 0 && (
+                    <div className="price-per-meter">{property.currency} {formatNumbers(property.price_square_meter!)}</div>
+                  )}
+                </div>
+                {property.expenses! > 0 && (
+                  <div className="expenses">{property.currency} {formatNumbers(property.expenses!)} expensas</div>
+                )}
+                {showFavoriteBtn && (
+                  <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
+                    <HeartIcon isFavorite={true} />
+                  </button>
+                )}
+              </div>
+              <div className="details-row">
+                <div className="address">{property.street}</div>
+                <div className="specs">
+                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m² tot.</span>
+                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m²</span> : null}
+                  {(property.room_amount ?? 0) > 0 && <span>{property.room_amount} amb.</span>}
+                  {(property.bathroom_amount ?? 0) > 0 && <span>{property.bathroom_amount} baños</span>}
+                </div>
+                <p>{property.publication_title}</p>
+                <div className="contacts-button-container">
+                  <Button label={property.user ? property.user.phone : property.owner_phone ?? ''} variant="secondary" buttonType="1" size="small" onClick={() => {}} />
+                  <Button label="Contactar" variant="primary" buttonType="1" size="small" onClick={onWhatsapp} />
+                </div>
               </div>
             </div>
           </div>

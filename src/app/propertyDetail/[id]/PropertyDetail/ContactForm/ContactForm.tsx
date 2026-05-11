@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
-import Button from '@/ui/Button/Button';
 import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
+import SuccessModal from '@/components/SuccessModal/SuccessModal';
+import { apiFetch } from '@/lib/apiFetch';
+import { API_BASE_URL } from '@/utils/utils';
 
 const QUESTION_CHIPS = [
   'Se puede visitar hoy',
@@ -22,20 +24,28 @@ const flagIcon = '/icons/flag.svg';
 
 interface ContactFormProps {
   isModal?: boolean;
+  propertyId?: number;
+  userId?: number;
+  organizationId?: number;
+  onClose?: () => void;
+  phoneNumber?: string;
 }
 
-export default function ContactForm({ isModal = false }: ContactFormProps) {
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+const EMPTY_FORM = { name: '', country: '', email: '', phone: '', message: '' };
+
+export default function ContactForm({ isModal = false, propertyId, userId, organizationId, onClose, phoneNumber }: ContactFormProps) {
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
-  const [formState, setFormState] = useState({
-    name: '',
-    country: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
+  const [formState, setFormState] = useState(EMPTY_FORM);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
+  const [touched, setTouched] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const primaryContactAction = CONTACT_ACTIONS.find((action) => action.id === 'contact');
   const contactActions = isModal && primaryContactAction ? [primaryContactAction] : CONTACT_ACTIONS;
@@ -49,6 +59,79 @@ export default function ContactForm({ isModal = false }: ContactFormProps) {
   const handleCountrySelect = (value: string) => {
     setFormState((prev) => ({ ...prev, country: value }));
   };
+
+  const fieldErrors = touched ? {
+    name: !formState.name.trim(),
+    email: !formState.email.trim() || !isValidEmail(formState.email),
+    country: !formState.country.trim(),
+    phone: !formState.phone.trim(),
+    message: !formState.message.trim(),
+    terms: !termsAccepted,
+    privacy: !privacyAccepted,
+  } : { name: false, email: false, country: false, phone: false, message: false, terms: false, privacy: false };
+
+  const isValid =
+    formState.name.trim() &&
+    isValidEmail(formState.email) &&
+    formState.country.trim() &&
+    formState.phone.trim() &&
+    formState.message.trim() &&
+    termsAccepted &&
+    privacyAccepted;
+
+  const resetForm = () => {
+    setFormState(EMPTY_FORM);
+    setSelectedQuestions([]);
+    setTermsAccepted(false);
+    setPrivacyAccepted(false);
+    setTouched(false);
+  };
+  
+  const openWhatsApp = (message: string) => {
+    if (!phoneNumber) return;
+    const encodedMessage = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a><br />${message}`);
+    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank");
+  };
+  
+  const handleSubmit = async (actionId: string) => {
+    setTouched(true);
+    if (!isValid) return;
+    setIsSubmitting(true);
+    try {
+      await apiFetch(`${API_BASE_URL}/leads`, {
+        method: 'POST',
+        body: {
+          name: formState.name,
+          email: formState.email,
+          country_code: formState.country,
+          phone: formState.phone,
+          message: formState.message,
+          property_id: propertyId,
+          owner_user_id: userId,
+          organization_id: organizationId,
+        },
+      });
+      if (actionId === 'whatsapp') {
+        openWhatsApp(formState.message);
+        resetForm();
+        return;
+      }
+      resetForm();
+      setShowSuccess(true);
+      setTimeout(() => {        
+        setShowSuccess(false);
+        onClose?.();
+      }, 3000);
+    } catch {
+      // silently fail
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (showSuccess) {
+    return <SuccessModal title="¡Mensaje enviado!" text="Nos pondremos en contacto a la brevedad." />;
+  }
 
   return (
     <>
@@ -94,12 +177,14 @@ export default function ContactForm({ isModal = false }: ContactFormProps) {
               value={formState.name}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState((prev) => ({ ...prev, name: e.target.value }))}
               id="contact_name"
+              error={fieldErrors.name ? ' ' : ''}
             />
             <InputField2
               label="Email"
               type="email"
               value={formState.email}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState((prev) => ({ ...prev, email: e.target.value }))}
+              error={fieldErrors.email ? ' ' : ''}
             />
           </div>
           <div className="property-detail-input-row">
@@ -110,11 +195,13 @@ export default function ContactForm({ isModal = false }: ContactFormProps) {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState((prev) => ({ ...prev, country: e.target.value }))}
               id="contact_pais"
               icon={<img src={flagIcon} />}
+              error={fieldErrors.country ? ' ' : ''}
             />
             <InputField2
               label="Telefono"
               value={formState.phone}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState((prev) => ({ ...prev, phone: e.target.value }))}
+              error={fieldErrors.phone ? ' ' : ''}
             />
           </div>
           <div className="property-detail-input-row single">
@@ -125,6 +212,7 @@ export default function ContactForm({ isModal = false }: ContactFormProps) {
               multiline={true}
               rows={4}
               id="contact_consulta"
+              error={fieldErrors.message ? ' ' : ''}
             />
           </div>
         </div>
@@ -134,11 +222,13 @@ export default function ContactForm({ isModal = false }: ContactFormProps) {
             label="Acepto terminos y condiciones"
             checked={termsAccepted}
             onChange={setTermsAccepted}
+            error={fieldErrors.terms ? ' ' : undefined}
           />
           <Checkbox
             label="Acepto politica de privacidad"
             checked={privacyAccepted}
             onChange={setPrivacyAccepted}
+            error={fieldErrors.privacy ? ' ' : undefined}
           />
         </div>
 
@@ -150,6 +240,8 @@ export default function ContactForm({ isModal = false }: ContactFormProps) {
               key={action.id}
               type="button"
               className={`property-detail-contact-action property-detail-contact-action-${action.variant}`}
+              onClick={() => handleSubmit(action.id)}
+              disabled={isSubmitting}
             >
               <img src={action.icon} alt="" aria-hidden="true" />
               <span>{action.label}</span>

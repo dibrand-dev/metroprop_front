@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
 import './PropertyDetailSubmenu.scss';
+import { HeartIcon } from '@/utils/utils';
 
 interface SubmenuItem {
   id: string;
@@ -15,6 +16,8 @@ interface PropertyDetailSubmenuProps {
   onItemClick?: (itemId: string) => void;
   className?: string;
   style?: CSSProperties;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
 const iconFavorite = '/icons/corazon.svg';
@@ -33,6 +36,8 @@ export default function PropertyDetailSubmenu({
   onItemClick,
   className = '',
   style,
+  isFavorite = false,
+  onToggleFavorite,
 }: PropertyDetailSubmenuProps) {
   const [internalActive, setInternalActive] = useState(items[0]?.id || '');
   const currentActive = activeItemId ?? internalActive;
@@ -58,9 +63,15 @@ export default function PropertyDetailSubmenu({
       </div>
 
       <div className="property-detail-submenu-right">
-        <button type="button" className="property-detail-submenu-action">
-          <img src={iconFavorite} alt="" aria-hidden="true" />
-          <span>Favoritos</span>
+        <button
+          type="button"
+          className={`property-detail-submenu-action ${isFavorite ? 'is-favorite' : ''}`}
+          onClick={onToggleFavorite}
+          aria-label={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+          aria-pressed={isFavorite}
+        >
+          <HeartIcon isFavorite={isFavorite} />
+          <span>{isFavorite ? 'En favoritos' : 'Agregar a favoritos'}</span>
         </button>
         <button type="button" className="property-detail-submenu-action">
           <img src={iconShare} alt="" aria-hidden="true" />

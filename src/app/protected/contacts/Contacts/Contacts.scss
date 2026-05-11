@@ -1,0 +1,19 @@
+.contacts-container {
+    max-width: 1240px;
+    width: 100%;
+    margin: 32px auto;
+
+    h1 {
+        font-weight: 700;
+        font-size: 36px;        
+        line-height: 43px;
+        letter-spacing: 0%;
+        margin-bottom: 32px;
+    }
+
+    .contacts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+    }
+}

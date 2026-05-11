@@ -20,6 +20,8 @@ interface SubmenuProps {
 }
 
 const items: SubmenuItem[] = [
+  { id: 'partners', label: 'Partners', href: "/protected/partners", roles: [4] },
+  { id: 'plans', label: 'Planes', href: "/protected/plans", roles: [4] },
   { id: 'datos_inmobiliaria', label: 'Datos de inmobiliaria', href: "/protected/organization", roles: [1, 4] },
   { id: 'sucursales', label: 'Sucursales', href: "/protected/branches", roles: [1, 4] },
   { id: 'destaques', label: 'Destaques', href: "/protected/highlights", roles: [1, 4] },
@@ -28,8 +30,7 @@ const items: SubmenuItem[] = [
   { id: 'cambiar_contraseña', label: 'Cambiar contraseña', href: "/protected/changePassword", roles: [1, 2, 3, 4] },
   { id: 'cambiar_email', label: 'Cambiar email', href: "/protected/changeEmail", roles: [1, 2, 3, 4] },
   { id: 'notificaciones', label: 'Notificaciones', href: "/protected/notifications", roles: [1, 2, 3, 4] },
-  { id: 'eliminar_cuenta', label: 'Eliminar cuenta', href: "/protected/deleteAccount", roles: [1, 2, 3, 4] },
-  { id: 'partners', label: 'Partners', href: "/protected/partners", roles: [4,1] },
+  { id: 'eliminar_cuenta', label: 'Eliminar cuenta', href: "/protected/deleteAccount", roles: [1, 2, 3, 4] }
 ];
 
 function getUserRoleId(user: any): number | null {
