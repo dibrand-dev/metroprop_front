@@ -22,15 +22,18 @@ interface SubmenuProps {
 const items: SubmenuItem[] = [
   { id: 'partners', label: 'Partners', href: "/protected/partners", roles: [4] },
   { id: 'plans', label: 'Planes', href: "/protected/plans", roles: [4] },
-  { id: 'datos_inmobiliaria', label: 'Datos de inmobiliaria', href: "/protected/organization", roles: [1, 4] },
-  { id: 'sucursales', label: 'Sucursales', href: "/protected/branches", roles: [1, 4] },
-  { id: 'destaques', label: 'Destaques', href: "/protected/highlights", roles: [1, 4] },
-  { id: 'colaboradores', label: 'Colaboradores', href: "/protected/collaborators", roles: [1, 4] },
+  { id: 'users', label: 'Usuarios', href: "/protected/users", roles: [4] },
+  { id: 'organizations', label: 'Inmobiliarias', href: "/protected/organizations", roles: [4] },
+  { id: 'properties', label: 'Propiedades', href: "/protected/myProperties", roles: [4] },
+  { id: 'datos_inmobiliaria', label: 'Datos de inmobiliaria', href: "/protected/organization", roles: [1] },
+  { id: 'sucursales', label: 'Sucursales', href: "/protected/branches", roles: [1] },
+  { id: 'destaques', label: 'Destaques', href: "/protected/highlights", roles: [1] },
+  { id: 'colaboradores', label: 'Colaboradores', href: "/protected/collaborators", roles: [1] },
   { id: 'datos', label: 'Datos', href: "/protected/profile", roles: [1, 2, 3, 4] },
   { id: 'cambiar_contraseña', label: 'Cambiar contraseña', href: "/protected/changePassword", roles: [1, 2, 3, 4] },
   { id: 'cambiar_email', label: 'Cambiar email', href: "/protected/changeEmail", roles: [1, 2, 3, 4] },
-  { id: 'notificaciones', label: 'Notificaciones', href: "/protected/notifications", roles: [1, 2, 3, 4] },
-  { id: 'eliminar_cuenta', label: 'Eliminar cuenta', href: "/protected/deleteAccount", roles: [1, 2, 3, 4] }
+  { id: 'notificaciones', label: 'Notificaciones', href: "/protected/notifications", roles: [1, 2, 3] },
+  { id: 'eliminar_cuenta', label: 'Dar de baja avisos', href: "/protected/deleteAccount", roles: [1, 2, 3, 4] }
 ];
 
 function getUserRoleId(user: any): number | null {
