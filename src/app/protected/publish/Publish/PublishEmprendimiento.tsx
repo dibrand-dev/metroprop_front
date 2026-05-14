@@ -11,7 +11,7 @@ import './PublishEmprendimiento.scss';
 import InputField from '@/ui/InputField/InputField';
 import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import PublishLocationMap from './PublishLocationMap/PublishLocationMap';
-import { CreateImage, CreateImagePlans, CreatePropertyDraft } from '@/types/propiedad';
+import { CreateImage, CreateImagePlans, CreatePropertyDraft, DevelopmentType, LABELS_DEVELOPMENT_TYPE, PropertyType } from '@/types/propiedad';
 import { apiFetch } from '@/lib/apiFetch';
 
 const iconTrash = '/icons/trash.svg';
@@ -60,7 +60,7 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, onSuggestion
       inputRef.current.value = value;
   }, [value]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeAddress = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     onChange(val);
     onSuggestionSelectionChange?.(false);
@@ -116,7 +116,7 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, onSuggestion
         label="Calle y número*"
         placeholder="Dirección"
         value={value}
-        onChange={handleChange}
+        onChange={handleChangeAddress}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         onFocus={() => suggestions.length > 0 && setOpen(true)}
         disabled={disabled}
@@ -147,7 +147,7 @@ function findBestMatch(options: { value: string; label: string }[], name: string
 interface PublishEmprendimientoProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
-  onNext: () => void;
+  onNext: (emprendimientoUpdate: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
 }
 
@@ -162,9 +162,8 @@ export default function PublishEmprendimiento({
   const [nombreEmprendimiento, setNombreEmprendimiento] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [tipoEmprendimiento, setTipoEmprendimiento] = useState('');
-  const [ciudad, setCiudad] = useState('');
-  const [totalUnidades, setTotalUnidades] = useState('');
+  const [tipoEmprendimiento, setTipoEmprendimiento] = useState<DevelopmentType | null>(null);
+  const [totalUnidades, setTotalUnidades] = useState<number | null>(null);
   const [entrega, setEntrega] = useState('');
 
   // Location state
@@ -196,6 +195,28 @@ export default function PublishEmprendimiento({
   const imageInputRef = useRef<HTMLInputElement>(null);
   const imageGridInputRef = useRef<HTMLInputElement>(null);
   const plansInputRef = useRef<HTMLInputElement>(null);
+
+  // Update wizard data when location data changes
+  useEffect(() => {
+    updateWizardData({
+      street,
+      country_id,
+      state_id,
+      location_id,
+      sub_location_id,
+      postal_code,
+      show_exact_location,
+      geo_lat,
+      geo_long,
+      publication_title: nombreEmprendimiento,
+      description: descripcion,
+      development_type: tipoEmprendimiento,
+      development_units_total: totalUnidades,
+      development_delivery_date: entrega,
+      property_type: PropertyType.EMPRENDIMIENTO,
+      is_development: true
+    });
+  }, [street, country_id, state_id, location_id, sub_location_id, postal_code, show_exact_location, geo_lat, geo_long, nombreEmprendimiento, descripcion, tipoEmprendimiento, totalUnidades, entrega]);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) setLogoFile(e.target.files[0]);
@@ -292,7 +313,7 @@ export default function PublishEmprendimiento({
       formData.append('multimedia360', JSON.stringify(multimedia360));
       const result = await uploadMultimediaMutation.mutateAsync(formData);
       if (result.images) setImages(result.images);
-      onNext();
+      onNext(wizardData);
     } catch {
       alert('Error al subir los archivos. Por favor, intenta nuevamente.');
     } finally {
@@ -370,9 +391,7 @@ export default function PublishEmprendimiento({
   const handleContinuar = async () => {
     if (uploadedImages.length > 0 || uploadedPlans.length > 0) {
       await handleFormSubmit();
-    } else {
-      onNext();
-    }
+    } 
   };
 
   return (
@@ -506,59 +525,32 @@ export default function PublishEmprendimiento({
                 <div className="form-field half-width">
                   <Select
                     label="Tipo de emprendimiento"
-                    options={[
-                      { value: 'edificio', label: 'Edificio' },
-                      { value: 'barrio-privado', label: 'Barrio privado' },
-                      { value: 'country', label: 'Country' },
-                    ]}
+                    options={Object.entries(LABELS_DEVELOPMENT_TYPE).map(([value, label]) => ({ value, label }))}
                     value={tipoEmprendimiento}
                     onChange={setTipoEmprendimiento}
                     placeholder="Seleccionar"
                   />
-                </div>
-                <div className="form-field half-width">
-                  <Select
-                    label="Ciudad*"
-                    options={[
-                      { value: 'caba', label: 'CABA' },
-                      { value: 'la-plata', label: 'La Plata' },
-                      { value: 'rosario', label: 'Rosario' },
-                    ]}
-                    value={ciudad}
-                    onChange={setCiudad}
-                    placeholder="Seleccionar"
-                    required
-                  />
-                </div>
+                </div>                
               </div>
             </div>
 
             <div className="form-group">
               <div className="form-row">
                 <div className="form-field half-width">
-                  <Select
+                  <InputField
                     label="Total de unidades"
-                    options={[
-                      { value: '1', label: '1' },
-                      { value: '2', label: '2' },
-                      { value: '3', label: '3' },
-                    ]}
+                    type='number'
                     value={totalUnidades}
-                    onChange={setTotalUnidades}
-                    placeholder="Seleccionar"
-                  />
+                    onChange={e => setTotalUnidades(e.target.value)}
+                    placeholder="Total de unidades"
+                  />                  
                 </div>
                 <div className="form-field half-width">
-                  <Select
-                    label="Entrega"
-                    options={[
-                      { value: 'inmediata', label: 'Inmediata' },
-                      { value: '2024', label: '2024' },
-                      { value: '2025', label: '2025' },
-                      { value: '2026', label: '2026' },
-                    ]}
+                  <InputField
+                    label="Fecha de entrega"
+                    type='date'
                     value={entrega}
-                    onChange={setEntrega}
+                    onChange={e => setEntrega((e.target as HTMLInputElement).value)}
                     placeholder="Seleccionar"
                   />
                 </div>
@@ -836,7 +828,7 @@ export default function PublishEmprendimiento({
             buttonType="2"
             onClick={handleContinuar}
             fullWidth={false}
-            disabled={isUploading}
+            disabled={isUploading || uploadedImages.length === 0 || uploadedPlans.length === 0}
           />
         </div>
       </div>

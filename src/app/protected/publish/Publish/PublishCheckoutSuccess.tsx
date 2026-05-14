@@ -1,10 +1,12 @@
 'use client';
 
+import { Plan } from '@/types/plan';
 import './PublishCheckoutSuccess.scss';
 import Button from '@/ui/Button/Button';
 
 interface PublishCheckoutSuccessProps {
   onFinish: () => void;
+  planToBuy: Plan; 
 }
 
 const iconCheck = '/icons/check.svg';
@@ -16,6 +18,7 @@ const summaryItems = [
 
 export default function PublishCheckoutSuccess({
   onFinish,
+  planToBuy,
 }: PublishCheckoutSuccessProps) {
   return (
     <div className="publish-success">
@@ -47,20 +50,18 @@ export default function PublishCheckoutSuccess({
 
             <div className="publish-success-details">
               <h2>Detalle de compra</h2>
-              
+             
               <div className="publish-success-summary">
                 <div className="publish-success-items">
-                  {summaryItems.map((item) => (
-                    <div key={item.label} className="publish-success-item">
-                      <span className="publish-success-item-label">{item.label}</span>
-                      <span className="publish-success-item-value">{item.value}</span>
-                    </div>
-                  ))}
+                  <div className="publish-success-item">
+                    <span className="publish-success-item-label">{planToBuy.plan_name}</span>
+                    <span className="publish-success-item-value">{planToBuy.price}</span>
+                  </div>
                 </div>
                 
                 <div className="publish-success-total">
                   <span className="publish-success-total-label">Total</span>
-                  <span className="publish-success-total-value">$32000,25</span>
+                  <span className="publish-success-total-value">{planToBuy.currency} {planToBuy.price}</span>
                 </div>
               </div>
 

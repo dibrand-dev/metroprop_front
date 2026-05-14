@@ -1,166 +1,94 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Chip from '@/ui/Chip/Chip';
 import Button from '@/ui/Button/Button';
 import './PublishEmprendimientoAmenidades.scss';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft } from '@/types/propiedad';
+import { API_BASE_URL } from '@/utils/utils';
+import { apiFetch } from '@/lib/apiFetch';
+import { useQuery } from '@tanstack/react-query';
 
-// Amenity groups for emprendimiento
-const amenityGroups = [
-  {
-    key: 'servicios',
-    title: 'Servicios',
-    options: [
-      'Ascensor',
-      'Encargado',
-      'Seguridad 24 hs',
-      'Internet / Wifi',
-      'Portero eléctrico',
-      'Video portero',
-      'Servicio de limpieza',
-      'Gas natural',
-      'Agua corriente',
-      'Cloacas',
-      'Electricidad',
-      'Calefacción central',
-      'Aire acondicionado central',
-    ],
-  },
-  {
-    key: 'caracteristicas_generales',
-    title: 'Características generales',
-    options: [
-      'Apto profesional',
-      'Acceso para discapacitados',
-      'Permite mascotas',
-      'Admite crédito hipotecario',
-      'Cochera cubierta',
-      'Cochera descubierta',
-      'Baulera',
-      'Terraza propia',
-      'Balcón',
-      'Jardín',
-      'Patio',
-      'Parrilla',
-      'Vista panorámica',
-      'Laundry',
-      'Depósito',
-    ],
-  },
-  {
-    key: 'ambientes',
-    title: 'Ambientes',
-    options: [
-      'Living',
-      'Comedor',
-      'Living comedor',
-      'Cocina',
-      'Cocina equipada',
-      'Office',
-      'Toilette',
-      'Lavadero',
-      'Vestidor',
-    ],
-  },
-  {
-    key: 'caracteristicas',
-    title: 'Características',
-    options: [
-      'Gimnasio',
-      'Pileta',
-      'Pileta climatizada',
-      'Solarium',
-      'Hidromasaje',
-      'Sauna',
-      'Spa',
-      'Cancha de tenis',
-      'Cancha de paddle',
-      'Cancha de fútbol',
-      'Cancha polideportiva',
-      'Quincho',
-      'Salón de usos múltiples',
-      'Sum',
-      'Sala de juegos',
-      'Sala de cine',
-      'Coworking',
-      'Business center',
-      'Sala de reuniones',
-      'Playroom',
-      'Jardín comunitario',
-      'Parque',
-      'Área verde',
-      'Juegos infantiles',
-      'Pet park',
-      'Bicicletero',
-      'Lavadero de autos',
-      'Estacionamiento de visitas',
-      'Parrillas comunitarias',
-      'Roof top',
-      'Deck',
-      'Fogón',
-    ],
-  },
-] as const;
+interface PublishEmprendimientoProps {
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
+  onNext: (emprendimientoUpdate: Partial<CreatePropertyDraft>) => void;
+  onBack: () => void;
+}
+const iconChevron = '/icons/chevron-up.svg';
 
-type AmenityKey = (typeof amenityGroups)[number]['key'];
-
-export default function PublishEmprendimientoAmenidades() {
+export default function PublishEmprendimientoAmenidades({
+  wizardData,
+  updateWizardData,
+  onNext,
+  onBack,
+}: PublishEmprendimientoProps) {
   const router = useRouter();
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    servicios: true,
-    caracteristicas_generales: true,
-    ambientes: true,
-    caracteristicas: true,
+  const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
+  const [expandedGroups, setExpandedGroups] = useState<Record<AmenityType, boolean>>({
+    [AmenityType.Rooms]: false,
+    [AmenityType.Services]: false,
+    [AmenityType.Extras]: false
   });
-  const [selectedAmenities, setSelectedAmenities] = useState<Record<string, Set<string>>>({
-    servicios: new Set(),
-    caracteristicas_generales: new Set(),
-    ambientes: new Set(),
-    caracteristicas: new Set(),
-  });
+  
+  const [selectedAmenities, setSelectedAmenities] = useState<number[]>(
+    (wizardData.tags || []).map((t: any) => typeof t === 'number' ? t : t.tag_id)
+  );
 
-  const handleToggleAmenity = (groupKey: string, option: string) => {
-    setSelectedAmenities((prev) => {
-      const nextSet = new Set(prev[groupKey]);
-      if (nextSet.has(option)) {
-        nextSet.delete(option);
-      } else {
-        nextSet.add(option);
-      }
-      return {
-        ...prev,
-        [groupKey]: nextSet,
-      };
+  const { data: tagsData = [] } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
+  });
+  
+  useEffect(() => {
+    if (tagsData.length > 0) {
+      const groups: AmenityGroup[] = Object.values(AmenityType).filter(v => typeof v === 'number').map(type => {
+        const options = tagsData.filter((tag: AmenityTag) => tag.type === type);
+        return {
+          type: type as AmenityType,
+          title: AMENITY_TYPE_LABELS[type as AmenityType],
+          options,
+        };
+      });
+      setAmenityGroups(groups);
+    }
+  }, [tagsData]);
+
+  useEffect(() => {
+    updateWizardData({
+      tags: selectedAmenities,      
     });
-  };
+  }, [selectedAmenities, updateWizardData]);
+  
 
-  const handleToggleGroup = (groupKey: string) => {
+  const handleToggleAmenity = useCallback((optionId: number) => {
+    setSelectedAmenities((prev) => {
+      if (prev.includes(optionId)) {
+        return prev.filter(id => id !== optionId);
+      } else {
+        return [...prev, optionId];
+      }
+    });
+  }, []);
+
+  const handleToggleGroup = useCallback((type: AmenityType) => {
     setExpandedGroups((prev) => ({
       ...prev,
-      [groupKey]: !prev[groupKey],
+      [type]: !prev[type],
     }));
+  }, []);
+
+  const handleBack = () => {
+    onBack();
   };
 
-  const handleGuardarBorrador = () => {
-    // TODO: Implement save as draft logic
-    console.log('Guardar como borrador');
-    router.push('/protected/publish/emprendimiento');
+  const handleContinue = () => {
+    const propertyContentUpdate = { 
+      tags: selectedAmenities
+    }
+    onNext(propertyContentUpdate);
   };
-
-  const handleContinuar = () => {
-    // TODO: Implement continue logic (validation and save)
-    console.log('Continuar');
-    // For now, navigate to unidades (will be implemented later)
-    router.push('/protected/publish/emprendimiento');
-  };
-
-  const getVisibleOptions = (groupKey: string, options: readonly string[]) => {
-    const isExpanded = expandedGroups[groupKey];
-    return isExpanded ? options : options.slice(0, 6);
-  };
-
-  const hasMoreOptions = (options: readonly string[]) => options.length > 6;
 
   return (
     <div className="publish-emprendimiento-amenidades">
@@ -215,48 +143,35 @@ export default function PublishEmprendimientoAmenidades() {
           {/* Amenity Groups */}
           <div className="amenity-groups">
             {amenityGroups.map((group) => {
-              const visibleOptions = getVisibleOptions(group.key, group.options);
-              const isExpanded = expandedGroups[group.key];
-              const hasMore = hasMoreOptions(group.options);
-
+              const isExpanded = expandedGroups[group.type];
+              const visibleItems = isExpanded ? group.options : group.options.slice(0, 8);
               return (
-                <div key={group.key} className="amenity-group">
-                  <h3 className="amenity-group-title">{group.title}</h3>
-                  <div className="chips-container">
-                    {visibleOptions.map((option) => (
-                      <Chip
-                        key={option}
-                        label={option}
-                        selected={selectedAmenities[group.key]?.has(option)}
-                        onClick={() => handleToggleAmenity(group.key, option)}
-                      />
+                <div key={group.type} className="publish-property-content-group">
+                  <h2>{group.title}</h2>
+                  <div className="publish-property-content-chip-grid">
+                    {visibleItems.map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        className={`publish-chip ${selectedAmenities.includes(option.id) ? 'publish-chip-active' : ''}`}
+                        onClick={() => handleToggleAmenity(option.id)}
+                      >
+                        {option.name}
+                      </button>
                     ))}
                   </div>
-                  {hasMore && (
-                    <button
-                      type="button"
-                      className="toggle-more-button"
-                      onClick={() => handleToggleGroup(group.key)}
-                    >
-                      <span>{isExpanded ? 'Ver menos' : 'Ver más'}</span>
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={isExpanded ? 'rotated' : ''}
-                      >
-                        <path
-                          d="M6 9L12 15L18 9"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  )}
+                  {group.options.length > 8 && <button
+                    type="button"
+                    className="publish-property-content-more"
+                    onClick={() => handleToggleGroup(group.type)}
+                  >
+                    {isExpanded ? 'Ver menos' : 'Ver mas'}
+                    <img
+                      src={iconChevron}
+                      alt=""
+                      className={isExpanded ? 'is-rotated' : ''}
+                    />
+                  </button>}
                 </div>
               );
             })}
@@ -269,14 +184,14 @@ export default function PublishEmprendimientoAmenidades() {
             label="Volver"
             variant="secondary"
             buttonType="2"
-            onClick={handleGuardarBorrador}
+            onClick={handleBack}
             fullWidth={false}
           />
           <Button
             label="Continuar"
             variant="primary"
             buttonType="2"
-            onClick={handleContinuar}
+            onClick={handleContinue}
             fullWidth={false}
           />
         </div>

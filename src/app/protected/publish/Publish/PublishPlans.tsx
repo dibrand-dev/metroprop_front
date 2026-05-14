@@ -8,33 +8,20 @@ import { useSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
+import { Plan } from '@/types/plan';
 
 interface PublishPlansProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
-  onComprar: () => void;
+  onComprar: (plan: Plan) => void;
   onSaveAndExit: (descriptionData: Partial<CreatePropertyDraft>) => void;
 }
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconCheck = '/icons/check-black.svg';
 
-const planOptions = [
-  {
-    id: 1,
-    title: 'Bonificado',
-    subtitle: '',
-    highlighted: true,
-  },
-];
-
-const planBenefits = [
-  'Detalle o beneficio del plan a definir con producto',
-  'Detalle o beneficio del plan a definir con producto',
-  'Detalle o beneficio del plan a definir con producto',
-];
 
 export default function PublishPlans({
   wizardData,
@@ -48,6 +35,13 @@ export default function PublishPlans({
   const [selected_plan, setSelected_plan] = useState(wizardData.selected_plan || 1);
   const [branchFilter, setBranchFilter] = useState('todas');
   const { data: sessionData } = useSession();
+
+
+  const { data:plansData , isLoading, isError } = useQuery<Plan[]>({
+    queryKey: ['plans'],
+    queryFn: async () => apiFetch(`${API_BASE_URL}/plans/`),
+    staleTime: 30_000,
+  });
 
   const orgId = (sessionData?.user as any)?.organization?.id ?? null;
 
@@ -105,8 +99,8 @@ export default function PublishPlans({
     });
   };
 
-  const handleComprar = () => {
-    onComprar();
+  const handleComprar = (plan: any) => {
+    onComprar(plan);
   };
 
   return (
@@ -157,7 +151,25 @@ export default function PublishPlans({
               <h2>Elegi el plan con el que vas a publicar</h2>
               <div className="publish-plans-group">
                 <h3>Planes disponibles</h3>
-                {planOptions.map((plan) => (
+                <button                    
+                  type="button"
+                  className={`publish-plans-radio is-highlighted ${selected_plan === 0 ? 'is-selected' : ''}`}
+                  onClick={() => setSelected_plan(0)}
+                >
+                  <span className="publish-plans-radio-dot" />
+                  <span>Bonificado</span>
+                  <span className="publish-plans-radio-subtitle">Gratis</span>
+                </button>
+                {branchFilter === 'todas' && (
+                  <p style={{ fontSize: 13, color: '#888' }}>Seleccioná una sucursal para ver los planes disponibles.</p>
+                )}
+                {branchFilter !== 'todas' && loadingPlans && (
+                  <p style={{ fontSize: 13, color: '#888' }}>Cargando planes...</p>
+                )}
+                {branchFilter !== 'todas' && !loadingPlans && branchPlans.length === 0 && (
+                  <p style={{ fontSize: 13, color: '#888' }}>No hay planes disponibles para esta sucursal.</p>                  
+                )}
+                {branchPlans.map((plan) => (
                   <button
                     key={plan.id}
                     type="button"
@@ -175,34 +187,32 @@ export default function PublishPlans({
 
               <div className="publish-plans-group">
                 <h3>Mas planes para vos</h3>
-                {branchFilter === 'todas' && (
-                  <p style={{ fontSize: 13, color: '#888' }}>Seleccioná una sucursal para ver los planes disponibles.</p>
-                )}
-                {branchFilter !== 'todas' && loadingPlans && (
-                  <p style={{ fontSize: 13, color: '#888' }}>Cargando planes...</p>
-                )}
-                {branchFilter !== 'todas' && !loadingPlans && branchPlans.length === 0 && (
-                  <p style={{ fontSize: 13, color: '#888' }}>Sin planes disponibles para esta sucursal.</p>
-                )}
+                
                 <div className="publish-plans-cards">
-                  {branchPlans.map((plan: any, idx: number) => (
+                  {plansData?.map((plan: Plan, idx: number) => (
                     <div key={plan.id ?? idx} className="publish-plans-card-item">
                       <div className="publish-plans-card-header">
-                        <span className="publish-plans-card-label">{plan.name ?? plan.label ?? `Plan ${idx + 1}`}</span>
+                        <span className="publish-plans-card-label">{plan.plan_name}</span>
                         <div className="publish-plans-card-price">
-                          <strong>{plan.price ?? plan.amount ?? '-'}</strong>
-                          <span>{plan.period ?? '/mes'}</span>
+                          <strong>{plan.currency} {plan.price}</strong>
+                          <span>/mes</span>
                         </div>
                       </div>
-                      <ul>
-                        {planBenefits.map((benefit, index) => (
-                          <li key={`${plan.id ?? idx}-${index}`}>
-                            <img src={iconCheck} alt="" />
-                            {benefit}
-                          </li>
-                        ))}
+                      <ul>                        
+                        <li>
+                          <img src={iconCheck} alt="" />
+                          {plan.plan_description}
+                        </li>
+                        <li>
+                          <img src={iconCheck} alt="" />
+                          Límite de propiedades: {plan.property_limit}
+                        </li>
+                        <li>
+                          <img src={iconCheck} alt="" />
+                          Destaques: {plan.highlight_limit}
+                        </li>
                       </ul>
-                      <button type="button" className="publish-plans-buy" onClick={handleComprar}>
+                      <button type="button" className="publish-plans-buy" onClick={() => handleComprar(plan)}>
                         Comprar
                       </button>
                     </div>

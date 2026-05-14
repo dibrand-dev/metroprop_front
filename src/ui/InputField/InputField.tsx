@@ -86,7 +86,7 @@ export default function InputField({
             id={id}
             name={name}
             placeholder={placeholder}
-            value={value}
+            value={value ?? ''}
             onChange={onChange}
             required={required}
             disabled={disabled}
@@ -101,7 +101,7 @@ export default function InputField({
             type={inputType}
             name={name}
             placeholder={placeholder}
-            value={value}
+            value={value ?? ''}
             onChange={onChange}
             required={required}
             disabled={disabled}

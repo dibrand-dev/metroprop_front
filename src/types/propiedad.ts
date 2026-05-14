@@ -39,6 +39,7 @@ export enum PropertyType {
   LOCAL_COMERCIAL = 15,       // Local comercial
   OFICINA_COMERCIAL = 16,     // Oficina comercial
   QUINTA_VACACIONAL = 17,     // Quinta vacacional
+  EMPRENDIMIENTO = 18,          // Emprendimiento
 }
 
 /**
@@ -251,6 +252,20 @@ export type AmenityGroup = {
   options: AmenityTag[];
 };
 
+/**
+ * Tipo de desarrollo/emprendimiento.
+ */
+export enum DevelopmentType {
+  VERTICAL = 1,    // Desarrollo vertical
+  HORIZONTAL = 2,  // Desarrollo horizontal
+}
+
+export const LABELS_DEVELOPMENT_TYPE: Record<DevelopmentType, string> = {
+  [DevelopmentType.VERTICAL]: 'Desarrollo vertical',
+  [DevelopmentType.HORIZONTAL]: 'Desarrollo horizontal',
+};
+
+
 // ==========================================================================
 // INTERFACE PRINCIPAL - CREATE PROPERTY
 // ==========================================================================
@@ -387,6 +402,16 @@ export interface CreateProperty {
   currency_expenses: string; // Moneda de los gastos (ej: "ARS", "USD")
   selected_plan?: number; // Plan seleccionado para la publicación (ej: "bonificado", "premium", etc)
   view_count?: number;
+  is_development?: boolean; // Indica si la propiedad es un emprendimiento (solo para ciertos tipos de propiedad y operación)
+
+
+  /****************** EMPRENDIMIENTO ***************************/
+  development_id?: number;
+  development_type?: DevelopmentType;
+  development_logo?: string;
+  development_units_total?: number;
+  development_delivery_date?: string;
+  development_available_unit_count?: number;
 }
 
 // ==========================================================================

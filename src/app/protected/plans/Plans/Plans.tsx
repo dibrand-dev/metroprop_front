@@ -51,7 +51,6 @@ export default function Plans() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plans'] }),
   });
 
-  const refresh = (id: number) => setConfirmAction({ type: 'refresh', id });  
   const desHabilitar = (id: number) => setConfirmAction({ type: 'disable', id });
   const habilitar = (id: number) => setConfirmAction({ type: 'enable', id });
   const eliminar = (id: number) => setConfirmAction({ type: 'delete', id });

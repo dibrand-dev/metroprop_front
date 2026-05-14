@@ -152,7 +152,7 @@ const MyProperties = () => {
     },
     staleTime: 5 * 60 * 1000,
   });
-  console.log("propertiesData", propertiesData)
+  
   const properties: CreateProperty[] = propertiesData?.data ?? [];
   const totalPages = Math.max(1, Math.ceil((propertiesData?.total ?? 0) / LIMIT));
 
@@ -166,7 +166,6 @@ const MyProperties = () => {
   const handleSearchById = () => {
     const trimmed = searchQuery.trim();
     const num = Number(trimmed);
-    console.log("trimmed", trimmed, "num", num)
     if (trimmed && !Number.isNaN(num) && num > 0) {
       setSearchId(num);
     }

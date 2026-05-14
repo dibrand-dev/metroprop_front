@@ -2,26 +2,19 @@
 
 import { CreatePropertyDraft } from '@/types/propiedad';
 import './PublishCheckoutDetail.scss';
+import { Plan } from '@/types/plan';
 
 interface PublishCheckoutDetailProps {
-  wizardData: CreatePropertyDraft;
-  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
   onBack: () => void;
+  planToBuy: Plan | null;
 }
 
 const iconChevron = '/icons/chevron-up.svg';
 
-const purchaseItems = [
-  { label: '1 Destacada', value: '$20.000,25' },
-  { label: 'Impuestos (21,00%)', value: '$12000' },
-];
-
-const totalValue = '$32000,25';
 
 export default function PublishCheckoutDetail({
-  wizardData,
-  updateWizardData,
+  planToBuy,
   onNext,
   onBack,
 }: PublishCheckoutDetailProps) {
@@ -64,16 +57,16 @@ export default function PublishCheckoutDetail({
             <h1>Detalle de compra</h1>
             <div className="publish-checkout-summary">
               <div className="publish-checkout-items">
-                {purchaseItems.map((item) => (
-                  <div key={item.label} className="publish-checkout-row">
-                    <span>{item.label}</span>
-                    <span>{item.value}</span>
+                {planToBuy && (
+                  <div className="publish-checkout-row">
+                    <span>{planToBuy.plan_name}</span>
+                    <span>{planToBuy.currency} {planToBuy.price}</span>
                   </div>
-                ))}
+                )}
               </div>
               <div className="publish-checkout-total">
                 <span>Total</span>
-                <span>{totalValue}</span>
+                <span>{planToBuy ? `${planToBuy.currency} ${planToBuy.price}` : ''}</span>
               </div>
             </div>
             <button className="publish-checkout-buy" type="button" onClick={handleBuy}>

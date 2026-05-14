@@ -7,6 +7,7 @@ import Select from '@/ui/Select/Select';
 import Button from '@/ui/Button/Button';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import './PublishEmprendimientoUnidades.scss';
+import { CreatePropertyDraft } from '@/types/propiedad';
 
 interface Unit {
   id: string;
@@ -31,7 +32,19 @@ interface Unit {
   recorrido360: string;
 }
 
-export default function PublishEmprendimientoUnidades() {
+interface PublishEmprendimientoProps {
+  wizardData: CreatePropertyDraft;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
+  onNext: (emprendimientoUpdate: Partial<CreatePropertyDraft>) => void;
+  onBack: () => void;
+}
+
+export default function PublishEmprendimientoUnidades({
+  wizardData,
+  updateWizardData,
+  onNext,
+  onBack,
+}: PublishEmprendimientoProps) {
   const router = useRouter();
   
   // Form state for new unit
@@ -130,11 +143,11 @@ export default function PublishEmprendimientoUnidades() {
   };
 
   const handleVolver = () => {
-    router.push('/protected/publish/emprendimiento/amenidades');
+    onBack();
   };
 
   const handleContinuar = () => {
-    router.push('/protected/publish/emprendimiento/tipos-de-unidad');
+    onNext({ unidades });
   };
 
   return (
@@ -250,6 +263,7 @@ export default function PublishEmprendimientoUnidades() {
             <div className="form-group">
               <div className="form-row">
                 <div className="form-field half-width">
+                  <label className="field-label">Piso y unidad*</label>
                   <InputField2
                     label="Piso y unidad"
                     placeholder="Ej: 3° A"
@@ -285,6 +299,29 @@ export default function PublishEmprendimientoUnidades() {
 
             <div className="form-group">
               <div className="form-row">
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <div className="form-field half-width">
                   <div className="price-field">
                     <Checkbox

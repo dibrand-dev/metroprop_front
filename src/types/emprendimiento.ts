@@ -46,7 +46,7 @@ export interface EmprendimientoLocation {
   };
 }
 
-export interface EmprendimientoSubmission {
+export interface Emprendimiento {
   // Datos principales
   nombreEmprendimiento: string;
   descripcion: string;
@@ -75,7 +75,7 @@ export interface EmprendimientoAPIResponse {
   success: boolean;
   data?: {
     id: string;
-    emprendimiento: EmprendimientoSubmission;
+    emprendimiento: Emprendimiento;
   };
   error?: {
     message: string;
@@ -273,6 +273,7 @@ export enum TemporalRentPeriod {
  * - Delete emprendimiento
  * - Response: { success: boolean }
  */
+
 
 export const API_ENDPOINTS = {
   CREATE: '/api/emprendimientos',

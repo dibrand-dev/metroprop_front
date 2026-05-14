@@ -12,6 +12,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { apiFetch } from '@/lib/apiFetch';
 import Select from '@/ui/Select/Select';
+import { Plan } from '@/types/plan';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -42,7 +43,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
   const pageTitle = isEditing ? 'Modificar plan' : 'Agregar plan';
   const queryClient = useQueryClient();
 
-  const { isLoading: isLoadingPlan, data: planData } = useQuery({
+  const { isLoading: isLoadingPlan, data: planData } = useQuery<Plan>({
     queryKey: ['plan', planId],
     queryFn: async () => apiFetch(`${API_BASE_URL}/plans/${planId}`),
     enabled: Boolean(planId),
@@ -51,7 +52,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
 
   useEffect(() => {
     if (!planData) return;
-    const plan = planData?.plan ?? planData;
+    const plan:Plan = planData?.plan ?? planData;
     setName(plan.plan_name ?? '');
     setDescription(plan.plan_description ?? '');
     setHabilitado(plan.is_active);
@@ -86,6 +87,10 @@ export default function PlanForm({ planId }: PlanFormProps) {
         setName('');
         setDescription('');
         setHabilitado(false);
+        setPrice('');
+        setCurrency('');
+        setPropertyLimit('');
+        setHighlightLimit('');
       }
       setShowSuccessModal(true);
       setTimeout(() => {
@@ -102,8 +107,12 @@ export default function PlanForm({ planId }: PlanFormProps) {
     const errors = { name: '', description: '', price: '', currency: '', propertyLimit: '', highlightLimit: '' };
     if (!name.trim()) errors.name = 'El nombre es requerido';
     if (!description.trim()) errors.description = 'La descripción es requerida';
+    if (!price.trim()) errors.price = 'El precio es requerido';
+    if (!currency.trim()) errors.currency = 'La moneda es requerida';
+    if (!propertyLimit.trim()) errors.propertyLimit = 'El límite de propiedades es requerido';
+    if (!highlightLimit.trim()) errors.highlightLimit = 'El límite de destacados es requerido';
 
-    if (errors.name || errors.description) {
+    if (errors.name || errors.description || errors.price || errors.currency || errors.propertyLimit || errors.highlightLimit) {
       setFieldErrors(errors);
       return;
     }
@@ -149,7 +158,6 @@ export default function PlanForm({ planId }: PlanFormProps) {
               error={fieldErrors.name}
             />
           </div>
-
           <div className="partner-form-section">
             <label className="partner-form-label">Descripción</label>
             <InputField2
@@ -194,7 +202,6 @@ export default function PlanForm({ planId }: PlanFormProps) {
               error={fieldErrors.propertyLimit}
             />
           </div>
-
           <div className="partner-form-section">
             <label className="partner-form-label">Límite de destacados</label>
             <InputField2
@@ -207,9 +214,6 @@ export default function PlanForm({ planId }: PlanFormProps) {
               error={fieldErrors.highlightLimit}
             />
           </div>
-
-
-
           <div className="partner-form-section">
             <Checkbox
               label="Habilitado"

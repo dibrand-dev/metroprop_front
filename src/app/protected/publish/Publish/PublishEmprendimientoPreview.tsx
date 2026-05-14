@@ -3,31 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/ui/Button/Button';
-import type { EmprendimientoSubmission, API_ENDPOINTS } from '@/types/emprendimiento';
+import type { Emprendimiento, API_ENDPOINTS } from '@/types/emprendimiento';
 import './PublishEmprendimientoPreview.scss';
+import { useLocations } from '@/lib/locations';
+import { useSession } from 'next-auth/react';
 
-/**
- * PublishEmprendimientoPreview Component
- * 
- * This is the final step in the emprendimiento publishing flow.
- * It displays a preview of all data collected in previous steps and allows
- * the user to submit the emprendimiento for publication.
- * 
- * Data Flow:
- * - In a production app, all form data from previous steps should be stored
- *   in a global state (Context API, Redux, Zustand, etc.)
- * - This component reads that state and displays a preview
- * - On submit, it sends the data to the API endpoint defined in @/types/emprendimiento
- * 
- * API Integration:
- * - See @/types/emprendimiento for the complete API contract
- * - POST /api/emprendimientos - Create new emprendimiento
- * - The submission includes all data from:
- *   1. Datos principales (name, description, location, images)
- *   2. Amenidades (selected amenities)
- *   3. Unidades (unit details, pricing, features)
- *   4. Vista al precio (plan selection, collaborator assignment)
- */
 
 interface Unit {
   nombre: string;
@@ -45,9 +25,126 @@ interface UnitsByType {
   [key: string]: Unit[];
 }
 
-export default function PublishEmprendimientoPreview() {
+
+const iconChevron = '/icons/chevron-up.svg';
+
+interface PublishFinalReviewProps {
+  wizardData: CreatePropertyDraft;
+  onNext: (data: Partial<CreatePropertyDraft>) => void;
+  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
+  onBack: () => void;
+  onSaveAndExit: (data: Partial<CreatePropertyDraft>) => void;
+  isEditMode?: boolean;
+}
+
+export default function PublishEmprendimientoPreview({
+  wizardData,
+  onNext,
+  onBack,
+  onSaveAndExit,
+  updateWizardData,
+  isEditMode = false,
+}: PublishFinalReviewProps) {
+
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { data: locations = [] } = useLocations();
+  const { data: sessionData } = useSession();
+  const [activeTab, setActiveTab] = useState<string>('');
+  const countryLabel = locations.find(l => l.id === wizardData.country_id)?.name;
+  const stateLabel = locations.find(l => l.id === wizardData.state_id)?.name;
+  const locationLabel = locations.find(l => l.id === wizardData.location_id)?.name;
+  const subLocationLabel = locations.find(l => l.id === wizardData.sub_location_id)?.name;
+  const addressParts = [wizardData.street, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
+  const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
+  const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
+
+  const { data: tagsData = [] } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
+  });
+
+  useEffect(() => {
+    if (tagsData.length > 0) {
+      const groups: AmenityGroup[] = Object.values(AmenityType).filter(v => typeof v === 'number').map(type => {
+        const options = tagsData.filter((tag: AmenityTag) => tag.type === type);
+        return {
+          type: type as AmenityType,
+          title: AMENITY_TYPE_LABELS[type as AmenityType],
+          options,
+        };
+      });
+      setAmenityGroups(groups);
+      // Set activeTab to first group's type if available
+      if (groups.length > 0) {
+        setActiveTab(groups[0].type.toString());
+      }
+    }
+  }, [tagsData]);
+  
+  useEffect(() => {
+    if (wizardData.draft_id) {
+      apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/multimedia`)
+        .then(data => {
+          const _wizardData = {...wizardData};
+          _wizardData.images = (data as any)?.images || wizardData.images;
+          _wizardData.attached = (data as any)?.attached || wizardData.attached;
+          updateWizardData(_wizardData);
+        })
+        .catch(error => console.error('Error loading multimedia:', error));
+    }
+  }, []) 
+
+  // Format price display
+  const formatPrice = (amount: string, currency: string) => {
+    if (!amount) return '';
+    return `${currency} ${amount}`;
+  };
+
+  // Build amenity tabs from amenityGroups
+  const amenityTabs = amenityGroups.map(group => ({
+    key: group.type.toString(),
+    label: group.title
+  }));
+
+  useEffect(() => {
+    if (!wizardData) return;
+    const hasDetails = !!(
+      wizardData.expenses ||
+      wizardData.floors_amount ||
+      wizardData.garage_coverage ||
+      wizardData.postal_code ||
+      wizardData.semiroofed_surface ||
+      wizardData.surface_front ||
+      wizardData.surface_length
+    );
+    if (hasDetails) setActiveTab('4');
+  }, [wizardData]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   // Mock data - in real app this would come from context/state management
   const emprendimientoData = {
@@ -135,7 +232,7 @@ export default function PublishEmprendimientoPreview() {
     // Prepare data for API submission
     // In production, this data should come from a global state manager
     // that has been populated throughout the multi-step form
-    const submissionData: Partial<EmprendimientoSubmission> = {
+    const submissionData: Partial<Emprendimiento> = {
       // From step 1: Datos principales
       nombreEmprendimiento: emprendimientoData.nombre,
       descripcion: emprendimientoData.descripcionCompleta,

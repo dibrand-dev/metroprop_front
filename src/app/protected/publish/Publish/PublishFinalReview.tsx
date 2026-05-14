@@ -41,7 +41,6 @@ export default function PublishFinalReview({
   const addressParts = [wizardData.street, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
   const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
-  
 
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],

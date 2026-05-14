@@ -175,7 +175,7 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   position: relative;
 
   &.full-width {
@@ -191,12 +191,11 @@
   }
 }
 
-.field-label {
-  
-  font-size: 14px;
-  font-weight: 400;
+.field-label {  
+  font-size: 16px;
+  font-weight: 500;
   line-height: 18px;
-  color: rgba(0, 0, 0, 0.8);
+  color: #1e1e1e;
 }
 
 .field-description {
