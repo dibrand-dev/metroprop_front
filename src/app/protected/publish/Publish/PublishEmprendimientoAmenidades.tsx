@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Chip from '@/ui/Chip/Chip';
 import Button from '@/ui/Button/Button';
 import './PublishEmprendimientoAmenidades.scss';
@@ -9,12 +8,14 @@ import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePrope
 import { API_BASE_URL } from '@/utils/utils';
 import { apiFetch } from '@/lib/apiFetch';
 import { useQuery } from '@tanstack/react-query';
+import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
 
 interface PublishEmprendimientoProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (emprendimientoUpdate: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
+  goToStep: (step: EmprendimientoStep) => void;
 }
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -23,8 +24,8 @@ export default function PublishEmprendimientoAmenidades({
   updateWizardData,
   onNext,
   onBack,
+  goToStep,
 }: PublishEmprendimientoProps) {
-  const router = useRouter();
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
   const [expandedGroups, setExpandedGroups] = useState<Record<AmenityType, boolean>>({
     [AmenityType.Rooms]: false,
@@ -104,37 +105,7 @@ export default function PublishEmprendimientoAmenidades({
         </div>
 
         {/* Secondary Menu / Tabs */}
-        <div className="secondary-menu">
-          <button
-            className="tab"
-            onClick={() => router.push('/protected/publish/emprendimiento')}
-          >
-            Datos principales
-          </button>
-          <button
-            className="tab active"
-          >
-            Amenidades
-          </button>
-          <button
-            className="tab"
-            onClick={() => router.push('/protected/publish/emprendimiento/unidades')}
-          >
-            Unidades
-          </button>
-          <button
-            className="tab"
-            onClick={() => router.push('/protected/publish/emprendimiento/tipos-de-unidad')}
-          >
-            Tipos de unidad
-          </button>
-          <button
-            className="tab"
-            onClick={() => router.push('/protected/publish/emprendimiento/vista-al-precio')}
-          >
-            Vista al precio
-          </button>
-        </div>
+        <EmprendimientoTabs currentStep="emprendimiento-amenities" goToStep={goToStep} />
 
         {/* Main Content */}
         <div className="main-content">

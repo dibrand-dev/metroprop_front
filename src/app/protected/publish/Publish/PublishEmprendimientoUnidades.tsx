@@ -1,155 +1,184 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, useCallback } from 'react';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Select from '@/ui/Select/Select';
 import Button from '@/ui/Button/Button';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import './PublishEmprendimientoUnidades.scss';
-import { CreatePropertyDraft } from '@/types/propiedad';
-
-interface Unit {
-  id: string;
-  nombre: string;
-  descripcion: string;
-  tipo: string;
-  pisoUnidad: string;
-  orientacion: string;
-  precio: string;
-  moneda: string;
-  expensas: boolean;
-  expensasValor: string;
-  dormitorios: number;
-  banos: number;
-  toilettes: number;
-  cochera: number;
-  baulera: number;
-  supCubierta: string;
-  supTotal: string;
-  fotos: File[];
-  planos: File[];
-  recorrido360: string;
-}
+import { CreateProperty, CreatePropertyDraft, currencySelectOptions, OperationType, PropertyType, roomsConfig, unitSelectOptions } from '@/types/propiedad';
+import InputField from '@/ui/InputField/InputField';
+import EmprendimientoImages, { EmprendimientoImagesRef } from './EmprendimientoImages';
+import { useMutation } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { apiFetch } from '@/lib/apiFetch';
+import { API_BASE_URL } from '@/utils/utils';
+import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
 
 interface PublishEmprendimientoProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (emprendimientoUpdate: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
+  goToStep: (step: EmprendimientoStep) => void;
 }
+
+type RoomKey = (typeof roomsConfig)[number]['key'];
 
 export default function PublishEmprendimientoUnidades({
   wizardData,
   updateWizardData,
   onNext,
   onBack,
+  goToStep,
 }: PublishEmprendimientoProps) {
-  const router = useRouter();
+  const { data: sessionData } = useSession();
+
+  // Images component ref
+  const imagesRef = useRef<EmprendimientoImagesRef>(null);  
+  const [hasImages, setHasImages] = useState(false);
+  const [hasPlans, setHasPlans] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleImagesStatusChange = useCallback((status: { hasImages: boolean; hasPlans: boolean }) => {
+    setHasImages(status.hasImages);
+    setHasPlans(status.hasPlans);
+  }, []);
   
   // Form state for new unit
-  const [nombreUnidad, setNombreUnidad] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [tipoUnidad, setTipoUnidad] = useState('');
-  const [pisoUnidad, setPisoUnidad] = useState('');
-  const [orientacion, setOrientacion] = useState('');
-  
+  const [publication_title, setPublicationTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [development_unit_type, setDevelopmentUnitType] = useState('');
+   
   // Price state
-  const [precioTotal, setPrecioTotal] = useState(true);
-  const [moneda, setMoneda] = useState('USD');
-  const [precio, setPrecio] = useState('');
-  const [tieneExpensas, setTieneExpensas] = useState(false);
-  const [expensasValor, setExpensasValor] = useState('');
+  const [currency, setCurrency] = useState('ARS');
+  const [price, setPrice] = useState<number | undefined>(undefined);
+  const [expenses, setExpenses] = useState<number | undefined>(undefined);
+  const [currency_expenses, setCurrency_expenses] = useState('ARS');
+  const [withoutExpenses, setWithoutExpenses] = useState(false);
   
-  // Ambientes state
-  const [dormitorios, setDormitorios] = useState(0);
-  const [banos, setBanos] = useState(0);
-  const [toilettes, setToilettes] = useState(0);
-  const [cochera, setCochera] = useState(0);
-  const [baulera, setBaulera] = useState(0);
-  
-  // Surface state
-  const [supCubierta, setSupCubierta] = useState('');
-  const [supTotal, setSupTotal] = useState('');
-  
-  // Images state
-  const [fotos, setFotos] = useState<File[]>([]);
-  const [planos, setPlanos] = useState<File[]>([]);
-  const [recorrido360, setRecorrido360] = useState('');
-  
+  /* Ambientes state */
+  const [rooms, setRooms] = useState<Record<RoomKey, number>>({    
+    room_amount: wizardData.room_amount || 0,
+    suite_amount: wizardData.suite_amount || 0,
+    bathroom_amount: wizardData.bathroom_amount || 0,
+    toilet_amount: wizardData.toilet_amount || 0,
+    parking_lot_amount: wizardData.parking_lot_amount || 0,    
+  });
+  const [surface_measurement, setSurface_measurement] = useState(wizardData.surface_measurement || "M2");
+  const [roofed_surface_measurement, setRoofed_surface_measurement] = useState(wizardData.roofed_surface_measurement || "M2");
+  const [total_surface, setTotal_surface] = useState(wizardData.total_surface || "");
+  const [roofed_surface, setRoofed_surface] = useState(wizardData.roofed_surface || "");  
+  const [development_units_total, setDevelopment_units_total] = useState<number | undefined>(undefined);
   // Units list
-  const [unidades, setUnidades] = useState<Unit[]>([]);
+  const [unidades, setUnidades] = useState<CreateProperty[]>([]);
+  const [draftId, setDraftId] = useState<string | undefined>();
 
-  const handleFotosUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFotos(Array.from(e.target.files));
-    }
-  };
-
-  const handlePlanosUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setPlanos(Array.from(e.target.files));
-    }
-  };
-
-  const handleAgregarUnidad = () => {
-    const nuevaUnidad: Unit = {
-      id: Date.now().toString(),
-      nombre: nombreUnidad,
-      descripcion,
-      tipo: tipoUnidad,
-      pisoUnidad,
-      orientacion,
-      precio,
-      moneda,
-      expensas: tieneExpensas,
-      expensasValor,
-      dormitorios,
-      banos,
-      toilettes,
-      cochera,
-      baulera,
-      supCubierta,
-      supTotal,
-      fotos,
-      planos,
-      recorrido360,
+  const handleAgregarUnidad = async (goToNextStep: boolean) => {
+    const nuevaUnidad: CreateProperty = {
+      publication_title,
+      description,
+      development_unit_type,
+      price,
+      currency,
+      expenses: withoutExpenses ? 0 : expenses,
+      currency_expenses,
+      surface_measurement,
+      roofed_surface_measurement,
+      total_surface,
+      roofed_surface,
+      room_amount: rooms.room_amount,
+      suite_amount: rooms.suite_amount,
+      bathroom_amount: rooms.bathroom_amount,
+      toilet_amount: rooms.toilet_amount,
+      parking_lot_amount: rooms.parking_lot_amount,
+      development_units_total,
+      development_id: wizardData.draft_id || undefined,
+      operation_type: OperationType.VENTA,
+      property_type: PropertyType.DEPARTAMENTO,
     };
+
+    try {
+      setIsUploading(true);
+      const draftData = await createDraftMutation.mutateAsync(nuevaUnidad);
+      setDraftId(draftData.id);
+      setUnidades([...unidades, nuevaUnidad]);
+
+      if (hasImages || hasPlans) {
+        await imagesRef.current?.submit();
+        if (goToNextStep) {
+          onNext();
+        }       
+      } else {
+        onNext();
+      }
+    } catch (error: any) {
+      console.error('Error creating draft:', error?.message || error);      
+    } finally {
+      setIsUploading(false);
+      resetForm();
+    }
     
-    setUnidades([...unidades, nuevaUnidad]);
-    
-    // Reset form
-    setNombreUnidad('');
-    setDescripcion('');
-    setTipoUnidad('');
-    setPisoUnidad('');
-    setOrientacion('');
-    setPrecio('');
-    setExpensasValor('');
-    setDormitorios(0);
-    setBanos(0);
-    setToilettes(0);
-    setCochera(0);
-    setBaulera(0);
-    setSupCubierta('');
-    setSupTotal('');
-    setFotos([]);
-    setPlanos([]);
-    setRecorrido360('');
   };
 
-  const handleEliminarUnidad = (id: string) => {
-    setUnidades(unidades.filter(u => u.id !== id));
-  };
+  const resetForm = () => {
+    // Reset form
+    setPublicationTitle('');
+    setDescription('');
+    setDevelopmentUnitType('');
+    setPrice(undefined);
+    setExpenses(undefined);
+    setRooms({
+      room_amount: 0,
+      suite_amount: 0,
+      bathroom_amount: 0,
+      toilet_amount: 0,
+      parking_lot_amount: 0,
+    });
+    setSurface_measurement("M2");
+    setRoofed_surface_measurement("M2");
+    setTotal_surface('');
+    setRoofed_surface('');
+    setDevelopment_units_total(undefined);
+  }
 
   const handleVolver = () => {
     onBack();
   };
 
-  const handleContinuar = () => {
-    onNext({ unidades });
+  const handleCounterChange = (key: RoomKey, delta: number) => {
+    setRooms((prev) => {
+      const nextValue = Math.max(0, prev[key] + delta);
+      return {
+        ...prev,
+        [key]: nextValue,
+      };
+    });
   };
 
+  const createDraftMutation = useMutation({
+    mutationFn: async (draftData: Partial<CreatePropertyDraft>) => {
+      const user_id = sessionData?.user?.id;
+      const organization_id = sessionData?.user?.organization_id ?? undefined;
+      const branch_id = sessionData?.user?.branch_id;
+      if (!user_id) throw new Error('User not authenticated');
+
+      return apiFetch(`${API_BASE_URL}/properties/draft`, {
+        method: 'POST',
+        body: {
+          user_id,
+          organization_id,
+          branch_id,
+          //operation_type: draftData.operation_type,
+          //property_type: draftData.property_type,
+          // is_development: draftData.is_development,
+          // ...(draftData.property_subtype && { property_subtype: draftData.property_subtype }),
+          ...draftData
+        },
+      });
+    }
+  });
+  
   return (
     <div className="publish-emprendimiento-unidades">
       <div className="publish-emprendimiento-unidades-container">
@@ -165,35 +194,7 @@ export default function PublishEmprendimientoUnidades({
         </div>
 
         {/* Secondary Menu / Tabs */}
-        <div className="secondary-menu">
-          <button
-            className="tab"
-            onClick={() => router.push('/protected/publish/emprendimiento')}
-          >
-            Datos principales
-          </button>
-          <button
-            className="tab"
-            onClick={() => router.push('/protected/publish/emprendimiento/amenidades')}
-          >
-            Amenidades
-          </button>
-          <button className="tab active">
-            Unidades
-          </button>
-          <button
-            className="tab"
-            onClick={() => router.push('/protected/publish/emprendimiento/tipos-de-unidad')}
-          >
-            Tipos de unidad
-          </button>
-          <button
-            className="tab"
-            onClick={() => router.push('/protected/publish/emprendimiento/vista-al-precio')}
-          >
-            Vista al precio
-          </button>
-        </div>
+        <EmprendimientoTabs currentStep="emprendimiento-units" goToStep={goToStep} />
 
         {/* Main Content */}
         <div className="main-content">
@@ -210,10 +211,10 @@ export default function PublishEmprendimientoUnidades({
                 </p>
                 <InputField2
                   placeholder="Ej: Departamento 2 ambientes con balcón"
-                  value={nombreUnidad}
-                  onChange={(e) => setNombreUnidad(e.target.value)}
+                  value={publication_title}
+                  onChange={(e) => setPublicationTitle(e.target.value)}
                 />
-                <span className="character-count">{nombreUnidad.length}/100</span>
+                <span className="character-count">{publication_title.length}/100</span>
               </div>
             </div>
 
@@ -224,23 +225,14 @@ export default function PublishEmprendimientoUnidades({
                 <textarea
                   className="textarea-field"
                   placeholder="Describe las características de esta unidad"
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   rows={6}
                   maxLength={10000}
-                />
-                <div className="textarea-footer">
-                  {descripcion.length < 150 && (
-                    <span className="helper-text">
-                      La descripción debe tener al menos 150 caracteres
-                    </span>
-                  )}
-                  <span className="character-count">{descripcion.length}/10000</span>
-                </div>
+                />               
               </div>
             </div>
-
-            {/* Type and Floor/Unit */}
+         
             <div className="form-group">
               <div className="form-field full-width">
                 <Select
@@ -253,122 +245,57 @@ export default function PublishEmprendimientoUnidades({
                     { value: 'local', label: 'Local' },
                     { value: 'oficina', label: 'Oficina' },
                   ]}
-                  value={tipoUnidad}
-                  onChange={setTipoUnidad}
+                  value={development_unit_type}
+                  onChange={setDevelopmentUnitType}
                   placeholder="Seleccionar"
                 />
               </div>
-            </div>
-
-            <div className="form-group">
-              <div className="form-row">
-                <div className="form-field half-width">
-                  <label className="field-label">Piso y unidad*</label>
-                  <InputField2
-                    label="Piso y unidad"
-                    placeholder="Ej: 3° A"
-                    value={pisoUnidad}
-                    onChange={(e) => setPisoUnidad(e.target.value)}
-                  />
-                </div>
-                <div className="form-field half-width">
-                  <Select
-                    label="Orientación"
-                    options={[
-                      { value: 'norte', label: 'Norte' },
-                      { value: 'sur', label: 'Sur' },
-                      { value: 'este', label: 'Este' },
-                      { value: 'oeste', label: 'Oeste' },
-                      { value: 'noreste', label: 'Noreste' },
-                      { value: 'noroeste', label: 'Noroeste' },
-                      { value: 'sureste', label: 'Sureste' },
-                      { value: 'suroeste', label: 'Suroeste' },
-                    ]}
-                    value={orientacion}
-                    onChange={setOrientacion}
-                    placeholder="Seleccionar"
-                  />
-                </div>
-              </div>
-            </div>
+            </div>            
           </section>
 
           {/* Price Section */}
           <section className="section">
             <h2 className="section-title">Precio</h2>
-
-            <div className="form-group">
-              <div className="form-row">
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                <div className="form-field half-width">
-                  <div className="price-field">
-                    <Checkbox
-                      label="Precio*"
-                      checked={precioTotal}
-                      onChange={setPrecioTotal}
-                    />
-                    <div className="price-inputs">
-                      <Select
-                        label=""
-                        options={[
-                          { value: 'USD', label: 'USD' },
-                          { value: 'ARS', label: 'ARS' },
-                          { value: 'EUR', label: 'EUR' },
-                        ]}
-                        value={moneda}
-                        onChange={setMoneda}
-                      />
-                      <InputField2
-                        placeholder="0"
-                        value={precio}
-                        onChange={(e) => setPrecio(e.target.value)}
-                        type="number"
-                      />
-                    </div>
-                  </div>
-                  <div className="expensas-checkbox">
-                    <Checkbox
-                      label="Expensas"
-                      checked={tieneExpensas}
-                      onChange={setTieneExpensas}
-                    />
-                  </div>
+            <div className="publish-price-fields">
+              <div className="publish-price-field">
+                <label>Precio*</label>
+                <div className="publish-price-inputs">
+                  <Select
+                    options={currencySelectOptions}
+                    value={currency}
+                    onChange={(value) => setCurrency(value)}
+                  />
+                  <InputField2
+                    value={price ?? null}
+                    onChange={(event) => setPrice(Number(event.target.value))}
+                    placeholder={'Ej. 700000'}
+                    type="number"
+                  />
                 </div>
-                <div className="form-field half-width">
-                  {tieneExpensas && (
-                    <div className="expensas-field">
-                      <label className="field-label">Valor de expensas</label>
-                      <InputField2
-                        placeholder="0"
-                        value={expensasValor}
-                        onChange={(e) => setExpensasValor(e.target.value)}
-                        type="number"
-                      />
-                    </div>
-                  )}
+              </div>
+
+              <div className="publish-price-field">
+                <label>Expensas</label>
+                <div className="publish-price-inputs">
+                  <Select
+                    options={currencySelectOptions}
+                    value={currency_expenses}
+                    onChange={(value) => setCurrency_expenses(value)}
+                    disabled={withoutExpenses}
+                  />
+                  <InputField
+                    value={expenses ?? null}
+                    onChange={(event) => setExpenses(Number(event.target.value))}
+                    placeholder="Ej. 100000"
+                    type="number"
+                    disabled={withoutExpenses}
+                  />
                 </div>
+                <Checkbox
+                  label="Sin expensas"
+                  checked={withoutExpenses}
+                  onChange={(checked) => setWithoutExpenses(checked)}
+                />
               </div>
             </div>
           </section>
@@ -377,253 +304,120 @@ export default function PublishEmprendimientoUnidades({
           <section className="section">
             <h2 className="section-title">Ambientes</h2>
 
-            <div className="ambientes-principales">
-              <h3 className="subsection-title">Ambientes principales</h3>
-              <div className="ambientes-list">
-                <div className="ambiente-item">
-                  <span className="ambiente-label">Dormitorios</span>
-                  <div className="counter">
-                    <button type="button" onClick={() => setDormitorios(Math.max(0, dormitorios - 1))}>-</button>
-                    <span>{dormitorios}</span>
-                    <button type="button" onClick={() => setDormitorios(dormitorios + 1)}>+</button>
-                  </div>
-                </div>
-                <div className="ambiente-item">
-                  <span className="ambiente-label">Baños</span>
-                  <div className="counter">
-                    <button type="button" onClick={() => setBanos(Math.max(0, banos - 1))}>-</button>
-                    <span>{banos}</span>
-                    <button type="button" onClick={() => setBanos(banos + 1)}>+</button>
-                  </div>
-                </div>
-                <div className="ambiente-item">
-                  <span className="ambiente-label">Toilettes</span>
-                  <div className="counter">
-                    <button type="button" onClick={() => setToilettes(Math.max(0, toilettes - 1))}>-</button>
-                    <span>{toilettes}</span>
-                    <button type="button" onClick={() => setToilettes(toilettes + 1)}>+</button>
-                  </div>
-                </div>
-                <div className="ambiente-item">
-                  <span className="ambiente-label">Cochera</span>
-                  <div className="counter">
-                    <button type="button" onClick={() => setCochera(Math.max(0, cochera - 1))}>-</button>
-                    <span>{cochera}</span>
-                    <button type="button" onClick={() => setCochera(cochera + 1)}>+</button>
-                  </div>
-                </div>
-                <div className="ambiente-item">
-                  <span className="ambiente-label">Baulera</span>
-                  <div className="counter">
-                    <button type="button" onClick={() => setBaulera(Math.max(0, baulera - 1))}>-</button>
-                    <span>{baulera}</span>
-                    <button type="button" onClick={() => setBaulera(baulera + 1)}>+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="superficie">
-              <h3 className="subsection-title">Superficie</h3>
-              <div className="form-row">
-                <div className="form-field half-width">
-                  <label className="field-label">M² construidos</label>
-                  <div className="surface-input">
-                    <span className="surface-unit">m²</span>
-                    <InputField2
-                      placeholder="0"
-                      value={supCubierta}
-                      onChange={(e) => setSupCubierta(e.target.value)}
-                      type="number"
-                    />
-                  </div>
-                </div>
-                <div className="form-field half-width">
-                  <label className="field-label">M² totales</label>
-                  <div className="surface-input">
-                    <span className="surface-unit">m²</span>
-                    <InputField2
-                      placeholder="0"
-                      value={supTotal}
-                      onChange={(e) => setSupTotal(e.target.value)}
-                      type="number"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Unidades disponibles */}
-          {unidades.length > 0 && (
-            <section className="section">
-              <h2 className="section-title">Unidades disponibles</h2>
-              <div className="unidades-list">
-                {unidades.map((unidad) => (
-                  <div key={unidad.id} className="unidad-card">
-                    <div className="unidad-info">
-                      <span className="unidad-nombre">{unidad.nombre || 'Unidad sin nombre'}</span>
-                      <span className="unidad-tipo">{unidad.tipo}</span>
-                      <span className="unidad-precio">{unidad.moneda} {unidad.precio}</span>
-                      <span className="unidad-ambientes">{unidad.dormitorios} Dormitorios</span>
-                      <span className="unidad-superficie">{unidad.supTotal} m²</span>
-                    </div>
-                    <div className="unidad-actions">
-                      <button type="button" className="icon-button" title="Editar">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <div className="publish-main-info-block">
+              <h2>Ambientes principales*</h2>
+              <div className="publish-main-info-rooms">
+                {roomsConfig.map((room) => (
+                  <div key={room.key} className="publish-main-info-room">
+                    <span>{room.label}</span>
+                    <div className="publish-main-info-counter">
+                      <button
+                        type="button"
+                        className="publish-main-info-counter-btn"
+                        onClick={() => handleCounterChange(room.key, -1)}
+                        disabled={rooms[room.key] === 0}
+                        aria-label={`Restar ${room.label}`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="14" viewBox="0 0 10 14" fill="none">
+                          <path d="M9.98217 12.666V0.665958C9.98178 0.544464 9.94828 0.425374 9.88525 0.321507C9.82222 0.217641 9.73206 0.132931 9.62446 0.0764942C9.51687 0.0200586 9.39593 -0.00596619 9.27464 0.00122261C9.15336 0.00841141 9.03634 0.0485411 8.93617 0.117291L0.2695 6.11729C-0.0898333 6.36596 -0.0898333 6.96462 0.2695 7.21396L8.93617 13.214C9.03613 13.2834 9.15321 13.3241 9.2747 13.3317C9.39618 13.3393 9.51742 13.3134 9.62524 13.2569C9.73306 13.2005 9.82333 13.1155 9.88626 13.0113C9.94919 12.9071 9.98236 12.7877 9.98217 12.666Z" fill="#1E1E1E"/>
                         </svg>
                       </button>
-                      <button 
-                        type="button" 
-                        className="icon-button delete" 
-                        title="Eliminar"
-                        onClick={() => handleEliminarUnidad(unidad.id)}
+                      <span className="publish-main-info-counter-value">
+                        {rooms[room.key] === 0 ? '-' : rooms[room.key]}
+                      </span>
+                      <button
+                        type="button"
+                        className="publish-main-info-counter-btn is-active"
+                        onClick={() => handleCounterChange(room.key, 1)}
+                        aria-label={`Sumar ${room.label}`}
                       >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="14" viewBox="0 0 10 14" fill="none">
+                          <path d="M0.000256538 0.667049V12.667C0.000637054 12.7885 0.0341463 12.9076 0.0971746 13.0115C0.160204 13.1154 0.250366 13.2001 0.357958 13.2565C0.465549 13.3129 0.586496 13.339 0.707778 13.3318C0.829061 13.3246 0.946085 13.2845 1.04626 13.2157L9.71292 7.21572C10.0723 6.96705 10.0723 6.36838 9.71292 6.11905L1.04626 0.119049C0.946294 0.049599 0.82921 0.00887192 0.707726 0.00129262C0.586242 -0.00628669 0.465004 0.0195717 0.357184 0.0760585C0.249365 0.132545 0.159087 0.2175 0.0961599 0.321692C0.0332336 0.425884 6.48499e-05 0.545329 0.000256538 0.667049Z" fill="#1E1E1E"/>
                         </svg>
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
-            </section>
-          )}
-
-          {/* Images Section */}
-          <section className="section">
-            <h2 className="section-title">Agregar imágenes de la unidad</h2>
-
-            <div className="form-group">
-              <div className="form-field full-width">
-                <label className="field-label">Fotos</label>
-                <span className="helper-text">
-                  Formato JPG, JPEG, WEBP, máximo 20 MB.
-                </span>
-                <div className="file-upload">
-                  <input
-                    type="file"
-                    id="fotos-upload"
-                    accept=".jpg,.jpeg,.webp"
-                    multiple
-                    onChange={handleFotosUpload}
-                    className="file-input"
-                  />
-                  <label htmlFor="fotos-upload" className="file-label">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <path
-                        d="M12 5V19M5 12H19"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <span>Agregar fotos</span>
-                  </label>
-                  {fotos.length > 0 && (
-                    <span className="file-count">{fotos.length} archivo(s)</span>
-                  )}
-                </div>
-              </div>
             </div>
 
-            <div className="form-group">
-              <div className="form-field full-width">
-                <label className="field-label">Planos</label>
-                <span className="helper-text">
-                  Formato HEIC, JFIF, PNG, JPG, JPEG, WEBP, máximo 20 MB.
-                </span>
-                <div className="file-upload">
-                  <input
-                    type="file"
-                    id="planos-upload"
-                    accept=".heic,.jfif,.png,.jpg,.jpeg,.webp"
-                    multiple
-                    onChange={handlePlanosUpload}
-                    className="file-input"
-                  />
-                  <label htmlFor="planos-upload" className="file-label">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <path
-                        d="M12 5V19M5 12H19"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <span>Agregar planos</span>
-                  </label>
-                  {planos.length > 0 && (
-                    <span className="file-count">{planos.length} archivo(s)</span>
-                  )}
+            <div className="superficie">
+              <h3 className="subsection-title">Superficie</h3>
+              <div className="publish-main-info-surface">
+                <div className="publish-main-info-surface-item">
+                  
+                  <div className="publish-main-info-input-row">
+                    <Select
+                      label="Total"
+                      options={unitSelectOptions}
+                      value={surface_measurement}
+                      onChange={(value) => setSurface_measurement(value)}
+                      placeholder=""
+                    />
+                    <InputField
+                      placeholder="Ingresar superficie"
+                      type="number"
+                      value={total_surface ?? undefined}
+                      onChange={(event) => setTotal_surface(parseInt(event.target.value))}
+                    />
+                  </div>
+                </div>
+
+                <div className="publish-main-info-surface-item">
+                  <div className="publish-main-info-input-row">
+                    <Select
+                      label="Cubierta"
+                      options={unitSelectOptions}
+                      value={roofed_surface_measurement}
+                      onChange={(value) => setRoofed_surface_measurement(value)}
+                      placeholder=""
+                    />
+                    <InputField
+                      placeholder="Ingresar superficie"
+                      type="number"
+                      value={roofed_surface ?? undefined}
+                      onChange={(event) => setRoofed_surface(parseInt(event.target.value))}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="form-group">
-              <div className="form-field full-width">
-                <label className="field-label">Recorrido 360°</label>
-                <span className="helper-text">
-                  Agregá un recorrido 360° para mostrar los detalles de la propiedad.
-                </span>
-                <div className="recorrido-360">
-                  <InputField2
-                    placeholder="Pegar link de recorrido 360°"
-                    value={recorrido360}
-                    onChange={(e) => setRecorrido360(e.target.value)}
-                  />
-                  <Button
-                    label="Agregar plano"
-                    variant="secondary"
-                    buttonType="2"
-                    onClick={() => console.log('Agregar plano')}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="add-unit-button-container">
-              <Button
-                label="Agregar unidad"
-                variant="secondary"
-                buttonType="2"
-                onClick={handleAgregarUnidad}
-                fullWidth
-              />
             </div>
           </section>
+
+          {/* Unidades disponibles */}          
+          <section className="section">
+            <h2 className="section-title">Unidades disponibles</h2>            
+            <InputField
+              placeholder="Ej 80"
+              type="number"
+              value={development_units_total ?? undefined}
+              onChange={(event) => setDevelopment_units_total(parseInt(event.target.value))}
+            />
+          </section>
+
+          {/* Images Section */}
+          <EmprendimientoImages
+            ref={imagesRef}
+            draftId={draftId}
+            onUploadStatusChange={handleImagesStatusChange}
+          />
         </div>
 
         {/* Action Buttons */}
         <div className="action-buttons">
           <Button
-            label="Volver"
+            label={isUploading ? 'Subiendo...' : "Guardar y agregar otra unidad"}  
             variant="secondary"
-            buttonType="2"
-            onClick={handleVolver}
-            fullWidth={false}
+            buttonType="1"
+            onClick={() => handleAgregarUnidad(false)}
+            disabled={isUploading}
           />
           <Button
-            label="Continuar"
+            label={isUploading ? 'Subiendo...' : "Guardar y finalizar"}
             variant="primary"
-            buttonType="2"
-            onClick={handleContinuar}
-            fullWidth={false}
+            buttonType="1"
+            onClick={() => handleAgregarUnidad(true)}
+            disabled={isUploading}
           />
         </div>
       </div>

@@ -7,6 +7,7 @@ import type { Emprendimiento, API_ENDPOINTS } from '@/types/emprendimiento';
 import './PublishEmprendimientoPreview.scss';
 import { useLocations } from '@/lib/locations';
 import { useSession } from 'next-auth/react';
+import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
 
 
 interface Unit {
@@ -35,6 +36,7 @@ interface PublishFinalReviewProps {
   onBack: () => void;
   onSaveAndExit: (data: Partial<CreatePropertyDraft>) => void;
   isEditMode?: boolean;
+  goToStep: (step: EmprendimientoStep) => void;
 }
 
 export default function PublishEmprendimientoPreview({
@@ -44,6 +46,7 @@ export default function PublishEmprendimientoPreview({
   onSaveAndExit,
   updateWizardData,
   isEditMode = false,
+  goToStep,
 }: PublishFinalReviewProps) {
 
   const router = useRouter();
@@ -212,19 +215,7 @@ export default function PublishEmprendimientoPreview({
     ],
   };
 
-  const tabs = [
-    { id: 'datos-principales', label: 'Datos principales', path: '/protected/publish/emprendimiento' },
-    { id: 'amenidades', label: 'Amenidades', path: '/protected/publish/emprendimiento/amenidades' },
-    { id: 'unidades', label: 'Unidades', path: '/protected/publish/emprendimiento/unidades' },
-    { id: 'vista-precio', label: 'Vista precio del área', path: '/protected/publish/emprendimiento/vista-al-precio' },
-    { id: 'preview', label: 'Vista previa', path: '/protected/publish/emprendimiento/preview' },
-  ];
 
-  const handleTabClick = (path: string) => {
-    if (path !== '#') {
-      router.push(path);
-    }
-  };
 
   const handlePublish = async () => {
     setIsSubmitting(true);
@@ -348,17 +339,7 @@ export default function PublishEmprendimientoPreview({
         </div>
 
         {/* Secondary Menu / Tabs */}
-        <div className="secondary-menu">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`tab ${tab.id === 'preview' ? 'active' : ''}`}
-              onClick={() => handleTabClick(tab.path)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <EmprendimientoTabs currentStep="emprendimiento-preview" goToStep={goToStep} />
 
         {/* Main Content */}
         <div className="main-content">

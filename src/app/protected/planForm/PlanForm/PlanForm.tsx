@@ -13,6 +13,7 @@ import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { apiFetch } from '@/lib/apiFetch';
 import Select from '@/ui/Select/Select';
 import { Plan } from '@/types/plan';
+import { currencySelectOptions } from '@/types/propiedad';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -20,11 +21,7 @@ interface PlanFormProps {
   planId?: string;
 }
 
-const currencyOptions = ['ARS', 'USD', 'EUR'];
-const currencySelectOptions = currencyOptions.map(option => ({
-  value: option,
-  label: option,
-}));
+
 
 export default function PlanForm({ planId }: PlanFormProps) {
   const router = useRouter();

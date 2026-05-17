@@ -6,14 +6,12 @@ import InputField from '@/ui/InputField/InputField';
 import Select from '@/ui/Select/Select';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import { Plan } from '@/types/plan';
+import { apiFetch } from '@/lib/apiFetch';
+import { useSession } from 'next-auth/react';
 
 // ─── MercadoPago configuration ────────────────────────────────────────────────
 const MP_PUBLIC_KEY = 'TEST-814bdb18-b786-49c6-a6e7-276e5f698592';
 const MP_SDK_URL = 'https://sdk.mercadopago.com/js/v2';
-const ACCESS_TOKEN = 'TEST-5933483107386450-051201-f24a6cd578ddd62fceb4d82fbbec3b12-66179773';
-const MP_PAYMENTS_URL = 'https://api.mercadopago.com/v1/payments';
-// ⚠️ ACCESS_TOKEN should ideally be in a backend endpoint, not in client code.
-// ──────────────────────────────────────────────────────────────────────────────
 
 declare global {
   interface Window {
@@ -25,6 +23,7 @@ declare global {
 
 interface PublishCheckoutPaymentProps {
   planToBuy: Plan | null;
+  branchID?: number;
   onNext: () => void;
   onBack: () => void;
 }
@@ -69,7 +68,11 @@ export default function PublishCheckoutPayment({
   onNext,
   onBack,
   planToBuy,
+  branchID,
 }: PublishCheckoutPaymentProps) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? '';
+  const userHasOrganization = session?.user?.organizationId != null;
   const [cardHolder, setCardHolder] = useState('');
   const [email, setEmail] = useState('');
   const [areaCode, setAreaCode] = useState('');
@@ -176,15 +179,9 @@ export default function PublishCheckoutPayment({
       if (!paymentMethodId) {
         throw new Error('No se pudo determinar el método de pago para esta tarjeta');
       }
-
-      // Call MercadoPago Payments API directly
-      const paymentResponse = await fetch(MP_PAYMENTS_URL, {
+     
+      const response = await apiFetch(`/plans/${userHasOrganization ? `branch/${branchID}` : `user/${userId}`}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${ACCESS_TOKEN}`,
-          'X-Idempotency-Key': `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        },
         body: JSON.stringify({
           transaction_amount: planToBuy?.price ?? 0,
           token: tokenResult.id,
@@ -202,15 +199,18 @@ export default function PublishCheckoutPayment({
               number: phone,
             },
           },
+          planId: planToBuy?.id
         }),
-      });
-
-      if (!paymentResponse.ok) {
-        const errorData = await paymentResponse.json().catch(() => null);
-        throw new Error(errorData?.message || `Payment failed with status ${paymentResponse.status}`);
+      }).then(data => {
+        onNext();
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || `Payment failed with status ${response.status}`);
       }
 
-      onNext();
+      
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '';
       if (message.includes('205') || message.includes('cardNumber')) {

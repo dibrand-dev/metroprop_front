@@ -6,15 +6,10 @@ import Button from '@/ui/Button/Button';
 
 interface PublishCheckoutSuccessProps {
   onFinish: () => void;
-  planToBuy: Plan; 
+  planToBuy: Plan | null; 
 }
 
 const iconCheck = '/icons/check.svg';
-
-const summaryItems = [
-  { label: '1 Destacada', value: '$20.000,25' },
-  { label: 'Impuestos (21,00%)', value: '$12000' },
-];
 
 export default function PublishCheckoutSuccess({
   onFinish,

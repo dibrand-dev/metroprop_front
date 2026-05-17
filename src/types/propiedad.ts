@@ -412,6 +412,8 @@ export interface CreateProperty {
   development_units_total?: number;
   development_delivery_date?: string;
   development_available_unit_count?: number;
+  development_units?: CreateProperty[]; 
+  development_unit_type?: string;
 }
 
 // ==========================================================================
@@ -602,3 +604,20 @@ export function formatPrice(price: number, currency: string = 'ARS'): string {
   const formatted = new Intl.NumberFormat('es-AR').format(price);
   return `${currency} ${formatted}`;
 }
+
+export const roomsConfig = [
+  { key: 'room_amount', label: 'Ambientes*' },
+  { key: 'suite_amount', label: 'Dormitorios*' },
+  { key: 'bathroom_amount', label: 'Baños*' },
+  { key: 'toilet_amount', label: 'Toilets*' },
+  { key: 'parking_lot_amount', label: 'Cocheras*' },
+] as const;
+
+export const unitSelectOptions = [{label: 'm2', value: "M2"}, {label: 'ha', value:"HA"}];
+
+
+export const currencyOptions = ['ARS', 'USD', 'EUR'];
+export const currencySelectOptions = currencyOptions.map(option => ({
+  value: option,
+  label: option,
+}));

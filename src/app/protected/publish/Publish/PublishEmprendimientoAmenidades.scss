@@ -12,6 +12,9 @@
   max-width: 1087px;
   margin: 0 auto;
   padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 
   @media (max-width: 768px) {
     max-width: 358px;
@@ -19,14 +22,6 @@
   }
 }
 
-// Breadcrumb
-.breadcrumb {
-  margin-bottom: 24px;
-
-  @media (max-width: 768px) {
-    margin-bottom: 24px;
-  }
-}
 
 .breadcrumb-text {
   
@@ -41,13 +36,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
 
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
-    margin-bottom: 32px;
   }
 }
 
@@ -133,13 +126,12 @@
   }
 }
 
-.section-title {
-  
-  font-size: 20px;
+.section-title {  
   font-weight: 600;
+  font-size: 22px;
   line-height: 26px;
-  color: #000000;
-  margin: 0 0 32px;
+  letter-spacing: 0%;
+  margin: 0;
 
   @media (max-width: 768px) {
     font-size: 18px;

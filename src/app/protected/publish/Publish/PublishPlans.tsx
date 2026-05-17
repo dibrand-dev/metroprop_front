@@ -15,7 +15,7 @@ interface PublishPlansProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
-  onComprar: (plan: Plan) => void;
+  onComprar: (plan: Plan, branchFilter: number) => void;
   onSaveAndExit: (descriptionData: Partial<CreatePropertyDraft>) => void;
 }
 
@@ -33,7 +33,7 @@ export default function PublishPlans({
 }: PublishPlansProps) {
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
   const [selected_plan, setSelected_plan] = useState(wizardData.selected_plan || 1);
-  const [branchFilter, setBranchFilter] = useState('todas');
+  const [branchFilter, setBranchFilter] = useState('');
   const { data: sessionData } = useSession();
 
 
@@ -52,7 +52,6 @@ export default function PublishPlans({
   });
   const branches: any[] = Array.isArray(fetchedBranches) ? fetchedBranches : [];
   const branchOptions = [
-    { value: 'todas', label: 'Todas' },
     ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
   ];
 
@@ -66,12 +65,12 @@ export default function PublishPlans({
   const { data: branchPlans = [], isLoading: loadingPlans } = useQuery<any[]>({
     queryKey: ['branch-plans', branchFilter],
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}`),
-    enabled: branchFilter !== 'todas',
+    enabled: !!branchFilter,
   });
 
   const collaboratorOptions = rawUsers
     .filter((user: any) => {
-      if (branchFilter === 'todas') return true;
+      if (!branchFilter) return true;
       const userBranchId = String(user.branch_id ?? user.branch?.id ?? '');
       return userBranchId === branchFilter;
     })
@@ -100,7 +99,7 @@ export default function PublishPlans({
   };
 
   const handleComprar = (plan: any) => {
-    onComprar(plan);
+    onComprar(plan, parseInt(branchFilter));
   };
 
   return (

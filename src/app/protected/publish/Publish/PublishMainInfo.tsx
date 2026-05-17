@@ -8,24 +8,14 @@ import {
   CreatePropertyDraft, 
   OPERATION_TYPE_LABELS, 
   PROPERTY_TYPE_LABELS, 
-  PROPERTY_SUBTYPE_LABELS 
+  PROPERTY_SUBTYPE_LABELS, 
+  roomsConfig,
+  unitSelectOptions
 } from '@/types/propiedad';
 
 const iconChevron = '/icons/chevron-up.svg';
 
-const unitSelectOptions = [{label: 'm2', value: "M2"}, {label: 'ha', value:"HA"}];
-
-const roomsConfig = [
-  { key: 'room_amount', label: 'Ambientes*' },
-  { key: 'suite_amount', label: 'Dormitorios*' },
-  { key: 'bathroom_amount', label: 'Baños*' },
-  { key: 'toilet_amount', label: 'Toilets*' },
-  { key: 'parking_lot_amount', label: 'Cocheras*' },
-] as const;
-
 type RoomKey = (typeof roomsConfig)[number]['key'];
-
-type UnitField = 'total' | 'covered';
 
 type AntiquityOption = 'construction' | 'new' | 'years';
 
