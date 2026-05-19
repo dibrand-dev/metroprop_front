@@ -28,39 +28,15 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState<any>({
-    user_role: '',
+    role_id: '',
     email: '',
     phone: '',
-    alternative_phone: '',
-    province: '',
-    city: '',
-    neighborhood: '',
+    phone_additional: '',
   });
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
   };
-
-  const { data: provinces = [] } = useQuery<any[]>({
-    queryKey: ['provinces', LOCATION_ARGENTINA_ID],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: LOCATION_ARGENTINA_ID } }),
-  });
-
-  const { data: cities = [] } = useQuery<any[]>({
-    queryKey: ['locations', formData.province],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: formData.province } }),
-    enabled: !!formData.province,
-  });
-
-  const { data: neighborhoods = [] } = useQuery<any[]>({
-    queryKey: ['zones', formData.city],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: formData.city } }),
-    enabled: !!formData.city,
-  });
-
-  const provinceOptions = provinces.map((p: any) => ({ value: String(p.id), label: p.name }));
-  const cityOptions = cities.map((c: any) => ({ value: String(c.id), label: c.name }));
-  const neighborhoodOptions = neighborhoods.map((n: any) => ({ value: String(n.id), label: n.name }));
 
   const isEditing = Boolean(collaboratorId);
   const pageTitle = isEditing ? 'Modificar colaborador' : 'Agregar colaborador';
@@ -77,21 +53,18 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
     if (!collaboratorData) return;
     const c = collaboratorData?.user ?? collaboratorData;
     setFormData({
-      user_role: String(c.role_id ?? c.user_role ?? ''),
+      role_id: String(c.role_id ?? c.user_role ?? ''),
       email: c.email ?? '',
       phone: formatPhone(c.phone ?? ''),
-      alternative_phone: formatPhone(c.alternative_phone ?? ''),
-      province: c.state_id != null ? String(c.state_id) : '',
-      city: c.location_id != null ? String(c.location_id) : '',
-      neighborhood: c.sub_location_id != null ? String(c.sub_location_id) : '',
+      phone_additional: formatPhone(c.alternative_phone ?? c.phone_additional ?? ''),
     });
   }, [collaboratorData]);
 
   const phoneRegex = /^\+?[1-9]\d{1,14}$/;
   const isPhoneValid = phoneRegex.test(formData.phone.trim());
-  const isAlternativePhoneValid = phoneRegex.test(formData.alternative_phone.trim());
+  const isPhoneAdditionalValid = phoneRegex.test(formData.phone_additional.trim());
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim());
-  const isFormValid = formData.user_role.trim().length > 0 && formData.email.trim().length > 0 && isEmailValid && isPhoneValid;
+  const isFormValid = formData.role_id.trim().length > 0 && formData.email.trim().length > 0 && isEmailValid && isPhoneValid;
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -99,13 +72,10 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
       const payload: Record<string, any> = {
         email: formData.email || undefined,
         phone: formData.phone || undefined,
-        alternative_phone: formData.alternative_phone || undefined,
-        user_role: formData.user_role || undefined,
+        phone_additional: formData.phone_additional || undefined,
+        role_id: formData.role_id || undefined,
         country_id: LOCATION_ARGENTINA_ID,
       };
-      if (formData.province) payload.state_id = parseInt(formData.province);
-      if (formData.city) payload.location_id = parseInt(formData.city);
-      if (formData.neighborhood) payload.sub_location_id = parseInt(formData.neighborhood);
       if (!isEditing && organizationId) payload.organizationId = organizationId;
       const url = isEditing
         ? `${API_BASE_URL}/users/${collaboratorId}`
@@ -119,13 +89,10 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
       setErrorMessage('');
       if (!isEditing) {
         setFormData({
-          user_role: '',
+          role_id: '',
           email: '',
           phone: '',
-          alternative_phone: '',
-          province: '',
-          city: '',
-          neighborhood: '',
+          phone_additional: '',
         });
       }
       setShowSuccessModal(true);
@@ -195,13 +162,8 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
               <Select
                 label="Tipo de usuario"
                 placeholder="Seleccionar"
-                value={formData.user_role}
-                onChange={(value) => { handleInputChange('user_role', value); }}
-                options={[{ value: '1', label: 'Administrador' },
-                          { value: '2', label: 'Supervisor' },
-                          { value: '3', label: 'Vendedor' }]}
-              />
-            </div>
+                value={formData.role_id}
+                onChange={(value) => { handleInputChange('role_id', value); }}
           </div>
 
           <div className="branch-form-section">
@@ -232,46 +194,14 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
                   label="Teléfono adicional (opcional)"
                   type="tel"
                   placeholder="Número de teléfono adicional"
-                  value={formData.alternative_phone}
-                  onChange={(event) => handleInputChange('alternative_phone', formatPhone(event.target.value))}
-                  error={formData.alternative_phone.trim().length > 0 && !isAlternativePhoneValid ? 'Formato inválido. Ej: 541130475755' : undefined}
+                  value={formData.phone_additional}
+                  onChange={(event) => handleInputChange('phone_additional', formatPhone(event.target.value))}
+                  error={formData.phone_additional.trim().length > 0 && !isPhoneAdditionalValid ? 'Formato inválido. Ej: 541130475755' : undefined}
                 />
               </div>
             </div>
           </div>
-          <div className="branch-form-section">
-            <div className="branch-form-grid">              
-              <div className="branch-form-field">
-                <Select
-                  label="Provincia (opcional)"
-                  placeholder="Seleccionar"
-                  value={formData.province}
-                  onChange={(value) => { handleInputChange('province', value); handleInputChange('city', ''); handleInputChange('neighborhood', ''); }}
-                  options={provinceOptions}
-                />
-              </div>
-              <div className="branch-form-field">
-                <Select
-                  label="Ciudad (opcional)"
-                  placeholder="Seleccionar"
-                  value={formData.city}
-                  onChange={(value) => { handleInputChange('city', value); handleInputChange('neighborhood', ''); }}
-                  options={cityOptions}
-                  disabled={!formData.province}
-                />
-              </div>
-              <div className="branch-form-field">
-                <Select
-                  label="Barrio (opcional)"
-                  placeholder="Seleccionar"
-                  value={formData.neighborhood}
-                  onChange={(value) => handleInputChange('neighborhood', value)}
-                  options={neighborhoodOptions}
-                  disabled={!formData.city}
-                />
-              </div>
-            </div>
-          </div>
+
         </form>
 
         {showSuccessModal && (
