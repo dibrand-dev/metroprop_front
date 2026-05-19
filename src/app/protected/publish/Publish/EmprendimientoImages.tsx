@@ -19,10 +19,12 @@ const accordionItems = [
 
 export interface EmprendimientoImagesRef {
   submit: () => Promise<void>;
+  getFiles: () => { images: File[]; plans: File[] };
+  resetFiles: () => void;
 }
 
 interface EmprendimientoImagesProps {
-  draftId: number | undefined;
+  draftId?: number | undefined;
   onUploadStatusChange?: (status: { hasImages: boolean; hasPlans: boolean }) => void;
 }
 
@@ -140,6 +142,8 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
         const result = await uploadMultimediaMutation.mutateAsync(formData);
         if (result.images) setImages(result.images);
       },
+      getFiles: () => ({ images: uploadedImages, plans: uploadedPlans }),
+      resetFiles: () => { setImages([]); setUploadedImages([]); setPlans([]); setUploadedPlans([]); setMultimedia360(['']); },
     }));
 
     return (

@@ -1,4 +1,4 @@
-import { getSession } from 'next-auth/react';
+import { getSession, signOut } from 'next-auth/react';
 
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
@@ -69,6 +69,11 @@ export async function apiFetch<TResponse = unknown, TBody = unknown>(
   // ── Execute ───────────────────────────────────────────────────────────────
   const response = await fetch(fullUrl, fetchOptions);
   if (!response.ok) {
+    if (response.status === 401) {
+      await signOut({ redirect: false });
+      window.location.href = '/login';
+      throw new Error('Session expired');
+    }
     throw new Error(`API error: ${response.status} ${response.statusText}`);
   }
 

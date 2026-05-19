@@ -152,6 +152,7 @@ export default function TopUserMenu() {
           }}
         />
       )}
+      {sessionData?.user?.role_id !== 4 && (
       <Button
         label="Publicar"
         type="button"
@@ -161,7 +162,7 @@ export default function TopUserMenu() {
         fullWidth={false}
         size="medium"
         onClick={handlePublish}
-      /> 
+      />)}
 
       <button className="header-notification-button" title="Notificaciones">
         <img src="/icons/iconoir_bell.svg" alt="Notificaciones" />

@@ -141,7 +141,7 @@ interface PublishEmprendimientoProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (emprendimientoUpdate: Partial<CreatePropertyDraft>) => void;
-  onBack: () => void;
+  onSaveAndExit: (emprendimientoUpdate: Partial<CreatePropertyDraft>) => void;
   goToStep: (step: EmprendimientoStep) => void;
 }
 
@@ -149,7 +149,7 @@ export default function PublishEmprendimiento({
   wizardData,
   updateWizardData,
   onNext,
-  onBack,
+  onSaveAndExit,
   goToStep,
 }: PublishEmprendimientoProps) {
 
@@ -180,6 +180,9 @@ export default function PublishEmprendimiento({
   const [isUploading, setIsUploading] = useState(false);
   const [hasImages, setHasImages] = useState(false);
   const [hasPlans, setHasPlans] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const isFormValid = nombreEmprendimiento.trim() !== '' || entrega.trim() !== '' || tipoEmprendimiento !== null || totalUnidades !== null || hasImages || !hasPlans;
 
   const handleImagesStatusChange = useCallback((status: { hasImages: boolean; hasPlans: boolean }) => {
     setHasImages(status.hasImages);
@@ -211,10 +214,6 @@ export default function PublishEmprendimiento({
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) setLogoFile(e.target.files[0]);
   };
-
-
-
-
 
   // ── Location queries ──────────────────────────────────────────────────────
   const { data: countries = [], isLoading: loadingCountries } = useQuery({
@@ -281,9 +280,9 @@ export default function PublishEmprendimiento({
     if (match) { setLocation_id(parseInt(match)); setPendingCityName(''); setSub_location_id(undefined); }
   }, [locationOptions, pendingCityName]);
 
-  const handleGuardarBorrador = () => { onBack(); };
-
   const handleContinuar = async () => {
+    setSubmitted(true);
+    if (!isFormValid) return;
     if (hasImages || hasPlans) {
       setIsUploading(true);
       try {
@@ -329,6 +328,7 @@ export default function PublishEmprendimiento({
                   value={nombreEmprendimiento}
                   onChange={(e) => setNombreEmprendimiento(e.target.value)}
                   required
+                  error={submitted && !nombreEmprendimiento.trim() ? 'Este campo es obligatorio' : ''}
                 />
                 <span className="character-count">{nombreEmprendimiento.length}/100</span>
               </div>
@@ -336,7 +336,7 @@ export default function PublishEmprendimiento({
 
             <div className="form-group">
               <div className="form-field full-width">
-                <label className="field-label">Descripción*</label>
+                <label className="field-label">Descripción</label>
                 <textarea
                   className="textarea-field"
                   placeholder="Contanos sobre el emprendimiento"
@@ -344,15 +344,7 @@ export default function PublishEmprendimiento({
                   onChange={(e) => setDescripcion(e.target.value)}
                   rows={6}
                   maxLength={10000}
-                />
-                <div className="textarea-footer">
-                  {descripcion.length < 150 && (
-                    <span className="helper-text">
-                      La descripción debe tener al menos 150 caracteres
-                    </span>
-                  )}
-                  <span className="character-count">{descripcion.length}/10000</span>
-                </div>
+                />               
               </div>
             </div>
 
@@ -397,7 +389,7 @@ export default function PublishEmprendimiento({
               <div className="form-row">
                 <div className="form-field half-width">
                   <Select
-                    label="Tipo de emprendimiento"
+                    label="Tipo de emprendimiento*"
                     options={Object.entries(LABELS_DEVELOPMENT_TYPE).map(([value, label]) => ({ value, label }))}
                     value={tipoEmprendimiento}
                     onChange={setTipoEmprendimiento}
@@ -411,7 +403,7 @@ export default function PublishEmprendimiento({
               <div className="form-row">
                 <div className="form-field half-width">
                   <InputField
-                    label="Total de unidades"
+                    label="Total de unidades*"
                     type='number'
                     value={totalUnidades}
                     onChange={e => setTotalUnidades(e.target.value)}
@@ -420,7 +412,7 @@ export default function PublishEmprendimiento({
                 </div>
                 <div className="form-field half-width">
                   <InputField
-                    label="Fecha de entrega"
+                    label="Fecha de entrega*"
                     type='date'
                     value={entrega}
                     onChange={e => setEntrega((e.target as HTMLInputElement).value)}
@@ -551,7 +543,7 @@ export default function PublishEmprendimiento({
             label="Guardar como borrador"
             variant="secondary"
             buttonType="2"
-            onClick={handleGuardarBorrador}
+            onClick={() => onSaveAndExit(wizardData)}
             fullWidth={false}
           />
           <Button
@@ -560,7 +552,7 @@ export default function PublishEmprendimiento({
             buttonType="2"
             onClick={handleContinuar}
             fullWidth={false}
-            disabled={isUploading || !hasImages || !hasPlans}
+            disabled={isUploading/* || !isFormValid*/}
           />
         </div>
       </div>

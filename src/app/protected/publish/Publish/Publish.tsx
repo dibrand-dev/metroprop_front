@@ -453,7 +453,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             wizardData={wizardData}
             updateWizardData={updateWizardData}
             onNext={(emprendimientoUpdate) => saveCurrentStepEmprendimiento(emprendimientoUpdate, true)}
-            onBack={goToPreviousStep}
+            onSaveAndExit={(plansUpdate) => saveCurrentStepEmprendimiento(plansUpdate, false)}
             goToStep={(step: EmprendimientoStep) => setCurrentStep(step as WizardStep)}
           />
         );
@@ -464,7 +464,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             wizardData={wizardData}
             updateWizardData={updateWizardData}
             onNext={(emprendimientoUpdate) => saveCurrentStepEmprendimiento(emprendimientoUpdate, true)}
-            onBack={goToPreviousStep}
+            onSaveAndExit={(plansUpdate) => saveCurrentStepEmprendimiento(plansUpdate, false)}
             goToStep={(step: EmprendimientoStep) => setCurrentStep(step as WizardStep)}
           />
         );
@@ -474,8 +474,8 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
           <PublishEmprendimientoUnidades
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={(emprendimientoUpdate) => saveCurrentStepEmprendimiento(emprendimientoUpdate, true)}
-            onBack={goToPreviousStep}
+            onNext={() => goToNextStep()}
+            onSaveAndExit={(plansUpdate) => saveCurrentStepEmprendimiento(plansUpdate, false)}
             goToStep={(step: EmprendimientoStep) => setCurrentStep(step as WizardStep)}
           />
         );
@@ -486,10 +486,10 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             wizardData={wizardData}
             updateWizardData={updateWizardData}
             onNext={(emprendimientoUpdate) => saveCurrentStepEmprendimiento(emprendimientoUpdate, true)}
-            onBack={goToPreviousStep}
+            // onBack={goToPreviousStep}
             goToStep={(step: EmprendimientoStep) => setCurrentStep(step as WizardStep)}
             onComprar={(plan, branchId) => goToBuyPlanEmprendimiento(plan, branchId)}
-            onSaveAndExit={(plansUpdate) => saveCurrentStepEmprendimiento(plansUpdate, true)}
+            onSaveAndExit={(plansUpdate) => saveCurrentStepEmprendimiento(plansUpdate, false)}
           />
         );
       
@@ -506,7 +506,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
                 }, 3000);
               })}
               onBack={goToPreviousStep}
-              onSaveAndExit={(wizardData) => saveCurrentStep(wizardData, false)}
+              onSaveAndExit={(wizardData) => saveCurrentStepEmprendimiento(wizardData, false)}
               isEditMode={isEditMode}
               goToStep={(step: EmprendimientoStep) => setCurrentStep(step as WizardStep)}
             />

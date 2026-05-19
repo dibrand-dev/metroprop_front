@@ -1,5 +1,5 @@
 .publish-emprendimiento-amenidades {
-  background-color: #F5F5F5;
+  background-color: #fff;
   min-height: 100vh;
   padding: 128px 0 80px;
 
@@ -9,9 +9,11 @@
 }
 
 .publish-emprendimiento-amenidades-container {
+  border-radius: 8px;
+  padding: 24px;
   max-width: 1087px;
   margin: 0 auto;
-  padding: 0 24px;
+  background-color: #F5F5F5;
   display: flex;
   flex-direction: column;
   gap: 32px;

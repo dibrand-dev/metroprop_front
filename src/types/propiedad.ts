@@ -258,11 +258,39 @@ export type AmenityGroup = {
 export enum DevelopmentType {
   VERTICAL = 1,    // Desarrollo vertical
   HORIZONTAL = 2,  // Desarrollo horizontal
+  EDIFICIO_DE_OFICINAS = 3,     // Edificio de oficinas
+  EDIFICIO = 4,                 // Edificio
+  COUNTRY = 5,                  // Country
+  BARRIO_PRIVADO = 6,           // Barrio Privado
+  NAUTICO = 7,                  // Náutico
+  RURAL = 8,                    // Rural
+  EDIFICIO_DE_COCHERAS = 9,     // Edificio de Cocheras
+  CONDOMINIO_INDUSTRIAL = 10,    // Condominio Industrial
+  CENTRO_LOGISTICO = 11,         // Centro Logístico
+  CONDOMINIO = 12,              // Condominio
+  OTRO = 13,                    // Otro
+  COMERCIAL = 14,               // Comercial
+  HOTEL = 15,                   // Hotel
+  BARRIO_ABIERTO = 16,          // Barrio abierto
 }
 
 export const LABELS_DEVELOPMENT_TYPE: Record<DevelopmentType, string> = {
   [DevelopmentType.VERTICAL]: 'Desarrollo vertical',
   [DevelopmentType.HORIZONTAL]: 'Desarrollo horizontal',
+  [DevelopmentType.EDIFICIO_DE_OFICINAS]: 'Edificio de oficinas',
+  [DevelopmentType.EDIFICIO]: 'Edificio',
+  [DevelopmentType.COUNTRY]: 'Country',
+  [DevelopmentType.BARRIO_PRIVADO]: 'Barrio Privado',
+  [DevelopmentType.NAUTICO]: 'Náutico',
+  [DevelopmentType.RURAL]: 'Rural',
+  [DevelopmentType.EDIFICIO_DE_COCHERAS]: 'Edificio de Cocheras',
+  [DevelopmentType.CONDOMINIO_INDUSTRIAL]: 'Condominio Industrial',
+  [DevelopmentType.CENTRO_LOGISTICO]: 'Centro Logístico',
+  [DevelopmentType.CONDOMINIO]: 'Condominio',
+  [DevelopmentType.OTRO]: 'Otro',
+  [DevelopmentType.COMERCIAL]: 'Comercial',
+  [DevelopmentType.HOTEL]: 'Hotel',
+  [DevelopmentType.BARRIO_ABIERTO]: 'Barrio abierto',
 };
 
 
@@ -486,6 +514,11 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   [PropertyType.QUINTA_VACACIONAL]: 'Quinta vacacional',
 };
 
+export const PROPERTY_TYPE_SELECT_OPTIONS = Object.entries(PROPERTY_TYPE_LABELS).map(([key, label]) => ({
+  value: key,
+  label,
+}));
+
 /**
  * Mapeo de labels para los tipos de operación
  */
@@ -621,3 +654,4 @@ export const currencySelectOptions = currencyOptions.map(option => ({
   value: option,
   label: option,
 }));
+

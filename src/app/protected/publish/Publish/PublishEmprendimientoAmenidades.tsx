@@ -14,7 +14,7 @@ interface PublishEmprendimientoProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (emprendimientoUpdate: Partial<CreatePropertyDraft>) => void;
-  onBack: () => void;
+  onSaveAndExit: (emprendimientoUpdate: Partial<CreatePropertyDraft>) => void;
   goToStep: (step: EmprendimientoStep) => void;
 }
 const iconChevron = '/icons/chevron-up.svg';
@@ -23,7 +23,7 @@ export default function PublishEmprendimientoAmenidades({
   wizardData,
   updateWizardData,
   onNext,
-  onBack,
+  onSaveAndExit,
   goToStep,
 }: PublishEmprendimientoProps) {
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
@@ -152,10 +152,10 @@ export default function PublishEmprendimientoAmenidades({
         {/* Action Buttons */}
         <div className="action-buttons">
           <Button
-            label="Volver"
+            label="Guardar como borrador"
             variant="secondary"
             buttonType="2"
-            onClick={handleBack}
+            onClick={() => onSaveAndExit(wizardData)}
             fullWidth={false}
           />
           <Button

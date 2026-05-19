@@ -216,6 +216,13 @@
   pointer-events: none;
 }
 
+.field-error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
 // Textarea
 .textarea-field {
   width: 100%;

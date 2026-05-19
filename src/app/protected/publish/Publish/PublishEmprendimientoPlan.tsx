@@ -10,6 +10,7 @@ import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 import { Plan } from '@/types/plan';
 import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
+import Button from '@/ui/Button/Button';
 
 interface PublishPlansProps {
   wizardData: CreatePropertyDraft;
@@ -216,16 +217,23 @@ export default function PublishPlansEmprendimiento({
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="publish-plans-footer">
-        <button className="publish-plans-back" type="button" onClick={handleBack}>
-          <img src={iconChevron} alt="" />
-          Volver
-        </button>
-        <button className="publish-plans-continue" type="button" onClick={handleContinue}>
-          Continuar
-        </button>
+         {/* Action Buttons */}
+        <div className="action-buttons">
+          <Button
+            label="Guardar como borrador"
+            variant="secondary"
+            buttonType="2"
+            onClick={() => onSaveAndExit(wizardData)}
+            fullWidth={false}
+          />
+          <Button
+            label="Continuar"
+            variant="primary"
+            buttonType="2"
+            onClick={handleContinue}
+            fullWidth={false}
+          />
+        </div>
       </div>
     </div>
   );
