@@ -74,7 +74,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
         phone: formData.phone || undefined,
         phone_additional: formData.phone_additional || undefined,
         role_id: formData.role_id || undefined,
-        country_id: LOCATION_ARGENTINA_ID,
+      //  country_id: LOCATION_ARGENTINA_ID,
       };
       if (!isEditing && organizationId) payload.organizationId = organizationId;
       const url = isEditing
