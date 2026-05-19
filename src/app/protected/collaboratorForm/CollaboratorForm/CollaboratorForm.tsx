@@ -29,6 +29,8 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState<any>({
     role_id: '',
+    name: '',
+    password: '',
     email: '',
     phone: '',
     phone_additional: '',
@@ -54,6 +56,8 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
     const c = collaboratorData?.user ?? collaboratorData;
     setFormData({
       role_id: String(c.role_id ?? c.user_role ?? ''),
+      name: c.name ?? '',
+      password: '',
       email: c.email ?? '',
       phone: formatPhone(c.phone ?? ''),
       phone_additional: formatPhone(c.alternative_phone ?? c.phone_additional ?? ''),
@@ -70,6 +74,8 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
     mutationFn: async () => {
       const organizationId = (sessionData?.user as any)?.organization?.id ?? null;
       const payload: Record<string, any> = {
+        name: formData.name || undefined,
+        password: formData.password || undefined,
         email: formData.email || undefined,
         phone: formData.phone || undefined,
         phone_additional: formData.phone_additional || undefined,
@@ -90,6 +96,8 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
       if (!isEditing) {
         setFormData({
           role_id: '',
+          name: '',
+          password: '',
           email: '',
           phone: '',
           phone_additional: '',
@@ -173,6 +181,26 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
 
           <div className="branch-form-section">
             <h2>Datos del colaborador</h2>
+            <div className="branch-form-grid">
+              <div className="branch-form-field">
+                <InputField
+                  label="Nombre"
+                  type="text"
+                  placeholder="Nombre del colaborador"
+                  value={formData.name}
+                  onChange={(event) => handleInputChange('name', event.target.value)}
+                />
+              </div>
+              <div className="branch-form-field">
+                <InputField
+                  label="Contraseña"
+                  type="password"
+                  placeholder="Contraseña"
+                  value={formData.password}
+                  onChange={(event) => handleInputChange('password', event.target.value)}
+                />
+              </div>
+            </div>
             <div className="branch-form-field">
               <InputField
                 label="Email (opcional)"
