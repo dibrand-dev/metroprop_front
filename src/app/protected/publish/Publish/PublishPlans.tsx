@@ -35,7 +35,7 @@ export default function PublishPlans({
   const [selected_plan, setSelected_plan] = useState(wizardData.selected_plan || 1);
   const [branchFilter, setBranchFilter] = useState('');
   const { data: sessionData } = useSession();
-
+ const [branches, setBranches] = useState<any[]>([]);
 
   const { data:plansData , isLoading, isError } = useQuery<Plan[]>({
     queryKey: ['plans'],
@@ -50,15 +50,26 @@ export default function PublishPlans({
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/branches/organization/${orgId}`),
     enabled: !!orgId,
   });
-  const branches: any[] = Array.isArray(fetchedBranches) ? fetchedBranches : [];
+
   const branchOptions = [
     ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
   ];
 
+  useEffect(() => {
+    if (Array.isArray(fetchedBranches)) {
+      setBranches(fetchedBranches);
+      if (fetchedBranches.length === 1) {
+        setBranchFilter(String(fetchedBranches[0].id));
+      }
+    }
+  }, [fetchedBranches]);
+
   const { data: usersData } = useQuery<any>({
     queryKey: ['collaborators-users'],
     queryFn: () => apiFetch<any>(`${API_BASE_URL}/users`),
+    enabled: !!orgId,
   });
+
   const rawData: any = usersData;
   const rawUsers: any[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
 
@@ -71,7 +82,7 @@ export default function PublishPlans({
   const collaboratorOptions = rawUsers
     .filter((user: any) => {
       if (!branchFilter) return true;
-      const userBranchId = String(user.branch_id ?? user.branch?.id ?? '');
+      const userBranchId = String(user.branches.find((b) => String(b.id) === branchFilter)?.id ?? '');
       return userBranchId === branchFilter;
     })
     .map((user: any) => ({

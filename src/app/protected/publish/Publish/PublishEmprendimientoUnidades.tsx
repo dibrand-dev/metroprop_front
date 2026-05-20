@@ -45,7 +45,7 @@ export default function PublishEmprendimientoUnidades({
   // Form state for new unit
   const [publication_title, setPublicationTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [development_unit_type, setDevelopmentUnitType] = useState<PropertyType | undefined>(undefined);
+  const [property_type, setPropertyType] = useState<PropertyType | undefined>(undefined);
    
   // Price state
   const [currency, setCurrency] = useState('ARS');
@@ -72,7 +72,7 @@ export default function PublishEmprendimientoUnidades({
   const [unitThumbnails, setUnitThumbnails] = useState<Record<number, string>>(wizardData.unitThumbnails ?? {});
 
 
-  const isFormValid = publication_title.trim() !== '' && !!development_unit_type && !!total_surface && !!roofed_surface;
+  const isFormValid = publication_title.trim() !== '' && !!property_type && !!total_surface && !!roofed_surface;
 
   const handleAgregarUnidad = async (goToNextStep: boolean) => {
     setSubmitted(true);
@@ -80,7 +80,7 @@ export default function PublishEmprendimientoUnidades({
     const nuevaUnidad: CreateProperty = {
       publication_title,
       description,
-      property_type: development_unit_type,
+      property_type,
       price,
       currency,
       expenses: withoutExpenses ? 0 : expenses,
@@ -139,7 +139,6 @@ export default function PublishEmprendimientoUnidades({
         onNext();
       } else {
         resetForm();
-        imagesRef.current?.resetFiles();
         setShowSuccessModal(true);
         setTimeout(() => setShowSuccessModal(false), 3000);
       }
@@ -156,7 +155,7 @@ export default function PublishEmprendimientoUnidades({
     setEditingUnitId(undefined);
     setPublicationTitle('');
     setDescription('');
-    setDevelopmentUnitType(undefined);
+    setPropertyType(undefined);
     setPrice(undefined);
     setExpenses(undefined);
     setRooms({
@@ -171,6 +170,7 @@ export default function PublishEmprendimientoUnidades({
     setTotal_surface('');
     setRoofed_surface('');
     setDevelopment_units_total(undefined);
+    imagesRef.current?.resetFiles();
   }
 
   const handleCounterChange = (key: RoomKey, delta: number) => {
@@ -183,13 +183,25 @@ export default function PublishEmprendimientoUnidades({
     });
   };
 
-  const handleEdit = (unitId: number) => {
-    const unit = units.find(u => u.id === unitId);
+  const handleEdit = async (unitId: number) => {
+    let unit: CreateProperty | undefined = units.find(u => u.id === unitId);
+    try {
+      const fetched = await apiFetch<CreateProperty>(
+        `${API_BASE_URL}/properties/development/${wizardData.draft_id}/units/${unitId}`,
+      );
+      unit = (fetched as any)?.data ?? fetched;
+      // Sync the fetched data back into the units list so wizardData stays fresh
+      const newUnits = units.map(u => u.id === unitId ? { ...u, ...unit } : u);
+      setUnits(newUnits);
+      updateWizardData({ development_units: newUnits });
+    } catch (error: any) {
+      console.error('Error fetching unit:', error?.message || error);
+    }
     if (!unit) return;
     setEditingUnitId(unitId);
     setPublicationTitle(unit.publication_title ?? '');
     setDescription(unit.description ?? '');
-    setDevelopmentUnitType(unit.property_type as PropertyType | undefined);
+    setPropertyType(unit.property_type as PropertyType | undefined);
     setPrice(unit.price);
     setCurrency(unit.currency ?? 'ARS');
     setExpenses(unit.expenses ?? undefined);
@@ -208,6 +220,7 @@ export default function PublishEmprendimientoUnidades({
     setRoofed_surface(unit.roofed_surface ?? '');
     setDevelopment_units_total(unit.development_available_unit_count ?? undefined);
     setSubmitted(false);
+    imagesRef.current?.setExistingImages(unit.images ?? [], unit.attached ?? unit.plans ?? []);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -217,7 +230,7 @@ export default function PublishEmprendimientoUnidades({
     const updatedUnit: Partial<CreateProperty> = {
       publication_title,
       description,
-      property_type: development_unit_type,
+      property_type,
       price,
       currency,
       expenses: withoutExpenses ? 0 : expenses,
@@ -235,15 +248,32 @@ export default function PublishEmprendimientoUnidades({
     };
     try {
       setIsUploading(true);
-      const saved = await apiFetch<CreateProperty>(`${API_BASE_URL}/properties/development/${wizardData.draft_id}/units/${editingUnitId}`, {
-        method: 'PATCH',
-        body: updatedUnit,
+
+      // Step 1: PATCH unit data as JSON (the endpoint does not accept multipart)
+      const saved = await apiFetch<CreateProperty>(
+        `${API_BASE_URL}/properties/development/${wizardData.draft_id}/units/${editingUnitId}`,
+        { method: 'PATCH', body: updatedUnit },
+      );
+
+      // Step 2: save media — existing URLs are re-sent to preserve them, new files are appended
+      const mediaFormData = new FormData();
+      imagesRef.current?.appendFilesToFormData(mediaFormData);
+      await apiFetch(`${API_BASE_URL}/properties/${editingUnitId}/save-multimedia`, {
+        method: 'POST',
+        body: mediaFormData,
       });
-      const newUnits = units.map(u => u.id === editingUnitId ? { ...u, ...saved } : u);
+
+      const files = imagesRef.current?.getFiles();
+      const savedData: CreateProperty = (saved as any)?.data ?? saved;
+      let newThumbnails = unitThumbnails;
+      if (files && files.images.length > 0) {
+        newThumbnails = { ...unitThumbnails, [editingUnitId]: URL.createObjectURL(files.images[0]) };
+        setUnitThumbnails(newThumbnails);
+      }
+      const newUnits = units.map(u => u.id === editingUnitId ? { ...u, ...savedData } : u);
       setUnits(newUnits);
-      updateWizardData({ development_units: newUnits });
+      updateWizardData({ development_units: newUnits, unitThumbnails: newThumbnails });
       resetForm();
-      imagesRef.current?.resetFiles();
       setShowSuccessModal(true);
       setTimeout(() => setShowSuccessModal(false), 3000);
     } catch (error: any) {
@@ -369,10 +399,10 @@ export default function PublishEmprendimientoUnidades({
                 <Select
                   label="Tipo de unidad*"
                   options={PROPERTY_TYPE_SELECT_OPTIONS}
-                  value={development_unit_type}
-                  onChange={setDevelopmentUnitType}
+                  value={property_type}
+                  onChange={setPropertyType}
                   placeholder="Seleccionar"
-                  error={submitted && !development_unit_type ? 'Este campo es obligatorio' : ''}
+                  error={submitted && !property_type ? 'Este campo es obligatorio' : ''}
                 />
               </div>
             </div>            

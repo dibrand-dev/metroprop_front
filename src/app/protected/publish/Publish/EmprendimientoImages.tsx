@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import InputField from '@/ui/InputField/InputField';
 import Button from '@/ui/Button/Button';
 import { API_BASE_URL, setImagePath } from '@/utils/utils';
-import { CreateImage, CreateImagePlans } from '@/types/propiedad';
+import { CreateImage, CreateImagePlans, CreateAttached } from '@/types/propiedad';
 import { apiFetch } from '@/lib/apiFetch';
 
 const iconTrash = '/icons/trash.svg';
@@ -21,6 +21,8 @@ export interface EmprendimientoImagesRef {
   submit: () => Promise<void>;
   getFiles: () => { images: File[]; plans: File[] };
   resetFiles: () => void;
+  setExistingImages: (images: CreateImage[], plans?: (CreateImagePlans | CreateAttached)[]) => void;
+  appendFilesToFormData: (formData: FormData) => void;
 }
 
 interface EmprendimientoImagesProps {
@@ -143,7 +145,22 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
         if (result.images) setImages(result.images);
       },
       getFiles: () => ({ images: uploadedImages, plans: uploadedPlans }),
+      appendFilesToFormData: (formData: FormData) => {
+        images.forEach(img => { if (img.url) formData.append('images', setImagePath(img.url)); });
+        uploadedImages.forEach(file => formData.append('images', file));
+        plans.forEach(plan => { if (plan.file_url) formData.append('attached', setImagePath(plan.file_url)); });
+        uploadedPlans.forEach(file => formData.append('attached', file));
+      },
       resetFiles: () => { setImages([]); setUploadedImages([]); setPlans([]); setUploadedPlans([]); setMultimedia360(['']); },
+      setExistingImages: (existingImages: CreateImage[], existingPlans?: (CreateImagePlans | CreateAttached)[]) => {
+        setImages(existingImages);
+        setUploadedImages([]);
+        if (existingPlans && existingPlans.length > 0) {
+          setPlans(existingPlans as CreateImagePlans[]);
+          setUploadedPlans([]);
+          setOpenAccordions(prev => prev.includes('planos') ? prev : [...prev, 'planos']);
+        }
+      },
     }));
 
     return (
@@ -184,8 +201,8 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                     >
                       {index === 0 && <div className="publish-content-thumb-main-label">Foto principal</div>}
                       {isUp ? <div className="publish-content-upload-loading"><div className="spinner" /><span>Subiendo...</span></div>
-                        : isCompleted ? <img src={setImagePath(image.url)} alt="Foto" />
                         : hasError ? <div className="publish-content-upload-error"><span className="error-icon">!</span><small>{image.error_message || 'Error'}</small></div>
+                        : image.url ? <img src={setImagePath(image.url)} alt="Foto" />
                         : null}
                       <button type="button" className="publish-content-thumb-action" onClick={() => setImages(prev => prev.filter((_, i) => i !== index))}><img src={iconTrash} alt="" /></button>
                     </div>
@@ -240,10 +257,10 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                           return (
                             <div key={`${plan.id || plan.file_url}-${index}`} className={`publish-content-thumb ${hasError ? 'has-error' : ''}`}>
                               {isUp ? <div className="publish-content-upload-loading"><div className="spinner" /><span>Subiendo...</span></div>
-                                : isCompleted ? (plan.file_url?.toLowerCase().endsWith('.pdf')
-                                  ? <div className="publish-content-pdf-thumb"><span>PDF</span><small>{plan.file_url.split('/').pop()}</small></div>
-                                  : <img src={plan.file_url} alt="Plano" />)
                                 : hasError ? <div className="publish-content-upload-error"><span className="error-icon">!</span><small>{plan.error_message || 'Error'}</small></div>
+                                : plan.file_url ? (plan.file_url.toLowerCase().endsWith('.pdf')
+                                  ? <div className="publish-content-pdf-thumb"><span>PDF</span><small>{plan.file_url.split('/').pop()}</small></div>
+                                  : <img src={setImagePath(plan.file_url)} alt="Plano" />)
                                 : null}
                               <button type="button" className="publish-content-thumb-action" onClick={() => removePlan(index, 'api')}><img src={iconTrash} alt="" /></button>
                             </div>

@@ -290,6 +290,11 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           <a href="/">
             <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
           </a>
+        </div>
+        <div className="header-logo-mobile">
+          <a href="/">
+            <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
+          </a>
         </div>        
 
         {/* Right Section - Login Button or User Menu */}
