@@ -23,7 +23,8 @@ interface PublishEmprendimientoProps {
 }
 
 type RoomKey = (typeof roomsConfig)[number]['key'];
-
+const iconEdit = '/icons/pencil.svg';
+const iconTrash = '/icons/trash.svg';
 export default function PublishEmprendimientoUnidades({
   wizardData,
   updateWizardData,
@@ -66,6 +67,10 @@ export default function PublishEmprendimientoUnidades({
   const [total_surface, setTotal_surface] = useState(wizardData.total_surface || "");
   const [roofed_surface, setRoofed_surface] = useState(wizardData.roofed_surface || "");  
   const [development_units_total, setDevelopment_units_total] = useState<number | undefined>(undefined);
+  const [units, setUnits] = useState<CreateProperty[]>(wizardData.development_units ?? []);
+  const [editingUnitId, setEditingUnitId] = useState<number | undefined>(undefined);
+  const [unitThumbnails, setUnitThumbnails] = useState<Record<number, string>>(wizardData.unitThumbnails ?? {});
+
 
   const isFormValid = publication_title.trim() !== '' && !!development_unit_type && !!total_surface && !!roofed_surface;
 
@@ -114,10 +119,21 @@ export default function PublishEmprendimientoUnidades({
         files.plans.forEach(file => formData.append('attached', file));
       }
 
-      await apiFetch(`${API_BASE_URL}/properties/development/${wizardData.draft_id}/units`, {
+      const savedUnit = await apiFetch<CreateProperty>(`${API_BASE_URL}/properties/development/${wizardData.draft_id}/units`, {
         method: 'POST',
         body: formData,
       });
+
+      const unitId = (savedUnit as any)?.data?.id ?? (savedUnit as any)?.id;
+      const unitData: CreateProperty = (savedUnit as any)?.data ?? savedUnit;
+
+      const newThumbnails = (files && files.images.length > 0 && unitId)
+        ? { ...unitThumbnails, [unitId]: URL.createObjectURL(files.images[0]) }
+        : unitThumbnails;
+      const newUnits = [...units, unitData];
+      setUnitThumbnails(newThumbnails);
+      setUnits(newUnits);
+      updateWizardData({ development_units: newUnits, unitThumbnails: newThumbnails });
 
       if (goToNextStep) {
         onNext();
@@ -137,6 +153,7 @@ export default function PublishEmprendimientoUnidades({
   const resetForm = () => {
     // Reset form
     setSubmitted(false);
+    setEditingUnitId(undefined);
     setPublicationTitle('');
     setDescription('');
     setDevelopmentUnitType(undefined);
@@ -156,10 +173,6 @@ export default function PublishEmprendimientoUnidades({
     setDevelopment_units_total(undefined);
   }
 
-  const handleVolver = () => {
-    onBack();
-  };
-
   const handleCounterChange = (key: RoomKey, delta: number) => {
     setRooms((prev) => {
       const nextValue = Math.max(0, prev[key] + delta);
@@ -168,6 +181,90 @@ export default function PublishEmprendimientoUnidades({
         [key]: nextValue,
       };
     });
+  };
+
+  const handleEdit = (unitId: number) => {
+    const unit = units.find(u => u.id === unitId);
+    if (!unit) return;
+    setEditingUnitId(unitId);
+    setPublicationTitle(unit.publication_title ?? '');
+    setDescription(unit.description ?? '');
+    setDevelopmentUnitType(unit.property_type as PropertyType | undefined);
+    setPrice(unit.price);
+    setCurrency(unit.currency ?? 'ARS');
+    setExpenses(unit.expenses ?? undefined);
+    setCurrency_expenses(unit.currency_expenses ?? 'ARS');
+    setWithoutExpenses(unit.expenses === 0);
+    setRooms({
+      room_amount: unit.room_amount ?? 0,
+      suite_amount: unit.suite_amount ?? 0,
+      bathroom_amount: unit.bathroom_amount ?? 0,
+      toilet_amount: unit.toilet_amount ?? 0,
+      parking_lot_amount: unit.parking_lot_amount ?? 0,
+    });
+    setSurface_measurement(unit.surface_measurement ?? 'M2');
+    setRoofed_surface_measurement(unit.roofed_surface_measurement ?? 'M2');
+    setTotal_surface(unit.total_surface ?? '');
+    setRoofed_surface(unit.roofed_surface ?? '');
+    setDevelopment_units_total(unit.development_available_unit_count ?? undefined);
+    setSubmitted(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleEditarUnidad = async () => {
+    setSubmitted(true);
+    if (!isFormValid || !editingUnitId) return;
+    const updatedUnit: Partial<CreateProperty> = {
+      publication_title,
+      description,
+      property_type: development_unit_type,
+      price,
+      currency,
+      expenses: withoutExpenses ? 0 : expenses,
+      currency_expenses,
+      surface_measurement,
+      roofed_surface_measurement,
+      total_surface,
+      roofed_surface,
+      room_amount: rooms.room_amount,
+      suite_amount: rooms.suite_amount,
+      bathroom_amount: rooms.bathroom_amount,
+      toilet_amount: rooms.toilet_amount,
+      parking_lot_amount: rooms.parking_lot_amount,
+      development_available_unit_count: development_units_total,
+    };
+    try {
+      setIsUploading(true);
+      const saved = await apiFetch<CreateProperty>(`${API_BASE_URL}/properties/development/${wizardData.draft_id}/units/${editingUnitId}`, {
+        method: 'PATCH',
+        body: updatedUnit,
+      });
+      const newUnits = units.map(u => u.id === editingUnitId ? { ...u, ...saved } : u);
+      setUnits(newUnits);
+      updateWizardData({ development_units: newUnits });
+      resetForm();
+      imagesRef.current?.resetFiles();
+      setShowSuccessModal(true);
+      setTimeout(() => setShowSuccessModal(false), 3000);
+    } catch (error: any) {
+      console.error('Error updating unit:', error?.message || error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDelete = async (unitId: number) => {
+    try {
+      await apiFetch(`${API_BASE_URL}/properties/development/${wizardData.draft_id}/units/${unitId}`, {
+        method: 'DELETE',
+      });
+      const newUnits = units.filter(u => u.id !== unitId);
+      setUnits(newUnits);
+      updateWizardData({ development_units: newUnits });
+      if (editingUnitId === unitId) resetForm();
+    } catch (error: any) {
+      console.error('Error deleting unit:', error?.message || error);
+    }
   };
 
   return (
@@ -186,6 +283,48 @@ export default function PublishEmprendimientoUnidades({
 
         {/* Secondary Menu / Tabs */}
         <EmprendimientoTabs currentStep="emprendimiento-units" goToStep={goToStep} />
+
+        {units.length > 0 && (
+          <div className="unit-list">
+            {units.map((unit) => {
+              const unitData: CreateProperty = unit;
+              return (
+              <div key={unit.id} className="unit-list-item">
+                {unitThumbnails[unit.id!] ? (
+                  <img className="unit-list-thumbnail" src={unitThumbnails[unit.id!]} alt="" />
+                ) : (
+                  <div className="unit-list-thumbnail unit-list-thumbnail--empty" />
+                )}
+                <div className="unit-list-title">{unitData.publication_title}</div>
+                <div className="unit-list-type">{PROPERTY_TYPE_LABELS[unitData.property_type as PropertyType] ?? unitData.property_type}</div>
+                <div className="unit-list-price">{unitData.currency} {unitData.price?.toLocaleString()}</div>
+                <div className="unit-list-rooms">{unitData.room_amount ?? 0} amb.</div>
+                <div className="unit-list-surface">{unitData.total_surface} {unitData.surface_measurement}</div>
+                <div className="unit-list-actions">
+                  <button
+                    className="collaborators-action-button"
+                    type="button"
+                    aria-label="Editar unidad"
+                    onClick={() => handleEdit(unitData.id!)}
+                  >
+                    <img src={iconEdit} alt="" />
+                  </button>
+                  <button
+                    className="collaborators-action-button"
+                    type="button"
+                    aria-label="Eliminar unidad"
+                    onClick={() => handleDelete(unitData.id!)}
+                  >
+                    <img src={iconTrash} alt="" />
+                  </button>
+                </div>
+              </div>
+            )})}
+          </div>
+        )}
+
+
+
 
         {/* Main Content */}
         <div className="main-content">
@@ -251,11 +390,12 @@ export default function PublishEmprendimientoUnidades({
                     value={currency}
                     onChange={(value) => setCurrency(value)}
                   />
-                  <InputField
-                    value={price ?? null}
+                  <InputField2
+                    value={String(price) ?? ''}
                     onChange={(event) => setPrice(Number(event.target.value))}
                     placeholder={'Ej. 700000'}
                     type="number"
+                    error={submitted && !price ? ' ' : ''}
                   />
                 </div>
               </div>
@@ -269,12 +409,13 @@ export default function PublishEmprendimientoUnidades({
                     onChange={(value) => setCurrency_expenses(value)}
                     disabled={withoutExpenses}
                   />
-                  <InputField
-                    value={expenses ?? null}
+                  <InputField2
+                    value={String(expenses) ?? ''}
                     onChange={(event) => setExpenses(Number(event.target.value))}
                     placeholder="Ej. 100000"
                     type="number"
                     disabled={withoutExpenses}
+                    error={submitted && !expenses ? ' ' : ''}
                   />
                 </div>
                 <Checkbox
@@ -345,7 +486,7 @@ export default function PublishEmprendimientoUnidades({
                       type="number"
                       value={total_surface ? String(total_surface) : ''}
                       onChange={(event) => setTotal_surface(parseInt(event.target.value))}
-                      error={submitted && !total_surface ? 'Este campo es obligatorio' : ''}
+                      error={submitted && !total_surface ? ' ' : ''}
                     />
                   </div>
                 </div>
@@ -364,7 +505,7 @@ export default function PublishEmprendimientoUnidades({
                       type="number"
                       value={roofed_surface ? String(roofed_surface) : ''}
                       onChange={(event) => setRoofed_surface(parseInt(event.target.value))}
-                      error={submitted && !roofed_surface ? 'Este campo es obligatorio' : ''}
+                      error={submitted && !roofed_surface ? ' ' : ''}
                     />
                   </div>
                 </div>
@@ -392,20 +533,41 @@ export default function PublishEmprendimientoUnidades({
 
         {/* Action Buttons */}
         <div className="action-buttons">
-          <Button
-            label={isUploading ? 'Subiendo...' : "Guardar y agregar otra unidad"}  
-            variant="secondary"
-            buttonType="1"
-            onClick={() => handleAgregarUnidad(false)}
-            disabled={isUploading/* || !isFormValid*/}
-          />
-          <Button
-            label={isUploading ? 'Subiendo...' : "Guardar y finalizar"}
-            variant="primary"
-            buttonType="1"
-            onClick={() => handleAgregarUnidad(true)}
-            disabled={isUploading/* || !isFormValid*/}
-          />
+          {editingUnitId ? (
+            <>
+              <Button
+                label="Cancelar"
+                variant="secondary"
+                buttonType="1"
+                onClick={() => resetForm()}
+                disabled={isUploading}
+              />
+              <Button
+                label={isUploading ? 'Guardando...' : 'Editar unidad'}
+                variant="primary"
+                buttonType="1"
+                onClick={handleEditarUnidad}
+                disabled={isUploading}
+              />
+            </>
+          ) : (
+            <>
+              <Button
+                label={isUploading ? 'Subiendo...' : "Guardar y agregar otra unidad"}  
+                variant="secondary"
+                buttonType="1"
+                onClick={() => handleAgregarUnidad(false)}
+                disabled={isUploading}
+              />
+              <Button
+                label={isUploading ? 'Subiendo...' : "Guardar y finalizar"}
+                variant="primary"
+                buttonType="1"
+                onClick={() => handleAgregarUnidad(true)}
+                disabled={isUploading}
+              />
+            </>
+          )}
         </div>
       </div>
       {showSuccessModal && <SuccessModal title="¡Unidad agregada con éxito!" text="La unidad fue guardada correctamente." />}

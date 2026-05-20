@@ -8,6 +8,7 @@ import Checkbox from '@/ui/Checkbox/Checkbox';
 import { Plan } from '@/types/plan';
 import { apiFetch } from '@/lib/apiFetch';
 import { useSession } from 'next-auth/react';
+import { API_BASE_URL } from '@/utils/utils';
 
 // ─── MercadoPago configuration ────────────────────────────────────────────────
 const MP_PUBLIC_KEY = 'TEST-814bdb18-b786-49c6-a6e7-276e5f698592';
@@ -180,9 +181,9 @@ export default function PublishCheckoutPayment({
         throw new Error('No se pudo determinar el método de pago para esta tarjeta');
       }
      
-      const response = await apiFetch(`/plans/${userHasOrganization ? `branch/${branchID}` : `user/${userId}`}`, {
+      const response = await apiFetch(`${API_BASE_URL}/plans/${userHasOrganization ? `branch/${branchID}` : `user/${userId}`}`, {
         method: 'POST',
-        body: JSON.stringify({
+        body: {
           transaction_amount: planToBuy?.price ?? 0,
           token: tokenResult.id,
           description: planToBuy?.plan_name ?? 'Plan',
@@ -200,7 +201,7 @@ export default function PublishCheckoutPayment({
             },
           },
           planId: planToBuy?.id
-        }),
+        }
       }).then(data => {
         onNext();
       })
@@ -378,10 +379,6 @@ export default function PublishCheckoutPayment({
                   onChange={(checked) => setAcceptTerms(checked)}
                   error={errors.acceptTerms}
                 />
-
-                {submitError && (
-                  <p className="publish-payment-submit-error">{submitError}</p>
-                )}
               </div>
             </div>
 
@@ -409,6 +406,9 @@ export default function PublishCheckoutPayment({
               </button>
               {!sdkReady && (
                 <p className="publish-payment-sdk-loading">Cargando servicio de pago...</p>
+              )}
+              {submitError && (
+                <p className="publish-payment-submit-error">{submitError}</p>
               )}
             </div>
           </div>

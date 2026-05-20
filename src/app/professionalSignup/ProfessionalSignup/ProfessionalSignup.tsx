@@ -337,8 +337,10 @@ export default function ProfessionalSignup() {
                       onChange={(value) => setFiscalCondition(value)}
                       options={[
                         { value: 'Responsable Inscripto', label: 'Responsable Inscripto' },
-                        { value: 'Monotributista', label: 'Monotributista' },
+                        { value: 'Monotributo', label: 'Monotributista' },
                         { value: 'Exento', label: 'Exento' },
+                        { value: 'Consumidor Final', label: 'Consumidor Final' },
+                        { value: 'No Responsable', label: 'No Responsable' }
                       ]}
                       error={fieldErrors.fiscalCondition}
                     />

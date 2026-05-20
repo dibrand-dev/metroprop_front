@@ -182,7 +182,7 @@ export default function PublishEmprendimiento({
   const [hasPlans, setHasPlans] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const isFormValid = nombreEmprendimiento.trim() !== '' || entrega.trim() !== '' || tipoEmprendimiento !== null || totalUnidades !== null || hasImages || !hasPlans;
+  const isFormValid = nombreEmprendimiento.trim() !== '' || entrega.trim() !== '' || tipoEmprendimiento !== null || totalUnidades !== null;
 
   const handleImagesStatusChange = useCallback((status: { hasImages: boolean; hasPlans: boolean }) => {
     setHasImages(status.hasImages);
@@ -280,18 +280,24 @@ export default function PublishEmprendimiento({
     if (match) { setLocation_id(parseInt(match)); setPendingCityName(''); setSub_location_id(undefined); }
   }, [locationOptions, pendingCityName]);
 
-  const handleContinuar = async () => {
+  const handleContinuar = async (nextStep: boolean) => {
     setSubmitted(true);
     if (!isFormValid) return;
     if (hasImages || hasPlans) {
       setIsUploading(true);
       try {
         await imagesRef.current?.submit();
-        onNext(wizardData);
+        if (nextStep) {
+          onNext(wizardData);
+        }
       } catch {
         alert('Error al subir los archivos. Por favor, intenta nuevamente.');
       } finally {
         setIsUploading(false);
+      }
+    } else {
+      if (nextStep) {
+        onNext(wizardData);
       }
     }
   };
@@ -394,6 +400,7 @@ export default function PublishEmprendimiento({
                     value={tipoEmprendimiento}
                     onChange={setTipoEmprendimiento}
                     placeholder="Seleccionar"
+                    error={submitted && !tipoEmprendimiento ? 'Este campo es obligatorio' : ''}
                   />
                 </div>                
               </div>
@@ -408,6 +415,7 @@ export default function PublishEmprendimiento({
                     value={totalUnidades}
                     onChange={e => setTotalUnidades(e.target.value)}
                     placeholder="Total de unidades"
+                    error={submitted && !totalUnidades ? 'Este campo es obligatorio' : ''}
                   />                  
                 </div>
                 <div className="form-field half-width">
@@ -417,6 +425,7 @@ export default function PublishEmprendimiento({
                     value={entrega}
                     onChange={e => setEntrega((e.target as HTMLInputElement).value)}
                     placeholder="Seleccionar"
+                    error={submitted && !entrega ? 'Este campo es obligatorio' : ''}
                   />
                 </div>
               </div>
@@ -543,14 +552,14 @@ export default function PublishEmprendimiento({
             label="Guardar como borrador"
             variant="secondary"
             buttonType="2"
-            onClick={() => onSaveAndExit(wizardData)}
+            onClick={() => handleContinuar(false)}
             fullWidth={false}
           />
           <Button
             label={isUploading ? 'Subiendo...' : 'Continuar'}
             variant="primary"
             buttonType="2"
-            onClick={handleContinuar}
+            onClick={() => handleContinuar(true)}
             fullWidth={false}
             disabled={isUploading/* || !isFormValid*/}
           />

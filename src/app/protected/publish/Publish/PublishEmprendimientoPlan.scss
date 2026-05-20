@@ -1,24 +1,23 @@
 .publish-emprendimiento-vista-al-precio {
-  background-color: #F5F5F5;
+  background-color: #fff;
   min-height: 100vh;
-  padding: 128px 0 80px;
-
+  padding: 32px 0 80px;
   @media (max-width: 768px) {
-    padding: 104px 0 40px;
+    padding: 16px;
   }
 }
 
 .publish-emprendimiento-preview-container {
+  border-radius: 8px;
+  padding: 24px;
   max-width: 1087px;
   margin: 0 auto;
-  padding: 0 24px;
+  background-color: #F5F5F5;
   display: flex;
   flex-direction: column;
-  gap: 32px;
-
+  gap: 32px; 
   @media (max-width: 768px) {
-    max-width: 358px;
-    padding: 0 16px;
+    padding: 16px;
   }
 }
 
@@ -160,15 +159,6 @@
   @media (max-width: 768px) {
     font-size: 14px;
   }
-}
-
-.subsection-title {
-  
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 18px;
-  color: rgba(0, 0, 0, 0.8);
-  margin: 0;
 }
 
 // Form Groups

@@ -6,7 +6,7 @@ import { Plan } from '@/types/plan';
 
 interface PublishCheckoutDetailProps {
   onNext: () => void;
-  onBack: () => void;
+  onBack: (emprendimiento: boolean) => void;
   planToBuy: Plan | null;
 }
 
@@ -19,7 +19,7 @@ export default function PublishCheckoutDetail({
   onBack,
 }: PublishCheckoutDetailProps) {
   const handleBack = () => {
-    onBack();
+    onBack(planToBuy?.emprendimiento ?? false);
   };
 
   const handleBuy = () => {

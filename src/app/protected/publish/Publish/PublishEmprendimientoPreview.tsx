@@ -1,57 +1,36 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Button from '@/ui/Button/Button';
-import type { Emprendimiento, API_ENDPOINTS } from '@/types/emprendimiento';
+import { useState, useEffect } from 'react';
 import './PublishEmprendimientoPreview.scss';
-import { useLocations } from '@/lib/locations';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreateProperty, CreatePropertyDraft, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
+import { useQuery } from '@tanstack/react-query';
+import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
+import { ORGANIZATION_NO_IMAGE } from '@/app/constants';
+import { apiFetch } from '@/lib/apiFetch';
+import { APIProvider, Map } from '@vis.gl/react-google-maps';
+import { useLocations } from '@/lib/locations';
+import { formatNumbers } from '@/utils/utils';
 import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
 
+const iconDoor = '/icons/blueDoor.svg';
+const iconCrane = '/icons/crane.svg';
 
-interface Unit {
-  nombre: string;
-  tipo: string;
-  piso: string;
-  supTotal: string;
-  supCubierta: string;
-  banos: string;
-  disposicion: string;
-  precioM2: string;
-  precioTotal: string;
-}
-
-interface UnitsByType {
-  [key: string]: Unit[];
-}
-
-
-const iconChevron = '/icons/chevron-up.svg';
-
-interface PublishFinalReviewProps {
-  wizardData: CreatePropertyDraft;
+interface PublishFinalReviewProps {  
   onNext: (data: Partial<CreatePropertyDraft>) => void;
+  wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
-  onBack: () => void;
-  onSaveAndExit: (data: Partial<CreatePropertyDraft>) => void;
-  isEditMode?: boolean;
   goToStep: (step: EmprendimientoStep) => void;
+  isEditMode?: boolean;
 }
 
-export default function PublishEmprendimientoPreview({
+export default function PublishEmprendimientoFinalReview({
   wizardData,
   onNext,
-  onBack,
-  onSaveAndExit,
   updateWizardData,
   isEditMode = false,
   goToStep,
 }: PublishFinalReviewProps) {
-
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const { data: locations = [] } = useLocations();
   const { data: sessionData } = useSession();
   const [activeTab, setActiveTab] = useState<string>('');
@@ -62,6 +41,28 @@ export default function PublishEmprendimientoPreview({
   const addressParts = [wizardData.street, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
   const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
+  
+  const unidadesPorTipo = (wizardData.development_units ?? []).reduce<Record<string, CreateProperty[]>>((acc, unit) => {
+    const rooms = unit.room_amount ?? 0;
+    const key = rooms === 0 ? 'Monoambiente' : rooms === 1 ? '1 ambiente' : `${rooms} ambientes`;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(unit);
+    return acc;
+  }, {});
+
+  const getUnidadCount = (units: CreateProperty[]) => units.length;
+  const getPrecioDesde = (units: CreateProperty[]) => {
+    const prices = units.map(u => u.price ?? 0).filter(p => p > 0);
+    if (prices.length === 0) return '-';
+    const currency = units[0]?.currency ?? '';
+    return `${currency} ${Math.min(...prices).toLocaleString('es-AR')}`;
+  };
+  const getSupDesde = (units: CreateProperty[]) => {
+    const sups = units.map(u => Number(u.total_surface)).filter(s => s > 0);
+    if (sups.length === 0) return '-';
+    const meas = units[0]?.surface_measurement ?? 'm²';
+    return `${Math.min(...sups)} ${meas}`;
+  };
 
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
@@ -126,388 +127,352 @@ export default function PublishEmprendimientoPreview({
   }, [wizardData]);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Mock data - in real app this would come from context/state management
-  const emprendimientoData = {
-    nombre: 'Arán Histórico',
-    descripcion: '1, 2 y 4 Ambientes y Amenities',
-    tipoOperacion: 'Venta',
-    precioDesde: 'USD 657,000',
-    direccion: 'Avenida Ceviño 4046, Palermo Chico, Palermo',
-    descripcionCompleta: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.',
-    imagenPrincipal: '/images/emprendimiento-main.jpg',
-    imagenesSecundarias: [
-      '/images/emprendimiento-1.jpg',
-      '/images/emprendimiento-2.jpg',
-      '/images/emprendimiento-3.jpg',
-      '/images/emprendimiento-4.jpg',
-    ],
-    caracteristicas: [
-      { icon: 'dormitorios', label: '1-4', text: 'Dormitorios' },
-      { icon: 'banos', label: '1-2', text: 'Baños' },
-      { icon: 'area', label: '38-167', text: 'm² totales' },
-      { icon: 'cochera', label: '0-1', text: 'Cochera' },
-      { icon: 'baulera', label: '0-1', text: 'Baulera' },
-      { icon: 'piscina', label: 'Sí', text: 'Piscina' },
-    ],
-    amenidades: ['Seguridad 24hs', 'Sum', 'Parrilla', 'Gimnasio', 'Solarium', 'Jardín'],
-  };
-
-  const unidadesPorTipo: UnitsByType = {
-    '1 ambiente': [
-      {
-        nombre: '1-A',
-        tipo: '1 ambiente',
-        piso: '10',
-        supTotal: '38 m²',
-        supCubierta: '35 m²',
-        banos: '1',
-        disposicion: 'Frente',
-        precioM2: 'USD 6,500',
-        precioTotal: 'USD 82,500',
-      },
-    ],
-    '2 ambientes': [
-      {
-        nombre: '2-A',
-        tipo: '2 ambientes',
-        piso: '5',
-        supTotal: '61 m²',
-        supCubierta: '58 m²',
-        banos: '1',
-        disposicion: 'Frente',
-        precioM2: 'USD 3,555',
-        precioTotal: 'USD 216,859',
-      },
-      {
-        nombre: '2-B',
-        tipo: '2 ambientes',
-        piso: '7',
-        supTotal: '63 m²',
-        supCubierta: '60 m²',
-        banos: '1',
-        disposicion: 'Contrafrente',
-        precioM2: 'USD 3,444',
-        precioTotal: 'USD 217,039',
-      },
-    ],
-  };
-
-
-
-  const handlePublish = async () => {
-    setIsSubmitting(true);
+  // Build property title
+  const propertyTitle = wizardData.publication_title || `${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} ${wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}`;
+  
+  // Build property features from wizard data
+  const buildFeatures = () => {
+    const features = [];
     
-    // Prepare data for API submission
-    // In production, this data should come from a global state manager
-    // that has been populated throughout the multi-step form
-    const submissionData: Partial<Emprendimiento> = {
-      // From step 1: Datos principales
-      nombreEmprendimiento: emprendimientoData.nombre,
-      descripcion: emprendimientoData.descripcionCompleta,
-      tipoEmprendimiento: 'Residencial', // From form
-      ubicacion: {
-        direccion: emprendimientoData.direccion,
-        ciudad: 'Buenos Aires', // From form
-        provincia: 'Buenos Aires', // From form
-        pais: 'Argentina',
-      },
-      // imagenesPrincipales: imageFiles, // From form file uploads
-      
-      // From step 2: Amenidades
-      amenidades: emprendimientoData.amenidades.map(a => ({
-        id: a.toLowerCase().replace(/\s+/g, '-'),
-        nombre: a,
-        categoria: 'servicios' as const,
-      })),
-      
-      // From step 3: Unidades
-      unidades: Object.values(unidadesPorTipo).flat().map(u => ({
-        nombre: u.nombre,
-        descripcion: '',
-        tipo: u.tipo,
-        piso: u.piso,
-        orientacion: u.disposicion,
-        precio: parseFloat(u.precioTotal.replace(/[^0-9.]/g, '')),
-        moneda: 'USD' as const,
-        expensas: false,
-        dormitorios: parseInt(u.tipo.split(' ')[0]) || 1,
-        banos: parseInt(u.banos) || 1,
-        toilettes: 0,
-        cochera: 0,
-        baulera: 0,
-        supConstruidos: parseFloat(u.supCubierta.replace(/[^0-9.]/g, '')),
-        supTotales: parseFloat(u.supTotal.replace(/[^0-9.]/g, '')),
-        fotos: [],
-        planos: [],
-      })),
-      
-      // From step 4: Vista al precio
-      planSeleccionado: 'destacado', // From form
-      colaboradorAsignado: '', // From form
-      
-      // Metadata
-      estado: 'publicado' as const,
-      fechaCreacion: new Date().toISOString(),
-      fechaModificacion: new Date().toISOString(),
-    };
-
-    try {
-      // API Integration Point
-      // Replace this with actual API call when backend is ready
-      // 
-      // Example implementation:
-      // const response = await fetch('/api/emprendimientos', {
-      //   method: 'POST',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${authToken}`,
-      //   },
-      //   body: JSON.stringify(submissionData),
-      // });
-      // 
-      // if (!response.ok) {
-      //   throw new Error('Error publishing emprendimiento');
-      // }
-      // 
-      // const result: EmprendimientoAPIResponse = await response.json();
-      // 
-      // if (result.success && result.data) {
-      //   router.push(`/protected/emprendimientos/${result.data.id}`);
-      // }
-      
-      console.log('📤 Publishing emprendimiento to API:', submissionData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('✅ Emprendimiento published successfully');
-      
-      // Navigate to success page or listing
-      router.push('/protected/publish/success');
-    } catch (error) {
-      console.error('❌ Error publishing emprendimiento:', error);
-      alert('Error al publicar el emprendimiento. Por favor, intente nuevamente.');
-    } finally {
-      setIsSubmitting(false);
+    if (wizardData.property_condition) {
+      if (wizardData.property_condition === 'new') features.push({ label: 'A estrenar', icon: '/icons/calendar.svg' });
+      if (wizardData.property_condition === 'construction') features.push({ label: 'En construcción', icon: '/icons/calendar.svg' });
+      if (wizardData.property_condition === 'years' && wizardData.age) {
+        features.push({ label: `${wizardData.age} años`, icon: '/icons/calendar.svg' });
+      }
     }
+    
+    if (wizardData.orientation) {
+      features.push({ label: ORIENTATION_LABELS[wizardData.orientation], icon: '/icons/orientacion.svg' });
+    }
+    
+    if (wizardData.total_surface && wizardData.surface_measurement) {
+      features.push({ label: `${wizardData.total_surface} ${wizardData.surface_measurement} tot.`, icon: '/icons/regla.svg' });
+    }
+    
+    if (wizardData.roofed_surface && wizardData.roofed_surface_measurement) {
+      features.push({ label: `${wizardData.roofed_surface} ${wizardData.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
+    }
+    
+    if (wizardData.room_amount) {
+      features.push({ label: `${wizardData.room_amount} amb.`, icon: '/icons/door.svg' });
+    }
+    
+    if (wizardData.parking_lot_amount) {
+      features.push({ label: `${wizardData.parking_lot_amount} cochera${wizardData.parking_lot_amount > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
+    }
+    
+    if (wizardData.suite_amount) {
+      features.push({ label: `${wizardData.suite_amount} dorm.`, icon: '/icons/cama.svg' });
+    }
+    
+    if (wizardData.bathroom_amount) {
+      features.push({ label: `${wizardData.bathroom_amount} baño${wizardData.bathroom_amount > 1 ? 's' : ''}`, icon: '/icons/bano.svg' });
+    }
+    
+    if (wizardData.toilet_amount) {
+      features.push({ label: `${wizardData.toilet_amount} toilette${wizardData.toilet_amount > 1 ? 's' : ''}`, icon: '/icons/toilete.svg' });
+    }
+
+    return features.length > 0 ? features : []; // fallback to default
+  };
+  // Get selected amenities by group, using amenityGroups and wizardData.tags
+  const getAmenitiesByTab = () => {
+    const result: Record<string, string[]> = {};
+    
+    // Build result for each amenity group
+    amenityGroups.forEach(group => {
+      const groupKey = group.type.toString();
+      result[groupKey] = [];
+      
+      // Filter tags in this group that are selected
+      const selectedTags = group.options
+        .filter((option: AmenityTag) => wizardData?.tags?.includes(option.id))
+        .map((option: AmenityTag) => option.name);
+      
+      result[groupKey] = selectedTags;
+    });
+
+    result[4] = [];
+    if (wizardData?.expenses)  result[4].push(`Expensas: ${formatNumbers(wizardData.expenses)} ${wizardData.currency_expenses ?? ''}`);
+    if (wizardData?.floors_amount)  result[4].push(`Pisos: ${wizardData.floors_amount}`);
+    if (wizardData?.garage_coverage)  result[4].push(`Cobertura cochera: ${wizardData.garage_coverage}`);
+    if (wizardData?.postal_code)  result[4].push(`Código postal: ${wizardData.postal_code}`);
+    if (wizardData?.semiroofed_surface)  result[4].push(`Superficie semicubierta: ${formatNumbers(wizardData.semiroofed_surface)} ${wizardData.surface_measurement ?? ''}`);
+    if (wizardData?.surface_front)  result[4].push(`Frente: ${formatNumbers(wizardData.surface_front)} ${wizardData.surface_measurement ?? ''}`);
+    if (wizardData?.surface_length)  result[4].push(`Fondo: ${formatNumbers(wizardData.surface_length)} ${wizardData.surface_measurement ?? ''}`);
+    if (result[4].length === 0) delete result[4];
+    
+    return result;
   };
 
-  const getUnidadCount = (units: Unit[]) => units.length;
-  const getPrecioDesde = (units: Unit[]) => {
-    const precios = units.map(u => parseFloat(u.precioTotal.replace(/[^0-9.]/g, '')));
-    return `USD ${Math.min(...precios).toLocaleString('es-AR')}`;
+  const dynamicFeatures = buildFeatures();
+  const dynamicAmenities = getAmenitiesByTab();
+  const statusDisplay = `${wizardData?.property_type ? `${PROPERTY_TYPE_LABELS[wizardData.property_type as PropertyType]} ` : ''}${wizardData?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype as PropertySubtype]} ` : ''}${wizardData?.operation_type ? `En ${OPERATION_TYPE_LABELS[wizardData.operation_type as OperationType]}` : ''}`;
+  
+  const handlePublish = () => {
+    const propertyPublishUpdate = { 
+      status: PropertyStatus.DISPONIBLE
+    }
+    // redirect to myProperties
+    onNext(propertyPublishUpdate);
   };
-  const getSupDesde = (units: Unit[]) => {
-    const sups = units.map(u => parseFloat(u.supTotal.replace(/[^0-9.]/g, '')));
-    return `${Math.min(...sups)} m²`;
-  };
+
+  const agentLogo: string = setImagePath((sessionData?.user as any)?.organization?.company_logo) || ORGANIZATION_NO_IMAGE;
+  const agentName: string = (sessionData?.user as any)?.organization?.company_name || sessionData?.user?.name || '';
 
   return (
-    <div className="publish-emprendimiento-preview">
-      <div className="publish-emprendimiento-preview-container">
-        {/* Breadcrumb */}
-        <div className="breadcrumb">
-          <span className="breadcrumb-text">Emprendimientos</span>
-        </div>
+    <div className="publish-review">
+      <div className="publish-review-inner">
+        <div className="publish-review-card">
+          {/* Breadcrumb */}
+          <div className="breadcrumb">
+            <span className="breadcrumb-text">Emprendimientos</span>
+          </div>
+  
+          {/* Header */}
+          <div className="header">
+            <h1 className="title">Publicar emprendimiento</h1>
+          </div>
+  
+          {/* Secondary Menu / Tabs */}
+          <EmprendimientoTabs currentStep="emprendimiento-preview" goToStep={goToStep} />
 
-        {/* Header */}
-        <div className="header">
-          <h1 className="title">Publicar emprendimiento</h1>
-        </div>
+          <div className="publish-review-section">
+            <h1>Revision final del aviso y datos de contacto</h1>
+            <h2>Vista previa</h2>
 
-        {/* Secondary Menu / Tabs */}
-        <EmprendimientoTabs currentStep="emprendimiento-preview" goToStep={goToStep} />
+            <div className="publish-review-preview">
+              <h3>Asi se vera tu publicacion</h3>
 
-        {/* Main Content */}
-        <div className="main-content">
-          <h2 className="section-main-title">Vista previa</h2>
-          <p className="preview-subtitle">Así se verá tu publicación</p>
-
-          {/* Preview Card */}
-          <div className="preview-card">
-            {/* Header Section */}
-            <div className="preview-header">
-              <div className="property-chip">
-                {emprendimientoData.tipoOperacion} desde {emprendimientoData.precioDesde}
-              </div>
-            </div>
-
-            <h3 className="property-title">
-              {emprendimientoData.nombre} - {emprendimientoData.descripcion}
-            </h3>
-
-            {/* Image Gallery */}
-            <div className="image-gallery">
-              <div className="main-image">
-                <div className="image-placeholder">Imagen principal</div>
-              </div>
-              <div className="secondary-images">
-                <div className="image-column">
-                  <div className="image-placeholder small">Imagen 1</div>
-                  <div className="image-placeholder small">Imagen 2</div>
-                </div>
-                <div className="image-column">
-                  <div className="image-placeholder small">Imagen 3</div>
-                  <div className="image-placeholder small">Imagen 4</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Property Details */}
-            <div className="property-details">
-              <h4 className="details-title">
-                {emprendimientoData.nombre} - {emprendimientoData.descripcion}
-              </h4>
-              <div className="address">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
-                </svg>
-                <span>{emprendimientoData.direccion}</span>
-              </div>
-
-              {/* Features Icons */}
-              <div className="features-grid">
-                {emprendimientoData.caracteristicas.map((feature, index) => (
-                  <div key={index} className="feature-item">
-                    <div className="feature-icon">
-                      <span className="feature-value">{feature.label}</span>
-                    </div>
-                    <span className="feature-label">{feature.text}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Description Section */}
-            <div className="description-section">
-              <h4 className="section-title">Sobre el emprendimiento</h4>
-              <p className="description-text">{emprendimientoData.descripcionCompleta}</p>
-            </div>
-
-            {/* Map Section */}
-            <div className="map-section">
-              <div className="address">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
-                </svg>
-                <span>{emprendimientoData.direccion}</span>
-              </div>
-              <div className="map-placeholder">
-                <div className="map-pin">
-                  <svg width="60" height="56" viewBox="0 0 60 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M30 0C18.954 0 10 8.954 10 20c0 16.5 20 36 20 36s20-19.5 20-36c0-11.046-8.954-20-20-20zm0 27c-3.866 0-7-3.134-7-7s3.134-7 7-7 7 3.134 7 7-3.134 7-7 7z" fill="#006AFF"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            {/* Available Units Section */}
-            <div className="units-section">
-              <h4 className="section-title">Unidades disponibles</h4>
-              
-              {Object.entries(unidadesPorTipo).map(([tipo, unidades]) => (
-                <div key={tipo} className="unit-type-group">
-                  {/* Unit Type Header */}
-                  <div className="unit-type-header">
-                    <div className="unit-type-info">
-                      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M24 4L4 14v20l20 10 20-10V14L24 4z" stroke="currentColor" strokeWidth="2" fill="none"/>
-                      </svg>
-                      <div className="unit-type-details">
-                        <div className="unit-type-title">
-                          <span className="unit-type-name">{tipo}</span>
-                          <span className="unit-type-desde">desde</span>
-                          <span className="unit-type-price">{getPrecioDesde(unidades)}</span>
-                        </div>
-                        <div className="unit-type-superficie">
-                          Superficie: desde {getSupDesde(unidades)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="unit-type-count">
-                      <span className="count-number">{getUnidadCount(unidades)}</span>
-                      <span className="count-label">unidades disponibles</span>
+              <div className="publish-review-preview-card">
+                <div>
+                  <div className="publish-review-preview-hero">
+                    <span className="entrega">
+                      <img src={iconCrane} alt="Crane Icon" />
+                      En pozo - Entrega {wizardData.development_delivery_date}
+                    </span>
+                    <div className="publish-review-preview-price">
+                      <strong>
+                        {formatPrice(wizardData?.price?.toString() ?? '', wizardData.currency || '$')}
+                      </strong>
+                      {!wizardData.expenses && (
+                        <span>
+                          {formatPrice(wizardData?.expenses?.toString() ?? '', wizardData.currency_expenses || '$')} expensas
+                        </span>
+                      )}
                     </div>
                   </div>
+                  <p className="previewTitle">Venta desde  ??????</p>
+                </div>
 
-                  {/* Units Table */}
-                  <div className="units-table">
-                    <div className="table-header">
-                      <div className="table-cell">Unidad</div>
-                      <div className="table-cell">Sup. Total</div>
-                      <div className="table-cell">Sup. Cubierta</div>
-                      <div className="table-cell">Baños</div>
-                      <div className="table-cell">Disposición</div>
-                      <div className="table-cell">Precio m²</div>
-                      <div className="table-cell">Precio total</div>
-                    </div>
-                    {unidades.map((unidad, index) => (
-                      <div key={index} className="table-row">
-                        <div className="table-cell">{unidad.nombre}</div>
-                        <div className="table-cell">{unidad.supTotal}</div>
-                        <div className="table-cell">{unidad.supCubierta}</div>
-                        <div className="table-cell">{unidad.banos}</div>
-                        <div className="table-cell">{unidad.disposicion}</div>
-                        <div className="table-cell">{unidad.precioM2}</div>
-                        <div className="table-cell">{unidad.precioTotal}</div>
+                
+
+                <div className="publish-review-gallery">
+                  <div className="publish-review-gallery-main">
+                    {wizardData?.images?.[0]?.url && <img src={setImagePath(wizardData?.images?.[0]?.url)} alt="Vista principal" />}
+                  </div>
+                  <div className="publish-review-gallery-grid">
+                    {wizardData?.images?.slice(1).map((image, index) => (
+                      <div key={image.url} className="publish-review-gallery-item">
+                        <img src={setImagePath(image.url)} alt={`Vista ${index + 2}`} />
                       </div>
                     ))}
                   </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Additional Info Section */}
-            <div className="additional-info-section">
-              <h4 className="section-title">Más sobre este emprendimiento</h4>
-              <div className="info-grid">
-                <div className="info-item">
-                  <span className="info-label">Estado</span>
-                  <span className="info-value">En obra</span>
+                <div className="publish-review-summary">
+                  <h4>{propertyTitle}</h4>
                 </div>
-                <div className="info-item">
-                  <span className="info-label">Entrega</span>
-                  <span className="info-value">Junio 2024</span>
+                <div className="publish-review-address-1">
+                  <span className="publish-review-address-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" stroke="currentColor" fill="#ffffff">
+                      <path d="M8.80978 18.57C8.64658 18.6872 8.45071 18.7503 8.24978 18.7503C8.04885 18.7503 7.85298 18.6872 7.68978 18.57C2.86078 15.128 -2.26422 8.048 2.91678 2.932C4.33912 1.53285 6.25462 0.749124 8.24978 0.750001C10.2498 0.750001 12.1688 1.535 13.5828 2.931C18.7638 8.047 13.6388 15.126 8.80978 18.57Z" stroke="#7A7A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M8.25 9.75C8.78043 9.75 9.28914 9.53929 9.66421 9.16421C10.0393 8.78914 10.25 8.28043 10.25 7.75C10.25 7.21957 10.0393 6.71086 9.66421 6.33579C9.28914 5.96071 8.78043 5.75 8.25 5.75C7.71957 5.75 7.21086 5.96071 6.83579 6.33579C6.46071 6.71086 6.25 7.21957 6.25 7.75C6.25 8.28043 6.46071 8.78914 6.83579 9.16421C7.21086 9.53929 7.71957 9.75 8.25 9.75Z" stroke="#7A7A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span>{address}</span>
+                </div>
+
+                <div className="publish-review-features">
+                  {dynamicFeatures.map((item, index) => (
+                    <div key={`${item.label}-${index}`} className="publish-review-feature">
+                      <img src={item.icon} alt="" />
+                      <span>{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="description-section">
+                  <p>Sobre el emprendimiento</p>
+                  <p>
+                    {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm2'}.`}
+                  </p>
+                  {(wizardData.description && wizardData.description.length > 1200) && (
+                  <button type="button" className="publish-review-summary-toggle">
+                    Leer descripcion completa
+                    <img src="/icons/chevron-up.svg" alt="" />
+                  </button>)}
+                </div>
+                <div className="publish-review-map">
+                  <div className="publish-review-address">
+                    <span className="publish-review-address-icon" aria-hidden="true">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" stroke="#1E1E1E" fill="#ffffff">
+                        <path d="M8.80978 18.57C8.64658 18.6872 8.45071 18.7503 8.24978 18.7503C8.04885 18.7503 7.85298 18.6872 7.68978 18.57C2.86078 15.128 -2.26422 8.048 2.91678 2.932C4.33912 1.53285 6.25462 0.749124 8.24978 0.750001C10.2498 0.750001 12.1688 1.535 13.5828 2.931C18.7638 8.047 13.6388 15.126 8.80978 18.57Z" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8.25 9.75C8.78043 9.75 9.28914 9.53929 9.66421 9.16421C10.0393 8.78914 10.25 8.28043 10.25 7.75C10.25 7.21957 10.0393 6.71086 9.66421 6.33579C9.28914 5.96071 8.78043 5.75 8.25 5.75C7.71957 5.75 7.21086 5.96071 6.83579 6.33579C6.46071 6.71086 6.25 7.21957 6.25 7.75C6.25 8.28043 6.46071 8.78914 6.83579 9.16421C7.21086 9.53929 7.71957 9.75 8.25 9.75Z" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#fff" />
+                      </svg>
+                    </span>
+                    <span>{address}</span>
+                  </div>
+                  <div className="publish-review-map-image">
+                    {wizardData.geo_lat && wizardData.geo_long ? (
+                      <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
+                        <Map
+                          center={{ lat: wizardData.geo_lat, lng: wizardData.geo_long }}
+                          zoom={15}
+                          gestureHandling="none"
+                          disableDefaultUI
+                          style={{ width: '100%', height: '100%' }}
+                        />
+                        <div className="publish-review-map-pin" aria-hidden="true">
+                          <svg viewBox="0 0 24 32" width="28" height="38">
+                            <path
+                              d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20S24 21 24 12C24 5.37 18.63 0 12 0zm0 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"
+                              fill="#e53e3e"
+                            />
+                          </svg>
+                        </div>
+                      </APIProvider>
+                    ) : (
+                      <img src="/images/mapa_google.png" alt="Mapa de ubicacion" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Available Units Section */}
+                <div className="units-section">
+                  <h4 className="section-title">Unidades disponibles</h4>
+                  
+                  {Object.entries(unidadesPorTipo).map(([tipo, unidades]) => (
+                    <div key={tipo} className="unit-type-group">
+                      {/* Unit Type Header */}
+                      <div className="unit-type-header">
+                        <div className="unit-type-info">
+                          <img src={iconDoor} alt={`${tipo} icono`} className="unit-type-icon" />
+                          <div className="unit-type-details">
+                            <div className="unit-type-title">
+                              <span className="unit-type-name">{tipo}</span>
+                              <span className="unit-type-desde">desde</span>
+                              <span className="unit-type-price">{getPrecioDesde(unidades)}</span>
+                            </div>
+                            <div className="unit-type-superficie">
+                              Superficie: desde {getSupDesde(unidades)}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="unit-type-count">
+                          <span className="count-number">{getUnidadCount(unidades)}</span>
+                          <span className="count-label">unidades disponibles</span>
+                        </div>
+                      </div>
+
+                      {/* Units Table */}
+                      <div className="units-table">
+                        <div className="table-header">
+                          <div className="table-cell">Unidad</div>
+                          <div className="table-cell">Sup. Total</div>
+                          <div className="table-cell">Sup. Cubierta</div>
+                          <div className="table-cell">Baños</div>
+                          <div className="table-cell">Precio m²</div>
+                          <div className="table-cell">Precio total</div>
+                        </div>
+                        {unidades.map((unit, index) => {
+                          const pricePerM2 = unit.price && Number(unit.total_surface) > 0
+                            ? `${unit.currency ?? ''} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
+                            : '-';
+                          const priceTotal = unit.price
+                            ? `${unit.currency ?? ''} ${unit.price.toLocaleString('es-AR')}`
+                            : '-';
+                          return (
+                            <div key={unit.id ?? index} className="table-row">
+                              <div className="table-cell">{unit.publication_title ?? '-'}</div>
+                              <div className="table-cell">{unit.total_surface ? `${unit.total_surface} ${unit.surface_measurement ?? ''}` : '-'}</div>
+                              <div className="table-cell">{unit.roofed_surface ? `${unit.roofed_surface} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
+                              <div className="table-cell">{unit.bathroom_amount ?? '-'}</div>
+                              <div className="table-cell">{pricePerM2}</div>
+                              <div className="table-cell">{priceTotal}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+
+                <div className="publish-review-amenities">
+                  <h4>Más sobre este emprendimiento</h4>
+                  <div className="publish-review-amenities-tabs">
+                    {dynamicAmenities[4] && dynamicAmenities[4].length > 0 && (
+                      <button
+                        key="detalles"
+                        type="button"
+                        className={`publish-review-amenities-tab ${activeTab === "4" ? 'is-active' : ''}`}
+                        onClick={() => setActiveTab("4")}
+                      >
+                        Detalles
+                      </button>
+                    )}
+                    {amenityTabs.map((tab) => (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        className={`publish-review-amenities-tab ${
+                          activeTab === tab.key ? 'is-active' : ''
+                        }`}
+                        onClick={() => setActiveTab(tab.key)}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="publish-review-amenities-content">
+                    {dynamicAmenities[activeTab]?.length > 0 ? (
+                      dynamicAmenities[activeTab].map((item, index) => (
+                        <span key={`${item}-${index}`}>{item}</span>
+                      ))
+                    ) : (
+                      <span>-</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="publish-review-contact">
+                <h3>Datos de contacto</h3>
+                <p>Estos son los datos que veran los interesados</p>
+                <div className="publish-review-contact-card">
+                  <div className="publish-review-contact-logo">
+                    {agentLogo && <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />}
+                  </div>
+                  {sessionData?.user && <div className="publish-review-contact-info">
+                    <div className="publish-review-contact-name">{agentName}</div>
+                    <div className="publish-review-contact-name">{sessionData?.user?.email ?? ''}</div>
+                    <div className="publish-review-contact-phone">{sessionData?.user?.phone ?? ''}</div>
+                  </div>}
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="action-buttons">
-          <Button
-            label={isSubmitting ? 'Publicando...' : 'Publicar'}
-            variant="primary"
-            onClick={handlePublish}
-            disabled={isSubmitting}
-            loading={isSubmitting}
-          />
+          <div className="publish-review-footer">           
+            <button className="publish-review-continue" type="button" onClick={handlePublish}>
+              {isEditMode ? 'Guardar cambios' : 'Publicar'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+

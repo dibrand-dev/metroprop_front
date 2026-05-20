@@ -25,17 +25,21 @@ export default function Notifications() {
   const { data: sessionData, update } = useSession();
 
   useEffect(() => {
-    const userId = (sessionData?.user as any)?.id;
-    if (!userId) return;
+    const fetchData = async () => {
+      const userId = (sessionData?.user as any)?.id;
+      if (!userId) return;
 
-    fetch(`${API_BASE_URL}/users/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const acceptNewsletters = data?.accept_newsletters ?? false;
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === '1' ? { ...n, active: acceptNewsletters } : n))
-        );
-      });
+      await apiFetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'GET',
+        }).then((data) => {
+          const acceptNewsletters = data?.accept_newsletters ?? false;
+          setNotifications((prev) =>
+            prev.map((n) => (n.id === '1' ? { ...n, active: acceptNewsletters } : n))
+          );
+        });
+    };
+
+    fetchData();
   }, [sessionData]);
 
   const handleToggle = async (id: string, nextValue: boolean) => {

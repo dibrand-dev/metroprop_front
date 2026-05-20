@@ -465,7 +465,9 @@ export type CreatePropertyOptional = Omit<CreateProperty, keyof CreatePropertyRe
  * Tipo para formulario con campos parciales (útil para drafts)
  */
 export type CreatePropertyDraft = Partial<CreateProperty> & 
-  Pick<CreateProperty, 'reference_code'>;
+  Pick<CreateProperty, 'reference_code'> & {
+    unitThumbnails?: Record<number, string>;
+  };
 
 /**
  * Opciones de moneda más comunes

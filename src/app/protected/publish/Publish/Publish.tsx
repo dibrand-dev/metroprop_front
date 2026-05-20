@@ -25,10 +25,10 @@ import { OperationType, OPERATION_TYPE_LABELS, CreatePropertyDraft, PropertyType
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { Plan } from '@/types/plan';
 import PublishEmprendimientoAmenidades from './PublishEmprendimientoAmenidades';
-import PublishEmprendimientoPreview from './PublishEmprendimientoPreview';
 import PublishEmprendimientoUnidades from './PublishEmprendimientoUnidades';
 import PublishPlansEmprendimiento from './PublishEmprendimientoPlan';
 import { EmprendimientoStep } from './EmprendimientoTabs';
+import PublishEmprendimientoFinalReview from './PublishEmprendimientoPreview';
 
 const operationOptions: OperationType[] = [OperationType.VENTA, OperationType.ALQUILER, OperationType.ALQUILER_TEMPORAL, OperationType.EMPRENDIMIENTO];
 
@@ -84,7 +84,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   const isEditMode = !!propertyId;
   const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.INITIAL);
   const [wizardData, setWizardData] = useState<CreatePropertyDraft>({} as CreatePropertyDraft);
-  const [planToBuy, setPlanToBuy] = useState<Plan & { branchId: number } | null>(null);
+  const [planToBuy, setPlanToBuy] = useState<Plan & { branchId: number, emprendimiento: boolean } | null>(null);
   const [isLoadingProperty, setIsLoadingProperty] = useState(isEditMode);
   const { data: sessionData } = useSession();
   const [showSuccessModal, setShowSuccessModal] = useState(false);  
@@ -137,13 +137,8 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     }
   }, [getCurrentFlow, getCurrentStepIndex]);
 
-  const goToBuyPlanEmprendimiento = useCallback((plan: Plan, branchId?: number) => {
-    setPlanToBuy({ ...plan, branchId: branchId ?? 0 });
-    setCurrentStep(WizardStep.EMPRENDIMIENTO_PREVIEW); // Ir directamente al paso de checkout detail
-  }, [getCurrentFlow, getCurrentStepIndex]);
-
-  const goToBuyPlan= useCallback((plan: Plan, branchId?: number) => {
-    setPlanToBuy({ ...plan, branchId: branchId ?? 0 });
+  const goToBuyPlan = useCallback((plan: Plan, branchId?: number, emprendimiento?: boolean) => {
+    setPlanToBuy({ ...plan, branchId: branchId ?? 0, emprendimiento: emprendimiento ?? false });
     setCurrentStep(WizardStep.CHECKOUT_DETAIL); // Ir directamente al paso de checkout detail
   }, [getCurrentFlow, getCurrentStepIndex]);
 
@@ -415,7 +410,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             updateWizardData={updateWizardData}
             onNext={(plansUpdate) => saveCurrentStep(plansUpdate, true)}
             onBack={goToPreviousStep}
-            onComprar={(plan, branchId) => goToBuyPlan(plan, branchId)}
+            onComprar={(plan, branchId) => goToBuyPlan(plan, branchId, false)}
             onSaveAndExit={(plansUpdate) => saveCurrentStep(plansUpdate, false)}
           />
         );
@@ -425,7 +420,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
           <PublishCheckoutDetail
             planToBuy={planToBuy}
             onNext={() => setCurrentStep(WizardStep.CHECKOUT_PAYMENT)}
-            onBack={() => setCurrentStep(WizardStep.PLANS)}
+            onBack={(emprendimiento) => setCurrentStep(emprendimiento ? WizardStep.EMPRENDIMIENTO_PLANS : WizardStep.PLANS)}
           />
         );
 
@@ -488,7 +483,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             onNext={(emprendimientoUpdate) => saveCurrentStepEmprendimiento(emprendimientoUpdate, true)}
             // onBack={goToPreviousStep}
             goToStep={(step: EmprendimientoStep) => setCurrentStep(step as WizardStep)}
-            onComprar={(plan, branchId) => goToBuyPlanEmprendimiento(plan, branchId)}
+            onComprar={(plan, branchId) => goToBuyPlan(plan, branchId, true)}
             onSaveAndExit={(plansUpdate) => saveCurrentStepEmprendimiento(plansUpdate, false)}
           />
         );
@@ -496,7 +491,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
       case WizardStep.EMPRENDIMIENTO_PREVIEW:
         return (
           <>
-            <PublishEmprendimientoPreview
+            <PublishEmprendimientoFinalReview
               wizardData={wizardData}
               updateWizardData={updateWizardData}
               onNext={(wizardData) => saveCurrentStep(wizardData, false).then(() => {
@@ -505,15 +500,12 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
                   window.location.href = '/protected/myProperties';
                 }, 3000);
               })}
-              onBack={goToPreviousStep}
-              onSaveAndExit={(wizardData) => saveCurrentStepEmprendimiento(wizardData, false)}
               isEditMode={isEditMode}
               goToStep={(step: EmprendimientoStep) => setCurrentStep(step as WizardStep)}
             />
             {showSuccessModal && <SuccessModal title="¡Propiedad publicada con éxito!" text="Tu propiedad ya está disponible en el sitio. Serás redirigido a Mis Propiedades en unos segundos." />}
           
           </>);
-
       default:
         return null;
     }

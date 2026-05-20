@@ -1,24 +1,23 @@
 .publish-emprendimiento-unidades {
-  background-color: #F5F5F5;
+  background-color: #fff;
   min-height: 100vh;
-  padding: 128px 0 80px;
-
+  padding: 32px 0 80px;
   @media (max-width: 768px) {
-    padding: 104px 0 40px;
+    padding: 16px;
   }
 }
 
 .publish-emprendimiento-unidades-container {
   max-width: 1087px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
+  background-color: #F5F5F5;
+  border-radius: 8px;
   gap: 32px;
-
   @media (max-width: 768px) {
-    max-width: 358px;
-    padding: 0 16px;
+    padding: 16px;
   }
 }
 
@@ -150,7 +149,6 @@
   font-size: 16px;
   line-height: 18px;
   letter-spacing: 0.5%;
-  margin-bottom: 16px;
 }
 
 // Form Groups
@@ -221,6 +219,18 @@
   font-size: 12px;
   margin-top: 4px;
   display: block;
+}
+
+.unit-list-thumbnail {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+
+  &--empty {
+    background-color: #e0e0e0;
+  }
 }
 
 // Textarea
@@ -308,6 +318,10 @@
 .superficie {
   .form-row {
     margin-top: 8px;
+  }
+
+  .subsection-title {
+    margin-bottom: 16px;
   }
 }
 
@@ -761,5 +775,38 @@
 
   &:disabled {
     color: #7a7a7a;
+  }
+}
+
+
+.unit-list {
+  border-radius: 8px;
+  border: 1.3px solid #006AFF;
+  padding: 24px;
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+
+  .unit-list-item {
+    display: flex;
+    align-items: center;
+    div {
+      border-right: 1px solid #006AFF;
+      padding: 0 16px;
+      flex-grow: 1;
+      text-align: center;
+
+      &.unit-list-actions {
+        border-right: none;
+        display: flex;
+        justify-content: space-evenly;
+        button {
+          border: 1px solid #006AFF;
+          border-radius: 4px;
+          padding: 4px;
+        }
+      }
+    }
   }
 }

@@ -556,7 +556,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
         {SIMILAR_SECTIONS.map((section, index) => (
           <section key={section.title} className="property-detail-similar">
-            <h2>{section.title}</h2>
+            {(similarPropertiesData[index] ?? []).length > 0 && <h2>{section.title}</h2>}
             <div className="property-detail-similar-wrapper">
               {similarCanScrollLeft[index] && (
                 <button

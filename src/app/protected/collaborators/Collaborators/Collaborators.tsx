@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Collaborators.scss';
 import { useRouter } from 'next/navigation';
 import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
@@ -34,7 +34,7 @@ interface CollaboratorItem {
   name: string;
   email: string;
   branchName: string;
-  branchId: string;
+  branches: Array<{ id: string; name: string }>;
   role_id: number | null;
   actions: CollaboratorAction[];
 }
@@ -55,6 +55,41 @@ export default function Collaborators() {
 
   // Delete modal state
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; userId: number | null; userName: string }>({ open: false, userId: null, userName: '' });
+  const [branches, setBranches] = useState<any[]>([]);
+  const orgId = (sessionData?.user as any)?.organization?.id ?? null;
+  
+  const { data: fetchedBranches } = useQuery({
+    queryKey: ['branches', orgId],
+    queryFn: async () => apiFetch(`${API_BASE_URL}/branches/organization/${orgId}`),
+    enabled: !!orgId,
+  });
+
+  useEffect(() => {
+    if (Array.isArray(fetchedBranches)) {
+      setBranches(fetchedBranches);
+    }
+  }, [fetchedBranches]);
+
+  const branchOptions = [
+    { value: 'todas', label: 'Todas' },
+    ...branches?.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
+  ];
+
+  const { data: usersData, isLoading } = useQuery<any>({
+    queryKey: ['collaborators-users'],
+    queryFn: () => apiFetch<any>(`${API_BASE_URL}/users`),
+  });
+  const rawData: any = usersData;
+  const rawUsers: any[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
+  const collaborators: CollaboratorItem[] = rawUsers.map((user: any) => ({
+    id: user.id,
+    name: user.name ?? user.first_name ?? '',
+    email: user.email ?? '',
+    branchName: user.branch?.branch_name ?? user.branch_name ?? '',
+    branches: user.branches ?? [],
+    role_id: user.role_id ?? null,
+    actions: ['lock', 'edit', 'delete'] as CollaboratorAction[],
+  })) ?? [];
 
   const changePasswordMutation = useMutation({
     mutationFn: (vars: { user_id: number; newPassword: string }) =>
@@ -87,31 +122,9 @@ export default function Collaborators() {
     changePasswordMutation.mutate({ user_id: lockModal.userId, newPassword });
   };
 
-  const branches: any[] = (sessionData?.user as any)?.organization?.branches ?? [];
-  const branchOptions = [
-    { value: 'todas', label: 'Todas' },
-    ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
-  ];
-
-  const { data: usersData, isLoading } = useQuery<any>({
-    queryKey: ['collaborators-users'],
-    queryFn: () => apiFetch<any>(`${API_BASE_URL}/users`),
-  });
-  const rawData: any = usersData;
-  const rawUsers: any[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
-  const collaborators: CollaboratorItem[] = rawUsers.map((user: any) => ({
-    id: user.id,
-    name: user.name ?? user.first_name ?? '',
-    email: user.email ?? '',
-    branchName: user.branch?.branch_name ?? user.branch_name ?? '',
-    branchId: String(user.branch_id ?? user.branch?.id ?? ''),
-    role_id: user.role_id ?? null,
-    actions: ['lock', 'edit', 'delete'] as CollaboratorAction[],
-  })) ?? [];
-
   const filteredCollaborators = branchFilter === 'todas'
     ? collaborators
-    : collaborators.filter((c) => c.branchId === branchFilter);
+    : collaborators.filter((c) => c.branches?.find((b) => String(b.id) === branchFilter));
 
   const handleEdit = (id: string) => {
     const loggedInUserId = String((sessionData?.user as any)?.id ?? '');
@@ -166,7 +179,7 @@ export default function Collaborators() {
                     {collaborator.name} - {collaborator.email}
                   </p>
                   <p className="collaborators-card-subtitle">
-                    Sucursal: {collaborator.branchName}
+                    Sucursal: {collaborator.branches?.map(b => b.branch_name).join(', ') || '-'}
                   </p>
                 </div>
                 <div className="collaborators-card-actions">

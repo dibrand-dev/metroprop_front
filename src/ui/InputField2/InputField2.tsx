@@ -146,7 +146,7 @@ const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function Inpu
 					)}
         </div>
       </div>
-      {error && <div className="input-field-2-error">{error}</div>}
+      {error && error.trim() !== '' && <div className="input-field-2-error">{error}</div>}
     </div>
   );
 });

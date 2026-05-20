@@ -44,6 +44,28 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
   const pageTitle = isEditing ? 'Modificar colaborador' : 'Agregar colaborador';
   const formatPhone = (value: string) => value.replace(/\D/g, '');
 
+  const [branches, setBranches] = useState<any[]>([]);
+  const orgId = (sessionData?.user as any)?.organization?.id ?? null;
+  
+  const { data: fetchedBranches } = useQuery({
+    queryKey: ['branches', orgId],
+    queryFn: async () => apiFetch(`${API_BASE_URL}/branches/organization/${orgId}`),
+    enabled: !!orgId,
+  });
+
+  useEffect(() => {
+    if (Array.isArray(fetchedBranches)) {
+      setBranches(fetchedBranches);
+      if (fetchedBranches.length === 1) {
+        handleInputChange('branchIds', String(fetchedBranches[0].id));
+      }
+    }
+  }, [fetchedBranches]);
+
+  const branchOptions = [
+    ...branches?.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
+  ];
+
   const { data: collaboratorData } = useQuery<any>({
     queryKey: ['collaborator', collaboratorId],
     queryFn: () => apiFetch<any>(`${API_BASE_URL}/users/${collaboratorId}`),
@@ -61,6 +83,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
       email: c.email ?? '',
       phone: formatPhone(c.phone ?? ''),
       phone_additional: formatPhone(c.alternative_phone ?? c.phone_additional ?? ''),
+      branchIds: String(c.branches?.[0]?.id ?? ''),
     });
   }, [collaboratorData]);
 
@@ -80,6 +103,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
         phone: formData.phone || undefined,
         phone_additional: formData.phone_additional || undefined,
         role_id: formData.role_id || undefined,
+        branchIds: [formData.branchIds]
       //  country_id: LOCATION_ARGENTINA_ID,
       };
       if (!isEditing && organizationId) payload.organizationId = organizationId;
@@ -101,6 +125,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
           email: '',
           phone: '',
           phone_additional: '',
+          branchIds: [],
         });
       }
       setShowSuccessModal(true);
@@ -163,6 +188,18 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
               <p>Administrador Publica, edita, lee todos los avisos y edita datos de la empresa y administra usuarios.</p>
               <p>Supervisor Publica, edita, lee todos los avisos y administra usuarios.</p>
               <p>Vendedor Publica, edita y lee avisos en los que tiene permisos.</p>
+            </div>
+          </div>
+
+          <div className="branch-form-grid">
+            <div className="branch-form-section">
+              <Select
+                label="Sucursal"
+                placeholder="Seleccionar"
+                value={formData.branchIds}
+                onChange={(value) => handleInputChange('branchIds', value)}
+                options={branchOptions}
+              />
             </div>
           </div>
           <div className="branch-form-grid">

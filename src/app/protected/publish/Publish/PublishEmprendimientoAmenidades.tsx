@@ -80,10 +80,6 @@ export default function PublishEmprendimientoAmenidades({
     }));
   }, []);
 
-  const handleBack = () => {
-    onBack();
-  };
-
   const handleContinue = () => {
     const propertyContentUpdate = { 
       tags: selectedAmenities
