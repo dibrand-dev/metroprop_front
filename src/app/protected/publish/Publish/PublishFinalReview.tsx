@@ -266,7 +266,7 @@ export default function PublishFinalReview({
                     {wizardData?.images?.[0]?.url && <img src={setImagePath(wizardData?.images?.[0]?.url)} alt="Vista principal" />}
                   </div>
                   <div className="publish-review-gallery-grid">
-                    {wizardData?.images?.slice(1).map((image, index) => (
+                    {wizardData?.images?.slice(1, 5).map((image, index) => (
                       <div key={image.url} className="publish-review-gallery-item">
                         <img src={setImagePath(image.url)} alt={`Vista ${index + 2}`} />
                       </div>

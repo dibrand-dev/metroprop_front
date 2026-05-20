@@ -13,6 +13,7 @@ import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
+import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 
 interface PublishEmprendimientoProps {
   wizardData: CreatePropertyDraft;
@@ -70,6 +71,7 @@ export default function PublishEmprendimientoUnidades({
   const [units, setUnits] = useState<CreateProperty[]>(wizardData.development_units ?? []);
   const [editingUnitId, setEditingUnitId] = useState<number | undefined>(undefined);
   const [unitThumbnails, setUnitThumbnails] = useState<Record<number, string>>(wizardData.unitThumbnails ?? {});
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | undefined>(undefined);
 
 
   const isFormValid = publication_title.trim() !== '' && !!property_type && !!total_surface && !!roofed_surface;
@@ -294,6 +296,8 @@ export default function PublishEmprendimientoUnidades({
       if (editingUnitId === unitId) resetForm();
     } catch (error: any) {
       console.error('Error deleting unit:', error?.message || error);
+    } finally {
+      setPendingDeleteId(undefined);
     }
   };
 
@@ -343,7 +347,7 @@ export default function PublishEmprendimientoUnidades({
                     className="collaborators-action-button"
                     type="button"
                     aria-label="Eliminar unidad"
-                    onClick={() => handleDelete(unitData.id!)}
+                    onClick={() => setPendingDeleteId(unitData.id!)}
                   >
                     <img src={iconTrash} alt="" />
                   </button>
@@ -601,6 +605,16 @@ export default function PublishEmprendimientoUnidades({
         </div>
       </div>
       {showSuccessModal && <SuccessModal title="¡Unidad agregada con éxito!" text="La unidad fue guardada correctamente." />}
+      {pendingDeleteId !== undefined && (
+        <AreYouSureModal
+          title="Eliminar unidad"
+          text="¿Estás seguro de que querés eliminar esta unidad? Esta acción no se puede deshacer."
+          acceptText="Eliminar"
+          cancelText="Cancelar"
+          onAccept={() => handleDelete(pendingDeleteId)}
+          onCancel={() => setPendingDeleteId(undefined)}
+        />
+      )}
     </div>
   );
 }

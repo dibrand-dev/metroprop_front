@@ -130,51 +130,62 @@ export default function PublishEmprendimientoFinalReview({
   // Build property title
   const propertyTitle = wizardData.publication_title || `${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} ${wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}`;
   
-  // Build property features from wizard data
+  // Build property features from unit ranges
   const buildFeatures = () => {
+    const units = wizardData.development_units ?? [];
     const features = [];
-    
-    if (wizardData.property_condition) {
-      if (wizardData.property_condition === 'new') features.push({ label: 'A estrenar', icon: '/icons/calendar.svg' });
-      if (wizardData.property_condition === 'construction') features.push({ label: 'En construcción', icon: '/icons/calendar.svg' });
-      if (wizardData.property_condition === 'years' && wizardData.age) {
-        features.push({ label: `${wizardData.age} años`, icon: '/icons/calendar.svg' });
-      }
-    }
-    
-    if (wizardData.orientation) {
-      features.push({ label: ORIENTATION_LABELS[wizardData.orientation], icon: '/icons/orientacion.svg' });
-    }
-    
-    if (wizardData.total_surface && wizardData.surface_measurement) {
-      features.push({ label: `${wizardData.total_surface} ${wizardData.surface_measurement} tot.`, icon: '/icons/regla.svg' });
-    }
-    
-    if (wizardData.roofed_surface && wizardData.roofed_surface_measurement) {
-      features.push({ label: `${wizardData.roofed_surface} ${wizardData.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
-    }
-    
-    if (wizardData.room_amount) {
-      features.push({ label: `${wizardData.room_amount} amb.`, icon: '/icons/door.svg' });
-    }
-    
-    if (wizardData.parking_lot_amount) {
-      features.push({ label: `${wizardData.parking_lot_amount} cochera${wizardData.parking_lot_amount > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
-    }
-    
-    if (wizardData.suite_amount) {
-      features.push({ label: `${wizardData.suite_amount} dorm.`, icon: '/icons/cama.svg' });
-    }
-    
-    if (wizardData.bathroom_amount) {
-      features.push({ label: `${wizardData.bathroom_amount} baño${wizardData.bathroom_amount > 1 ? 's' : ''}`, icon: '/icons/bano.svg' });
-    }
-    
-    if (wizardData.toilet_amount) {
-      features.push({ label: `${wizardData.toilet_amount} toilette${wizardData.toilet_amount > 1 ? 's' : ''}`, icon: '/icons/toilete.svg' });
+
+    const rangeLabel = (values: number[], singular: string, plural: string, suffix = '') => {
+      const filtered = values.filter(v => v > 0);
+      if (filtered.length === 0) return null;
+      const min = Math.min(...filtered);
+      const max = Math.max(...filtered);
+      const noun = max === 1 ? singular : plural;
+      return min === max ? `${min}${suffix} ${noun}` : `${min}${suffix} a ${max}${suffix} ${noun}`;
+    };
+
+    // Amount of units
+    if (units.length > 0) {
+      features.push({ label: `${units.length} unidad${units.length !== 1 ? 'es' : ''}`, icon: '/icons/door.svg' });
     }
 
-    return features.length > 0 ? features : []; // fallback to default
+    // total_surface range
+    const totalSurfaces = units.map(u => Number(u.total_surface ?? 0));
+    const meas = units[0]?.surface_measurement ?? 'm²';
+    const totalSurfLabel = rangeLabel(totalSurfaces, meas, meas, '');
+    if (totalSurfLabel) {
+      const tMin = Math.min(...totalSurfaces.filter(v => v > 0));
+      const tMax = Math.max(...totalSurfaces.filter(v => v > 0));
+      const label = tMin === tMax ? `${tMin} ${meas} tot.` : `${tMin} a ${tMax} ${meas} tot.`;
+      features.push({ label, icon: '/icons/regla.svg' });
+    }
+
+    // roofed_surface range
+    const roofedSurfaces = units.map(u => Number(u.roofed_surface ?? 0));
+    const roofedFiltered = roofedSurfaces.filter(v => v > 0);
+    if (roofedFiltered.length > 0) {
+      const rMin = Math.min(...roofedFiltered);
+      const rMax = Math.max(...roofedFiltered);
+      const label = rMin === rMax ? `${rMin} ${meas} cub.` : `${rMin} a ${rMax} ${meas} cub.`;
+      features.push({ label, icon: '/icons/mcubiertos.svg' });
+    }
+
+    // room_amount range
+    const rooms = units.map(u => u.room_amount ?? 0);
+    const roomLabel = rangeLabel(rooms, 'amb.', 'amb.');
+    if (roomLabel) features.push({ label: roomLabel, icon: '/icons/door.svg' });
+
+    // bathroom_amount range
+    const baths = units.map(u => u.bathroom_amount ?? 0);
+    const bathLabel = rangeLabel(baths, 'baño', 'baños');
+    if (bathLabel) features.push({ label: bathLabel, icon: '/icons/bano.svg' });
+
+    // toilet_amount range
+    const toilets = units.map(u => u.toilet_amount ?? 0);
+    const toiletLabel = rangeLabel(toilets, 'toilette', 'toilettes');
+    if (toiletLabel) features.push({ label: toiletLabel, icon: '/icons/toilete.svg' });
+
+    return features;
   };
   // Get selected amenities by group, using amenityGroups and wizardData.tags
   const getAmenitiesByTab = () => {
@@ -273,7 +284,7 @@ export default function PublishEmprendimientoFinalReview({
                     {wizardData?.images?.[0]?.url && <img src={setImagePath(wizardData?.images?.[0]?.url)} alt="Vista principal" />}
                   </div>
                   <div className="publish-review-gallery-grid">
-                    {wizardData?.images?.slice(1).map((image, index) => (
+                    {wizardData?.images?.slice(1, 5).map((image, index) => (
                       <div key={image.url} className="publish-review-gallery-item">
                         <img src={setImagePath(image.url)} alt={`Vista ${index + 2}`} />
                       </div>
