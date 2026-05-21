@@ -17,7 +17,7 @@ const QUESTION_CHIPS = [
 
 const CONTACT_ACTIONS = [
   { id: 'whatsapp', label: 'Whatsapp', icon: '/icons/whatsapp.svg', variant: 'whatsapp' },
-  { id: 'contact', label: 'Contactar', icon: '/icons/envelope.svg', variant: 'primary' },
+  { id: 'contact', label: 'Contactar', icon: '/icons/envelope_w.svg', variant: 'primary' },
 ];
 
 const flagIcon = '/icons/flag.svg';
@@ -46,7 +46,7 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
   const [touched, setTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-
+console.log("propertyId", propertyId)
   const primaryContactAction = CONTACT_ACTIONS.find((action) => action.id === 'contact');
   const contactActions = isModal && primaryContactAction ? [primaryContactAction] : CONTACT_ACTIONS;
 

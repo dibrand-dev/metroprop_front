@@ -112,7 +112,7 @@ export default function PublishPlansEmprendimiento({
   };
 
   return (
-    <div className="publish-emprendimiento-preview">
+    <div className="publish-emprendimiento-vista-al-precio">
       <div className="publish-emprendimiento-preview-container">
         {/* Breadcrumb */}
         <div className="breadcrumb">

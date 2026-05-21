@@ -219,7 +219,6 @@ export default function PublishEmprendimientoFinalReview({
 
   const dynamicFeatures = buildFeatures();
   const dynamicAmenities = getAmenitiesByTab();
-  const statusDisplay = `${wizardData?.property_type ? `${PROPERTY_TYPE_LABELS[wizardData.property_type as PropertyType]} ` : ''}${wizardData?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype as PropertySubtype]} ` : ''}${wizardData?.operation_type ? `En ${OPERATION_TYPE_LABELS[wizardData.operation_type as OperationType]}` : ''}`;
   
   const handlePublish = () => {
     const propertyPublishUpdate = { 
@@ -263,21 +262,9 @@ export default function PublishEmprendimientoFinalReview({
                       <img src={iconCrane} alt="Crane Icon" />
                       En pozo - Entrega {wizardData.development_delivery_date}
                     </span>
-                    <div className="publish-review-preview-price">
-                      <strong>
-                        {formatPrice(wizardData?.price?.toString() ?? '', wizardData.currency || '$')}
-                      </strong>
-                      {!wizardData.expenses && (
-                        <span>
-                          {formatPrice(wizardData?.expenses?.toString() ?? '', wizardData.currency_expenses || '$')} expensas
-                        </span>
-                      )}
-                    </div>
                   </div>
                   <p className="previewTitle">Venta desde  ??????</p>
                 </div>
-
-                
 
                 <div className="publish-review-gallery">
                   <div className="publish-review-gallery-main">
@@ -315,7 +302,7 @@ export default function PublishEmprendimientoFinalReview({
                 </div>
                 
                 <div className="description-section">
-                  <p>Sobre el emprendimiento</p>
+                  <h4>Sobre el emprendimiento</h4>
                   <p>
                     {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm2'}.`}
                   </p>

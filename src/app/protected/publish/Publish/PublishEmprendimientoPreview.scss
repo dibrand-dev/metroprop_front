@@ -35,14 +35,11 @@
 
 
 .publish-review {
-  min-height: calc(100vh - 80px);
-  padding: 48px 24px 80px;
-  display: flex;
-  justify-content: center;
-
+  background-color: #fff;
+  min-height: 100vh;
+  padding: 32px 0 80px;
   @media (max-width: 768px) {
-    padding: 24px 16px 48px;
-    min-height: calc(100vh - 72px);
+    padding: 16px;
   }
 }
 
@@ -403,6 +400,14 @@
 .description-section {
   border-bottom: 1px solid #A6A6A6;
   padding-bottom: 32px;
+
+  h4 {
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 30px;
+    letter-spacing: 0%;
+    margin-bottom: 16px;
+   }
 }
 
 .publish-review-address-icon {

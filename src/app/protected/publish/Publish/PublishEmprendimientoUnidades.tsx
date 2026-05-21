@@ -425,7 +425,7 @@ export default function PublishEmprendimientoUnidades({
                     onChange={(value) => setCurrency(value)}
                   />
                   <InputField2
-                    value={String(price) ?? ''}
+                    value={price ? String(price) : ''}
                     onChange={(event) => setPrice(Number(event.target.value))}
                     placeholder={'Ej. 700000'}
                     type="number"
@@ -444,7 +444,7 @@ export default function PublishEmprendimientoUnidades({
                     disabled={withoutExpenses}
                   />
                   <InputField2
-                    value={String(expenses) ?? ''}
+                    value={expenses ? String(expenses) : ''}
                     onChange={(event) => setExpenses(Number(event.target.value))}
                     placeholder="Ej. 100000"
                     type="number"

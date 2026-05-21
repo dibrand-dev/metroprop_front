@@ -189,6 +189,22 @@ export default function PublishEmprendimiento({
     setHasPlans(status.hasPlans);
   }, []);
 
+  // Load already-uploaded multimedia into the images component (mirrors PublishContent behaviour)
+  useEffect(() => {
+    if (!wizardData.draft_id) return;
+    apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/multimedia`)
+      .then(data => {
+        const imgs = (data as any)?.images;
+        const attached = (data as any)?.attached;
+        if (imgs && Array.isArray(imgs) && imgs.length > 0) {
+          imagesRef.current?.setExistingImages(imgs, attached ?? []);
+          updateWizardData({ images: imgs, attached: attached ?? [] });
+        }
+      })
+      .catch(err => console.error('Error loading existing multimedia:', err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wizardData.draft_id]);
+
   // Update wizard data when location data changes
   useEffect(() => {
     updateWizardData({
@@ -287,18 +303,24 @@ export default function PublishEmprendimiento({
       setIsUploading(true);
       try {
         await imagesRef.current?.submit();
-        if (nextStep) {
-          onNext(wizardData);
+        // Re-fetch so wizardData.images is up to date for the preview step
+        if (wizardData.draft_id) {
+          const mediaData = await apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/multimedia`);
+          const imgs = (mediaData as any)?.images;
+          const attached = (mediaData as any)?.attached;
+          if (imgs && Array.isArray(imgs)) {
+            imagesRef.current?.setExistingImages(imgs, attached ?? []);
+            updateWizardData({ images: imgs, attached: attached ?? [] });
+          }
         }
       } catch {
         alert('Error al subir los archivos. Por favor, intenta nuevamente.');
       } finally {
         setIsUploading(false);
       }
-    } else {
-      if (nextStep) {
-        onNext(wizardData);
-      }
+    }
+    if (nextStep) {
+      onNext(wizardData);
     }
   };
 

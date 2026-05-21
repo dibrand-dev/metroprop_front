@@ -56,6 +56,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryInitialTab, setGalleryInitialTab] = useState<GalleryTab>('fotos');
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
+  const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');
 
   const openGallery = (tab: GalleryTab = 'fotos', index = 0) => {
     setGalleryInitialTab(tab);
@@ -80,6 +81,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const { data: similarByPrice } = useQuery({
     queryKey: ['similar-by-price', property?.id],
     queryFn: () => fetchProperties({
+      ...(property?.is_development ? { is_development: 1 } : {}),
       property_type: String(property!.property_type),
       ...(property!.property_subtype ? { property_subtype: String(property!.property_subtype) } : {}),
       operation_type: String(property!.operation_type),
@@ -96,8 +98,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const { data: similarBySurface } = useQuery({
     queryKey: ['similar-by-surface', property?.id],
     queryFn: () => fetchProperties({
-      total_surface_min: Math.max(0, (property!.total_surface ?? 0) - 50),
-      total_surface_max: (property!.total_surface ?? 0) + 50,
+      ...(property?.is_development ? { is_development: 1 } : {}),
+      stateId: property?.state_id ? String(property.state_id) : undefined,
       limit: 20,
       page: 1,
     }),
@@ -251,7 +253,17 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   // Derived display values
   const priceDisplay = property?.price_square_meter ? `${property.currency} ${formatNumbers(property.price_square_meter)}  /m²` : '';
   const statusDisplay = `${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `- ${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}${property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}`;
-  
+
+  const devMinPrice = (() => {
+    const prices = (property?.units ?? []).map(u => u.price ?? 0).filter(p => p > 0);
+    if (prices.length === 0) return null;
+    const min = Math.min(...prices);
+    const currency = (property?.units ?? [])[0]?.currency ?? property?.currency ?? '';
+    return `Venta desde ${currency} ${formatNumbers(min)}`;
+  })();
+  const uniqueRoomAmounts = [...new Set((property?.units ?? []).map(u => u.room_amount ?? 0))].sort((a, b) => a - b);
+  const showUnitFilters = uniqueRoomAmounts.length > 1;
+
   const agentName = property?.organization ? property.organization.company_name : 'USER COMUN';
   const agentLogo = property?.organization?.company_logo 
     ? property.organization.company_logo.includes('http') 
@@ -295,6 +307,87 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     setTimeout(() => updateSimilarScrollState(index), 300);
   };
 
+  // Build property features from unit ranges
+  const buildFeaturesDevelopment = () => {
+    const units = property?.units ?? [];
+    const features = [];
+
+    const rangeLabel = (values: number[], singular: string, plural: string, suffix = '') => {
+      const filtered = values.filter(v => v > 0);
+      if (filtered.length === 0) return null;
+      const min = Math.min(...filtered);
+      const max = Math.max(...filtered);
+      const noun = max === 1 ? singular : plural;
+      return min === max ? `${min}${suffix} ${noun}` : `${min}${suffix} a ${max}${suffix} ${noun}`;
+    };
+
+    // Amount of units
+    if (units.length > 0) {
+      features.push({ label: `${units.length} unidad${units.length !== 1 ? 'es' : ''}`, icon: '/icons/door.svg' });
+    }
+
+    // total_surface range
+    const totalSurfaces = units.map(u => Number(u.total_surface ?? 0));
+    const meas = units[0]?.surface_measurement ?? 'm²';
+    const totalSurfLabel = rangeLabel(totalSurfaces, meas, meas, '');
+    if (totalSurfLabel) {
+      const tMin = Math.min(...totalSurfaces.filter(v => v > 0));
+      const tMax = Math.max(...totalSurfaces.filter(v => v > 0));
+      const label = tMin === tMax ? `${tMin} ${meas} tot.` : `${tMin} a ${tMax} ${meas} tot.`;
+      features.push({ label, icon: '/icons/regla.svg' });
+    }
+
+    // roofed_surface range
+    const roofedSurfaces = units.map(u => Number(u.roofed_surface ?? 0));
+    const roofedFiltered = roofedSurfaces.filter(v => v > 0);
+    if (roofedFiltered.length > 0) {
+      const rMin = Math.min(...roofedFiltered);
+      const rMax = Math.max(...roofedFiltered);
+      const label = rMin === rMax ? `${rMin} ${meas} cub.` : `${rMin} a ${rMax} ${meas} cub.`;
+      features.push({ label, icon: '/icons/mcubiertos.svg' });
+    }
+
+    // room_amount range
+    const rooms = units.map(u => u.room_amount ?? 0);
+    const roomLabel = rangeLabel(rooms, 'amb.', 'amb.');
+    if (roomLabel) features.push({ label: roomLabel, icon: '/icons/door.svg' });
+
+    // bathroom_amount range
+    const baths = units.map(u => u.bathroom_amount ?? 0);
+    const bathLabel = rangeLabel(baths, 'baño', 'baños');
+    if (bathLabel) features.push({ label: bathLabel, icon: '/icons/bano.svg' });
+
+    // toilet_amount range
+    const toilets = units.map(u => u.toilet_amount ?? 0);
+    const toiletLabel = rangeLabel(toilets, 'toilette', 'toilettes');
+    if (toiletLabel) features.push({ label: toiletLabel, icon: '/icons/toilete.svg' });
+
+    return features;
+  };
+  
+  const unidadesPorTipo = (property?.units ?? []).reduce<Record<string, CreateProperty[]>>((acc, unit) => {
+    const rooms = unit.room_amount ?? 0;
+    const key = rooms === 0 ? 'Monoambiente' : rooms === 1 ? '1 ambiente' : `${rooms} ambientes`;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(unit);
+    return acc;
+  }, {});
+
+  const getUnidadCount = (units: CreateProperty[]) => units.length;
+  const getPrecioDesde = (units: CreateProperty[]) => {
+    const prices = units.map(u => u.price ?? 0).filter(p => p > 0);
+    if (prices.length === 0) return '-';
+    const currency = units[0]?.currency ?? '';
+    return `${currency} ${Math.min(...prices).toLocaleString('es-AR')}`;
+  };
+  const getSupDesde = (units: CreateProperty[]) => {
+    const sups = units.map(u => Number(u.total_surface)).filter(s => s > 0);
+    if (sups.length === 0) return '-';
+    const meas = units[0]?.surface_measurement ?? 'm²';
+    return `${Math.min(...sups)} ${meas}`;
+  };
+
+
   useEffect(() => {
     // Recalculate after DOM updates when similar data changes
     requestAnimationFrame(() => {
@@ -333,6 +426,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     window.scrollTo({ top, behavior: 'smooth' });
   };
 
+  console.log("property", property)
+  const dynamicFeaturesDevelopment = property?.is_development ? buildFeaturesDevelopment() : [];
+
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
     <div className="property-detail-page">
@@ -370,7 +466,16 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       <main className="property-detail-content">
         
         <section className="property-detail-hero" id="property-detail-fotos">
-          <div className="property-detail-hero-row">
+           {property?.is_development
+           ? <div className="property-detail-hero-row">
+            <div className="publish-review-preview-hero">
+              <span className="entrega">
+                <img src={'/icons/crane.svg'} alt="Crane Icon" />
+                En pozo - Entrega {property?.development_delivery_date}
+              </span>
+            </div>
+          </div>
+          : <div className="property-detail-hero-row">
             <p className="property-detail-status"><span className='status-icon'></span>{statusDisplay}</p>
             <div className="property-detail-price">
               <span>{priceDisplay}</span>
@@ -386,8 +491,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 </svg>
               </button>
             </div>
-          </div>
-          <h1 className="property-detail-title">{property ? `${property.currency} ${formatNumbers(property.price)}` : ''}</h1>
+          </div>}
+
+          <h1 className="property-detail-title">{property ? property.is_development ? (devMinPrice ?? 'Venta desde -') : `${property.currency} ${formatNumbers(property.price)}` : ''}</h1>
         </section>
 
         <section className="property-detail-gallery">
@@ -420,7 +526,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           id="property-detail-informacion"
         >
           <div className="property-detail-features-grid">
-            {dynamicFeatures.map((item, index) => (
+            {dynamicFeatures?.map((item, index) => (
               <div key={`${item.label}-${index}`} className="property-detail-feature">
                 <img src={item.icon} alt="" />
                 <span>{item.label}</span>
@@ -449,7 +555,28 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           <div className="property-detail-left">
             <section className="property-detail-summary" id="property-detail-descripcion">
               <h2>{property?.publication_title}</h2>
+              {property?.is_development && <> 
+              <div className="publish-review-address-1">
+                <span className="publish-review-address-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" stroke="currentColor" fill="#ffffff">
+                    <path d="M8.80978 18.57C8.64658 18.6872 8.45071 18.7503 8.24978 18.7503C8.04885 18.7503 7.85298 18.6872 7.68978 18.57C2.86078 15.128 -2.26422 8.048 2.91678 2.932C4.33912 1.53285 6.25462 0.749124 8.24978 0.750001C10.2498 0.750001 12.1688 1.535 13.5828 2.931C18.7638 8.047 13.6388 15.126 8.80978 18.57Z" stroke="#7A7A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8.25 9.75C8.78043 9.75 9.28914 9.53929 9.66421 9.16421C10.0393 8.78914 10.25 8.28043 10.25 7.75C10.25 7.21957 10.0393 6.71086 9.66421 6.33579C9.28914 5.96071 8.78043 5.75 8.25 5.75C7.71957 5.75 7.21086 5.96071 6.83579 6.33579C6.46071 6.71086 6.25 7.21957 6.25 7.75C6.25 8.28043 6.46071 8.78914 6.83579 9.16421C7.21086 9.53929 7.71957 9.75 8.25 9.75Z" stroke="#7A7A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span>{address}</span>
+              </div>
+              <div className="publish-review-features">
+                {dynamicFeaturesDevelopment?.map((item, index) => (
+                  <div key={`${item.label}-${index}`} className="publish-review-feature">
+                    <img src={item.icon} alt="" />
+                    <span>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+              </>}
+
               <div className="property-detail-summary-grid">
+                {property?.is_development && <h4>Sobre el emprendimiento</h4>}
                 <p className={summaryExpanded ? 'summary-expanded' : 'summary-collapsed'}>
                   {property?.description ?? ''}
                 </p>
@@ -474,6 +601,98 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               )}
             </section>
 
+            {property?.is_development &&  
+            <section className="units-section">
+              <h4 className="section-title">Unidades disponibles</h4>
+              {showUnitFilters && (
+              <div className="units-filters">
+                <button onClick={() => setSelectedUnitFilter('')} className={selectedUnitFilter === '' ? 'active' : ''}>
+                  Todas
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="22" viewBox="0 0 20 22" fill="none">
+                    <path d="M12.65 20.65H0.650024V3.65002C0.650024 1.16802 1.16802 0.650024 3.65002 0.650024H9.65002C12.132 0.650024 12.65 1.16802 12.65 3.65002V20.65ZM12.65 20.65V6.65002H15.65C18.132 6.65002 18.65 7.16802 18.65 9.65002V20.65H12.65Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+                    <path d="M5.65002 4.65002H7.65002H5.65002ZM5.65002 7.65002H7.65002H5.65002ZM5.65002 10.65H7.65002H5.65002Z" fill="currentColor"/>
+                    <path d="M5.65002 4.65002H7.65002M5.65002 7.65002H7.65002M5.65002 10.65H7.65002" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9.15002 20.65V16.65C9.15002 15.707 9.15002 15.236 8.85702 14.943C8.56402 14.65 8.09302 14.65 7.15002 14.65H6.15002C5.20702 14.65 4.73602 14.65 4.44302 14.943C4.15002 15.236 4.15002 15.707 4.15002 16.65V20.65" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                {uniqueRoomAmounts.map(rooms => {
+                  const filterValue = String(rooms);
+                  const label = rooms === 0 ? 'Monoambiente' : rooms === 1 ? '1 Ambiente' : `${rooms} Ambientes`;
+                  return (
+                    <button key={filterValue} onClick={() => setSelectedUnitFilter(filterValue)} className={selectedUnitFilter === filterValue ? 'active' : ''}>
+                      {label}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="22" viewBox="0 0 18 22" fill="none">
+                        <path d="M14.75 18.7501C15.2804 18.7501 15.7891 18.5394 16.1642 18.1644C16.5393 17.7893 16.75 17.2806 16.75 16.7501V4.75014C16.75 4.21971 16.5393 3.711 16.1642 3.33593C15.7891 2.96085 15.2804 2.75014 14.75 2.75014M0.75 5.59814V15.9021C0.75 17.4951 0.75 18.2921 1.215 18.8481C1.679 19.4031 2.465 19.5461 4.035 19.8311L7.035 20.3751C9.22 20.7721 10.313 20.9701 11.031 20.3721C11.75 19.7731 11.75 18.6641 11.75 16.4471V5.05314C11.75 2.83614 11.75 1.72714 11.031 1.12814C10.313 0.53014 9.221 0.72814 7.034 1.12514L4.034 1.66914C2.464 1.95414 1.679 2.09714 1.214 2.65214C0.75 3.20814 0.75 4.00514 0.75 5.59814Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                  );
+                })}
+              </div>
+              )}
+
+              {Object.entries(unidadesPorTipo)
+                .filter(([tipo]) => {
+                  if (selectedUnitFilter === '') return true;
+                  const rooms = parseInt(selectedUnitFilter);
+                  const expectedKey = rooms === 0 ? 'Monoambiente' : rooms === 1 ? '1 ambiente' : `${rooms} ambientes`;
+                  return tipo === expectedKey;
+                })
+                .map(([tipo, unidades]) => (
+                <div key={tipo} className="unit-type-group">
+                  {/* Unit Type Header */}
+                  <div className="unit-type-header">
+                    <div className="unit-type-info">
+                      <img src={'/icons/blueDoor.svg'} alt={`${tipo} icono`} className="unit-type-icon" />
+                      <div className="unit-type-details">
+                        <div className="unit-type-title">
+                          <span className="unit-type-name">{tipo}</span>
+                          <span className="unit-type-desde">desde</span>
+                          <span className="unit-type-price">{getPrecioDesde(unidades)}</span>
+                        </div>
+                        <div className="unit-type-superficie">
+                          Superficie: desde {getSupDesde(unidades)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="unit-type-count">
+                      <span className="count-number">{getUnidadCount(unidades)}</span>
+                      <span className="count-label">unidades disponibles</span>
+                    </div>
+                  </div>
+
+                  {/* Units Table */}
+                  <div className="units-table">
+                    <div className="table-header">
+                      <div className="table-cell">Unidad</div>
+                      <div className="table-cell">Sup. Total</div>
+                      <div className="table-cell">Sup. Cubierta</div>
+                      <div className="table-cell">Baños</div>
+                      <div className="table-cell">Precio m²</div>
+                      <div className="table-cell">Precio total</div>
+                    </div>
+                    {unidades.map((unit, index) => {
+                      const pricePerM2 = unit.price && Number(unit.total_surface) > 0
+                        ? `${unit.currency ?? ''} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
+                        : '-';
+                      const priceTotal = unit.price
+                        ? `${unit.currency ?? ''} ${unit.price.toLocaleString('es-AR')}`
+                        : '-';
+                      return (
+                        <div key={unit.id ?? index} className="table-row">
+                          <div className="table-cell">{unit.publication_title ?? '-'}</div>
+                          <div className="table-cell">{unit.total_surface ? `${unit.total_surface} ${unit.surface_measurement ?? ''}` : '-'}</div>
+                          <div className="table-cell">{unit.roofed_surface ? `${unit.roofed_surface} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
+                          <div className="table-cell">{unit.bathroom_amount ?? '-'}</div>
+                          <div className="table-cell">{pricePerM2}</div>
+                          <div className="table-cell">{priceTotal}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </section>}
+
             <section className="property-detail-map" id="property-detail-direccion">
               <div className="property-detail-address">
                 <span className="property-detail-address-icon" aria-hidden="true">
@@ -490,6 +709,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 <PropertyMap address={property?.street ?? ''} lat={isNaN(Number(property?.geo_lat)) ? undefined : Number(property?.geo_lat)} lng={isNaN(Number(property?.geo_long)) ? undefined : Number(property?.geo_long)} />
               </div>
             </section>
+
+            
 
             {Object.values(dynamicAmenities).some(arr => arr.length > 0) && (
             <section className="property-detail-amenities" id="property-detail-amenities">

@@ -1384,3 +1384,279 @@
   }
 }
 
+
+.publish-review-preview-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .entrega {
+    background-color: #D97A2B;    
+    gap: 10px;
+    border-radius: 50px;
+    padding-top: 5px;
+    padding-right: 16px;
+    padding-bottom: 5px;
+    padding-left: 16px;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 22px;
+    letter-spacing: 0.5%;
+    display: flex
+  }
+
+}
+
+.publish-review-address-1 {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0.25%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #7A7A7A;
+  padding-bottom: 32px;
+}
+
+.property-detail-summary-grid h4 {    
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 30px;
+  letter-spacing: 0%;
+  margin-bottom: 16px;
+}
+
+
+// Units Section
+.units-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px 0;
+  border-top: 1px solid #a6a6a6;
+  border-bottom: 1px solid #a6a6a6;
+  h4 {
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 30px;
+    letter-spacing: 0%;
+  }
+}
+
+.units-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 4px;
+    padding: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 18px;
+    letter-spacing: 0.5%;
+
+    &.active {
+      background-color: #EBF2FD;
+      color: #006AFF;
+    }
+  }
+}
+
+.unit-type-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid #a6a6a6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.unit-type-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+.unit-type-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  svg {
+    width: 48px;
+    height: 48px;
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.unit-type-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.unit-type-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.unit-type-name {
+  
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  color: #000000;
+}
+
+.unit-type-desde {
+  
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.unit-type-price {
+  
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  color: #000000;
+}
+
+.unit-type-superficie {
+  
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.unit-type-count {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.count-number {
+  
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  color: #000000;
+}
+
+.count-label {
+  
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+// Units Table
+.units-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid #a6a6a6;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid #a6a6a6;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 8px;
+  }
+}
+
+.table-cell {
+  padding: 15px 12px;
+  
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.8);
+  text-align: center;
+
+  .table-header & {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  @media (max-width: 768px) {
+    padding: 4px 0;
+    text-align: left;
+
+    &::before {
+      content: attr(data-label) ': ';
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+}
+
+
+.publish-review-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-around;
+  padding: 32px 0;
+  border-top: 1px solid #a6a6a6;
+  border-bottom: 1px solid #a6a6a6;
+  margin-bottom: 32px;
+}
+
+.publish-review-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e1e1e;
+
+  img {
+    width: 24px;
+    height: 24px;
+  }
+}
