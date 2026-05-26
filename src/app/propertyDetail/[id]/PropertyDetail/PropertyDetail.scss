@@ -785,7 +785,6 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: #0041d9;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -1582,7 +1581,7 @@
 
 .table-header {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   border-bottom: 1px solid #a6a6a6;
 
   @media (max-width: 768px) {
@@ -1592,7 +1591,7 @@
 
 .table-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   border-bottom: 1px solid #a6a6a6;
 
   &:last-child {

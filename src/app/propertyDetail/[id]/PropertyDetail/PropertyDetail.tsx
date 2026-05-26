@@ -189,7 +189,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   // Save this property to visited history in localStorage
   useEffect(() => {
-    if (!property) return;
+    if (!property || property.is_development) return;
     const address = [property.street, property.number].filter(Boolean).join(' ');
     const image = galleryImages[0] ?? '/images/property-placeholder.png';
     const org = (property as any).organization;
@@ -264,7 +264,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const uniqueRoomAmounts = [...new Set((property?.units ?? []).map(u => u.room_amount ?? 0))].sort((a, b) => a - b);
   const showUnitFilters = uniqueRoomAmounts.length > 1;
 
-  const agentName = property?.organization ? property.organization.company_name : 'USER COMUN';
+  const agentName = property?.organization ? property.organization.company_name : property?.user?.name ?? 'USER COMUN';
   const agentLogo = property?.organization?.company_logo 
     ? property.organization.company_logo.includes('http') 
       ? property.organization.company_logo
@@ -373,7 +373,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     return acc;
   }, {});
 
-  const getUnidadCount = (units: CreateProperty[]) => units.length;
+  const getUnidadCount = (units: CreateProperty[]) => units.reduce((acc, unit) => acc + (unit.development_available_unit_count ?? 0), 0);
+
   const getPrecioDesde = (units: CreateProperty[]) => {
     const prices = units.map(u => u.price ?? 0).filter(p => p > 0);
     if (prices.length === 0) return '-';

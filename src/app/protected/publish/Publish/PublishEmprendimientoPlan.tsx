@@ -77,9 +77,18 @@ export default function PublishPlansEmprendimiento({
 
   const { data: branchPlans = [], isLoading: loadingPlans } = useQuery<any[]>({
     queryKey: ['branch-plans', branchFilter],
-    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}`),
-    enabled: !!branchFilter,
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}/availability`),
+    enabled: !!branchFilter && !!orgId,
   });
+
+  const { data: userPlans = [] } = useQuery<any[]>({
+    queryKey: ['user-plans', user_id],
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${user_id}/availability`),
+    enabled: !!user_id && !orgId,
+  });
+
+  console.log("branchPlans", branchPlans)
+  console.log("userPlans", userPlans)
 
   const collaboratorOptions = rawUsers
     .filter((user: any) => {

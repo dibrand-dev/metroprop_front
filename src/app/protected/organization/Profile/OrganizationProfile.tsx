@@ -42,7 +42,7 @@ export default function OrganizationProfile() {
     phone: '',
     alternative_phone: '',
     social_reason: '',
-    cuit: '',
+    // cuit: '',
     fiscal_condition: '',
     // Ubicación
     address: '',
@@ -107,7 +107,7 @@ export default function OrganizationProfile() {
       address: org.address ?? '',
       description: org.description ?? '',
       social_reason: org.social_reason ?? '',
-      cuit: org.cuit ?? '',
+      // cuit: org.cuit ?? '',
       fiscal_condition: org.fiscal_condition ?? '',
     });
   }, [organizationData]);
@@ -127,7 +127,7 @@ export default function OrganizationProfile() {
       if (data.address) payload.append('address', data.address);
       if (data.description) payload.append('description', data.description);
       if (data.social_reason) payload.append('social_reason', data.social_reason);
-      if (data.cuit) payload.append('cuit', data.cuit);
+      // if (data.cuit) payload.append('cuit', data.cuit);
       if (data.fiscal_condition) payload.append('fiscal_condition', data.fiscal_condition);
       if (logoFile) {
         payload.append('company_logo', logoFile);
@@ -274,9 +274,11 @@ export default function OrganizationProfile() {
                 value={properties.fiscal_condition}
                 onChange={(value) => handleInputChange('fiscal_condition', value)}
                 options={[
-                  { value: 'responsable-inscripto', label: 'Responsable Inscripto' },
-                  { value: 'monotributista', label: 'Monotributista' },
-                  { value: 'exento', label: 'Exento' },
+                  { value: 'Responsable Inscripto', label: 'Responsable Inscripto' },
+                  { value: 'Monotributista', label: 'Monotributista' },
+                  { value: 'Exento', label: 'Exento' },
+                  { value: 'Consumidor Final', label: 'Consumidor Final' },
+                  { value: 'No Responsable', label: 'No Responsable' }
                 ]}                
               />
               <InputField2

@@ -234,6 +234,7 @@ export default function Home() {
                       key={p.id}
                       property={vp}
                       cardType="home"
+                      isLoggedIn={isLoggedIn}
                       onFavorite={handleToggleFavorite}
                     />
                   );

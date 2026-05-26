@@ -48,6 +48,10 @@
     &:hover {
       border-color: #006aff;
     }
+    &.property-image-development {
+      width: 120px;
+      height: 120px;
+    }
   }
 
   .property-info {
@@ -56,6 +60,13 @@
     flex-direction: column;
     gap: 10px;
     min-width: 0;
+
+    .desde-text {
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 18px;
+      letter-spacing: 0.25%;
+    }
   }
 
   .title-row {
@@ -154,6 +165,11 @@
         border-right: 0;
         padding-right: 0;
       }
+
+      &.address-development {
+        border-right: 0;
+        padding-right: 0;
+      }
     }
     .specs {
       display: flex;
@@ -162,12 +178,57 @@
       flex-shrink: 0;
 
       span {
-        
         font-weight: 400;
         font-size: 16px;
         line-height: 20px;
         white-space: nowrap;
       }
     }
+
+    &.details-row-development {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+  }
+
+  .entrega-delivery-date {
+    color: #fff;
+    background-color: #D97A2B;
+    padding-top: 6px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+    gap: 8px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;    
+    .delivery-date-content{
+      display: flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .favorite-button.is-favorite {
+      color: #FFF700;
+    }
+  }
+}
+
+.development-prices {
+  display: flex;
+  .main-price {
+    border-right: 1px solid #1E1E1E;
+    padding-right: 8px;
+  }
+
+  .price-per-sqm {
+    padding-left: 8px;  
+  }
+  .main-price, .price-per-sqm {   
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 22px;
   }
 }
