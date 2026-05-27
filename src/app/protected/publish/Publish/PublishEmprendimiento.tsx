@@ -184,6 +184,10 @@ export default function PublishEmprendimiento({
 
   const isFormValid = nombreEmprendimiento.trim() !== '' || entrega.trim() !== '' || tipoEmprendimiento !== null || totalUnidades !== null;
 
+  useEffect(() => {
+    setTipoEmprendimiento(wizardData.development_type || null);
+  }, [wizardData.development_type]);
+
   const handleImagesStatusChange = useCallback((status: { hasImages: boolean; hasPlans: boolean }) => {
     setHasImages(status.hasImages);
     setHasPlans(status.hasPlans);
@@ -421,8 +425,8 @@ export default function PublishEmprendimiento({
                   <Select
                     label="Tipo de emprendimiento*"
                     options={Object.entries(LABELS_DEVELOPMENT_TYPE).map(([value, label]) => ({ value, label }))}
-                    value={tipoEmprendimiento ? LABELS_DEVELOPMENT_TYPE[tipoEmprendimiento] : undefined}
-                    onChange={setTipoEmprendimiento}
+                    value={tipoEmprendimiento ? String(tipoEmprendimiento) : undefined}
+                    onChange={(value) => setTipoEmprendimiento(value ? parseInt(value) as DevelopmentType : null)}
                     placeholder="Seleccionar"
                     error={submitted && !tipoEmprendimiento ? 'Este campo es obligatorio' : ''}
                   />

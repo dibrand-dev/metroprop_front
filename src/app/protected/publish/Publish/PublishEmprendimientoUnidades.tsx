@@ -408,8 +408,8 @@ export default function PublishEmprendimientoUnidades({
                 <Select
                   label="Tipo de unidad*"
                   options={PROPERTY_TYPE_SELECT_OPTIONS}
-                  value={property_type}
-                  onChange={setPropertyType}
+                  value={property_type ? String(property_type) : undefined}
+                  onChange={(value) => setPropertyType(value ? parseInt(value) as PropertyType : undefined)}
                   placeholder="Seleccionar"
                   error={submitted && !property_type ? 'Este campo es obligatorio' : ''}
                 />

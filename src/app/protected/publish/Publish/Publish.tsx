@@ -21,7 +21,7 @@ import PublishCheckoutDetail from './PublishCheckoutDetail';
 import PublishCheckoutPayment from './PublishCheckoutPayment';
 import PublishCheckoutSuccess from './PublishCheckoutSuccess';
 import PublishEmprendimiento from './PublishEmprendimiento';
-import { OperationType, OPERATION_TYPE_LABELS, CreatePropertyDraft, PropertyType } from '@/types/propiedad';
+import { OperationType, OPERATION_TYPE_LABELS, CreateProperty, CreatePropertyDraft, PropertyType } from '@/types/propiedad';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { Plan } from '@/types/plan';
 import PublishEmprendimientoAmenidades from './PublishEmprendimientoAmenidades';
@@ -31,6 +31,112 @@ import { EmprendimientoStep } from './EmprendimientoTabs';
 import PublishEmprendimientoFinalReview from './PublishEmprendimientoPreview';
 
 const operationOptions: OperationType[] = [OperationType.VENTA, OperationType.ALQUILER, OperationType.ALQUILER_TEMPORAL, OperationType.EMPRENDIMIENTO];
+
+const CREATE_PROPERTY_PATCH_KEYS: (keyof CreateProperty)[] = [
+  'id',
+  'reference_code',
+  'publication_title',
+  'property_type',
+  'status',
+  'operation_type',
+  'price',
+  'currency',
+  'property_subtype',
+  'publication_title_en',
+  'description',
+  'internal_comments',
+  'street',
+  'number',
+  'floor',
+  'apartment',
+  'postal_code',
+  'show_exact_location',
+  'country_id',
+  'state_id',
+  'location_id',
+  'sub_location_id',
+  'geo_lat',
+  'geo_long',
+  'suite_amount',
+  'room_amount',
+  'bathroom_amount',
+  'toilet_amount',
+  'parking_lot_amount',
+  'surface',
+  'roofed_surface',
+  'unroofed_surface',
+  'semiroofed_surface',
+  'total_surface',
+  'surface_measurement',
+  'roofed_surface_measurement',
+  'age',
+  'property_condition',
+  'brightness',
+  'garage_coverage',
+  'surface_front',
+  'surface_length',
+  'situation',
+  'dispositions',
+  'orientation',
+  'floors_amount',
+  'zonification',
+  'construction_year',
+  'last_renovation',
+  'expenses',
+  'commission',
+  'network_share',
+  'period',
+  'price_square_meter',
+  'producer_user',
+  'branch_id',
+  'user_id',
+  'organization_id',
+  'key_contact',
+  'key_agent_user',
+  'key_location',
+  'key_reference_code',
+  'maintenance_user',
+  'owner_name',
+  'owner_phone',
+  'owner_email',
+  'development',
+  'network_information',
+  'transaction_requirements',
+  'images',
+  'plans',
+  'tags',
+  'operations',
+  'videos',
+  'multimedia360',
+  'attached',
+  'currency_expenses',
+  'selected_plan',
+  'view_count',
+  'is_development',
+  'development_id',
+  'development_type',
+  'development_logo',
+  'development_units_total',
+  'development_delivery_date',
+  'development_available_unit_count',
+  'development_units',
+  'development_unit_type',
+  'hired_plan_id',
+  'visibility',
+];
+
+const toCreatePropertyPatch = (data: Partial<CreatePropertyDraft>): Partial<CreateProperty> => {
+  const patch: Partial<CreateProperty> = {};
+
+  for (const key of CREATE_PROPERTY_PATCH_KEYS) {
+    const value = data[key];
+    if (value !== undefined) {
+      patch[key] = value as never;
+    }
+  }
+
+  return patch;
+};
 
 // Define wizard steps
 enum WizardStep {
@@ -252,7 +358,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   });
 
   const saveCurrentStep = async (wizardDataUpdate: Partial<CreatePropertyDraft>, nextStep: boolean) => {
-    const _wizardDataUpdate = {...wizardDataUpdate};
+    const _wizardDataUpdate = toCreatePropertyPatch(wizardDataUpdate);
 
     if (!wizardData.draft_id) {
       const draftData = await createDraftMutation.mutateAsync(wizardData);
@@ -270,7 +376,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   }
 
   const saveCurrentStepEmprendimiento = async (wizardDataUpdate: Partial<CreatePropertyDraft>, nextStep: boolean) => {
-    const _wizardDataUpdate = {...wizardDataUpdate};    
+    const _wizardDataUpdate = toCreatePropertyPatch(wizardDataUpdate);
     delete _wizardDataUpdate.draft_id;
     _wizardDataUpdate.operation_type = OperationType.VENTA;
     try {
