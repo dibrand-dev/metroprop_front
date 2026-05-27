@@ -476,7 +476,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               </span>
             </div>
           </div>
-          : <div className="property-detail-hero-row">
+          : !property?.development_id && <div className="property-detail-hero-row">
             <p className="property-detail-status"><span className='status-icon'></span>{statusDisplay}</p>
             <div className="property-detail-price">
               <span>{priceDisplay}</span>
@@ -494,7 +494,11 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             </div>
           </div>}
 
-          <h1 className="property-detail-title">{property ? property.is_development ? (devMinPrice ?? 'Venta desde -') : `${property.currency} ${formatNumbers(property.price)}` : ''}</h1>
+          <h1 className="property-detail-title">{property 
+            ? property.is_development 
+              ? (devMinPrice ?? 'Venta desde -')
+              : `${ property.development_id !== null ? 'Venta desde ' : ''}${property.currency} ${formatNumbers(property.price)}`
+            : ''}</h1>
         </section>
 
         <section className="property-detail-gallery">
@@ -520,10 +524,27 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           </div>
         </section>
 
+        {property?.development_id !== null && !property?.is_development && 
+        <section className="property-unit-details property-detail-summary">
+          <div className="property-unit-delivery"><img src={'/icons/crane.svg'} alt="Crane Icon" />En pozo - entrega estimada: {property?.development_delivery_date}</div>
+          <h2>{property?.publication_title}</h2>
+          <div className="publish-review-address-1">
+            <span className="publish-review-address-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" stroke="currentColor" fill="#ffffff">
+                <path d="M8.80978 18.57C8.64658 18.6872 8.45071 18.7503 8.24978 18.7503C8.04885 18.7503 7.85298 18.6872 7.68978 18.57C2.86078 15.128 -2.26422 8.048 2.91678 2.932C4.33912 1.53285 6.25462 0.749124 8.24978 0.750001C10.2498 0.750001 12.1688 1.535 13.5828 2.931C18.7638 8.047 13.6388 15.126 8.80978 18.57Z" stroke="#7A7A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8.25 9.75C8.78043 9.75 9.28914 9.53929 9.66421 9.16421C10.0393 8.78914 10.25 8.28043 10.25 7.75C10.25 7.21957 10.0393 6.71086 9.66421 6.33579C9.28914 5.96071 8.78043 5.75 8.25 5.75C7.71957 5.75 7.21086 5.96071 6.83579 6.33579C6.46071 6.71086 6.25 7.21957 6.25 7.75C6.25 8.28043 6.46071 8.78914 6.83579 9.16421C7.21086 9.53929 7.71957 9.75 8.25 9.75Z" stroke="#7A7A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>{address}</span>
+          </div>
+        </section>
+        }
+
         <section
           className={`property-detail-features ${
             showFeaturesToggle ? 'is-toggleable' : ''
-          } ${featuresExpanded ? 'is-expanded' : 'is-collapsed'}`}
+          } ${featuresExpanded ? 'is-expanded' : 'is-collapsed'}
+          ${property?.development_id ? 'unit-features' : ''}`}
           id="property-detail-informacion"
         >
           <div className="property-detail-features-grid">
@@ -555,7 +576,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         <div className="property-detail-body">
           <div className="property-detail-left">
             <section className="property-detail-summary" id="property-detail-descripcion">
-              <h2>{property?.publication_title}</h2>
+              {!(property?.development_id !== null && !property?.is_development) && <h2>{property?.publication_title}</h2>}
               {property?.is_development && <> 
               <div className="publish-review-address-1">
                 <span className="publish-review-address-icon" aria-hidden="true">
@@ -578,6 +599,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
               <div className="property-detail-summary-grid">
                 {property?.is_development && <h4>Sobre el emprendimiento</h4>}
+                {property?.development_id && <h4>Sobre la unidad</h4>}
                 <p className={summaryExpanded ? 'summary-expanded' : 'summary-collapsed'}>
                   {property?.description ?? ''}
                 </p>
@@ -711,9 +733,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               </div>
             </section>
 
-            
-
-            {Object.values(dynamicAmenities).some(arr => arr.length > 0) && (
+            {(property?.is_development || (!property?.development_id && !property?.is_development)) 
+            ? Object.values(dynamicAmenities).some(arr => arr.length > 0) && (
             <section className="property-detail-amenities" id="property-detail-amenities">
               <h2>Conoce mas sobre esta propiedad</h2>
               <div className="property-detail-amenities-tabs">
@@ -748,7 +769,17 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 )}
               </div>
             </section>
-            )}
+            ): <section className="unit-details-development">
+              <h4>Esta unidad pertenece al emprendimiento</h4>
+              <div className="unit-details-development-info">
+                <img src={property?.development?.images?.[0] ?? ''} alt="Imagen del emprendimiento" className="unit-details-development-image" />
+                <div className="unit-details-development-text">
+                  <h5>{property?.development?.name ?? ''}</h5>
+                  <p className="development_delivery">{property?.development?.description ?? ''}</p>
+                  <p className="development_rooms"><img src="/icons/door.svg" alt="Rooms" /> {property?.development?.rooms ?? ''}</p>
+                </div>
+              </div>
+            </section>}
           </div>
 
           <aside className="property-detail-right">

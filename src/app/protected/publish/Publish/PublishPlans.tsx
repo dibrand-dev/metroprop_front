@@ -32,10 +32,11 @@ export default function PublishPlans({
   onSaveAndExit
 }: PublishPlansProps) {
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
-  const [selected_plan, setSelected_plan] = useState(wizardData.selected_plan || 1);
+  const [hired_plan_id, setHired_plan_id] = useState(wizardData.hired_plan_id || 1);
+  const [visibility, setVisibility] = useState(wizardData.visibility || 0);
   const [branchFilter, setBranchFilter] = useState('');
   const { data: sessionData } = useSession();
- const [branches, setBranches] = useState<any[]>([]);
+  const [branches, setBranches] = useState<any[]>([]);
 
   const { data:plansData , isLoading, isError } = useQuery<Plan[]>({
     queryKey: ['plans'],
@@ -94,9 +95,10 @@ export default function PublishPlans({
   useEffect(() => {
     updateWizardData({
       user_id,
-      selected_plan,
+      hired_plan_id,
+      visibility,
     });
-  }, [user_id, selected_plan, updateWizardData]);
+  }, [user_id, hired_plan_id, visibility, updateWizardData]);
 
   const handleBack = () => {
     onBack();
@@ -105,7 +107,8 @@ export default function PublishPlans({
   const handleContinue = () => {
     onNext({
       user_id,
-      selected_plan,
+      hired_plan_id,
+      visibility,
     });
   };
 
@@ -163,11 +166,14 @@ export default function PublishPlans({
                 <h3>Planes disponibles</h3>
                 <button                    
                   type="button"
-                  className={`publish-plans-radio is-highlighted ${selected_plan === 0 ? 'is-selected' : ''}`}
-                  onClick={() => setSelected_plan(0)}
+                  className={`publish-plans-radio  ${hired_plan_id === 0 ? 'is-selected is-highlighted ' : ''}`}
+                  onClick={() => {
+                    setHired_plan_id(0);
+                    setVisibility(0);
+                  }}
                 >
                   <span className="publish-plans-radio-dot" />
-                  <span>Bonificado</span>
+                  <span className="publish-plans-radio-title">Bonificado</span>
                   <span className="publish-plans-radio-subtitle">Gratis</span>
                 </button>
                 {branchFilter === 'todas' && (
@@ -181,16 +187,17 @@ export default function PublishPlans({
                 )}
                 {branchPlans.map((plan) => (
                   <button
-                    key={plan.id}
+                    key={plan.plan_id}
                     type="button"
-                    className={`publish-plans-radio ${
-                      plan.highlighted ? 'is-highlighted' : ''
-                    } ${selected_plan === plan.id ? 'is-selected' : ''}`}
-                    onClick={() => setSelected_plan(plan.id)}
+                    className={`publish-plans-radio ${hired_plan_id === plan.plan_id ? 'is-selected is-highlighted' : ''}`}
+                    onClick={() => {
+                      setHired_plan_id(plan.plan_id);
+                      setVisibility(plan.plan_visibility);
+                    }}
                   >
                     <span className="publish-plans-radio-dot" />
-                    <span>{plan.title}</span>
-                    <span className="publish-plans-radio-subtitle">{plan.subtitle}</span>
+                    <span className="publish-plans-radio-title">{plan.plan_name}</span>
+                    <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.available}</span>
                   </button>
                 ))}
               </div>

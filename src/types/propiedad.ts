@@ -442,6 +442,9 @@ export interface CreateProperty {
   development_available_unit_count?: number;
   development_units?: CreateProperty[]; 
   development_unit_type?: string;
+
+  hired_plan_id: number;
+  visibility: number;
 }
 
 // ==========================================================================
@@ -514,6 +517,7 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   [PropertyType.LOCAL_COMERCIAL]: 'Local comercial',
   [PropertyType.OFICINA_COMERCIAL]: 'Oficina comercial',
   [PropertyType.QUINTA_VACACIONAL]: 'Quinta vacacional',
+  [PropertyType.EMPRENDIMIENTO]: 'Emprendimiento',
 };
 
 export const PROPERTY_TYPE_SELECT_OPTIONS = Object.entries(PROPERTY_TYPE_LABELS).map(([key, label]) => ({

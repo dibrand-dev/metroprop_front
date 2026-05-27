@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Select from '@/ui/Select/Select';
 import Button from '@/ui/Button/Button';
@@ -75,6 +75,11 @@ export default function PublishEmprendimientoUnidades({
 
 
   const isFormValid = publication_title.trim() !== '' && !!property_type && !!total_surface && !!roofed_surface;
+
+  // Keep local units in sync when wizard data is hydrated/updated from parent.
+  useEffect(() => {
+    setUnits(wizardData.development_units ?? []);
+  }, [wizardData.development_units]);
 
   const handleAgregarUnidad = async (goToNextStep: boolean) => {
     setSubmitted(true);

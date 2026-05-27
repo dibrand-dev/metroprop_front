@@ -324,6 +324,8 @@ export default function PublishEmprendimiento({
     }
   };
 
+  console.log("tipoEmprendimiento", tipoEmprendimiento ? LABELS_DEVELOPMENT_TYPE[tipoEmprendimiento] : undefined);
+
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
     <div className="publish-emprendimiento">
@@ -419,7 +421,7 @@ export default function PublishEmprendimiento({
                   <Select
                     label="Tipo de emprendimiento*"
                     options={Object.entries(LABELS_DEVELOPMENT_TYPE).map(([value, label]) => ({ value, label }))}
-                    value={tipoEmprendimiento}
+                    value={tipoEmprendimiento ? LABELS_DEVELOPMENT_TYPE[tipoEmprendimiento] : undefined}
                     onChange={setTipoEmprendimiento}
                     placeholder="Seleccionar"
                     error={submitted && !tipoEmprendimiento ? 'Este campo es obligatorio' : ''}

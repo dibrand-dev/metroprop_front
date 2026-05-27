@@ -11,9 +11,9 @@ export const FILTER_VALUE_LABEL: Record<string, string> = {
   bathroom_amount: 'Baños',
   suite_amount: 'Habitaciones',
   property_type: 'Tipo de propiedad',
-  selected_plan: 'Plan',
+  hired_plan_id: 'Plan',
   operation_type: 'Operación',
-  users: 'Asesor',
+  user_id: 'Asesor',
   location_id: 'Ubicación',
 };
 
@@ -36,6 +36,14 @@ interface MyPropertiesFiltersProps {
   onToggleFilter: (facetKey: string, value: string) => void;
   onClearFilters: () => void;
 }
+
+const getDisplayValue = (value: unknown) => {
+  if (value === null || value === undefined || value === '') {
+    return 'No especificado';
+  }
+
+  return String(value);
+};
 
 export default function MyPropertiesFilters({
   facets,
@@ -68,16 +76,16 @@ export default function MyPropertiesFilters({
     expandable: facets[facetKey].length > 3,
     options: (facets[facetKey] ?? []).map(item => ({
       label: facetKey === 'location_id'
-        ? (locationMap.get(item.value) ?? String(item.value))
+        ? getDisplayValue(locationMap.get(item.value) ?? item.value)
         : facetKey === 'status'
-          ? (PROPERTY_STATUS_LABELS[item.value as PropertyStatus] ?? String(item.value))
+          ? getDisplayValue(PROPERTY_STATUS_LABELS[item.value as PropertyStatus] ?? item.value)
           : facetKey === 'property_type'
-            ? (PROPERTY_TYPE_LABELS[item.value as PropertyType] ?? String(item.value))
+            ? getDisplayValue(PROPERTY_TYPE_LABELS[item.value as PropertyType] ?? item.value)
             : facetKey === 'operation_type'
-              ? (OPERATION_TYPE_LABELS[item.value as OperationType] ?? String(item.value))
-              : facetKey === 'users'
-                ? (userMap.get(String(item.value)) ?? String(item.value))
-                : String(item.value),
+              ? getDisplayValue(OPERATION_TYPE_LABELS[item.value as OperationType] ?? item.value)
+              : facetKey === 'user_id'
+                ? getDisplayValue(userMap.get(String((item as any).user_name)) ?? (item as any).user_name)
+                : getDisplayValue(item.value),
       value: String(item.value),
       count: item.count,
     })),

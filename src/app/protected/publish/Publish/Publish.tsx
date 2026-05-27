@@ -95,10 +95,20 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     setIsLoadingProperty(true);
     apiFetch(`${API_BASE_URL}/properties/${propertyId}`)
       .then(data => {
+        const payload = (data as any)?.data ?? data;
+        const normalizedUnits = Array.isArray((payload as any).development_units)
+          ? (payload as any).development_units
+          : (Array.isArray((payload as any).units) ? (payload as any).units : []);
+
         // Map the property to the wizard draft shape.
         // draft_id = property id so all PATCH / multimedia calls target the right endpoint.
-        setWizardData({ ...data, draft_id: (data as any).id });
-        if ((data as any).operation_type === OperationType.EMPRENDIMIENTO) {
+        setWizardData({
+          ...(payload as any),
+          draft_id: (payload as any).id,
+          development_units: normalizedUnits,
+        });
+        const isDevelopment = (payload as any).is_development === true || (payload as any).property_type === PropertyType.EMPRENDIMIENTO;
+        if (isDevelopment) {
           setCurrentStep(WizardStep.EMPRENDIMIENTO);
         } else {
           // Skip steps 1 and 2 (operation type & property type) when editing
@@ -110,11 +120,15 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId]);
   const getCurrentFlow = useCallback(() => {
-    if (wizardData.operation_type === OperationType.EMPRENDIMIENTO) {
+    if (
+      wizardData.operation_type === OperationType.EMPRENDIMIENTO ||
+      wizardData.is_development === true ||
+      wizardData.property_type === PropertyType.EMPRENDIMIENTO
+    ) {
       return EMPRENDIMIENTO_FLOW;
     }
     return REGULAR_FLOW;
-  }, [wizardData.operation_type]);
+  }, [wizardData.operation_type, wizardData.is_development, wizardData.property_type]);
 
   const getCurrentStepIndex = useCallback(() => {
     const flow = getCurrentFlow();

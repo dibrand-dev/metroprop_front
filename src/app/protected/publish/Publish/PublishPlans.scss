@@ -223,9 +223,8 @@
   border: 1.3px solid #a6a6a6;
   padding: 16px 24px;
   background: #ffffff;
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
-  gap: 8px 16px;
+  display: flex;
+  gap: 16px;
   align-items: center;
   text-align: left;
   cursor: pointer;
@@ -241,33 +240,31 @@
     border-color: #006aff;
   }
 
-  @media (min-width: 768px) { 
-    display: flex;
-  }
-}
-
-.publish-plans-radio-dot {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 1.3px solid #006aff;
-  background: #006aff;
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 8px;
+  .publish-plans-radio-dot {
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    background: #ffffff;
+    border: 1.3px solid #006aff;
+    background: #006aff;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border-radius: 50%;
+      background: #ffffff;
+    }
   }
+
+  .publish-plans-radio-title {
+    width: 20%;
+  }
+  
 }
 
 .publish-plans-radio-subtitle {
-  grid-column: 2;
-  padding-left: 16px;
   border-top: 1.3px solid #a6a6a6;
-  padding-top: 16px;
   
   font-size: 16px;
   font-weight: 500;
@@ -276,7 +273,6 @@
   @media (min-width: 768px) {
     border-top: 0 none;
     padding: 0;
-    margin-left: 83px;
   }
 }
 
