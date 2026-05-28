@@ -110,7 +110,8 @@
         }
 
         button.btn {
-          height: 48px;;
+          height: 48px;
+          width: 100%;
         }
       }
     }   
@@ -188,4 +189,17 @@
   button {
     width: 100%;
   }
+}
+
+.delivery-date-content {
+  color: #fff;
+  background-color: #D97A2B;
+  padding-top: 6px;
+  padding-right: 8px;
+  padding-bottom: 4px;
+  padding-left: 8px;
+  gap: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
 }

@@ -42,7 +42,7 @@ const LIMIT = 20;
 export default function Leads() {
   // const queryClient = useQueryClient();
   const [showMenu, setShowMenu] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchQueryEmail, setSearchQueryEmail] = useState('');
   const [searchId, setSearchId] = useState<number | null>(null);
@@ -108,7 +108,7 @@ export default function Leads() {
       if (searchEmail !== null) {
         searchParams = searchParams === '' ? `/search?email=${searchEmail}` : `${searchParams}&email=${searchEmail}`;
       }
-      return apiFetch(`${API_BASE_URL}/leads${searchParams ? `${searchParams}&page=${currentPage}&limit=${LIMIT}` : `?page=${currentPage}&limit=${LIMIT}`}`);
+      return apiFetch(`${API_BASE_URL}/leads${searchParams ? `${searchParams}&offset=${currentPage}&limit=${LIMIT}` : `?offset=${currentPage}&limit=${LIMIT}`}`);
     },
     staleTime: 5 * 60 * 1000,
   });
