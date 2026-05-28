@@ -7,6 +7,9 @@
   filter: $shadow-md;
   position: relative;
   cursor: pointer;
+  @media (max-width: 894px) {
+    max-height: none;
+  }
   .card-content {
     background: $background-color;
     border: 1.3px solid $border-color;
@@ -19,6 +22,10 @@
       background-color: white;
     }
 
+    @media (max-width: 894px) {
+      flex-direction: column;
+    }
+
     .property-image {
       width: 460px;
       max-height: 300px;
@@ -27,6 +34,10 @@
       border: 1px solid transparent;
       &:hover {
         border-color: #006aff;
+      }
+      @media (max-width: 894px) {
+        width: 100%;
+        max-height: none;
       }
     }
     
@@ -172,6 +183,7 @@
   display: flex;
   gap: 16px;
   justify-content: space-between;
+  width: 100%;
 
   button {
     width: 100%;

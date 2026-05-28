@@ -359,6 +359,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
       <>
         <div className="property-card-favorites-list" onClick={goToDetail}>
           <div className="card-content">
+            <div className="contact-date">Contactado el {property.lead_date}</div>
             <img
               src={gallery.firstImage}
               alt={property.publication_title}

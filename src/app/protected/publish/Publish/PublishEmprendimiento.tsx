@@ -156,7 +156,7 @@ export default function PublishEmprendimiento({
   // General data state
   const [nombreEmprendimiento, setNombreEmprendimiento] = useState(wizardData.publication_title || '');
   const [descripcion, setDescripcion] = useState(wizardData.description || '');
-  const [logoFile, setLogoFile] = useState<File | null>(null);
+  //const [logoFile, setLogoFile] = useState<File | null>(null);
   const [tipoEmprendimiento, setTipoEmprendimiento] = useState<DevelopmentType | null>(wizardData.development_type || null);
   const [totalUnidades, setTotalUnidades] = useState<number | null>(wizardData.development_units_total || null);
   const [entrega, setEntrega] = useState(wizardData.development_delivery_date || '');
@@ -231,9 +231,9 @@ export default function PublishEmprendimiento({
     });
   }, [street, country_id, state_id, location_id, sub_location_id, postal_code, show_exact_location, geo_lat, geo_long, nombreEmprendimiento, descripcion, tipoEmprendimiento, totalUnidades, entrega]);
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+/*  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) setLogoFile(e.target.files[0]);
-  };
+  };*/
 
   // ── Location queries ──────────────────────────────────────────────────────
   const { data: countries = [], isLoading: loadingCountries } = useQuery({
@@ -381,7 +381,7 @@ export default function PublishEmprendimiento({
               </div>
             </div>
 
-            <div className="form-group">
+            {/*<div className="form-group">
               <div className="form-field full-width">
                 <label className="field-label">Agregar logo del emprendimiento</label>
                 <div className="file-upload">
@@ -416,7 +416,7 @@ export default function PublishEmprendimiento({
                   Tamaño recomendado 138px por 75px. Peso máximo 200 KB.
                 </span>
               </div>
-            </div>
+            </div>*/}
 
             <div className="form-group">
               <div className="form-row">
