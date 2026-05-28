@@ -324,11 +324,10 @@ export default function PublishEmprendimiento({
       }
     }
     if (nextStep) {
+      console.log("wizardData", wizardData);
       onNext(wizardData);
     }
   };
-
-  console.log("tipoEmprendimiento", tipoEmprendimiento ? LABELS_DEVELOPMENT_TYPE[tipoEmprendimiento] : undefined);
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>

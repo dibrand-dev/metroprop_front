@@ -99,7 +99,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     queryKey: ['similar-by-surface', property?.id],
     queryFn: () => fetchProperties({
       ...(property?.is_development ? { is_development: 1 } : {}),
-      stateId: property?.state_id ? String(property.state_id) : undefined,
+      state_id: property?.state_id ? property.state_id : undefined,
       limit: 20,
       page: 1,
     }),

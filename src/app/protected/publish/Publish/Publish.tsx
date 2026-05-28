@@ -129,10 +129,85 @@ const toCreatePropertyPatch = (data: Partial<CreatePropertyDraft>): Partial<Crea
   const patch: Partial<CreateProperty> = {};
 
   for (const key of CREATE_PROPERTY_PATCH_KEYS) {
-    const value = data[key];
+    const rawValue = data[key];
+    const value = key === 'tags' && Array.isArray(rawValue)
+      ? rawValue
+          .map((item: any) => {
+            if (typeof item === 'number') return item;
+            if (item && typeof item === 'object' && typeof item.tag_id === 'number') return item.tag_id;
+            return undefined;
+          })
+          .filter((item): item is number => typeof item === 'number')
+      : rawValue;
+
     if (value !== undefined) {
       patch[key] = value as never;
     }
+  }
+
+  return patch;
+};
+
+const DEVELOPMENT_PATCH_EXCLUDED_KEYS: (keyof CreateProperty)[] = [
+  'id',
+  'currency',
+  'property_subtype',
+  'publication_title_en',
+  'internal_comments',
+  'suite_amount',
+  'room_amount',
+  'bathroom_amount',
+  'toilet_amount',
+  'parking_lot_amount',
+  'surface',
+  'roofed_surface',
+  'unroofed_surface',
+  'semiroofed_surface',
+  'total_surface',
+  'surface_measurement',
+  'roofed_surface_measurement',
+  'age',
+  'property_condition',
+  'brightness',
+  'garage_coverage',
+  'surface_front',
+  'surface_length',
+  'situation',
+  'dispositions',
+  'orientation',
+  'floors_amount',
+  'zonification',
+  'construction_year',
+  'last_renovation',
+  'expenses',
+  'commission',
+  'network_share',
+  'period',
+  'price_square_meter',
+  'producer_user',
+  'key_contact',
+  'key_agent_user',
+  'key_location',
+  'key_reference_code',
+  'maintenance_user',
+  'owner_name',
+  'owner_phone',
+  'owner_email',
+  'network_information',
+  'transaction_requirements',
+  'currency_expenses',
+  'view_count',
+  'development_units',
+  'images',
+  'videos',
+  'attached',
+];
+
+const toDevelopmentPatch = (data: Partial<CreatePropertyDraft>): Partial<CreateProperty> => {
+  const patch = toCreatePropertyPatch(data);
+
+  for (const key of DEVELOPMENT_PATCH_EXCLUDED_KEYS) {
+    delete patch[key];
   }
 
   return patch;
@@ -359,7 +434,6 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
 
   const saveCurrentStep = async (wizardDataUpdate: Partial<CreatePropertyDraft>, nextStep: boolean) => {
     const _wizardDataUpdate = toCreatePropertyPatch(wizardDataUpdate);
-
     if (!wizardData.draft_id) {
       const draftData = await createDraftMutation.mutateAsync(wizardData);
       updateWizardData({ draft_id: draftData.id });
@@ -376,7 +450,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   }
 
   const saveCurrentStepEmprendimiento = async (wizardDataUpdate: Partial<CreatePropertyDraft>, nextStep: boolean) => {
-    const _wizardDataUpdate = toCreatePropertyPatch(wizardDataUpdate);
+    const _wizardDataUpdate = toDevelopmentPatch(wizardDataUpdate);
     delete _wizardDataUpdate.draft_id;
     _wizardDataUpdate.operation_type = OperationType.VENTA;
     try {

@@ -42,7 +42,7 @@ const LIMIT = 20;
 export default function Organizations() {
   const queryClient = useQueryClient();
   const [showMenu, setShowMenu] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchId, setSearchId] = useState<number | null>(null);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; organizationId: number | null; organizationName: string }>({ open: false, organizationId: null, organizationName: '' });

@@ -14,14 +14,8 @@ type Tab = 'contactos' | 'contactados';
 
 export default function Contacts() {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<Tab>('contactos');
   const [isWhatsappModalOpen, setIsWhatsappModalOpen] = useState(false);
   const [whatsappModalInfo, setWhatsappModalInfo] = useState({ phoneNumber: '', propertyId: 0 });
-
-  const { data: contactosData, isLoading: loadingContactos } = useQuery<CreateProperty[]>({
-    queryKey: ['leads'],
-    queryFn: () => apiFetch<CreateProperty[]>(`${API_BASE_URL}/leads`),
-  });
 
   const { data: contactadosData, isLoading: loadingContactados } = useQuery<CreateProperty[]>({
     queryKey: ['leads-my-contacts'],
@@ -35,30 +29,11 @@ export default function Contacts() {
     queryClient.invalidateQueries({ queryKey: ['leads-my-contacts'] });
   };
 
-  const leads = (activeTab === 'contactos' ? contactosData : contactadosData) ?? [];
-  const isLoading = activeTab === 'contactos' ? loadingContactos : loadingContactados;
-
+  const leads = contactadosData ?? [];
+  const isLoading = loadingContactados;
   return (
     <div className="contacts-container">
-      <h1>Mis Contactos</h1>
-
-      <div className="contacts-tabs">
-        <button
-          type="button"
-          className={`contacts-tab${activeTab === 'contactos' ? ' is-active' : ''}`}
-          onClick={() => setActiveTab('contactos')}
-        >
-          Contactos
-        </button>
-        <button
-          type="button"
-          className={`contacts-tab${activeTab === 'contactados' ? ' is-active' : ''}`}
-          onClick={() => setActiveTab('contactados')}
-        >
-          Contactados
-        </button>
-      </div>
-
+      <h1>Mis Contactos</h1>      
       {isLoading && <p>Cargando contactos...</p>}
       <div className="contacts-list">
         {leads.map(property => (
@@ -69,6 +44,7 @@ export default function Contacts() {
             isLoggedIn={true}
             onFavorite={() => handleToggleFavorite(property.id ?? 0)}
             onWhatsapp={() => {
+              console.log("onWhatsapp")
               setWhatsappModalInfo({ phoneNumber: property.user ? property.user.phone : property.owner_phone ?? '', propertyId: property.id ?? 0 });
               setIsWhatsappModalOpen(true);
             }}

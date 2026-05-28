@@ -46,7 +46,6 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
   const [touched, setTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-console.log("propertyId", propertyId)
   const primaryContactAction = CONTACT_ACTIONS.find((action) => action.id === 'contact');
   const contactActions = isModal && primaryContactAction ? [primaryContactAction] : CONTACT_ACTIONS;
 

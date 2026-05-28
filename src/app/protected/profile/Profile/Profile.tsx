@@ -87,7 +87,7 @@ export default function Profile() {
   const handleSave = () => {
     updateUserMutation.mutate(properties);
   };
- 
+ console.log("sessionData", sessionData)
   return (
     <div className={`professionalContainer ${!showMenu ? "activeMenuMobile" : ""}`}>
       <Submenu active={showMenu} />

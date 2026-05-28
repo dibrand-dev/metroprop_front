@@ -140,7 +140,7 @@ export default function MyPropertiesFilters({
                 className={`myprop-filter-link ${activeFilters[group.facetKey] === opt.value ? 'active' : ''}`}
                 onClick={() => onToggleFilter(group.facetKey, opt.value)}
               >
-                <span>{opt.label}</span>
+                <span className="text-left">{opt.label}</span>
                 <span className="count">({opt.count.toLocaleString('es-AR')})</span>
               </button>
             ))}

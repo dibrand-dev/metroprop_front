@@ -527,3 +527,21 @@ $transition-time: 0.2s;
   }
 }
 
+.btn-primary.btn-type-1.btn-state-default.whatsapp-button {
+  background-color: #1AC050;
+  border-color: #1AC050;
+  color: #fff;
+}
+
+.btn-primary.btn-type-1.btn-state-default.whatsapp-button:hover:not(:disabled):not(.btn-disabled),
+.btn-primary.btn-type-1.btn-state-default.whatsapp-button:active:not(:disabled):not(.btn-disabled) {
+  border-color: #1AC050;
+  color: #1AC050;
+  background-color: #fff;
+}
+
+.btn.whatsapp-button:focus {
+  outline: 1px solid #1AC050;
+  color: #fff;
+}
+

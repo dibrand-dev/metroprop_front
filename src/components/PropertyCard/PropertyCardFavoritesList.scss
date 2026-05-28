@@ -6,7 +6,7 @@
   max-height: 300px;
   filter: $shadow-md;
   position: relative;
-
+  cursor: pointer;
   .card-content {
     background: $background-color;
     border: 1.3px solid $border-color;

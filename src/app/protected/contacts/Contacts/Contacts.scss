@@ -46,3 +46,16 @@
         gap: 32px;
     }
 }
+
+@media (min-width: 769px) {
+    .whatsapp-modal-overlay {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        .whatsapp-modal {
+            max-width: 400px;
+            margin: 50px auto;
+            height: auto;
+        }
+    }
+}
