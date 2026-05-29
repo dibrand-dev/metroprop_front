@@ -158,7 +158,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
       )}
       <div className="header-content">
         {/* Left Section - Navigation Dropdowns / Hamburger Menu */}
-        <div className="header-nav-wrapper">
+        <div className={`header-nav-wrapper ${showFilter ? 'with-search' : ''}`}>
           {/* Hamburger Button for Mobile */}
           <button 
             className={`header-hamburger-button ${mobileMenuOpen ? 'active' : ''}`}
@@ -291,14 +291,14 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
             <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
           </a>
         </div>
-        <div className="header-logo-mobile">
+        <div className={`${showFilter ? 'with-search' : ''} header-logo-mobile`}>
           <a href="/">
             <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
           </a>
         </div>        
 
         {/* Right Section - Login Button or User Menu */}
-        <div className="header-actions">
+        <div className={`${showFilter ? 'with-search' : ''} header-actions`}>
           <TopUserMenu />
         </div>
       </div>

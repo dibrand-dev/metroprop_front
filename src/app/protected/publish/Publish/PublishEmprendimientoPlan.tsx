@@ -34,7 +34,7 @@ export default function PublishPlansEmprendimiento({
   goToStep 
 }: PublishPlansProps) {
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
-  const [hired_plan_id, setHired_plan_id] = useState(wizardData.hired_plan_id || 1);
+  const [hired_plan_id, setHired_plan_id] = useState(wizardData.hired_plan_id || 0);
   const [visibility, setVisibility] = useState(wizardData.visibility || 0);
   const [branchFilter, setBranchFilter] = useState('');
   const { data: sessionData } = useSession();

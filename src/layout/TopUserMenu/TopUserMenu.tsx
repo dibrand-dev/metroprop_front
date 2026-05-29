@@ -182,7 +182,7 @@ export default function TopUserMenu() {
 
         {showUserDropdown && (
           <div className="header-user-dropdown-menu">
-            <div className="header-dropdown-publish-wrapper">
+            {sessionData?.user?.role_id !== 4 && <div className="header-dropdown-publish-wrapper">
               <button
                 className="header-dropdown-publish-button"
                 onClick={handlePublish}
@@ -190,7 +190,7 @@ export default function TopUserMenu() {
               >
                 Publicar
               </button>
-            </div>
+            </div>}
 
             <div className="header-dropdown-user-header">
               <div className="header-dropdown-avatar">

@@ -15,6 +15,7 @@ import './MyProperties.scss';
 import PropertyCardMyProperties from './PropertyCardMyProperties';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import MyPropertiesFilters from './MyPropertiesFilters';
+import Button from '@/ui/Button/Button';
 
 type ToastState = { type: 'success' | 'error'; message: string } | null;
 
@@ -90,21 +91,9 @@ function calcPropertyCompleteness(prop: CreateProperty): number {
 const MyProperties = () => {
   const { data: sessionData } = useSession();
   const sessionUser: any = sessionData?.user;
-  console.log("sessionUser", sessionUser)
   const hasOrganization = sessionUser?.organization ?? false;
   const orgId = sessionUser?.organization?.id ?? null;
   const loggedUserId = sessionUser?.id ? Number(sessionUser.id) : null;
-  const orgUsers: { id: number; name: string }[] = [];
-  if (hasOrganization) {
-    const branches: any[] = sessionUser?.organization?.branches ?? [];
-    branches.forEach((branch) => {
-      (branch.users ?? []).forEach((u: any) => {
-        if (u.id != null && u.name && !orgUsers.find(x => x.id === u.id)) {
-          orgUsers.push({ id: u.id, name: u.name });
-        }
-      });
-    });
-  }
 
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -119,8 +108,9 @@ const MyProperties = () => {
   const [republishModalOpen, setRepublishModalOpen] = useState(false);
   const [republishIds, setRepublishIds] = useState<number[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState('Todas');
+  const [republishBranchId, setRepublishBranchId] = useState<string>('Todas');
   const [republishUserId, setRepublishUserId] = useState<number | undefined>(undefined);
-  const [republishPlanId, setRepublishPlanId] = useState<number | null>(null);
+  const [republishPlanId, setRepublishPlanId] = useState<number>(0);
   const [republishError, setRepublishError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
 
@@ -151,8 +141,9 @@ const MyProperties = () => {
       setRepublishModalOpen(false);
       setRepublishIds([]);
       setSelectedBranchId('');
+      setRepublishBranchId('Todas');
       setRepublishUserId(undefined);
-      setRepublishPlanId(null);
+      setRepublishPlanId(0);
       setRepublishError(null);
       setSelectedIds(new Set());
       setAllSelected(false);
@@ -184,15 +175,14 @@ const MyProperties = () => {
   const { data: usersData } = useQuery<any>({
     queryKey: ['republish-collaborators-users', orgId],
     queryFn: () => apiFetch<any>(`${API_BASE_URL}/users`),
-    enabled: republishModalOpen && !!orgId,
+    enabled: hasOrganization && !!orgId,
   });
 
   const hasBranches = (fetchedBranches?.length ?? 0) > 0;
-  console.log("hasBranches", hasBranches)
   const { data: branchPlans = [], isLoading: loadingBranchPlans } = useQuery<any[]>({
-    queryKey: ['republish-branch-plans', selectedBranchId],
-    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${selectedBranchId}/availability`),
-    enabled: republishModalOpen && hasOrganization && hasBranches && !!selectedBranchId,
+    queryKey: ['republish-branch-plans', republishBranchId],
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${republishBranchId}/availability`),
+    enabled: republishModalOpen && hasOrganization && hasBranches && !!republishBranchId && republishBranchId !== 'Todas',
   });
 
   const { data: userPlans = [], isLoading: loadingUserPlans } = useQuery<any[]>({
@@ -206,13 +196,34 @@ const MyProperties = () => {
     return usersData?.data ?? [];
   }, [usersData]);
 
+  const isBranchSelected = !!selectedBranchId && selectedBranchId !== 'Todas';
+
+  const orgUsers = useMemo<{ id: number; name: string }[]>(() => {
+    if (!isBranchSelected) return [];
+
+    const unique = new Map<number, string>();
+    rawUsers.forEach((u: any) => {
+      const belongsToSelectedBranch = Array.isArray(u?.branches)
+        ? u.branches.some((b: any) => String(b?.id) === selectedBranchId)
+        : false;
+
+      if (!belongsToSelectedBranch) return;
+
+      if (u?.id != null && u?.name) {
+        unique.set(Number(u.id), String(u.name));
+      }
+    });
+
+    return Array.from(unique.entries()).map(([id, name]) => ({ id, name }));
+  }, [isBranchSelected, selectedBranchId, rawUsers]);
+
   const republishBranchOptions = useMemo(
     () => [...[{ value: "Todas", label: "Todas las sucursales" }], ...fetchedBranches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) }))],
     [fetchedBranches],
   );
 
-  const availablePlans = hasOrganization && hasBranches ? branchPlans : userPlans;
-  const loadingAvailablePlans = hasOrganization && hasBranches ? loadingBranchPlans : loadingUserPlans;
+  const availablePlans = hasOrganization && hasBranches && republishBranchId !== 'Todas' ? branchPlans : userPlans;
+  const loadingAvailablePlans = hasOrganization && hasBranches && republishBranchId !== 'Todas' ? loadingBranchPlans : loadingUserPlans;
 
   useEffect(() => {
     if (!republishModalOpen) return;
@@ -223,13 +234,18 @@ const MyProperties = () => {
 
   useEffect(() => {
     if (!republishModalOpen) return;
-    setRepublishPlanId(null);
+    setRepublishPlanId(0);
     setRepublishUserId(undefined);
   }, [selectedBranchId, republishModalOpen]);
 
   useEffect(() => {
     setSelectedIds(new Set());
     setAllSelected(false);
+  }, [selectedBranchId]);
+
+  useEffect(() => {
+    setAssignPopoverOpen(false);
+    setAssignSelectedUserId(null);
   }, [selectedBranchId]);
 
   useEffect(() => {
@@ -280,23 +296,23 @@ const MyProperties = () => {
     return filteredProperties.filter((_, i) => selectedIds.has(i)).map(p => p.id!).filter(Boolean);
   };
 
-  const openRepublishModal = (ids: number[]) => {
+  const openRepublishModal = (ids: number[], branchId?: string) => {
     if (ids.length === 0) return;
     setRepublishModalOpen(true);
     setRepublishIds(ids);
-    setSelectedBranchId('');
+    setRepublishBranchId(branchId ?? selectedBranchId);
     setRepublishUserId(undefined);
-    setRepublishPlanId(null);
+    setRepublishPlanId(0);
     setRepublishError(null);
   };
 
   const handleRepublishAccept = () => {
-    if (!republishPlanId) {
+    if (republishPlanId === 0) {
       setRepublishError('Selecciona un plan para continuar.');
       return;
     }
 
-    if (hasOrganization && hasBranches && !selectedBranchId) {
+    if (hasOrganization && hasBranches && republishBranchId === 'Todas') {
       setRepublishError('Selecciona una sucursal para continuar.');
       return;
     }
@@ -306,8 +322,8 @@ const MyProperties = () => {
       hired_plan_id: republishPlanId,
     };
 
-    if (hasOrganization && hasBranches && selectedBranchId && selectedBranchId !== 'Todas') {
-      body.branch_id = Number(selectedBranchId);
+    if (hasOrganization && hasBranches && republishBranchId && republishBranchId !== 'Todas') {
+      body.branch_id = Number(republishBranchId);
     }
 
     if (republishUserId !== undefined) {
@@ -417,7 +433,7 @@ const MyProperties = () => {
                   type="button"
                   className="myprop-toolbar-btn"
                   title="Asignar responsable"
-                  disabled={selectedCount === 0}
+                  disabled={selectedCount === 0 || !isBranchSelected}
                   onClick={() => { setAssignPopoverOpen(prev => !prev); setAssignSelectedUserId(null); }}
                 >
                   <img src="/icons/AsignarUser.svg" alt="Asignar" />
@@ -426,35 +442,31 @@ const MyProperties = () => {
                   <>
                     <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setAssignPopoverOpen(false)} />
                     <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 100, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', padding: 16, minWidth: 220 }}>
-                      <select
-                        value={assignSelectedUserId ?? ''}
-                        onChange={e => setAssignSelectedUserId(e.target.value ? Number(e.target.value) : null)}
-                        style={{ width: '100%', padding: '8px', marginBottom: 12, borderRadius: 4, border: '1px solid #ccc', fontSize: 14 }}
-                      >
-                        <option value="">Seleccionar asesor...</option>
-                        {orgUsers.map(u => (
-                          <option key={u.id} value={u.id}>{u.name}</option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        disabled={assignSelectedUserId === null}
-                        style={{ width: '100%', padding: '8px 0', background: assignSelectedUserId !== null ? '#1976d2' : '#ccc', color: '#fff', border: 'none', borderRadius: 4, cursor: assignSelectedUserId !== null ? 'pointer' : 'not-allowed', fontSize: 14 }}
+                      <Select
+                        label=""
+                        placeholder="Seleccionar asesor..."
+                        value={String(assignSelectedUserId) ?? ''}
+                        onChange={(value) => setAssignSelectedUserId(value ? Number(value) : null)}
+                        options={orgUsers.map(b => ({ label: b.name, value: String(b.id) }))}
+                      />
+                      <br />
+                      <Button
+                        label="Aceptar"
+                        disabled={assignSelectedUserId === null || !isBranchSelected}
+                        fullWidth
                         onClick={() => {
-                          if (assignSelectedUserId === null) return;
+                          if (assignSelectedUserId === null || !isBranchSelected) return;
                           assignMutation.mutate({ ids: getSelectedPropertyIds(), user_id: assignSelectedUserId });
                           setAssignPopoverOpen(false);
                           setAssignSelectedUserId(null);
                         }}
-                      >
-                        Aceptar
-                      </button>
+                      />
                     </div>
                   </>
                 )}
               </div>
             )}
-            <button type="button" className="myprop-toolbar-btn" title="Republicar" disabled={selectedCount === 0 || selectedBranchId === "Todas"} onClick={() => openRepublishModal(getSelectedPropertyIds())}>
+            <button type="button" className="myprop-toolbar-btn" title="Republicar" disabled={selectedCount === 0 || selectedBranchId === "Todas"} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
               <img src="/icons/republicar.svg" alt="Republicar" />
             </button>
             <button type="button" className="myprop-toolbar-btn" title="Archivar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
@@ -547,7 +559,7 @@ const MyProperties = () => {
                         </div>
                     </div>
                     <div className="myprop-card-actions">
-                        <button type="button" className="myprop-card-action-btn" title="Republicar" onClick={() => prop.id && openRepublishModal([prop.id])}>
+                        <button type="button" className="myprop-card-action-btn" title="Republicar" onClick={() => prop.id && openRepublishModal([prop.id], String((prop as any)?.branch_id ?? (prop as any)?.branch?.id ?? ''))}>
                           <img src="/icons/republicar.svg" alt="Republicar" />
                         </button>                        
                         <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.open(`/protected/publish/${prop.id}`, '_blank')}>
@@ -612,15 +624,25 @@ const MyProperties = () => {
               <div className="myprop-republish-plans">
                 <p className="myprop-republish-plans-title">Planes disponibles</p>
 
-                {hasOrganization && hasBranches && !selectedBranchId && (
+                {hasOrganization && hasBranches && republishBranchId === 'Todas' && (
                   <p className="myprop-republish-info">Seleccioná una sucursal para ver los planes disponibles.</p>
                 )}
 
                 {loadingAvailablePlans && (
                   <p className="myprop-republish-info">Cargando planes...</p>
                 )}
+                <button
+                  type="button"
+                  className={`myprop-republish-plan-btn ${republishPlanId === 0 ? 'is-selected' : ''}`}
+                  onClick={() => {
+                    setRepublishPlanId(0);
+                    setRepublishError(null);
+                  }}
+                >
+                  <span>Gratis</span>
+                </button>
 
-                {!loadingAvailablePlans && (!availablePlans || availablePlans.length === 0) && (!hasOrganization || !hasBranches || !!selectedBranchId) && (
+                {!loadingAvailablePlans && (!availablePlans || availablePlans.length === 0) && (!hasOrganization || !hasBranches || republishBranchId !== 'Todas') && (
                   <p className="myprop-republish-info">No hay planes disponibles para la selección actual.</p>
                 )}
 
@@ -649,9 +671,8 @@ const MyProperties = () => {
             if (republishMutation.isPending) return;
             setRepublishModalOpen(false);
             setRepublishIds([]);
-            setSelectedBranchId('');
             setRepublishUserId(undefined);
-            setRepublishPlanId(null);
+            setRepublishPlanId(0);
             setRepublishError(null);
           }}
         />
