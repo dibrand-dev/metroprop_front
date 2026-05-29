@@ -34,15 +34,15 @@ const accordionItems = [
 ];
 
 
-interface PublishContentProps {
-  wizardData: CreatePropertyDraft;
-  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
-  onNext: () => void;
-  onBack: () => void;
-  onSaveAndExit: () => void;
-}
+  interface PublishContentProps {
+    wizardData: CreatePropertyDraft;
+    updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
+    onNext: () => void;
+    onBack: () => void;
+    onSaveAndExit: () => void;
+  }
 
- // YouTube utility functions
+  // YouTube utility functions
   const extractYouTubeId = (url: string): string | null => {
     if (!url) return null; 
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;

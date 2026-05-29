@@ -59,6 +59,7 @@ export default function PublishPlansEmprendimiento({
   ];
 
   useEffect(() => {
+    console.log("USEEFF",fetchedBranches )
     if (Array.isArray(fetchedBranches)) {
       setBranches(fetchedBranches);
       if (fetchedBranches.length === 1) {
@@ -88,9 +89,6 @@ export default function PublishPlansEmprendimiento({
     enabled: !!user_id && !orgId,
   });
 
-  console.log("branchPlans", branchPlans)
-  console.log("userPlans", userPlans)
-
   const collaboratorOptions = rawUsers
     .filter((user: any) => {
       if (!branchFilter) return true;
@@ -116,11 +114,12 @@ export default function PublishPlansEmprendimiento({
       user_id,
       hired_plan_id,
       visibility,
+      branch_id: Number.parseInt(branchFilter)
     });
   };
 
   const handleComprar = (plan: any) => {
-    onComprar(plan, parseInt(branchFilter));
+    onComprar(plan, Number.parseInt(branchFilter));
   };
 
   return (
@@ -174,16 +173,13 @@ export default function PublishPlansEmprendimiento({
               }}
             >
               <span className="publish-plans-radio-dot" />
-              <span className="publish-plans-radio-title">Bonificado</span>
-              <span className="publish-plans-radio-subtitle">Gratis</span>
-            </button>
-            {branchFilter === 'todas' && (
-              <p style={{ fontSize: 13, color: '#888' }}>Seleccioná una sucursal para ver los planes disponibles.</p>
-            )}
-            {branchFilter !== 'todas' && loadingPlans && (
+              <span className="publish-plans-radio-title">Gratis</span>
+              <span className="publish-plans-radio-subtitle"></span>
+            </button>           
+            {loadingPlans && (
               <p style={{ fontSize: 13, color: '#888' }}>Cargando planes...</p>
             )}
-            {branchFilter !== 'todas' && !loadingPlans && branchPlans.length === 0 && (
+            {!loadingPlans && branchPlans.length === 0 && (
               <p style={{ fontSize: 13, color: '#888' }}>No hay planes disponibles para esta sucursal.</p>                  
             )}
             {branchPlans.map((plan) => (
@@ -223,7 +219,7 @@ export default function PublishPlansEmprendimiento({
                     </li>
                     <li>
                       <img src={iconCheck} alt="" />
-                      Límite de propiedades: {plan.property_limit}
+                      Límite de propiedades: {plan.visibility}
                     </li>
                     <li>
                       <img src={iconCheck} alt="" />

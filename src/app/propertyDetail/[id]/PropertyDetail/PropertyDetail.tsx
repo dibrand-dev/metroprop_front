@@ -15,7 +15,7 @@ import { API_BASE_URL, saveVisitedProperty, setImagePath } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
 import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
-import ContactForm from './ContactForm/ContactForm';
+import ContactForm from '../../../../components/ContactForm/ContactForm';
 import { useLocations } from '@/lib/locations';
 import { formatNumbers } from '@/utils/utils';
 import { AWS_S3_BUCKET_URL, ORGANIZATION_NO_IMAGE } from '@/app/constants';

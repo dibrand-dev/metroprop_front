@@ -13,7 +13,7 @@ import './PublishEmprendimiento.scss';
 import InputField from '@/ui/InputField/InputField';
 import { API_BASE_URL } from '@/utils/utils';
 import PublishLocationMap from './PublishLocationMap/PublishLocationMap';
-import { CreatePropertyDraft, DevelopmentType, LABELS_DEVELOPMENT_TYPE, PropertyType } from '@/types/propiedad';
+import { CreatePropertyDraft, DevelopmentType, LABELS_DEVELOPMENT_TYPE, PropertyType, VideoPreview } from '@/types/propiedad';
 import { apiFetch } from '@/lib/apiFetch';
  
 // ── Address autocomplete ──────────────────────────────────────────────────────
@@ -328,6 +328,38 @@ export default function PublishEmprendimiento({
       onNext(wizardData);
     }
   };
+
+  // Video management functions
+  const addVideo = () => {
+    const trimmedUrl = currentVideoUrl.trim();
+    if (!trimmedUrl || !isValidYouTubeUrl(trimmedUrl)) {
+      alert('Por favor, ingresa una URL válida de YouTube');
+      return;
+    }
+    
+    if (videos.length >= 10) {
+      alert('Máximo 10 videos permitidos');
+      return;
+    }
+
+    const videoId = extractYouTubeId(trimmedUrl);
+    if (videoId) {
+      const newVideo: VideoPreview = {
+        url: trimmedUrl,
+        id: videoId,
+        thumbnail: getYouTubeThumbnail(videoId)
+      };
+      setVideos(prev => [...prev, newVideo.url]);
+      setVideosPreview(prev => [...(prev ?? []), newVideo]);
+      setCurrentVideoUrl(''); // Clear input field
+    }
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos(prev => prev.filter((_, i) => i !== index));
+    setVideosPreview(prev => prev?.filter((_, i) => i !== index));
+  };
+
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>

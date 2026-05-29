@@ -54,12 +54,12 @@ export default function Contacts() {
           <p>No tenés contactos.</p>
         )}
       </div>
-      <WhatsappModal
+      {isWhatsappModalOpen && <WhatsappModal
         isOpen={isWhatsappModalOpen}
         onClose={() => setIsWhatsappModalOpen(false)}
         phoneNumber={whatsappModalInfo.phoneNumber}
         propertyId={whatsappModalInfo.propertyId}
-      />
+      />}
     </div>
   );
 }

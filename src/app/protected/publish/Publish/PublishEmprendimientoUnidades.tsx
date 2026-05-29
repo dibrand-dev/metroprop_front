@@ -10,7 +10,7 @@ import { CreateProperty, CreatePropertyDraft, currencySelectOptions, OperationTy
 import InputField from '@/ui/InputField/InputField';
 import EmprendimientoImages, { EmprendimientoImagesRef } from './EmprendimientoImages';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
@@ -75,6 +75,19 @@ export default function PublishEmprendimientoUnidades({
 
 
   const isFormValid = publication_title.trim() !== '' && !!property_type && !!total_surface && !!roofed_surface;
+
+  const getUnitThumbnail = (unit: CreateProperty): string | undefined => {
+    if (unit.id && unitThumbnails[unit.id]) {
+      return unitThumbnails[unit.id];
+    }
+
+    const firstImageUrl = unit.images?.[0]?.url;
+    if (firstImageUrl) {
+      return setImagePath(firstImageUrl);
+    }
+
+    return undefined;
+  };
 
   // Keep local units in sync when wizard data is hydrated/updated from parent.
   useEffect(() => {
@@ -327,10 +340,11 @@ export default function PublishEmprendimientoUnidades({
           <div className="unit-list">
             {units.map((unit) => {
               const unitData: CreateProperty = unit;
+              const thumbnailSrc = getUnitThumbnail(unitData);
               return (
               <div key={unit.id} className="unit-list-item">
-                {unitThumbnails[unit.id!] ? (
-                  <img className="unit-list-thumbnail" src={unitThumbnails[unit.id!]} alt="" />
+                {thumbnailSrc ? (
+                  <img className="unit-list-thumbnail" src={thumbnailSrc} alt="" />
                 ) : (
                   <div className="unit-list-thumbnail unit-list-thumbnail--empty" />
                 )}

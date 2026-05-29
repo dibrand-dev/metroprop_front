@@ -137,11 +137,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   <p className="property-card-rent">Exp. {property.currency} {formatNumbers(property.expenses ?? 0)}</p>
                 )}
               </div>
-              {org?.company_logo && (
-                <div className="property-card-logo">
-                  <img src={setImagePath(org.company_logo)} alt="Agency logo" />
-                </div>
-              )}
+              {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
             </div>
             <div className="property-card-location-section">
               <p className="property-card-address">{property.street}</p>
@@ -197,7 +193,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                       <p>Desde</p>
                       {getPrecioDesde(property.units)}
                     </div>
-                    {org?.company_logo && (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />)}
+                    {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
                   </div>
                   {devFullLocation && <div className="full_location">{devFullLocation}</div>}
                   <div className="address">{property.street}</div>
@@ -214,9 +210,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 </div>
               </div>
             : <div className="content-wrapper">
-              {org?.company_logo && (
-                <img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />
-              )}
+              {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
               <div className="property-details">
                 <div className="price-row">
                   <div className="main-price">{property.currency ?? ''} {formatNumbers(property.price)}</div>
@@ -318,11 +312,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <img src={'/icons/crane.svg'} alt="Crane Icon" />
                 {`En construcción - Entrega ${property.delivery_date}`}
               </div>}
-              {org?.company_logo && (
-                <div>
-                  <img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />
-                </div>
-              )}
+              {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
               <div className="title-row">
                 <div className="price-section">
                   {property.is_development && <span className="desde-text">Desde</span>}
@@ -354,7 +344,10 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 </div>
                 {uniqueRoomAmounts.length > 0 && <span>{uniqueRoomAmounts.join(' - ')} amb.</span>}
                 <p>{property.publication_title}</p>
-                <Button label="Contactar" variant="primary" buttonType="1" size="small" onClick={goToDetail} />
+                {onWhatsapp && <Button label="Contactar" variant="primary" buttonType="1" size="small" onClick={(e) => {
+                  e.stopPropagation();
+                  onWhatsapp();
+                }} />}
               </div>
             </div>
           </div>
@@ -369,7 +362,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
       <>
         <div className="property-card-favorites-list" onClick={goToDetail}>
           <div className="card-content">
-            <div className="contact-date">Contactado el {property.lead_date}</div>
+            <div className="contact-date">Contactado el {new Date(property.lead_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</div>
             <img
               src={gallery.firstImage}
               alt={property.publication_title}
@@ -378,11 +371,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
               title="Abrir galería"
             />
             <div className="property-info">
-              {org?.company_logo && (
-                <div>
-                  <img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />
-                </div>
-              )}
+              {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
               <div className="title-row">
                 <div className="price-section">
                   <div className="total-price">{property.currency} {formatNumbers(property.price)}</div>

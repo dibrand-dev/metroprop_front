@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import "./ContactForm.scss";
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';

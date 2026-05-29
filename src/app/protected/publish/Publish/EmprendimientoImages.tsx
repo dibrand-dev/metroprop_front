@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import InputField from '@/ui/InputField/InputField';
 import Button from '@/ui/Button/Button';
 import { API_BASE_URL, setImagePath } from '@/utils/utils';
-import { CreateImage, CreateImagePlans, CreateAttached } from '@/types/propiedad';
+import { CreateImage, CreateImagePlans, CreateAttached, VideoPreview } from '@/types/propiedad';
 import { apiFetch } from '@/lib/apiFetch';
 
 const iconTrash = '/icons/trash.svg';
@@ -13,6 +13,11 @@ const iconUpload = '/icons/upload.svg';
 const iconChevronUp = '/icons/chevron-up.svg';
 
 const accordionItems = [
+  {
+    id: 'videos',
+    title: 'Videos',
+    description: 'Agrega hasta 10 videos de la propiedad desde YouTube.',
+  },
   { id: 'planos', title: 'Planos', description: 'Formato HEIC, JFIF, PNG, JPG, JPEG, WEBP, PDF, máximo 20 MB.' },
   { id: 'recorrido', title: 'Recorrido 360', description: 'Agrega un recorrido 360° para mostrar los detalles de la propiedad.' },
 ];
@@ -30,16 +35,42 @@ interface EmprendimientoImagesProps {
   onUploadStatusChange?: (status: { hasImages: boolean; hasPlans: boolean }) => void;
 }
 
+// YouTube utility functions
+const extractYouTubeId = (url: string): string | null => {
+  if (!url) return null; 
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+const getYouTubeThumbnail = (videoId: string): string => {
+  return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+};
+
+const isValidYouTubeUrl = (url: string): boolean => {
+  return extractYouTubeId(url) !== null;
+};
+
+const resolveVideoUrl = (v: any): string => typeof v === 'string' ? v : (v?.url ?? '');
+const buildVideoPreview = (v: any): VideoPreview => {
+  const url = resolveVideoUrl(v);
+  const videoId = extractYouTubeId(url) ?? null;
+  return { url, id: videoId, thumbnail: videoId ? getYouTubeThumbnail(videoId) : '' } as VideoPreview;
+};
+
 const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoImagesProps>(
   ({ draftId, onUploadStatusChange }, ref) => {
     const [images, setImages] = useState<CreateImage[]>([]);
     const [plans, setPlans] = useState<CreateImagePlans[]>([]);
+    const [videos, setVideos] = useState<string[]>([]);
+    const [videosPreview, setVideosPreview] = useState<VideoPreview[] | undefined>([]);
+    const [currentVideoUrl, setCurrentVideoUrl] = useState<string>('');
     const [multimedia360, setMultimedia360] = useState<string[]>(['']);
     const [uploadedImages, setUploadedImages] = useState<File[]>([]);
     const [uploadedPlans, setUploadedPlans] = useState<File[]>([]);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-    const [draggedType, setDraggedType] = useState<'image' | 'plan' | null>(null);
-    const [dragOverGrid, setDragOverGrid] = useState<'image' | 'plan' | null>(null);
+    const [draggedType, setDraggedType] = useState<'image' | 'plan' | 'video' | null>(null);
+    const [dragOverGrid, setDragOverGrid] = useState<'image' | 'plan' | 'video' | null>(null);
     const [openAccordions, setOpenAccordions] = useState<string[]>([]);
 
     const imageInputRef = useRef<HTMLInputElement>(null);
@@ -52,6 +83,40 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
         hasPlans: plans.length > 0 || uploadedPlans.length > 0,
       });
     }, [images.length, uploadedImages.length, plans.length, uploadedPlans.length, onUploadStatusChange]);
+
+    useEffect(() => {
+      if (!draftId) return;
+
+      apiFetch(`${API_BASE_URL}/properties/${draftId}/multimedia`)
+        .then((data) => {
+          const payload: any = data;
+
+          if (payload?.images && Array.isArray(payload.images)) {
+            setImages(payload.images);
+          }
+
+          if (payload?.attached && Array.isArray(payload.attached)) {
+            setPlans(payload.attached);
+          }
+
+          if (payload?.videos && Array.isArray(payload.videos)) {
+            const apiVideos = payload.videos.map(resolveVideoUrl).filter((url: string) => Boolean(url));
+            setVideos(apiVideos);
+            setVideosPreview(payload.videos.map(buildVideoPreview));
+            if (apiVideos.length > 0) {
+              setOpenAccordions(prev => prev.includes('videos') ? prev : [...prev, 'videos']);
+            }
+          }
+
+          if (payload?.multimedia360 && Array.isArray(payload.multimedia360)) {
+            const routes = payload.multimedia360
+              .map((item: any) => (typeof item === 'string' ? item : (item?.url ?? '')))
+              .filter((url: string) => Boolean(url));
+            setMultimedia360(routes.length > 0 ? routes : ['']);
+          }
+        })
+        .catch((error) => console.error('Error loading multimedia:', error));
+    }, [draftId]);
 
     const validateFile = (file: File, type: 'image' | 'plan'): boolean => {
       if (file.size > 20 * 1024 * 1024) { alert('El archivo excede el tamaño máximo de 20MB'); return false; }
@@ -85,11 +150,42 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
       else removeUploadedFile(index, 'plan');
     };
 
-    const handleDragStart = (e: React.DragEvent, index: number, type: 'image' | 'plan') => {
+    const addVideo = () => {
+      const trimmedUrl = currentVideoUrl.trim();
+      if (!trimmedUrl || !isValidYouTubeUrl(trimmedUrl)) {
+        alert('Por favor, ingresa una URL valida de YouTube');
+        return;
+      }
+
+      if (videos.length >= 10) {
+        alert('Maximo 10 videos permitidos');
+        return;
+      }
+
+      const videoId = extractYouTubeId(trimmedUrl);
+      if (!videoId) return;
+
+      const newVideo: VideoPreview = {
+        url: trimmedUrl,
+        id: videoId,
+        thumbnail: getYouTubeThumbnail(videoId),
+      };
+
+      setVideos(prev => [...prev, newVideo.url]);
+      setVideosPreview(prev => [...(prev ?? []), newVideo]);
+      setCurrentVideoUrl('');
+    };
+
+    const removeVideo = (index: number) => {
+      setVideos(prev => prev.filter((_, i) => i !== index));
+      setVideosPreview(prev => prev?.filter((_, i) => i !== index));
+    };
+
+    const handleDragStart = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video') => {
       setDraggedIndex(index); setDraggedType(type); e.dataTransfer.effectAllowed = 'move';
     };
     const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
-    const handleGridDragOver = (e: React.DragEvent, type: 'image' | 'plan') => {
+    const handleGridDragOver = (e: React.DragEvent, type: 'image' | 'plan' | 'video') => {
       e.preventDefault();
       if (draggedType === type) { setDragOverGrid(type); e.dataTransfer.dropEffect = 'move'; }
     };
@@ -97,7 +193,7 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
       const r = e.currentTarget.getBoundingClientRect();
       if (e.clientX < r.left || e.clientX >= r.right || e.clientY < r.top || e.clientY >= r.bottom) setDragOverGrid(null);
     };
-    const handleDrop = (e: React.DragEvent, dropIndex: number, type: 'image' | 'plan') => {
+    const handleDrop = (e: React.DragEvent, dropIndex: number, type: 'image' | 'plan' | 'video') => {
       e.preventDefault();
       if (draggedIndex === null || draggedType !== type) return;
       if (type === 'image') {
@@ -109,8 +205,20 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
         const item = unified[draggedIndex]; unified.splice(draggedIndex, 1); unified.splice(dropIndex, 0, item);
         setImages(unified.filter(e => e.kind === 'api').map(e => e.data as CreateImage));
         setUploadedImages(unified.filter(e => e.kind === 'local').map(e => e.data as File));
-      } else {
+      } else if (type === 'plan') {
         const arr = [...uploadedPlans]; const item = arr[draggedIndex]; arr.splice(draggedIndex, 1); arr.splice(dropIndex, 0, item); setUploadedPlans(arr);
+      } else {
+        const newVideos = [...videos];
+        const draggedVideo = newVideos[draggedIndex];
+        newVideos.splice(draggedIndex, 1);
+        newVideos.splice(dropIndex, 0, draggedVideo);
+        setVideos(newVideos);
+
+        const newPreviews = [...(videosPreview ?? [])];
+        const draggedPreview = newPreviews[draggedIndex];
+        newPreviews.splice(draggedIndex, 1);
+        newPreviews.splice(dropIndex, 0, draggedPreview);
+        setVideosPreview(newPreviews);
       }
       setDraggedIndex(null); setDraggedType(null); setDragOverGrid(null);
     };
@@ -140,9 +248,16 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
         uploadedImages.forEach(file => formData.append('images', file));
         plans.forEach(plan => { if (plan.file_url) formData.append('attached', setImagePath(plan.file_url)); });
         uploadedPlans.forEach(file => formData.append('attached', file));
+        formData.append('videos', JSON.stringify(videos));
         formData.append('multimedia360', JSON.stringify(multimedia360));
         const result = await uploadMultimediaMutation.mutateAsync(formData);
-        if (result.images) setImages(result.images);
+        const payload: any = result;
+        if (payload?.images) setImages(payload.images);
+        if (payload?.videos && Array.isArray(payload.videos)) {
+          const apiVideos = payload.videos.map(resolveVideoUrl);
+          setVideos(apiVideos);
+          setVideosPreview(payload.videos.map(buildVideoPreview));
+        }
       },
       getFiles: () => ({ images: uploadedImages, plans: uploadedPlans }),
       appendFilesToFormData: (formData: FormData) => {
@@ -150,8 +265,19 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
         uploadedImages.forEach(file => formData.append('images', file));
         plans.forEach(plan => { if (plan.file_url) formData.append('attached', setImagePath(plan.file_url)); });
         uploadedPlans.forEach(file => formData.append('attached', file));
+        formData.append('videos', JSON.stringify(videos));
+        formData.append('multimedia360', JSON.stringify(multimedia360));
       },
-      resetFiles: () => { setImages([]); setUploadedImages([]); setPlans([]); setUploadedPlans([]); setMultimedia360(['']); },
+      resetFiles: () => {
+        setImages([]);
+        setUploadedImages([]);
+        setPlans([]);
+        setUploadedPlans([]);
+        setVideos([]);
+        setVideosPreview([]);
+        setCurrentVideoUrl('');
+        setMultimedia360(['']);
+      },
       setExistingImages: (existingImages: CreateImage[], existingPlans?: (CreateImagePlans | CreateAttached)[]) => {
         setImages(existingImages);
         setUploadedImages([]);
@@ -280,6 +406,65 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                             </div>
                           );
                         })}
+                      </div>
+                    )}
+                    {item.id === 'videos' && (
+                      <div className="publish-content-videos-container">
+                        <div className="publish-content-input-row">
+                          <InputField
+                            placeholder="Pega el link de YouTube"
+                            value={currentVideoUrl}
+                            onChange={(event) => setCurrentVideoUrl(event.target.value)}
+                          />
+                          <Button
+                            label="Agregar"
+                            variant="primary"
+                            buttonType="1"
+                            onClick={addVideo}
+                            disabled={!currentVideoUrl.trim() || videos.length >= 10}
+                          />
+                        </div>
+                        {videos.length > 0 && (
+                          <div
+                            className={`publish-content-videos-grid ${dragOverGrid === 'video' ? 'drag-over' : ''}`}
+                            onDragOver={(e) => handleGridDragOver(e, 'video')}
+                            onDragLeave={handleGridDragLeave}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              setDragOverGrid(null);
+                            }}
+                          >
+                            {videosPreview?.map((video, index) => (
+                              <div
+                                key={`video-${index}`}
+                                className={`publish-content-video-thumb ${draggedIndex === index && draggedType === 'video' ? 'dragging' : ''}`}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, index, 'video')}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, index, 'video')}
+                                onDragEnd={handleDragEnd}
+                              >
+                                <img src={video.thumbnail} alt="Video thumbnail" />
+                                <div className="publish-content-video-overlay">
+                                  <div className="publish-content-video-play">▶</div>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="publish-content-thumb-action"
+                                  onClick={() => removeVideo(index)}
+                                >
+                                  <img src={iconTrash} alt="" />
+                                </button>
+                                <div className="publish-content-drag-handle">
+                                  <span>⋮⋮</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {videos.length >= 10 && (
+                          <p className="publish-content-limit-message">Maximo 10 videos permitidos</p>
+                        )}
                       </div>
                     )}
                     {item.id === 'recorrido' && (

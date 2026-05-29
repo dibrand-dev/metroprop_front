@@ -7,9 +7,14 @@ import { CreateProperty } from '@/types/propiedad';
 import './Favorites.scss';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import { useToggleFavorite } from '@/lib/useFavoriteIds';
+import ContactForm from '@/components/ContactForm/ContactForm';
+import { useState } from 'react';
 
 export default function Favorites() {
   const queryClient = useQueryClient();
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [contactModalInfo, setContactModalInfo] = useState({ phoneNumber: '', propertyId: 0, userId: 0, organizationId: 0 });
+
   const { data, isLoading } = useQuery<CreateProperty[]>({
     queryKey: ['my-favourites'],
     queryFn: () => apiFetch<CreateProperty[]>(`${API_BASE_URL}/favourites/my-favourites`),
@@ -28,11 +33,30 @@ export default function Favorites() {
       {isLoading && <p>Cargando favoritos...</p>}
       <div className="favorites-list">
         {favourites.map(property => (
-          <PropertyCard key={property.id} property={property} cardType="favorites"  isLoggedIn={true} onFavorite={() => handleToggleFavorite(property.id ?? 0)}/>
+          <PropertyCard
+            key={property.id}
+            property={property}
+            cardType="favorites"
+            isLoggedIn={true}
+            onFavorite={() => handleToggleFavorite(property.id ?? 0)} 
+            onWhatsapp={() => {
+              setContactModalInfo({ phoneNumber: property.user ? property.user.phone : property.owner_phone ?? '', propertyId: property.id ?? 0, userId: property.user_id ?? 0, organizationId: property.organization_id ?? 0 });
+              setIsContactModalOpen(true);
+            }}
+          />
         ))}
         {!isLoading && favourites.length === 0 && (
           <p>No tenés propiedades guardadas como favoritas.</p>
         )}
+      </div>
+      <div className="property-detail-contact-modal-body">
+        {isContactModalOpen && <ContactForm
+          isModal
+          propertyId={contactModalInfo.propertyId}
+          userId={contactModalInfo.userId}
+          organizationId={contactModalInfo.organizationId}
+          onClose={() => setIsContactModalOpen(false)}
+        />}
       </div>
     </div>
   );

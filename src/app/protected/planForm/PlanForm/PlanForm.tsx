@@ -55,7 +55,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
     setHabilitado(plan.is_active);
     setPrice(plan.price ? String(plan.price) : '');
     setCurrency(plan.currency ?? '');
-    setPropertyLimit(plan.property_limit ? String(plan.property_limit) : '');
+    setPropertyLimit(plan.visibility ? String(plan.visibility) : '');
     setHighlightLimit(plan.highlight_limit ? String(plan.highlight_limit) : '');
   }, [planData]);
 
@@ -67,7 +67,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
         is_active: habilitado ? 1 : 0,
         price: parseFloat(price),
         currency: currency.trim(),
-        property_limit: parseInt(propertyLimit),
+        visibility: parseInt(propertyLimit),
         highlight_limit: parseInt(highlightLimit),
       };
       const url = isEditing

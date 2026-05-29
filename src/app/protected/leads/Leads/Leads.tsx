@@ -139,14 +139,14 @@ export default function Leads() {
             onClick={() => setShowMenu(true)}
           >
             <img src={iconArrowBack} alt="Back" />
-            <span>Leads</span>
+            <span>Interesados</span>
           </button>
         </div>
 
         <div className="collaborators-content">
           <div className="collaborators-header">
             <div>
-              <h1>Leads</h1>
+              <h1>Interesados</h1>
               <p>Aca podes ver la lista de contactos que los usuarios han hecho.</p>
             </div>
           </div>

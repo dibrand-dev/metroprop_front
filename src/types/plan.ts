@@ -5,6 +5,6 @@ export interface Plan {
   is_active: boolean,
   price: number,
   currency: string,
-  property_limit: number,
+  visibility: number,
   highlight_limit: number
 }

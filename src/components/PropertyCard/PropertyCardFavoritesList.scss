@@ -50,7 +50,8 @@
       justify-content: space-between;
 
       .agency-logo {
-        max-height: 48px;
+        max-width: max-content;
+        height: 43px;
       }
   
       .expenses {
@@ -178,6 +179,20 @@
       opacity: 0.7;
     }
   }  
+
+    
+  .delivery-date-content {
+    color: #fff;
+    background-color: #D97A2B;
+    padding-top: 6px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+    gap: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+  }
 }
 
 .contacts-button-container {
@@ -191,15 +206,3 @@
   }
 }
 
-.delivery-date-content {
-  color: #fff;
-  background-color: #D97A2B;
-  padding-top: 6px;
-  padding-right: 8px;
-  padding-bottom: 4px;
-  padding-left: 8px;
-  gap: 8px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-}

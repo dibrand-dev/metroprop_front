@@ -173,8 +173,8 @@ export default function PublishPlans({
                   }}
                 >
                   <span className="publish-plans-radio-dot" />
-                  <span className="publish-plans-radio-title">Bonificado</span>
-                  <span className="publish-plans-radio-subtitle">Gratis</span>
+                  <span className="publish-plans-radio-title">Gratis</span>
+                  <span className="publish-plans-radio-subtitle"></span>
                 </button>
                 {branchFilter === 'todas' && (
                   <p style={{ fontSize: 13, color: '#888' }}>Seleccioná una sucursal para ver los planes disponibles.</p>
@@ -222,7 +222,7 @@ export default function PublishPlans({
                         </li>
                         <li>
                           <img src={iconCheck} alt="" />
-                          Límite de propiedades: {plan.property_limit}
+                          Límite de propiedades: {plan.visibility}
                         </li>
                         <li>
                           <img src={iconCheck} alt="" />
