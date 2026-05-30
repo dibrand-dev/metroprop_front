@@ -109,6 +109,7 @@ const MyProperties = () => {
   const [republishIds, setRepublishIds] = useState<number[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState('Todas');
   const [republishBranchId, setRepublishBranchId] = useState<string>('Todas');
+  const [branchOverviewOpen, setBranchOverviewOpen] = useState(false);
   const [republishUserId, setRepublishUserId] = useState<number | undefined>(undefined);
   const [republishPlanId, setRepublishPlanId] = useState<number>(0);
   const [republishError, setRepublishError] = useState<string | null>(null);
@@ -222,6 +223,30 @@ const MyProperties = () => {
     [fetchedBranches],
   );
 
+  const branchOverviewOptions = useMemo(
+    () => [
+      { value: 'todas', label: 'Todas' },
+      ...fetchedBranches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
+    ],
+    [fetchedBranches],
+  );
+
+  const { data: branchOverviewPlans = [], isLoading: loadingBranchOverviewPlans } = useQuery<any[]>({
+    queryKey: ['branch-plans-overview', orgId, fetchedBranches.map((branch: any) => branch.id).join(',')],
+    queryFn: async () => {
+      const branchIds = fetchedBranches.map((branch: any) => branch.id);
+      const results = await Promise.all(
+        branchIds.map(async (branchId: number) => ({
+          branchId,
+          plans: await apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchId}`),
+        })),
+      );
+
+      return results;
+    },
+    enabled: branchOverviewOpen && hasBranches,
+  });
+console.log('Branch overview plans:', branchOverviewPlans);
   const availablePlans = hasOrganization && hasBranches && republishBranchId !== 'Todas' ? branchPlans : userPlans;
   const loadingAvailablePlans = hasOrganization && hasBranches && republishBranchId !== 'Todas' ? loadingBranchPlans : loadingUserPlans;
 
@@ -415,6 +440,69 @@ const MyProperties = () => {
       {/* ── Main content ── */}
       <main className="myprop-content">
         <h1 className="myprop-page-title">Mis publicaciones</h1>
+        <section className="myprop-overview" aria-label="Resumen de sucursales">
+          <button
+            type="button"
+            className={`myprop-overview-trigger ${branchOverviewOpen ? 'is-open' : ''}`}
+            onClick={() => setBranchOverviewOpen((prev) => !prev)}
+            aria-expanded={branchOverviewOpen}
+          >
+            <div>
+              <h2 className="myprop-overview-title">Planes</h2>
+            </div>
+            <div className="myprop-overview-trigger-right">             
+              <img src="/icons/chevron-up.svg" alt="" aria-hidden="true" />
+            </div>
+          </button>
+
+          {branchOverviewOpen && (
+            <div className="myprop-overview-panel">             
+              <div className="myprop-overview-list">
+                {loadingBranchOverviewPlans && (
+                  <p className="myprop-overview-empty">Cargando planes...</p>
+                )}
+
+                {!loadingBranchOverviewPlans && branchOverviewPlans.length === 0 && (
+                  <p className="myprop-overview-empty">Sin productos disponibles</p>
+                )}
+
+                {branchOverviewPlans.map((entry: any) => {
+                  const branch = fetchedBranches.find((item: any) => String(item.id) === String(entry.branchId));
+                  const branchName = branch?.branch_name ?? branch?.name ?? String(entry.branchId);
+                  const plans = Array.isArray(entry.plans) ? entry.plans : [];
+
+                  return (
+                    <div key={entry.branchId} className="myprop-overview-card">
+                      <h3>{branchName}</h3>
+                      <div className="myprop-overview-table">
+                        <div className="myprop-overview-row myprop-overview-row-header">
+                          <span>Productos</span>
+                          <span>Contratados</span>
+                          <span>Disponibles</span>
+                          <span>Activo</span>
+                        </div>
+                        {plans.length === 0 && (
+                          <div className="myprop-overview-row"><span>Sin productos disponibles</span></div>
+                        )}
+                        {plans.map((plan: any, idx: number) => (
+                          <div key={plan.id ?? idx} className="myprop-overview-row">
+                            <span>{plan.plan.plan_name}</span>
+                            <span>{plan.plan.highlight_limit ?? plan.total ?? '-'}</span>
+                            <span>{plan.amount_hired ?? '-'}</span>
+                            <span>{plan.plan.is_active ? 'Si' : 'No'}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="myprop-overview-progress">
+                        <div className="myprop-overview-progress-bar" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </section>
         {/* Toolbar */}
         <div className="myprop-toolbar">
           <div className="myprop-toolbar-left">            

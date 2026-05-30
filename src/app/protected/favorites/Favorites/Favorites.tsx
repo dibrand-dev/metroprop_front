@@ -40,6 +40,7 @@ export default function Favorites() {
             isLoggedIn={true}
             onFavorite={() => handleToggleFavorite(property.id ?? 0)} 
             onWhatsapp={() => {
+              console.log("onWhatsapp", property);
               setContactModalInfo({ phoneNumber: property.user ? property.user.phone : property.owner_phone ?? '', propertyId: property.id ?? 0, userId: property.user_id ?? 0, organizationId: property.organization_id ?? 0 });
               setIsContactModalOpen(true);
             }}
@@ -49,15 +50,17 @@ export default function Favorites() {
           <p>No tenés propiedades guardadas como favoritas.</p>
         )}
       </div>
-      <div className="property-detail-contact-modal-body">
-        {isContactModalOpen && <ContactForm
-          isModal
-          propertyId={contactModalInfo.propertyId}
-          userId={contactModalInfo.userId}
-          organizationId={contactModalInfo.organizationId}
-          onClose={() => setIsContactModalOpen(false)}
-        />}
-      </div>
+      {isContactModalOpen && <div className="contact-modal-overlay">
+        <div className="contact-modal">
+           <ContactForm
+            isModal
+            propertyId={contactModalInfo.propertyId}
+            userId={contactModalInfo.userId}
+            organizationId={contactModalInfo.organizationId}
+            onClose={() => setIsContactModalOpen(false)}
+          />
+        </div>
+      </div>}
     </div>
   );
 }
