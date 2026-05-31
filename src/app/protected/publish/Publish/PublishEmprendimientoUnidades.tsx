@@ -37,6 +37,7 @@ export default function PublishEmprendimientoUnidades({
   const imagesRef = useRef<EmprendimientoImagesRef>(null);  
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successModalTitle, setSuccessModalTitle] = useState('¡Unidad agregada con éxito!');
   const [submitted, setSubmitted] = useState(false);
 
   const handleImagesStatusChange = useCallback((status: { hasImages: boolean; hasPlans: boolean }) => {
@@ -159,6 +160,7 @@ export default function PublishEmprendimientoUnidades({
         onNext();
       } else {
         resetForm();
+        setSuccessModalTitle('¡Unidad agregada con éxito!');
         setShowSuccessModal(true);
         setTimeout(() => setShowSuccessModal(false), 3000);
       }
@@ -294,6 +296,7 @@ export default function PublishEmprendimientoUnidades({
       setUnits(newUnits);
       updateWizardData({ development_units: newUnits, unitThumbnails: newThumbnails });
       resetForm();
+      setSuccessModalTitle('Unidad editada con exito');
       setShowSuccessModal(true);
       setTimeout(() => setShowSuccessModal(false), 3000);
     } catch (error: any) {
@@ -623,7 +626,7 @@ export default function PublishEmprendimientoUnidades({
           )}
         </div>
       </div>
-      {showSuccessModal && <SuccessModal title="¡Unidad agregada con éxito!" text="La unidad fue guardada correctamente." />}
+      {showSuccessModal && <SuccessModal title={successModalTitle} text="La unidad fue guardada correctamente." />}
       {pendingDeleteId !== undefined && (
         <AreYouSureModal
           title="Eliminar unidad"

@@ -3,7 +3,6 @@
 
 .property-card-favorites-list {
   width: 100%;
-  max-height: 300px;
   filter: $shadow-md;
   position: relative;
   cursor: pointer;
@@ -28,7 +27,7 @@
 
     .property-image {
       width: 460px;
-      max-height: 300px;
+      max-height: 400px;
       object-fit: cover;
       flex-shrink: 0;
       border: 1px solid transparent;

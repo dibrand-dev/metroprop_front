@@ -223,14 +223,6 @@ const MyProperties = () => {
     [fetchedBranches],
   );
 
-  const branchOverviewOptions = useMemo(
-    () => [
-      { value: 'todas', label: 'Todas' },
-      ...fetchedBranches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
-    ],
-    [fetchedBranches],
-  );
-
   const { data: branchOverviewPlans = [], isLoading: loadingBranchOverviewPlans } = useQuery<any[]>({
     queryKey: ['branch-plans-overview', orgId, fetchedBranches.map((branch: any) => branch.id).join(',')],
     queryFn: async () => {
@@ -246,7 +238,7 @@ const MyProperties = () => {
     },
     enabled: branchOverviewOpen && hasBranches,
   });
-console.log('Branch overview plans:', branchOverviewPlans);
+
   const availablePlans = hasOrganization && hasBranches && republishBranchId !== 'Todas' ? branchPlans : userPlans;
   const loadingAvailablePlans = hasOrganization && hasBranches && republishBranchId !== 'Todas' ? loadingBranchPlans : loadingUserPlans;
 
@@ -554,7 +546,7 @@ console.log('Branch overview plans:', branchOverviewPlans);
                 )}
               </div>
             )}
-            <button type="button" className="myprop-toolbar-btn" title="Republicar" disabled={selectedCount === 0 || selectedBranchId === "Todas"} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
+            <button type="button" className="myprop-toolbar-btn" title="Republicar" disabled={selectedCount === 0 || (hasOrganization && selectedBranchId === "Todas")} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
               <img src="/icons/republicar.svg" alt="Republicar" />
             </button>
             <button type="button" className="myprop-toolbar-btn" title="Archivar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>

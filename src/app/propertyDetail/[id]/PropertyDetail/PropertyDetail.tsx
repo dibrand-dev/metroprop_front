@@ -307,19 +307,19 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     setTimeout(() => updateSimilarScrollState(index), 300);
   };
 
+  const rangeLabel = (values: number[], singular: string, plural: string, suffix = '') => {
+    const filtered = values.filter(v => v > 0);
+    if (filtered.length === 0) return null;
+    const min = Math.min(...filtered);
+    const max = Math.max(...filtered);
+    const noun = max === 1 ? singular : plural;
+    return min === max ? `${min}${suffix} ${noun}` : `${min}${suffix} a ${max}${suffix} ${noun}`;
+  };
+
   // Build property features from unit ranges
   const buildFeaturesDevelopment = () => {
     const units = property?.units ?? [];
     const features = [];
-
-    const rangeLabel = (values: number[], singular: string, plural: string, suffix = '') => {
-      const filtered = values.filter(v => v > 0);
-      if (filtered.length === 0) return null;
-      const min = Math.min(...filtered);
-      const max = Math.max(...filtered);
-      const noun = max === 1 ? singular : plural;
-      return min === max ? `${min}${suffix} ${noun}` : `${min}${suffix} a ${max}${suffix} ${noun}`;
-    };
 
     // Amount of units
     if (units.length > 0) {
@@ -388,6 +388,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     return `${Math.min(...sups)} ${meas}`;
   };
 
+  const getRoomsRange = (units: CreateProperty[]) => {
+    const rooms = units.map(u => u.room_amount ?? 0);
+    return rangeLabel(rooms, 'amb.', 'amb.');
+  };  
 
   useEffect(() => {
     // Recalculate after DOM updates when similar data changes
@@ -427,7 +431,11 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     window.scrollTo({ top, behavior: 'smooth' });
   };
 
-  console.log("property", property)
+  const openUnitDetailInNewTab = (unitId?: number) => {
+    if (!unitId) return;
+    window.open(`/propertyDetail/${unitId}`, '_blank', 'noopener,noreferrer');
+  };
+
   const dynamicFeaturesDevelopment = property?.is_development ? buildFeaturesDevelopment() : [];
 
   return (
@@ -531,8 +539,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           <div className="publish-review-address-1">
             <span className="publish-review-address-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" stroke="currentColor" fill="#ffffff">
-                <path d="M8.80978 18.57C8.64658 18.6872 8.45071 18.7503 8.24978 18.7503C8.04885 18.7503 7.85298 18.6872 7.68978 18.57C2.86078 15.128 -2.26422 8.048 2.91678 2.932C4.33912 1.53285 6.25462 0.749124 8.24978 0.750001C10.2498 0.750001 12.1688 1.535 13.5828 2.931C18.7638 8.047 13.6388 15.126 8.80978 18.57Z" stroke="#7A7A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M8.25 9.75C8.78043 9.75 9.28914 9.53929 9.66421 9.16421C10.0393 8.78914 10.25 8.28043 10.25 7.75C10.25 7.21957 10.0393 6.71086 9.66421 6.33579C9.28914 5.96071 8.78043 5.75 8.25 5.75C7.71957 5.75 7.21086 5.96071 6.83579 6.33579C6.46071 6.71086 6.25 7.21957 6.25 7.75C6.25 8.28043 6.46071 8.78914 6.83579 9.16421C7.21086 9.53929 7.71957 9.75 8.25 9.75Z" stroke="#7A7A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8.80978 18.57C8.64658 18.6872 8.45071 18.7503 8.24978 18.7503C8.04885 18.7503 7.85298 18.6872 7.68978 18.57C2.86078 15.128 -2.26422 8.048 2.91678 2.932C4.33912 1.53285 6.25462 0.749124 8.24978 0.750001C10.2498 0.750001 12.1688 1.535 13.5828 2.931C18.7638 8.047 13.6388 15.126 8.80978 18.57Z" stroke="#7A7A7A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8.25 9.75C8.78043 9.75 9.28914 9.53929 9.66421 9.16421C10.0393 8.78914 10.25 8.28043 10.25 7.75C10.25 7.21957 10.0393 6.71086 9.66421 6.33579C9.28914 5.96071 8.78043 5.75 8.25 5.75C7.71957 5.75 7.21086 5.96071 6.83579 6.33579C6.46071 6.71086 6.25 7.21957 6.25 7.75C6.25 8.28043 6.46071 8.78914 6.83579 9.16421C7.21086 9.53929 7.71957 9.75 8.25 9.75Z" stroke="#7A7A7A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
             <span>{address}</span>
@@ -581,8 +589,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               <div className="publish-review-address-1">
                 <span className="publish-review-address-icon" aria-hidden="true">
                   <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" stroke="currentColor" fill="#ffffff">
-                    <path d="M8.80978 18.57C8.64658 18.6872 8.45071 18.7503 8.24978 18.7503C8.04885 18.7503 7.85298 18.6872 7.68978 18.57C2.86078 15.128 -2.26422 8.048 2.91678 2.932C4.33912 1.53285 6.25462 0.749124 8.24978 0.750001C10.2498 0.750001 12.1688 1.535 13.5828 2.931C18.7638 8.047 13.6388 15.126 8.80978 18.57Z" stroke="#7A7A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M8.25 9.75C8.78043 9.75 9.28914 9.53929 9.66421 9.16421C10.0393 8.78914 10.25 8.28043 10.25 7.75C10.25 7.21957 10.0393 6.71086 9.66421 6.33579C9.28914 5.96071 8.78043 5.75 8.25 5.75C7.71957 5.75 7.21086 5.96071 6.83579 6.33579C6.46071 6.71086 6.25 7.21957 6.25 7.75C6.25 8.28043 6.46071 8.78914 6.83579 9.16421C7.21086 9.53929 7.71957 9.75 8.25 9.75Z" stroke="#7A7A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8.80978 18.57C8.64658 18.6872 8.45071 18.7503 8.24978 18.7503C8.04885 18.7503 7.85298 18.6872 7.68978 18.57C2.86078 15.128 -2.26422 8.048 2.91678 2.932C4.33912 1.53285 6.25462 0.749124 8.24978 0.750001C10.2498 0.750001 12.1688 1.535 13.5828 2.931C18.7638 8.047 13.6388 15.126 8.80978 18.57Z" stroke="#7A7A7A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8.25 9.75C8.78043 9.75 9.28914 9.53929 9.66421 9.16421C10.0393 8.78914 10.25 8.28043 10.25 7.75C10.25 7.21957 10.0393 6.71086 9.66421 6.33579C9.28914 5.96071 8.78043 5.75 8.25 5.75C7.71957 5.75 7.21086 5.96071 6.83579 6.33579C6.46071 6.71086 6.25 7.21957 6.25 7.75C6.25 8.28043 6.46071 8.78914 6.83579 9.16421C7.21086 9.53929 7.71957 9.75 8.25 9.75Z" stroke="#7A7A7A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </span>
                 <span>{address}</span>
@@ -700,8 +708,22 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                       const priceTotal = unit.price
                         ? `${unit.currency ?? ''} ${unit.price.toLocaleString('es-AR')}`
                         : '-';
+                      const canOpenUnit = !!unit.id;
                       return (
-                        <div key={unit.id ?? index} className="table-row">
+                        <div
+                          key={unit.id ?? index}
+                          className="table-row"
+                          onClick={() => openUnitDetailInNewTab(unit.id)}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault();
+                              openUnitDetailInNewTab(unit.id);
+                            }
+                          }}
+                          role={canOpenUnit ? 'link' : undefined}
+                          tabIndex={canOpenUnit ? 0 : undefined}
+                          style={{ cursor: canOpenUnit ? 'pointer' : 'default' }}
+                        >
                           <div className="table-cell">{unit.publication_title ?? '-'}</div>
                           <div className="table-cell">{unit.total_surface ? `${unit.total_surface} ${unit.surface_measurement ?? ''}` : '-'}</div>
                           <div className="table-cell">{unit.roofed_surface ? `${unit.roofed_surface} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
@@ -769,17 +791,20 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 )}
               </div>
             </section>
-            ): <section className="unit-details-development">
+            ): property?.development && (
+            <section className="unit-details-development">
               <h4>Esta unidad pertenece al emprendimiento</h4>
-              <div className="unit-details-development-info">
-                <img src={property?.development?.images?.[0] ?? ''} alt="Imagen del emprendimiento" className="unit-details-development-image" />
-                <div className="unit-details-development-text">
-                  <h5>{property?.development?.name ?? ''}</h5>
-                  <p className="development_delivery">{property?.development?.description ?? ''}</p>
-                  <p className="development_rooms"><img src="/icons/door.svg" alt="Rooms" /> {property?.development?.rooms ?? ''}</p>
+              <a href={`/propertyDetail/${property?.development?.id}`} target="_blank" rel="noopener noreferrer">
+                <div className="unit-details-development-info">
+                  {property?.development?.images?.[0] ? <img src={setImagePath(property?.development?.images?.[0]?.url) ?? ''} alt="Imagen del emprendimiento" className="unit-details-development-image" /> : null}
+                  <div className="unit-details-development-text">
+                    <h5>{property?.development?.publication_title ?? ''}</h5>
+                    <p className="development-delivery">{property?.development?.development_delivery_date ? `Fecha de entrega: ${property.development.development_delivery_date}` : ''}</p>
+                    <p className="development-rooms"><img src="/icons/door.svg" alt="Rooms" /> {getRoomsRange(property?.development?.units ?? [])}</p>
+                  </div>
                 </div>
-              </div>
-            </section>}
+              </a>
+            </section>)}
           </div>
 
           <aside className="property-detail-right">
@@ -859,48 +884,14 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         initialTab={galleryInitialTab}
         initialIndex={galleryInitialIndex}
       />
-
-      <div
-        className={`property-detail-contact-modal ${isContactModalOpen ? 'is-open' : ''}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Contacta al anunciante"
-      >
-        <div
-          className="property-detail-contact-modal-backdrop"
-          onClick={() => setIsContactModalOpen(false)}
-        />
-        <div className="property-detail-contact-modal-panel">
-          <div className="property-detail-contact-modal-header">
-            <h2>Contacta al anunciante</h2>
-            <button
-              type="button"
-              className="property-detail-gallery-modal-close"
-              aria-label="Cerrar"
-              onClick={() => setIsContactModalOpen(false)}
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M6 6l12 12M18 6l-12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
-          </div>
-          <div className="property-detail-contact-modal-body">
-            <ContactForm
-              isModal
-              propertyId={property?.id}
-              userId={property?.user_id}
-              organizationId={(property as any)?.user?.organization_id ?? property?.organization_id}
-              onClose={() => setIsContactModalOpen(false)}
-            />
-          </div>
-        </div>
-      </div>
-
+      {isContactModalOpen && (
+        <ContactForm
+          isModal
+          propertyId={property?.id}
+          userId={property?.user_id}
+          organizationId={(property as any)?.user?.organization_id ?? property?.organization_id}
+          onClose={() => setIsContactModalOpen(false)}
+      />)}
       <div className="property-detail-mobile-actions">
         {CONTACT_ACTIONS.map((action) => (
           <Button

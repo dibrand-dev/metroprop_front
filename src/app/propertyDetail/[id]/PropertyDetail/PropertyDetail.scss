@@ -296,6 +296,11 @@
       letter-spacing: 0.5%;
     }
   }
+
+  &.development-detail-summary {
+  
+  
+  }
 }
 
 .property-detail-summary-grid {
@@ -614,24 +619,6 @@
   flex-direction: column;
 }
 
-.property-detail-contact-modal-header {
-  background: #ffffff;
-  border-bottom: 1.3px solid #a6a6a6;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  h2 {
-    margin: 0;
-    
-    font-size: 26px;
-    font-weight: 700;
-    line-height: 34px;
-    letter-spacing: -0.078px;
-    color: #1e1e1e;
-  }
-}
 
 .property-detail-contact-modal-close,
 .property-detail-gallery-modal-close {
@@ -742,18 +729,24 @@
   }
 }
 
-.property-detail-mobile-actions {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #ffffff;
-  border-top: 1.3px solid #7a7a7a;
-  padding: 16px;
-  display: none;
-  gap: 20px;
-  justify-content: center;
-  z-index: 900;
+.property-detail-mobile-actions { 
+  
+  @media (max-width: 768px) {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ffffff;
+    border-top: 1.3px solid #7a7a7a;
+    padding: 16px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    z-index: 900;
+  }
+  @media (min-width: 769px) {
+    display: none;
+  }
 }
 
 .property-detail-mobile-action {
@@ -953,98 +946,6 @@
     }
 }
 
-@media (max-width: 768px) {
-  .property-detail-content {
-    padding: 16px 16px 48px;
-    gap: 24px;
-  }
-
-  .property-detail-hero-row {
-    align-items: flex-start;
-  }
-
-  .property-detail-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: transparent;
-    color: #1e1e1e;
-    padding: 0;
-    font-family: Montserrat, sans-serif;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: 0.2px;
-  }
-
-  .property-detail-price {
-    width: 100%;
-    justify-content: space-between;
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .property-detail-title {
-    font-family: Montserrat, sans-serif;
-    font-size: 32px;
-    line-height: 36px;
-    letter-spacing: -1px;
-  }
-
-  .property-detail-subtitle {
-    display: none;
-  }
-
-  .property-detail-gallery {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .property-detail-gallery-main {
-    position: relative;
-  }
-
-  .property-detail-gallery-main img {
-    max-height: 254px;
-    border-radius: 12px;
-  }
-
-  .property-detail-gallery-grid {
-    display: none;
-  }
-
-  .property-detail-features {
-    padding: 16px 0 24px;
-    gap: 20px;
-  }
-
-  .property-detail-features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px 8px;
-    padding: 0 16px;
-    transition: max-height 0.25s ease;
-  }
-
-  .property-detail-features.is-toggleable.is-collapsed .property-detail-features-grid {
-    max-height: 140px;
-    overflow: hidden;
-  }
-
-  .property-detail-features.is-toggleable.is-expanded .property-detail-features-grid {
-    max-height: 999px;
-  }
-
-  .property-detail-features-toggle {
-    display: inline-flex;
-  }
-
-  .property-detail-mobile-actions {
-    display: flex;
-  }
-
-  .property-detail-content {
-    padding-bottom: 120px;
-  }
-}
 
 // Full-screen gallery lightbox
 .property-gallery-lightbox {
@@ -1521,6 +1422,9 @@
   grid-template-columns: repeat(6, 1fr);
   border-bottom: 1px solid #a6a6a6;
 
+  &:hover {
+    background-color: #EBF2FD;
+  }
   &:last-child {
     border-bottom: none;
   }
@@ -1603,11 +1507,21 @@
     border-radius: 8px;
     border: 1.3px solid #a6a6a6;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap:8px;
+    background-color: #F5F5F5;
+    &:hover {
+      background-color: #fff;
+    }
+    .unit-details-development-image {
+      height: 82px;
+      width: fit-content;
+      border-radius: 4px;
+    }
 
     .unit-details-development-text {
       display: flex;
+      flex-direction: column;
       gap: 8px;
       h5 {
         font-weight: 600;
@@ -1624,9 +1538,8 @@
         color: #7A7A7A;
       }
 
-      .development_rooms {
+      .development-rooms {
         display: flex;
-        flex-direction: column;
         gap: 8px;
         align-items: center;
         font-weight: 400;
@@ -1637,4 +1550,98 @@
     }
   }
  
+}
+
+
+@media (max-width: 768px) {
+  .property-detail-content {
+    padding: 16px 16px 48px;
+    gap: 24px;
+  }
+
+  .property-detail-hero-row {
+    align-items: flex-start;
+  }
+
+  .property-detail-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: #1e1e1e;
+    padding: 0;
+    font-family: Montserrat, sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+  }
+
+  .property-detail-price {
+    width: 100%;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .property-detail-title {
+    font-family: Montserrat, sans-serif;
+    font-size: 32px;
+    line-height: 36px;
+    letter-spacing: -1px;
+  }
+
+  .property-detail-subtitle {
+    display: none;
+  }
+
+  .property-detail-gallery {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .property-detail-gallery-main {
+    position: relative;
+  }
+
+  .property-detail-gallery-main img {
+    max-height: 254px;
+    border-radius: 12px;
+  }
+
+  .property-detail-gallery-grid {
+    display: none;
+  }
+
+  .property-detail-features {
+    padding: 16px 0 24px;
+    gap: 20px;
+  }
+
+  .property-detail-features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 8px;
+    padding: 0 16px;
+    transition: max-height 0.25s ease;
+  }
+
+  .property-detail-features.is-toggleable.is-collapsed .property-detail-features-grid {
+    max-height: 140px;
+    overflow: hidden;
+  }
+
+  .property-detail-features.is-toggleable.is-expanded .property-detail-features-grid {
+    max-height: 999px;
+  }
+
+  .property-detail-features-toggle {
+    display: inline-flex;
+  }
+
+  .property-detail-mobile-actions {
+    display: flex;
+  }
+
+  .property-detail-content {
+    padding-bottom: 120px;
+  }
 }

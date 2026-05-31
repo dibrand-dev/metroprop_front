@@ -13,7 +13,7 @@ import { useState } from 'react';
 export default function Favorites() {
   const queryClient = useQueryClient();
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [contactModalInfo, setContactModalInfo] = useState({ phoneNumber: '', propertyId: 0, userId: 0, organizationId: 0 });
+  const [contactModalInfo, setContactModalInfo] = useState<{ phoneNumber: string; propertyId: number; userId: number; organizationId?: number }>({ phoneNumber: '', propertyId: 0, userId: 0, organizationId: undefined });
 
   const { data, isLoading } = useQuery<CreateProperty[]>({
     queryKey: ['my-favourites'],
@@ -40,8 +40,7 @@ export default function Favorites() {
             isLoggedIn={true}
             onFavorite={() => handleToggleFavorite(property.id ?? 0)} 
             onWhatsapp={() => {
-              console.log("onWhatsapp", property);
-              setContactModalInfo({ phoneNumber: property.user ? property.user.phone : property.owner_phone ?? '', propertyId: property.id ?? 0, userId: property.user_id ?? 0, organizationId: property.organization_id ?? 0 });
+              setContactModalInfo({ phoneNumber: property.user ? property.user.phone : property.owner_phone ?? '', propertyId: property.id ?? 0, userId: property.user_id ?? 0, organizationId: property.organization_id ?? undefined });
               setIsContactModalOpen(true);
             }}
           />
@@ -50,17 +49,15 @@ export default function Favorites() {
           <p>No tenés propiedades guardadas como favoritas.</p>
         )}
       </div>
-      {isContactModalOpen && <div className="contact-modal-overlay">
-        <div className="contact-modal">
-           <ContactForm
-            isModal
-            propertyId={contactModalInfo.propertyId}
-            userId={contactModalInfo.userId}
-            organizationId={contactModalInfo.organizationId}
-            onClose={() => setIsContactModalOpen(false)}
-          />
-        </div>
-      </div>}
+      {isContactModalOpen && <ContactForm
+        isModal
+        propertyId={contactModalInfo.propertyId}
+        userId={contactModalInfo.userId}
+        organizationId={contactModalInfo.organizationId}
+        phoneNumber={contactModalInfo.phoneNumber}
+        onClose={() => setIsContactModalOpen(false)}
+        favorite
+      />}
     </div>
   );
 }
