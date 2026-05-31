@@ -35,6 +35,8 @@ interface MyPropertiesFiltersProps {
   activeFilters: Record<string, string>;
   onToggleFilter: (facetKey: string, value: string) => void;
   onClearFilters: () => void;
+  showFiltersMobile: boolean;
+  onCloseFiltersMobile: () => void;
 }
 
 const getDisplayValue = (value: unknown) => {
@@ -50,6 +52,8 @@ export default function MyPropertiesFilters({
   activeFilters,
   onToggleFilter,
   onClearFilters,
+  showFiltersMobile,
+  onCloseFiltersMobile,
 }: MyPropertiesFiltersProps) {
   const { data: sessionData } = useSession();
   const { data: locations = [] } = useLocations();
@@ -98,71 +102,77 @@ export default function MyPropertiesFilters({
   const activeEntries = Object.entries(activeFilters);
 
   return (
-    <aside className="myprop-filters">
-      <h2 className="myprop-filters-title">Filtros</h2>
-
-      {activeEntries.length > 0 && (
-        <div className="myprop-active-filters">
-          {activeEntries.map(([facetKey, value]) => {
-            const title = FILTER_VALUE_LABEL[facetKey] ?? facetKey;
-            const group = filterGroups.find(g => g.facetKey === facetKey);
-            const optLabel = group?.options.find(o => o.value === value)?.label ?? value;
-            return (
-              <span key={facetKey} className="myprop-filter-pill">
-                <span>{title}: {optLabel}</span>
-                <button type="button" onClick={() => onToggleFilter(facetKey, value)} aria-label="Quitar filtro">×</button>
-              </span>
-            );
-          })}
-          <button
-            type="button"
-            className="myprop-filter-pill-clear"
-            onClick={onClearFilters}
-          >
-            Limpiar filtros
-          </button>
-        </div>
-      )}
-
-      {filterGroups.map(group => {
-        const isExpanded = expandedGroups[group.facetKey];
-        const shown = group.expandable && !isExpanded
-          ? group.options.slice(0, 3)
-          : group.options;
-
-        return (
-          <div key={group.facetKey} className="myprop-filter-group">
-            <p className="myprop-filter-group-title">{group.title}</p>
-            {shown.map(opt => (
-              <button
-                key={opt.value}
-                type="button"
-                className={`myprop-filter-link ${activeFilters[group.facetKey] === opt.value ? 'active' : ''}`}
-                onClick={() => onToggleFilter(group.facetKey, opt.value)}
-              >
-                <span className="text-left">{opt.label}</span>
-                <span className="count">({opt.count.toLocaleString('es-AR')})</span>
-              </button>
-            ))}
-            {group.expandable && group.options.length > 3 && (
-              <button
-                type="button"
-                className="myprop-features-toggle"
-                onClick={() => toggleExpand(group.facetKey)}
-                aria-expanded={isExpanded}
-              >
-                {isExpanded ? 'Ver menos' : 'Ver mas'}
-                <img
-                  src="/icons/chevron-up.svg"
-                  alt=""
-                  aria-hidden="true"
-                  className={isExpanded ? 'expanded' : ''}
-                />
-              </button>
-            )}
+    <aside className={`myprop-filters ${showFiltersMobile ? 'is-open' : ''}`}>
+      <div className="myprop-filter-header">
+        <h2 className="myprop-filters-title">Filtros</h2>
+        <button onClick={onCloseFiltersMobile} className="myprop-filters-close" aria-label="Cerrar filtros">
+          x
+        </button>
+      </div>
+      <div className="myprop-filter-container">
+        {activeEntries.length > 0 && (  
+          <div className="myprop-active-filters">
+            {activeEntries.map(([facetKey, value]) => {
+              const title = FILTER_VALUE_LABEL[facetKey] ?? facetKey;
+              const group = filterGroups.find(g => g.facetKey === facetKey);
+              const optLabel = group?.options.find(o => o.value === value)?.label ?? value;
+              return (
+                <span key={facetKey} className="myprop-filter-pill">
+                  <span>{title}: {optLabel}</span>
+                  <button type="button" onClick={() => onToggleFilter(facetKey, value)} aria-label="Quitar filtro">×</button>
+                </span>
+              );
+            })}
+            <button
+              type="button"
+              className="myprop-filter-pill-clear"
+              onClick={onClearFilters}
+            >
+              Limpiar filtros
+            </button>
           </div>
-        );
-      })}
+        )}
+
+        {filterGroups.map(group => {
+          const isExpanded = expandedGroups[group.facetKey];
+          const shown = group.expandable && !isExpanded
+            ? group.options.slice(0, 3)
+            : group.options;
+
+          return (
+            <div key={group.facetKey} className="myprop-filter-group">
+              <p className="myprop-filter-group-title">{group.title}</p>
+              {shown.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={`myprop-filter-link ${activeFilters[group.facetKey] === opt.value ? 'active' : ''}`}
+                  onClick={() => onToggleFilter(group.facetKey, opt.value)}
+                >
+                  <span className="text-left">{opt.label}</span>
+                  <span className="count">({opt.count.toLocaleString('es-AR')})</span>
+                </button>
+              ))}
+              {group.expandable && group.options.length > 3 && (
+                <button
+                  type="button"
+                  className="myprop-features-toggle"
+                  onClick={() => toggleExpand(group.facetKey)}
+                  aria-expanded={isExpanded}
+                >
+                  {isExpanded ? 'Ver menos' : 'Ver mas'}
+                  <img
+                    src="/icons/chevron-up.svg"
+                    alt=""
+                    aria-hidden="true"
+                    className={isExpanded ? 'expanded' : ''}
+                  />
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </aside>
   );
 }

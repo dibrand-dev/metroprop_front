@@ -114,6 +114,16 @@ const MyProperties = () => {
   const [republishPlanId, setRepublishPlanId] = useState<number>(0);
   const [republishError, setRepublishError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
+  const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+  const [expandedCardIds, setExpandedCardIds] = useState<Set<number>>(new Set());
+
+  const toggleCardExpanded = (id: number) => {
+    setExpandedCardIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
 
   const queryClient = useQueryClient();
 
@@ -427,10 +437,12 @@ const MyProperties = () => {
         activeFilters={activeFilters}
         onToggleFilter={toggleFilter}
         onClearFilters={clearFilters}
+        showFiltersMobile={showFiltersMobile}
+        onCloseFiltersMobile={() => setShowFiltersMobile(false)}
       />
 
       {/* ── Main content ── */}
-      <main className="myprop-content">
+      <main className={`myprop-content ${showFiltersMobile ? 'is-filters-open' : ''}`}>
         <h1 className="myprop-page-title">Mis publicaciones</h1>
         <section className="myprop-overview" aria-label="Resumen de sucursales">
           <button
@@ -586,6 +598,9 @@ const MyProperties = () => {
                 iconPosition="right"
                 onIconClick={handleSearchById}
               />
+              <button className="filter-btn" title="Abrir filtros" onClick={() => setShowFiltersMobile(true)}>
+                <img src="/icons/filter.svg" alt="Abrir filtros" />
+              </button>
             </div>
           </div>
         </div>
@@ -625,21 +640,21 @@ const MyProperties = () => {
                       <span>{statusInfo}</span>
                     </div>
                   </div>
-                    <div className="myprop-card-content-center">
+                    <div className={`myprop-card-content-center${prop.id && expandedCardIds.has(prop.id) ? ' is-expanded' : ''}`}>
                         <PropertyCardMyProperties property={prop} />
 
-                        <div className="myprop-quality">
+                        <div className="myprop-quality myprop-card-collapsible">
                           <span className="myprop-quality-label">Calidad del aviso</span>
                           <DonutChart percent={completeness} />
                         </div>
 
-                        <div className="myprop-views">
+                        <div className="myprop-views myprop-card-collapsible">
                           <span className="myprop-views-label">Visualizaciones</span>
                           <span className="myprop-views-count">{prop.view_count}</span>
                         </div>
                     </div>
                     <div className="myprop-card-actions">
-                        <button type="button" className="myprop-card-action-btn" title="Republicar" onClick={() => prop.id && openRepublishModal([prop.id], String((prop as any)?.branch_id ?? (prop as any)?.branch?.id ?? ''))}>
+                        <button type="button" className="myprop-card-action-btn" title="Republicar" onClick={() => prop.id && openRepublishModal([prop.id], String((prop as any)?.branch_id ?? (prop as any)?.branch?.id ?? ''))}>​
                           <img src="/icons/republicar.svg" alt="Republicar" />
                         </button>                        
                         <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.open(`/protected/publish/${prop.id}`, '_blank')}>
@@ -673,6 +688,16 @@ const MyProperties = () => {
                             </>
                           )}
                         </div>
+                        <button
+                          type="button"
+                          className="myprop-card-action-btn myprop-card-ver-mas"
+                          onClick={() => prop.id && toggleCardExpanded(prop.id)}
+                        >
+                          {prop.id && expandedCardIds.has(prop.id) ? 'Ver menos' : 'Ver más'}
+                          <div className={`myprop-card-action-trigger-ver-mas ${prop.id && expandedCardIds.has(prop.id) ? 'expanded' : ''}`}>             
+                            <img src="/icons/chevron-up.svg" alt="" aria-hidden="true" />
+                          </div>
+                        </button>
                     </div>
                 </div>
             </div>);
