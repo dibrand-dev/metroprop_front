@@ -145,7 +145,7 @@ export default function PublishPlansEmprendimiento({
               label="Sucursal"
               placeholder="Seleccionar sucursal"
               value={branchFilter}
-              onChange={(value) => { setBranchFilter(value); setUser_id(undefined); }}
+              onChange={(value) => { setBranchFilter(value); setUser_id(undefined);  setHired_plan_id(0); setVisibility(0);}}
               options={branchOptions}
             />
           </div>
