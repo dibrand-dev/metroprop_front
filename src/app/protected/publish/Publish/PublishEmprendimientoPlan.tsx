@@ -106,8 +106,9 @@ export default function PublishPlansEmprendimiento({
       user_id,
       hired_plan_id,
       visibility,
+      branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
     });
-  }, [user_id, hired_plan_id, visibility, updateWizardData]);
+  }, [user_id, hired_plan_id, visibility, branchFilter, updateWizardData]);
 
   const handleContinue = () => {
     onNext({
