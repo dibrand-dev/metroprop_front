@@ -24,6 +24,7 @@ const items: SubmenuItem[] = [
   { id: 'plans', label: 'Planes', href: "/protected/plans", roles: [4] },
   { id: 'users', label: 'Usuarios', href: "/protected/users", roles: [4] },
   { id: 'organizations', label: 'Inmobiliarias', href: "/protected/organizations", roles: [4] },
+  { id: 'all-properties', label: 'Todas las Propiedades', href: "/protected/properties", roles: [4] },
   { id: 'properties', label: 'Propiedades', href: "/protected/myProperties", roles: [4] },
   { id: 'datos_inmobiliaria', label: 'Datos de inmobiliaria', href: "/protected/organization", roles: [1] },
   { id: 'sucursales', label: 'Sucursales', href: "/protected/branches", roles: [1] },
@@ -46,7 +47,6 @@ export default function Submenu({ active }: SubmenuProps) {
   const { data: session } = useSession();
 
   const roleId = useMemo(() => getUserRoleId((session as any)?.user), [session]);
-  console.log("roleId", roleId)
   const visibleItems = useMemo(
     () => items.filter((item) => {
       if (!item.roles) return true;                        // no roles field → always visible

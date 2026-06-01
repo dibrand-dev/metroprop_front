@@ -106,12 +106,12 @@ export default function TopUserMenu() {
       icon: alertasIcon,
       href: '/profile/alerts'
     },
-    {
+    ...(sessionData?.user?.role_id !== 4 ? [{
       id: 'publicaciones',
       label: 'Mis publicaciones',
       icon: publicacionesIcon,
       href: '/protected/myProperties'
-    },
+    }] : []),
     {
       id: 'cuenta',
       label: 'Mi cuenta',

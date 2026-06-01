@@ -410,6 +410,9 @@
 
   .filter-btn {
     width: 50px;
+    @media (min-width: 1082px) {
+      display: none;
+    }
   }
 }
 
