@@ -15,7 +15,7 @@ import Select from '@/ui/Select/Select';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconTrash = '/icons/trash.svg';
-
+const iconView = '/icons/verDetalle.svg';
 const propertiesDescription = 'Aca podes ver la lista de todas las propiedades en el sistema y eliminarlas.';
 
 interface PropertyItem {
@@ -31,6 +31,7 @@ interface PropertyItem {
     company_logo: string;
   };
   user_id: number;
+  images?: { url: string }[];
   actions: ('delete')[];
 }
 
@@ -106,7 +107,7 @@ export default function Properties() {
     },
     staleTime: 5 * 60 * 1000,
   });
-  
+
   const rawData: any = propertiesData;
   const rawProperties: CreateProperty[] = rawData?.data ?? []; //Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
   const total: number = rawData?.total ?? rawProperties.length;
@@ -129,6 +130,7 @@ export default function Properties() {
       organization: propAny.organization,
       user_id: prop.user_id ?? 0,
       actions: ['delete'] as const,
+      images: prop.images ?? [],
     };
   }) ?? [];
 
@@ -215,28 +217,31 @@ export default function Properties() {
           <div className="collaborators-list">
             {properties.map((property) => (
               <div key={property.id} className="collaborators-card">
-                <div className="collaborators-card-info">
-                  <p className="collaborators-card-title">
-                    {property.title}
-                  </p>
-                  <p className="collaborators-card-subtitle">
-                    ID: {property.id} | {property.currency} {property.price.toLocaleString('es-AR')} | {property.location}
-                  </p>
-                  <div className="property-owner-info">
-                    {property.organization ? (
-                      <div className="property-organization">
-                        {property.organization.company_logo && (
-                          <img 
-                            src={setImagePath(property.organization.company_logo)} 
-                            alt={property.organization.company_name}
-                            className="organization-logo"
-                          />
-                        )}
-                        <span className="organization-name">{property.organization.company_name}</span>
-                      </div>
-                    ) : (
-                      <span className="property-user-id">Usuario ID: {property.user_id}</span>
-                    )}
+                <div className='flex gap-4'>
+                  {property.images?.[0] && <img src={property.images[0].url ? setImagePath(property.images[0].url) : '/images/default-property.jpg'} alt={property.title} width={80} height={80} style={{ objectFit: 'cover'}} />}
+                  <div className="collaborators-card-info">
+                    <p className="collaborators-card-title">
+                      {property.title}
+                    </p>
+                    <p className="collaborators-card-subtitle">
+                      ID: {property.id} | {property.currency} {property.price.toLocaleString('es-AR')} | {property.location}
+                    </p>
+                    <div className="property-owner-info">
+                      {property.organization ? (
+                        <div className="property-organization">
+                          {property.organization.company_logo && (
+                            <img 
+                              src={setImagePath(property.organization.company_logo)} 
+                              alt={property.organization.company_name}
+                              className="organization-logo"
+                            />
+                          )}
+                          <span className="organization-name">{property.organization.company_name}</span>
+                        </div>
+                      ) : (
+                        <span className="property-user-id">Usuario ID: {property.user_id}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="collaborators-card-actions">
@@ -252,6 +257,18 @@ export default function Properties() {
                     >
                       <img src={iconTrash} alt="" />
                     </button>
+                    <button
+                      className="collaborators-action-button"
+                      type="button"
+                      aria-label="Ver detalle"
+                      onClick={() => {
+                        window.open(`/properties/${property.id}`, '_blank');
+                      }}
+                    >
+                      <img src={iconView} alt="" />
+                    </button>
+                     
+                    
                   </div>
                 </div>
               </div>

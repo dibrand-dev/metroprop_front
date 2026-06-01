@@ -176,13 +176,13 @@ export default function PublishPlans({
                   <span className="publish-plans-radio-title">Gratis</span>
                   <span className="publish-plans-radio-subtitle"></span>
                 </button>
-                {branchFilter === 'todas' && (
+                {branchFilter === '' && (
                   <p style={{ fontSize: 13, color: '#888' }}>Seleccioná una sucursal para ver los planes disponibles.</p>
                 )}
-                {branchFilter !== 'todas' && loadingPlans && (
+                {branchFilter !== '' && loadingPlans && (
                   <p style={{ fontSize: 13, color: '#888' }}>Cargando planes...</p>
                 )}
-                {branchFilter !== 'todas' && !loadingPlans && branchPlans.length === 0 && (
+                {branchFilter !== '' && !loadingPlans && branchPlans.length === 0 && (
                   <p style={{ fontSize: 13, color: '#888' }}>No hay planes disponibles para esta sucursal.</p>                  
                 )}
                 {branchPlans.map((plan) => (
