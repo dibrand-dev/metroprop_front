@@ -15,7 +15,7 @@ interface PublishPlansProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
-  onComprar: (plan: Plan, branchFilter: number) => void;
+  onComprar: (plan: Plan, branchFilter: number | undefined) => void;
   onSaveAndExit: (descriptionData: Partial<CreatePropertyDraft>) => void;
 }
 
@@ -97,8 +97,9 @@ export default function PublishPlans({
       user_id,
       hired_plan_id,
       visibility,
+      branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
     });
-  }, [user_id, hired_plan_id, visibility, updateWizardData]);
+  }, [user_id, hired_plan_id, visibility, branchFilter, updateWizardData]);
 
   const handleBack = () => {
     onBack();
@@ -109,11 +110,12 @@ export default function PublishPlans({
       user_id,
       hired_plan_id,
       visibility,
+      branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
     });
   };
 
   const handleComprar = (plan: any) => {
-    onComprar(plan, parseInt(branchFilter));
+    onComprar(plan, branchFilter ? Number.parseInt(branchFilter) : undefined);
   };
 
   return (

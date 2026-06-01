@@ -104,7 +104,7 @@ export default function TopUserMenu() {
       id: 'alertas',
       label: 'Búsquedas y alertas',
       icon: alertasIcon,
-      href: '/profile/alerts'
+      href: '/protected/alerts'
     },
     ...(sessionData?.user?.role_id !== 4 ? [{
       id: 'publicaciones',

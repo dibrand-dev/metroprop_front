@@ -1273,6 +1273,12 @@
   padding: 32px 0;
   border-top: 1px solid #a6a6a6;
   border-bottom: 1px solid #a6a6a6;
+
+  @media (max-width: 768px) {
+    padding: 0 0 32px 0;
+    border-top: 0;
+  }
+
   h4 {
     font-weight: 600;
     font-size: 24px;
@@ -1285,6 +1291,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 
   button {
     display: flex;
@@ -1323,6 +1333,51 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #f8f8f8;
+    }
+  }
+}
+
+.unit-type-count-and-toggle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.unit-type-chevron {
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  color: #000000;
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+
+  &.expanded {
+    transform: rotate(180deg);
+  }
+}
+
+.unit-type-content {
+  display: block;
+
+  @media (max-width: 768px) {
+    display: none;
+
+    .unit-type-group.is-open & {
+      display: block;
+    }
   }
 }
 
@@ -1409,6 +1464,61 @@
 .units-table {
   display: flex;
   flex-direction: column;
+}
+
+.units-table-desktop {
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.units-list-mobile {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+}
+
+.unit-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  transition: background-color 0.2s;
+
+  &:active {
+    background-color: #f0f0f0;
+  }
+}
+
+.unit-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.unit-label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+}
+
+.unit-value {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.8);
+  text-align: right;
 }
 
 .table-header {

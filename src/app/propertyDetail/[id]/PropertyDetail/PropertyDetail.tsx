@@ -23,6 +23,7 @@ import { fetchProperties } from '@/lib/properties';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/apiFetch';
 import { useFavoriteIds, useToggleFavorite } from '@/lib/useFavoriteIds';
+import ShareModal from '@/components/ShareModal/ShareModal';
 
 interface PropertyDetailProps {
   propertyId: string;
@@ -57,6 +58,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const [galleryInitialTab, setGalleryInitialTab] = useState<GalleryTab>('fotos');
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');
+  const [openUnitGroups, setOpenUnitGroups] = useState<Record<string, boolean>>({});
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const toggleUnitGroup = (tipo: string) => {
+    setOpenUnitGroups(prev => ({ ...prev, [tipo]: !prev[tipo] }));
+  };
 
   const openGallery = (tab: GalleryTab = 'fotos', index = 0) => {
     setGalleryInitialTab(tab);
@@ -448,8 +455,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         onItemClick={handleSubmenuItemClick}
         isFavorite={property?.id != null && favoriteIds.has(property.id)}
         onToggleFavorite={() => property?.id != null && toggleFavorite(property.id)}
+        openShareModal={() => setIsShareModalOpen(true)}
       />
-      <PhoneRevealModal
+      {isPhoneModalOpen && <PhoneRevealModal
         isOpen={isPhoneModalOpen}
         onClose={() => setIsPhoneModalOpen(false)}
         propertyId={property?.id}
@@ -459,13 +467,18 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         ownerEmail={property?.owner_email}
         ownerPhone={property?.owner_phone}
         user={(property as any)?.user}
-      />
-      <WhatsappModal
+      />}
+      {isWhatsappModalOpen && <WhatsappModal
         isOpen={isWhatsappModalOpen}
         onClose={() => setIsWhatsappModalOpen(false)}
         phoneNumber={property?.user ? property.user.phone : property?.owner_phone ?? ''}
         propertyId={property?.id ?? 0}
-      />
+      />}
+      {isShareModalOpen && <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        property={property}
+      />}
       <button className="detail-back" onClick={() => router.back()} aria-label="Go back">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width={24} height={24}>
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -669,9 +682,20 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                   return tipo === expectedKey;
                 })
                 .map(([tipo, unidades]) => (
-                <div key={tipo} className="unit-type-group">
+                <div key={tipo} className={`unit-type-group${openUnitGroups[tipo] ? ' is-open' : ''}`}>
                   {/* Unit Type Header */}
-                  <div className="unit-type-header">
+                  <div 
+                    className="unit-type-header" 
+                    onClick={() => toggleUnitGroup(tipo)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleUnitGroup(tipo);
+                      }
+                    }}
+                  >
                     <div className="unit-type-info">
                       <img src={'/icons/blueDoor.svg'} alt={`${tipo} icono`} className="unit-type-icon" />
                       <div className="unit-type-details">
@@ -685,54 +709,122 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                         </div>
                       </div>
                     </div>
-                    <div className="unit-type-count">
-                      <span className="count-number">{getUnidadCount(unidades)}</span>
-                      <span className="count-label">unidades disponibles</span>
+                    <div className="unit-type-count-and-toggle">
+                      <div className="unit-type-count">
+                        <span className="count-number">{getUnidadCount(unidades)}</span>
+                        <span className="count-label">unidades disponibles</span>
+                      </div>
+                      <svg 
+                        className={`unit-type-chevron ${openUnitGroups[tipo] ? 'expanded' : ''}`}
+                        width="24" 
+                        height="24" 
+                        viewBox="0 0 24 24" 
+                        fill="none"
+                      >
+                        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
                     </div>
                   </div>
 
-                  {/* Units Table */}
-                  <div className="units-table">
-                    <div className="table-header">
-                      <div className="table-cell">Unidad</div>
-                      <div className="table-cell">Sup. Total</div>
-                      <div className="table-cell">Sup. Cubierta</div>
-                      <div className="table-cell">Baños</div>
-                      <div className="table-cell">Precio m²</div>
-                      <div className="table-cell">Precio total</div>
-                    </div>
-                    {unidades.map((unit, index) => {
-                      const pricePerM2 = unit.price && Number(unit.total_surface) > 0
-                        ? `${unit.currency ?? ''} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
-                        : '-';
-                      const priceTotal = unit.price
-                        ? `${unit.currency ?? ''} ${unit.price.toLocaleString('es-AR')}`
-                        : '-';
-                      const canOpenUnit = !!unit.id;
-                      return (
-                        <div
-                          key={unit.id ?? index}
-                          className="table-row"
-                          onClick={() => openUnitDetailInNewTab(unit.id)}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault();
-                              openUnitDetailInNewTab(unit.id);
-                            }
-                          }}
-                          role={canOpenUnit ? 'link' : undefined}
-                          tabIndex={canOpenUnit ? 0 : undefined}
-                          style={{ cursor: canOpenUnit ? 'pointer' : 'default' }}
-                        >
-                          <div className="table-cell">{unit.publication_title ?? '-'}</div>
-                          <div className="table-cell">{unit.total_surface ? `${unit.total_surface} ${unit.surface_measurement ?? ''}` : '-'}</div>
-                          <div className="table-cell">{unit.roofed_surface ? `${unit.roofed_surface} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
-                          <div className="table-cell">{unit.bathroom_amount ?? '-'}</div>
-                          <div className="table-cell">{pricePerM2}</div>
-                          <div className="table-cell">{priceTotal}</div>
+                  {/* Units Table/List */}
+                  <div className="unit-type-content">
+                    {/* Desktop Table View */}
+                      <div className="units-table units-table-desktop">
+                        <div className="table-header">
+                          <div className="table-cell">Unidad</div>
+                          <div className="table-cell">Sup. Total</div>
+                          <div className="table-cell">Sup. Cubierta</div>
+                          <div className="table-cell">Baños</div>
+                          <div className="table-cell">Precio m²</div>
+                          <div className="table-cell">Precio total</div>
                         </div>
-                      );
-                    })}
+                        {unidades.map((unit, index) => {
+                          const pricePerM2 = unit.price && Number(unit.total_surface) > 0
+                            ? `${unit.currency ?? ''} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
+                            : '-';
+                          const priceTotal = unit.price
+                            ? `${unit.currency ?? ''} ${unit.price.toLocaleString('es-AR')}`
+                            : '-';
+                          const canOpenUnit = !!unit.id;
+                          return (
+                            <div
+                              key={unit.id ?? index}
+                              className="table-row"
+                              onClick={() => openUnitDetailInNewTab(unit.id)}
+                              onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                  event.preventDefault();
+                                  openUnitDetailInNewTab(unit.id);
+                                }
+                              }}
+                              role={canOpenUnit ? 'link' : undefined}
+                              tabIndex={canOpenUnit ? 0 : undefined}
+                              style={{ cursor: canOpenUnit ? 'pointer' : 'default' }}
+                            >
+                              <div className="table-cell">{unit.publication_title ?? '-'}</div>
+                              <div className="table-cell">{unit.total_surface ? `${unit.total_surface} ${unit.surface_measurement ?? ''}` : '-'}</div>
+                              <div className="table-cell">{unit.roofed_surface ? `${unit.roofed_surface} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
+                              <div className="table-cell">{unit.bathroom_amount ?? '-'}</div>
+                              <div className="table-cell">{pricePerM2}</div>
+                              <div className="table-cell">{priceTotal}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Mobile List View */}
+                      <div className="units-list units-list-mobile">
+                        {unidades.map((unit, index) => {
+                          const pricePerM2 = unit.price && Number(unit.total_surface) > 0
+                            ? `${unit.currency ?? ''} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
+                            : '-';
+                          const priceTotal = unit.price
+                            ? `${unit.currency ?? ''} ${unit.price.toLocaleString('es-AR')}`
+                            : '-';
+                          const canOpenUnit = !!unit.id;
+                          return (
+                            <div
+                              key={unit.id ?? index}
+                              className="unit-item"
+                              onClick={() => canOpenUnit && openUnitDetailInNewTab(unit.id)}
+                              onKeyDown={(event) => {
+                                if (canOpenUnit && (event.key === 'Enter' || event.key === ' ')) {
+                                  event.preventDefault();
+                                  openUnitDetailInNewTab(unit.id);
+                                }
+                              }}
+                              role={canOpenUnit ? 'link' : undefined}
+                              tabIndex={canOpenUnit ? 0 : undefined}
+                              style={{ cursor: canOpenUnit ? 'pointer' : 'default' }}
+                            >
+                              <div className="unit-field">
+                                <span className="unit-label">Unidad:</span>
+                                <span className="unit-value">{unit.publication_title ?? '-'}</span>
+                              </div>
+                              <div className="unit-field">
+                                <span className="unit-label">Sup. Total:</span>
+                                <span className="unit-value">{unit.total_surface ? `${unit.total_surface} ${unit.surface_measurement ?? ''}` : '-'}</span>
+                              </div>
+                              <div className="unit-field">
+                                <span className="unit-label">Sup. Cubierta:</span>
+                                <span className="unit-value">{unit.roofed_surface ? `${unit.roofed_surface} ${unit.roofed_surface_measurement ?? ''}` : '-'}</span>
+                              </div>
+                              <div className="unit-field">
+                                <span className="unit-label">Baños:</span>
+                                <span className="unit-value">{unit.bathroom_amount ?? '-'}</span>
+                              </div>
+                              <div className="unit-field">
+                                <span className="unit-label">Precio m²:</span>
+                                <span className="unit-value">{pricePerM2}</span>
+                              </div>
+                              <div className="unit-field">
+                                <span className="unit-label">Precio total:</span>
+                                <span className="unit-value">{priceTotal}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                   </div>
                 </div>
               ))}

@@ -661,3 +661,8 @@ export const currencySelectOptions = currencyOptions.map(option => ({
   label: option,
 }));
 
+
+export const FREQUENCY_OPTIONS = [
+  { value: 'inmediata', label: 'Inmediata' },
+  { value: 'mensual', label: 'Mensual' },
+];
