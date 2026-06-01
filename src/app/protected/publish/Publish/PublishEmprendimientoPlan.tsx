@@ -175,11 +175,14 @@ export default function PublishPlansEmprendimiento({
               <span className="publish-plans-radio-dot" />
               <span className="publish-plans-radio-title">Gratis</span>
               <span className="publish-plans-radio-subtitle"></span>
-            </button>           
+            </button>  
+            {branchFilter === '' && (
+                  <p style={{ fontSize: 13, color: '#888' }}>Seleccioná una sucursal para ver los planes disponibles.</p>
+                )}         
             {loadingPlans && (
               <p style={{ fontSize: 13, color: '#888' }}>Cargando planes...</p>
             )}
-            {!loadingPlans && branchPlans.length === 0 && (
+            {branchFilter !== '' && !loadingPlans && branchPlans.length === 0 && (
               <p style={{ fontSize: 13, color: '#888' }}>No hay planes disponibles para esta sucursal.</p>                  
             )}
             {branchPlans.map((plan) => (

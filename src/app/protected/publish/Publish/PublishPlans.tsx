@@ -145,7 +145,7 @@ export default function PublishPlans({
                   label="Sucursal"
                   placeholder="Todas"
                   value={branchFilter}
-                  onChange={(value) => { setBranchFilter(value); setUser_id(undefined); }}
+                  onChange={(value) => { setBranchFilter(value); setUser_id(undefined); setHired_plan_id(0); setVisibility(0); }}
                   options={branchOptions}
                 />
               </div>
