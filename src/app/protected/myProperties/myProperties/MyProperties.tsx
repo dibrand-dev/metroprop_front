@@ -94,6 +94,8 @@ const MyProperties = () => {
   const hasOrganization = sessionUser?.organization ?? false;
   const orgId = sessionUser?.organization?.id ?? null;
   const loggedUserId = sessionUser?.id ? Number(sessionUser.id) : null;
+  const isRole2 = sessionUser?.role_id === 2;
+  const isRole3 = sessionUser?.role_id === 3;
 
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -251,6 +253,13 @@ const MyProperties = () => {
 
   const availablePlans = hasOrganization && hasBranches && republishBranchId !== 'Todas' ? branchPlans : userPlans;
   const loadingAvailablePlans = hasOrganization && hasBranches && republishBranchId !== 'Todas' ? loadingBranchPlans : loadingUserPlans;
+
+  useEffect(() => {
+    if (!isRole2 || !loggedUserId || rawUsers.length === 0) return;
+    const me = rawUsers.find((u: any) => String(u.id) === String(loggedUserId));
+    const myBranch = Array.isArray(me?.branches) && me.branches.length > 0 ? String(me.branches[0].id) : null;
+    if (myBranch) setSelectedBranchId(myBranch);
+  }, [isRole2, loggedUserId, rawUsers]);
 
   useEffect(() => {
     if (!republishModalOpen) return;
@@ -519,7 +528,7 @@ const MyProperties = () => {
                 checked={allSelected}
                 onChange={toggleSelectAll}
             />
-            {hasOrganization && (
+            {hasOrganization && !isRole2 && !isRole3 && (
               <div style={{ position: 'relative' }}>
                 <button
                   type="button"
@@ -558,9 +567,11 @@ const MyProperties = () => {
                 )}
               </div>
             )}
+            {!isRole2 && (
             <button type="button" className="myprop-toolbar-btn" title="Republicar" disabled={selectedCount === 0 || (hasOrganization && selectedBranchId === "Todas")} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
               <img src="/icons/republicar.svg" alt="Republicar" />
             </button>
+            )}
             <button type="button" className="myprop-toolbar-btn" title="Archivar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
               <img src="/icons/archivar.svg" alt="Archivar" />
             </button>
@@ -582,6 +593,7 @@ const MyProperties = () => {
                       setRepublishError(null);
                     }}
                     options={republishBranchOptions}
+                    disabled={isRole2}
                   />
                 ) : (
                   <p className="myprop-republish-info">No hay sucursales en la organización. Se mostrarán planes del usuario logueado.</p>
@@ -654,9 +666,11 @@ const MyProperties = () => {
                         </div>
                     </div>
                     <div className="myprop-card-actions">
+                        {!isRole2 && (
                         <button type="button" className="myprop-card-action-btn" title="Republicar" onClick={() => prop.id && openRepublishModal([prop.id], String((prop as any)?.branch_id ?? (prop as any)?.branch?.id ?? ''))}>​
                           <img src="/icons/republicar.svg" alt="Republicar" />
-                        </button>                        
+                        </button>
+                        )}                        
                         <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.open(`/protected/publish/${prop.id}`, '_blank')}>
                           <img src="/icons/pencil.svg" alt="Editar" />
                         </button>

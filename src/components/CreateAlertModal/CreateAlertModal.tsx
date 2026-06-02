@@ -5,23 +5,29 @@ import './CreateAlertModal.scss';
 import Select from '@/ui/Select/Select';
 import Button from '@/ui/Button/Button';
 import InputField from '@/ui/InputField/InputField';
-import { FREQUENCY_OPTIONS } from '@/types/propiedad';
+import { AlertFrequency, FREQUENCY_OPTIONS } from '@/types/propiedad';
+import { useSession } from 'next-auth/react';
+import { apiFetch } from '@/lib/apiFetch';
+import { API_BASE_URL } from '@/utils/utils';
 
 interface CreateAlertModalProps {
   onClose: () => void;
+  onSuccess?: () => void;
   alertId?: number;
   initialName?: string;
   initialFrequency?: string;
+  filters?: string;
 }
 
 const iconCheck = '/icons/check.svg';
 
-export default function CreateAlertModal({ onClose, alertId, initialName, initialFrequency }: CreateAlertModalProps) {
+export default function CreateAlertModal({ onClose, onSuccess, alertId, initialName, initialFrequency, filters }: CreateAlertModalProps) {
   const isEditMode = alertId !== undefined;
   const [alertName, setAlertName] = useState(initialName ?? '');
-  const [frequency, setFrequency] = useState(initialFrequency ?? 'inmediata');
+  const [frequency, setFrequency] = useState(initialFrequency ?? AlertFrequency.WEEKLY);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { data: sessionData } = useSession();
 
   useEffect(() => {
     if (!isSuccess) return;
@@ -36,12 +42,32 @@ export default function CreateAlertModal({ onClose, alertId, initialName, initia
     setIsLoading(true);
     try {
       if (isEditMode) {
-        // TODO: call the alert edit service here
-        // await apiFetch(`${API_BASE_URL}/alerts/${alertId}`, { method: 'PATCH', body: JSON.stringify({ name: alertName, frequency }) });
+        await apiFetch(`${API_BASE_URL}/search-alerts/${alertId}`, {
+          method: 'PATCH',
+          body: { title: alertName },
+        });
       } else {
-        // TODO: call the alert creation service here
-        // await apiFetch(`${API_BASE_URL}/alerts`, { method: 'POST', body: JSON.stringify({ name: alertName, frequency }) });
+        const userId = (sessionData?.user as any)?.id;
+        let cleanFilters = '{}';
+        try {
+          const parsed = JSON.parse(filters ?? '{}');
+          const { q, page, limit, ...rest } = parsed;
+          cleanFilters = JSON.stringify(rest);
+        } catch {
+          cleanFilters = '{}';
+        }
+        await apiFetch(`${API_BASE_URL}/search-alerts`, {
+          method: 'POST',
+          body: {
+            title: alertName,
+            filters: cleanFilters,
+            user_id: userId,
+            status: 'active',
+            frequency
+          },
+        });
       }
+      onSuccess?.();
       setIsSuccess(true);
     } catch {
       // handle error if needed
@@ -76,10 +102,7 @@ export default function CreateAlertModal({ onClose, alertId, initialName, initia
             </div>
           ) : (
             <div className="create-alert-form">
-              <div className="create-alert-field">
-                <label className="create-alert-label" htmlFor="alert-name">
-                  Nombre de tu alerta
-                </label>
+              <div className="create-alert-field">                
                 <InputField
                   id="alert-name"
                   type="text"
@@ -87,18 +110,21 @@ export default function CreateAlertModal({ onClose, alertId, initialName, initia
                   value={alertName}
                   onChange={(e) => setAlertName(e.target.value)}
                   autoComplete="off"
+                  label="Nombre de tu alerta"
                 />
               </div>
 
-              <div className="create-alert-field">
-                <Select
-                    label="Frecuencia de notificaciones por mail"
-                    options={FREQUENCY_OPTIONS}
-                    value={frequency}
-                    onChange={setFrequency}
-                    placeholder="Inmediata"
-                />
-              </div>
+              {!isEditMode && (
+                <div className="create-alert-field">
+                  <Select
+                      label="Frecuencia de notificaciones por mail"
+                      options={FREQUENCY_OPTIONS}
+                      value={frequency}
+                      onChange={setFrequency}
+                      placeholder="Frecuencia de alerta"
+                  />
+                </div>
+              )}
 
               <div className="alert-actions">
                 <Button onClick={onClose} label="Cancelar" variant="secondary" disabled={isLoading} />

@@ -754,6 +754,13 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [], propert
 
   const createAlert = () => setIsAlertModalOpen(true);
 
+  const currentFilters = useMemo(() => {
+    const params = buildFilterParams(operacion, selectedTypes, rooms, masFiltros, precio, searchText);
+    const locationId = searchParams.get('location_id');
+    if (locationId) params.set('location_id', locationId);
+    return JSON.stringify(Object.fromEntries(params.entries()));
+  }, [operacion, selectedTypes, rooms, masFiltros, precio, searchText, searchParams]);
+
   // ── Histogram bars computed from mapData prices (fall back to properties list)
   const mapPrices = useMemo(() => {
     const fromMap = mapData.map(d => Number(d.price)).filter(p => !isNaN(p) && p > 0);
@@ -1031,7 +1038,7 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [], propert
   return (
     <div className="filter-bar">
       {isAlertModalOpen && (
-        <CreateAlertModal onClose={() => setIsAlertModalOpen(false)} />
+        <CreateAlertModal filters={currentFilters} onClose={() => setIsAlertModalOpen(false)} />
       )}
       <div className="filter-bar-container">
         <div className="filter-group">

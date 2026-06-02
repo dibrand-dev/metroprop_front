@@ -661,8 +661,18 @@ export const currencySelectOptions = currencyOptions.map(option => ({
   label: option,
 }));
 
+export enum AlertFrequency {
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly',
+}
+export const ALERT_FREQUENCY_LABELS: Record<string, string> = {
+  [AlertFrequency.DAILY]: 'Diario',
+  [AlertFrequency.WEEKLY]: 'Semanal',
+  [AlertFrequency.MONTHLY]: 'Mensual'
+};
 
-export const FREQUENCY_OPTIONS = [
-  { value: 'inmediata', label: 'Inmediata' },
-  { value: 'mensual', label: 'Mensual' },
-];
+export const FREQUENCY_OPTIONS = Object.entries(ALERT_FREQUENCY_LABELS).map(([key, label]) => ({
+  value: key,
+  label,
+}));

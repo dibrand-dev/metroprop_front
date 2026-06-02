@@ -1,160 +1,214 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import './Alerts.scss';
-import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL, setImagePath } from '@/utils/utils';
+import { API_BASE_URL } from '@/utils/utils';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import CreateAlertModal from '@/components/CreateAlertModal/CreateAlertModal';
 import Paginator from '@/components/Paginator/Paginator';
-import InputField2 from '@/ui/InputField2/InputField2';
-import { FREQUENCY_OPTIONS, type CreateProperty } from '@/types/propiedad';
-import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
 import Select from '@/ui/Select/Select';
-import Button from '@/ui/Button/Button';
+import {
+  FREQUENCY_OPTIONS,
+  OPERATION_TYPE_LABELS, OperationType,
+  PROPERTY_TYPE_LABELS, PropertyType,
+  PROPERTY_SUBTYPE_LABELS, PropertySubtype,
+  ORIENTATION_LABELS, Orientation,
+  AmenityTag,
+  AlertFrequency,
+} from '@/types/propiedad';
+import { useLocations } from '@/lib/locations';
 
-const iconArrowBack = '/icons/arrow.svg';
 const iconTrash = '/icons/trash.svg';
 const iconEdit = '/icons/pencil.svg';
 
-interface PropertyItem {
+interface Alert {
   id: number;
   title: string;
-  price: number;
-  currency: string;
-  location: string;
-  status: string;
-  organization?: {
-    id: number;
-    company_name: string;
-    company_logo: string;
-  };
+  filters: string; // JSON string
   user_id: number;
-  images?: { url: string }[];
-  actions: ('delete')[];
+  status: 'active' | 'inactive';
+  created_at?: string;
+  frequency: AlertFrequency
+}
+
+function parseFilters(
+  filtersJson: string,
+  locationMap: Map<number, string>,
+  tagsMap: Map<number, string>,
+): [string, string][] {
+  try {
+    const parsed = JSON.parse(filtersJson);
+    if (!parsed || typeof parsed !== 'object') return [];
+    const entries: ([string, string] | null)[] = [];
+
+    for (const [key, value] of Object.entries(parsed)) {
+      const str = String(value);
+
+      if (key === 'location_id') {
+        const name = locationMap.get(Number(str));
+        if (name) entries.push(['location_id', name]);
+        continue;
+      }
+      if (key === 'operation_type') {
+        const label = OPERATION_TYPE_LABELS[Number(str) as OperationType];
+        if (label) entries.push(['operation_type', label]);
+        continue;
+      }
+      if (key === 'property_type') {
+        const label = PROPERTY_TYPE_LABELS[Number(str) as PropertyType];
+        if (label) entries.push(['property_type', label]);
+        continue;
+      }
+      if (key === 'property_subtype') {
+        const label = PROPERTY_SUBTYPE_LABELS[Number(str) as PropertySubtype];
+        if (label) entries.push(['property_subtype', label]);
+        continue;
+      }
+      if (key === 'room_amount') {
+        entries.push(['room_amount', `Ambientes: ${str}`]);
+        continue;
+      }
+      if (key === 'parking_lot_amount') {
+        entries.push(['parking_lot_amount', `Cocheras: ${str}`]);
+        continue;
+      }
+      if (key === 'age') {
+        const n = Number(str);
+        const ageLabel = n === 0 ? 'A estrenar' : n === -1 ? 'En construcción' : `Antigüedad: ${n} año${n === 1 ? '' : 's'}`;
+        entries.push(['age', ageLabel]);
+        continue;
+      }
+      if (key === 'orientation') {
+        str.split(',').forEach(v => {
+          const label = ORIENTATION_LABELS[Number(v.trim()) as Orientation];
+          if (label && label !== 'Seleccionar') entries.push(['orientation', label]);
+        });
+        continue;
+      }
+      if (key === 'tags') {
+        str.split(',').forEach(v => {
+          const label = tagsMap.get(Number(v.trim()));
+          if (label) entries.push(['tag', label]);
+        });
+        continue;
+      }
+    }
+
+    return entries.filter((e): e is [string, string] => e !== null);
+  } catch {}
+  return [];
 }
 
 const LIMIT = 20;
 
 export default function Alerts() {
   const queryClient = useQueryClient();
+  const { data: locationsData = [] } = useLocations();
+  const locationMap = useMemo(
+    () => new Map((locationsData as { id: number; name: string }[]).map((l) => [l.id, l.name])),
+    [locationsData],
+  );
+
+  const { data: tagsData = [] } = useQuery<AmenityTag[]>({
+    queryKey: ['tags'],
+    queryFn: async () => apiFetch<AmenityTag[]>(`${API_BASE_URL}/tags`),
+    staleTime: 60 * 60 * 1000,
+  });
+  const tagsMap = useMemo(
+    () => new Map((tagsData as AmenityTag[]).map((t) => [t.id, t.name])),
+    [tagsData],
+  );
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchId, setSearchId] = useState<number | null>(null);
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; propertyId: number | null; propertyTitle: string }>({ open: false, propertyId: null, propertyTitle: '' });
-  const [editAlertModal, setEditAlertModal] = useState<{ open: boolean; alertId: number; name: string; frequency: string } | null>(null);
-   
-  const deleteMutation = useMutation({
-    mutationFn: (propertyId: number) =>
-      apiFetch(`${API_BASE_URL}/properties/${propertyId}`, { method: 'DELETE' }),
-    onSuccess: () => {
-      setDeleteModal({ open: false, propertyId: null, propertyTitle: '' });
-      queryClient.invalidateQueries({ queryKey: ['all-properties'] });
-    },
-  });
-/*
-  const { data: propertiesData } = useQuery<any>({
-    queryKey: ['all-properties', currentPage, searchId],
-    queryFn: async () => {
-      if (searchId !== null) {
-        const property: CreateProperty = await apiFetch<CreateProperty>(`${API_BASE_URL}/properties/${searchId}`);
-        // /properties/filter?page=1&limit=20&q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=1
-        return { data: [property], total: 1 };
-      }
-      return apiFetch(`${API_BASE_URL}/properties`, {
-        params: { offset: currentPage * LIMIT, limit: LIMIT },
-      });
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-  */
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; alertId: number | null; alertTitle: string }>({ open: false, alertId: null, alertTitle: '' });
+  const [editAlertModal, setEditAlertModal] = useState<{ open: boolean; alertId: number; name: string; filters: string } | null>(null);
 
-// http://localhost:3000/properties/filter?page=1&limit=20&q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=1
-  const { data: propertiesData, isLoading } = useQuery({
-    queryKey: ['my-properties', currentPage, searchId/*, activeFilters, selectedBranchId*/],
-    queryFn: async () => {
-      if (searchId !== null) {
-        const property: CreateProperty = await apiFetch<CreateProperty>(`${API_BASE_URL}/properties/${searchId}`, {
-         // params: { id: searchId },
-        });
-        return { data: [property], total: 1 };
-      }
-      return apiFetch(`${API_BASE_URL}/properties/filter`, {
-        params: { order_by: 'created_at:desc', page: currentPage, limit: LIMIT/*, ...activeFilters, ...branchFilterParam */},
-      });
-    },
+  const { data: alertsData, isLoading } = useQuery({
+    queryKey: ['search-alerts', currentPage],
+    queryFn: async () =>
+      apiFetch(`${API_BASE_URL}/search-alerts`, {
+        params: { page: currentPage, limit: LIMIT },
+      }),
     staleTime: 5 * 60 * 1000,
   });
 
-  const rawData: any = propertiesData;
-  const rawProperties: CreateProperty[] = rawData?.data ?? []; //Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
-  const total: number = rawData?.total ?? rawProperties.length;
+  const rawData: any = alertsData;
+  const alerts: Alert[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
+  const total: number = rawData?.total ?? alerts.length;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 
-  const properties: PropertyItem[] = rawProperties.map((prop: CreateProperty) => {
-    const locationParts = [prop.street, prop.number].filter(Boolean);
-    const location = locationParts.length > 0 ? locationParts.join(' ') : 'Ubicación no especificada';
+  const deleteMutation = useMutation({
+    mutationFn: (alertId: number) =>
+      apiFetch(`${API_BASE_URL}/search-alerts/${alertId}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      setDeleteModal({ open: false, alertId: null, alertTitle: '' });
+      queryClient.invalidateQueries({ queryKey: ['search-alerts'] });
+    },
+  });
 
-    // API returns organization object even though type doesn't specify it
-    const propAny = prop as any;
-
-    return {
-      id: prop.id ?? 0,
-      title: prop.publication_title ?? 'Sin titulo',
-      price: prop.price ?? 0,
-      currency: prop.currency ?? 'USD',
-      location: location,
-      status: prop.status ? String(prop.status) : 'DRAFT',
-      organization: propAny.organization,
-      user_id: prop.user_id ?? 0,
-      actions: ['delete'] as const,
-      images: prop.images ?? [],
-    };
-  }) ?? [];
+  const updateFrequencyMutation = useMutation({
+    mutationFn: ({ alertId, frequency }: { alertId: number; frequency: string }) =>
+      apiFetch(`${API_BASE_URL}/search-alerts/${alertId}`, {
+        method: 'PATCH',
+        body: { frequency },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['search-alerts'] });
+    },
+  });
 
   return (
-      <div className="collaborators-container">        
-        <div className="collaborators-content">
-          <div className="collaborators-header">
-            <div>
-              <h1>Búsquedas y alertas</h1>              
-            </div>
+    <div className="collaborators-container">
+      <div className="collaborators-content">
+        <div className="collaborators-header">
+          <div>
+            <h1>Búsquedas y alertas</h1>
           </div>
-          <div className="collaborators-list">
-            {properties.map((property) => (
-              <div key={property.id} className="collaborators-card">
+        </div>
+        <div className="collaborators-list">
+          {isLoading && <p>Cargando alertas...</p>}
+          {alerts.map((alert) => {
+            const filterChips = parseFilters(alert.filters, locationMap, tagsMap);
+            return (
+              <div key={alert.id} className="collaborators-card">
                 <div className="collaborators-card-info">
-                  <p className="collaborators-card-subtitle">
-                    Guardado el 11/22/3231
-                  </p>
-                  <p className="collaborators-card-title">
-                    {property.title}
-                  </p>
-                  
+                  {alert.created_at && (
+                    <p className="collaborators-card-subtitle">
+                      Guardado el {new Date(alert.created_at).toLocaleDateString('es-AR')}
+                    </p>
+                  )}
+                  <p className="collaborators-card-title">{alert.title}</p>
                   <div className="property-owner-info">
-                    <Button variant="outline" label={property.organization?.company_name ?? 'Sin inmobiliaria'} onClick={() => {}} />
-                    <Button variant="outline" label={property.organization?.company_name ?? 'Sin inmobiliaria'} onClick={() => {}} />
-                    <Button variant="outline" label={property.organization?.company_name ?? 'Sin inmobiliaria'} onClick={() => {}} />
+                    {filterChips.length > 0
+                      ? filterChips.map(([key, value]) => (
+                          <span key={key} className="alert-filter-chip">{value}</span>
+                        ))
+                      : <span className="collaborators-card-subtitle">Sin filtros guardados</span>
+                    }
                   </div>
                 </div>
                 <div className="collaborators-card-actions">
                   <Select
                     options={FREQUENCY_OPTIONS}
-                    value={'Inmediata'}
-                    onChange={() => {}}
+                    value={alert.frequency}
+                    onChange={(val) => updateFrequencyMutation.mutate({ alertId: alert.id, frequency: val })}
                     placeholder="Inmediata"
                     label="Frecuencia de alerta"
                   />
-                  <div className="collaborators-card-tools">                    
+                  <div className="collaborators-card-tools">
                     <button
                       className="collaborators-action-button"
                       type="button"
                       aria-label="Editar alerta"
-                      onClick={() => {
-                        
-                      }}
+                      onClick={() =>
+                        setEditAlertModal({
+                          open: true,
+                          alertId: alert.id,
+                          name: alert.title,
+                          filters: alert.filters,
+                        })
+                      }
                     >
                       <img src={iconEdit} alt="" />
                     </button>
@@ -162,35 +216,35 @@ export default function Alerts() {
                       className="collaborators-action-button"
                       type="button"
                       aria-label="Eliminar alerta"
-                      onClick={() => {
-                        setDeleteModal({ open: true, propertyId: property.id, propertyTitle: property.title });
-                      }}
+                      onClick={() =>
+                        setDeleteModal({ open: true, alertId: alert.id, alertTitle: alert.title })
+                      }
                     >
                       <img src={iconTrash} alt="" />
                     </button>
-                    
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
+      </div>
 
-        <Paginator
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+      <Paginator
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
 
-        {deleteModal.open && (
+      {deleteModal.open && (
         <AreYouSureModal
-          title="Eliminar Propiedad"
-          subTitle={`¿Está seguro que desea eliminar "${deleteModal.propertyTitle}"?`}
+          title="Eliminar alerta"
+          subTitle={`¿Está seguro que desea eliminar "${deleteModal.alertTitle}"?`}
           text="Esta acción no se puede deshacer."
           icon={iconTrash}
-          onCancel={() => setDeleteModal({ open: false, propertyId: null, propertyTitle: '' })}
+          onCancel={() => setDeleteModal({ open: false, alertId: null, alertTitle: '' })}
           onAccept={() => {
-            if (deleteModal.propertyId) deleteMutation.mutate(deleteModal.propertyId);
+            if (deleteModal.alertId) deleteMutation.mutate(deleteModal.alertId);
           }}
           acceptText={deleteMutation.isPending ? 'Eliminando...' : 'Aceptar'}
         />
@@ -199,10 +253,10 @@ export default function Alerts() {
         <CreateAlertModal
           alertId={editAlertModal.alertId}
           initialName={editAlertModal.name}
-          initialFrequency={editAlertModal.frequency}
           onClose={() => setEditAlertModal(null)}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ['search-alerts'] })}
         />
       )}
-      </div>
+    </div>
   );
 }
