@@ -26,7 +26,7 @@ interface ApiFetchOptions<TBody = unknown> {
 export async function apiFetch<TResponse = unknown, TBody = unknown>(
   url: string,
   options: ApiFetchOptions<TBody> = {},
-): Promise<TResponse> {
+): Promise<TResponse> | false {
   const { method = 'GET', body, params, token: explicitToken } = options;
   // ── Resolve auth token ────────────────────────────────────────────────────
   let token = explicitToken;
@@ -70,11 +70,11 @@ export async function apiFetch<TResponse = unknown, TBody = unknown>(
   const response = await fetch(fullUrl, fetchOptions);
   
   if (!response.ok) {
-    if (response.status === 401) {
+    /*if (response.status === 401) {
       await signOut({ redirect: false });
       window.location.href = '/login';
       throw new Error('Session expired');
-    }
+    }*/
 
     await response.json()
       .then(data => {

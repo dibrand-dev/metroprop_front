@@ -62,7 +62,7 @@ export default function PublishPlans({
   useEffect(() => {
     if (!isRole2 && fetchedBranches.length === 1) {
       setBranchFilter(String(fetchedBranches[0].id));
-    }
+    } 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchedBranches.length]);
 

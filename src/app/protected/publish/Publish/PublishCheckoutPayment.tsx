@@ -73,7 +73,7 @@ export default function PublishCheckoutPayment({
 }: PublishCheckoutPaymentProps) {
   const { data: session } = useSession();
   const userId = session?.user?.id ?? '';
-  const userHasOrganization = session?.user?.organizationId != null;
+  const userHasOrganization = session?.user?.organization != null;
   const [cardHolder, setCardHolder] = useState('');
   const [email, setEmail] = useState('');
   const [areaCode, setAreaCode] = useState('');
@@ -173,7 +173,7 @@ export default function PublishCheckoutPayment({
       // Get payment method from card BIN (first 6 digits)
       const bin = cardNumber.replace(/\s/g, '').substring(0, 6);
       const binResponse = await fetch(
-        `https://api.mercadopago.com/v2/payment_methods/search?public_key=${MP_PUBLIC_KEY}&bins=${bin}`
+        `https://api.mercadopago.com/v1/payment_methods/search?public_key=${MP_PUBLIC_KEY}&bins=${bin}`
       );
       const binData = await binResponse.json();
       const paymentMethodId = binData?.results?.[0]?.id;
