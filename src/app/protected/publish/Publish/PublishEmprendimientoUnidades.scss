@@ -809,6 +809,13 @@
           padding: 4px;
         }
       }
+
+      &.unit-list-title {
+        max-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
   }
 }

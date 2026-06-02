@@ -394,7 +394,7 @@ console.log("wizard", wizardData)
                     {wizardData.geo_lat && wizardData.geo_long ? (
                       <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
                         <Map
-                          center={{ lat: wizardData.geo_lat, lng: wizardData.geo_long }}
+                          center={{ lat: Number(wizardData.geo_lat), lng: Number(wizardData.geo_long) }}
                           zoom={15}
                           gestureHandling="none"
                           disableDefaultUI

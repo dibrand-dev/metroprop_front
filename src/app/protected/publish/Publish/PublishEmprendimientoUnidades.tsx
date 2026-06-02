@@ -351,7 +351,7 @@ export default function PublishEmprendimientoUnidades({
                 ) : (
                   <div className="unit-list-thumbnail unit-list-thumbnail--empty" />
                 )}
-                <div className="unit-list-title">{unitData.publication_title}</div>
+                <div className="unit-list-title" title={unitData.publication_title}>{unitData.publication_title}</div>
                 <div className="unit-list-type">{PROPERTY_TYPE_LABELS[unitData.property_type as PropertyType] ?? unitData.property_type}</div>
                 <div className="unit-list-price">{unitData.currency} {unitData.price?.toLocaleString()}</div>
                 <div className="unit-list-rooms">{unitData.room_amount ?? 0} amb.</div>

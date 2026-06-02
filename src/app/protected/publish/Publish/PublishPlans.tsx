@@ -36,7 +36,6 @@ export default function PublishPlans({
   const [visibility, setVisibility] = useState(wizardData.visibility || 0);
   const [branchFilter, setBranchFilter] = useState('');
   const { data: sessionData } = useSession();
-  const [branches, setBranches] = useState<any[]>([]);
 
   const { data:plansData , isLoading, isError } = useQuery<Plan[]>({
     queryKey: ['plans'],
@@ -45,6 +44,8 @@ export default function PublishPlans({
   });
 
   const orgId = (sessionData?.user as any)?.organization?.id ?? null;
+  const isRole2 = (sessionData?.user as any)?.role_id === 2;
+  const loggedUserId = (sessionData?.user as any)?.id;
 
   const { data: fetchedBranches = [] } = useQuery<any[]>({
     queryKey: ['branches', orgId],
@@ -52,18 +53,18 @@ export default function PublishPlans({
     enabled: !!orgId,
   });
 
-  const branchOptions = [
-    ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
-  ];
+  const branchOptions = fetchedBranches.map((b: any) => ({
+    value: String(b.id),
+    label: b.branch_name ?? b.name ?? String(b.id),
+  }));
 
+  // Auto-select when only one branch, or when role_id=2 is handled below
   useEffect(() => {
-    if (Array.isArray(fetchedBranches)) {
-      setBranches(fetchedBranches);
-      if (fetchedBranches.length === 1) {
-        setBranchFilter(String(fetchedBranches[0].id));
-      }
+    if (!isRole2 && fetchedBranches.length === 1) {
+      setBranchFilter(String(fetchedBranches[0].id));
     }
-  }, [fetchedBranches]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchedBranches.length]);
 
   const { data: usersData } = useQuery<any>({
     queryKey: ['collaborators-users'],
@@ -74,11 +75,28 @@ export default function PublishPlans({
   const rawData: any = usersData;
   const rawUsers: any[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
 
+  // Auto-select branch for role_id=2 users
+  useEffect(() => {
+    if (!isRole2 || !loggedUserId || rawUsers.length === 0) return;
+    const me = rawUsers.find((u: any) => String(u.id) === String(loggedUserId));
+    const myBranch = Array.isArray(me?.branches) && me.branches.length > 0 ? String(me.branches[0].id) : null;
+    if (myBranch) setBranchFilter(myBranch);
+  }, [isRole2, loggedUserId, rawUsers]);
+
   const { data: branchPlans = [], isLoading: loadingPlans } = useQuery<any[]>({
     queryKey: ['branch-plans', branchFilter],
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}`),
-    enabled: !!branchFilter,
+    enabled: !!branchFilter && !!orgId,
   });
+
+  const { data: userPlans = [], isLoading: loadingUserPlans } = useQuery<any[]>({
+    queryKey: ['user-plans', user_id],
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${user_id}/availability`),
+    enabled: !!user_id && !orgId,
+  });
+
+  const activePlans = orgId ? branchPlans : userPlans;
+  const loadingActivePlans = orgId ? loadingPlans : loadingUserPlans;
 
   const collaboratorOptions = rawUsers
     .filter((user: any) => {
@@ -140,26 +158,29 @@ export default function PublishPlans({
           <div className="publish-plans-section">
             <h1>Ya casi terminas</h1>
 
-            {branches.length > 0 && <div className="publish-plans-block">
+            {fetchedBranches.length > 0 && !isRole2 && <div className="publish-plans-block">
               <h2>Asigna este aviso a un colaborador</h2>
               <div className="publish-plans-field">
                 <Select
                   label="Sucursal"
-                  placeholder="Todas"
+                  placeholder="Seleccionar sucursal"
                   value={branchFilter}
                   onChange={(value) => { setBranchFilter(value); setUser_id(undefined); setHired_plan_id(0); setVisibility(0); }}
                   options={branchOptions}
+                  disabled={isRole2}
                 />
               </div>
-              <div className="publish-plans-field">
-                <Select
-                  label="Tus colaboradores"
-                  options={collaboratorOptions}
-                  value={user_id ? user_id.toString() : undefined}
-                  onChange={(value) => setUser_id(value ? parseInt(value) : undefined)}
-                  placeholder="Seleccionar colaborador"
-                />
-              </div>
+              {!isRole2 && (
+                <div className="publish-plans-field">
+                  <Select
+                    label="Tus colaboradores"
+                    options={collaboratorOptions}
+                    value={user_id ? user_id.toString() : undefined}
+                    onChange={(value) => setUser_id(value ? parseInt(value) : undefined)}
+                    placeholder="Seleccionar colaborador"
+                  />
+                </div>
+              )}
             </div>}
 
             <div className="publish-plans-block">
@@ -178,16 +199,16 @@ export default function PublishPlans({
                   <span className="publish-plans-radio-title">Gratis</span>
                   <span className="publish-plans-radio-subtitle"></span>
                 </button>
-                {branchFilter === '' && (
+                {!!orgId && branchFilter === '' && (
                   <p style={{ fontSize: 13, color: '#888' }}>Seleccioná una sucursal para ver los planes disponibles.</p>
                 )}
-                {branchFilter !== '' && loadingPlans && (
+                {loadingActivePlans && (
                   <p style={{ fontSize: 13, color: '#888' }}>Cargando planes...</p>
                 )}
-                {branchFilter !== '' && !loadingPlans && branchPlans.length === 0 && (
-                  <p style={{ fontSize: 13, color: '#888' }}>No hay planes disponibles para esta sucursal.</p>                  
+                {!loadingActivePlans && (orgId ? branchFilter !== '' : true) && activePlans.length === 0 && (
+                  <p style={{ fontSize: 13, color: '#888' }}>No hay planes disponibles.</p>
                 )}
-                {branchPlans.map((plan) => (
+                {activePlans.map((plan) => (
                   <button
                     key={plan.plan_id}
                     type="button"
