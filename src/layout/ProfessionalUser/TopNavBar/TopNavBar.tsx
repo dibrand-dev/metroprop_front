@@ -9,7 +9,7 @@ interface TopNavBarProps {
 }
 
 export default function TopNavBar({ 
-  menuItems = [{label:'Mis publicaciones', link: '/protected/myProperties'}, {label: 'Interesados', link: '/protected/interested'}],
+  menuItems = [{label:'Mis publicaciones', link: '/protected/myProperties'}, {label: 'Interesados', link: '/protected/leads'}],
 }: TopNavBarProps) {
   
   return (

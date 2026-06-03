@@ -100,6 +100,12 @@ export default function TopUserMenu() {
       icon: favoritosIcon,
       href: '/protected/favorites'
     },
+    ...(sessionData?.user?.role_id !== 4 ? [ {
+      id: 'interesados',
+      label: 'Interesados',
+      icon: contactosIcon,
+      href: '/protected/leads'
+    }] : []),
     {
       id: 'alertas',
       label: 'Búsquedas y alertas',

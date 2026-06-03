@@ -52,11 +52,11 @@ export default function Home() {
   const favoriteIds = useFavoriteIds();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchActive, setSearchActive] = useState<'1' | '2' | '3' | '4'>('1');
-  const [visitedProperties, setVisitedProperties] = useState<VisitedProperty[]>([]);
+  const [visitedProperties, setVisitedProperties] = useState<CreateProperty[]>([]);
   const visitedPropertiesRef = useRef<HTMLDivElement>(null);
   const featuredPropertiesRef = useRef<HTMLDivElement>(null);
 
-  const { data: featuredData } = useQuery({
+  const { data: featuredData } = useQuery<{ data: CreateProperty[] }>({
     queryKey: ['featured-properties'],
     queryFn: () => fetchProperties({ order_by: 'created_at:desc', country_id: 1, page: 1, limit: 20 }),
     staleTime: 5 * 60 * 1000,
@@ -209,36 +209,13 @@ export default function Home() {
                 </button>
               )}
               <div className="properties-container" ref={visitedPropertiesRef} onScroll={handleVisitedScroll}>
-                {visitedProperties.map((p) => {
-                  const vp: CreateProperty = {
-                    id: parseInt(String(p.id)) || 0,
-                    reference_code: '',
-                    publication_title: p.title,
-                    property_type: 1 as any,
-                    status: 1 as any,
-                    operation_type: 1 as any,
-                    price: p.price,
-                    currency: p.currency,
-                    expenses: p.expenses,
-                    street: p.address,
-                    room_amount: p.rooms,
-                    bathroom_amount: p.bathrooms,
-                    total_surface: p.area,
-                    price_square_meter: p.pricePerSqm,
-                    images: p.image ? [{ url: p.image, order: 0 } as any] : [],
-                    ...(p.agencyLogo ? { organization: { company_logo: p.agencyLogo } as any } : {}),
-                    isFavorite: favoriteIds.has(parseInt(String(p.id)) || 0),
-                  } as any;
-                  return (
-                    <PropertyCard
-                      key={p.id}
-                      property={vp}
-                      cardType="home"
-                      isLoggedIn={isLoggedIn}
-                      onFavorite={handleToggleFavorite}
-                    />
-                  );
-                })}
+                {visitedProperties.map((property) => <PropertyCard
+                  key={property.id}
+                  property={{ ...property, isFavorite: favoriteIds.has(property.id ?? 0) } as any}
+                  cardType="home"
+                  isLoggedIn={isLoggedIn}
+                  onFavorite={handleToggleFavorite}
+                />)}
               </div>
               {visitedCanScrollRight && (
                 <button 

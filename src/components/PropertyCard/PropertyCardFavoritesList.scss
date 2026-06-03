@@ -17,17 +17,18 @@
     padding: 0;
     align-items: stretch;
     gap: 0;
+    max-height: 300px;
     &:hover {
       background-color: white;
     }
 
     @media (max-width: 894px) {
       flex-direction: column;
+      max-height: none;
     }
 
     .property-image {
       width: 460px;
-      max-height: 400px;
       object-fit: cover;
       flex-shrink: 0;
       border: 1px solid transparent;
@@ -36,7 +37,7 @@
       }
       @media (max-width: 894px) {
         width: 100%;
-        max-height: none;
+        max-height: 200px;
       }
     }
     

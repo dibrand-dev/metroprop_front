@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CreateProperty, CreateAttached } from '@/types/propiedad';
+import { CreateProperty, CreateAttached, PROPERTY_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, OPERATION_TYPE_LABELS } from '@/types/propiedad';
 import { formatNumbers, HeartIcon, setImagePath } from '@/utils/utils';
 import { PROPERTY_NO_IMAGE } from '@/app/constants';
 import GalleryModal, { GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
@@ -116,7 +116,13 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
   if (cardType === 'home') {
     return (
       <>
-        <div className="property-card-wrapper" onClick={goToDetail}>
+        <div className="property-card-wrapper home" onClick={goToDetail}>
+          {property.is_development && <div className="entrega-delivery-date">
+            <span>Emprendimiento</span>
+            {showFavoriteBtn && <button className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`} onClick={handleFavorite} aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"} >
+              <img src={`/icons/${isFavorite ? "starIsFavorite" : "star"}.svg`} alt="Icono de favorito" />
+            </button>}
+          </div>}
           <div className="property-card-image">
             <img
               src={gallery.firstImage}
@@ -124,32 +130,55 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
               onClick={gallery.openGallery}
               style={{ cursor: gallery.hasImages ? 'pointer' : 'default' }}
             />
-            {showFavoriteBtn && <button className="property-card-heart" onClick={handleFavorite} aria-label="Add to favorites">
+            {!property.is_development && showFavoriteBtn && <button className="property-card-heart" onClick={handleFavorite} aria-label="Add to favorites">
               <HeartIcon isFavorite={isFavorite} />
             </button>}
           </div>
           <div className="property-card-info">
-            <h3 className="property-card-title">{property.publication_title}</h3>
-            <div className="property-card-price-section">
-              <div>
-                <p className="property-card-price">{property.currency} {formatNumbers(property.price)}</p>
-                {(property.expenses ?? 0) > 0 && (
-                  <p className="property-card-rent">Exp. {property.currency} {formatNumbers(property.expenses ?? 0)}</p>
-                )}
+            {property.is_development
+            ? <div className="content-wrapper">
+                <div className="delivery-date-content">
+                  <img src={'/icons/crane_gray.svg'} alt="Crane Icon" />
+                  {`En const. - Entrega ${new Date(property.delivery_date ?? property.development_delivery_date).toLocaleDateString("es-ES", { month: '2-digit', year: '2-digit' })}`}
+                </div>
+                <div className="property-details property-details-development">
+                  <div className="property-card-price-section">
+                    <div>
+                      <p>Desde</p>
+                      {getPrecioDesde(property.units)}
+                    </div>
+                    {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
+                  </div>
+                  {devFullLocation && <div className="full_location">{devFullLocation}</div>}
+                  <div className="address">{property.street}</div>
+                  <div className="specs-row">
+                    {uniqueRoomAmounts.length > 0 && <span className="ambients"><img src="/icons/door.svg" alt="Door Icon" />{uniqueRoomAmounts.join(' - ')} amb.</span>}
+                  </div>
+                </div>
               </div>
-              {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
-            </div>
-            <div className="property-card-location-section">
-              <p className="property-card-address">{property.street}</p>
-              {property.price_square_meter && (
-                <p className="property-card-location">{property.currency} {formatNumbers(property.price_square_meter)} m²</p>
-              )}
-            </div>
-            <div className="property-card-details">
-              {(property.total_surface ?? 0) > 0 && <span className="property-card-detail">{formatNumbers(property.total_surface!)} m² tot.</span>}
-              {(property.room_amount ?? 0) > 0 && <span className="property-card-detail">{property.room_amount} amb.</span>}
-              {(property.bathroom_amount ?? 0) > 0 && <span className="property-card-detail">{property.bathroom_amount} baños</span>}
-            </div>
+            : <div className="content-wrapper">            
+                <h3 className="property-card-title">{`${PROPERTY_TYPE_LABELS[property.property_type]}${property.property_subtype ? ` - ${PROPERTY_SUBTYPE_LABELS[property.property_subtype]}` : ''} en ${OPERATION_TYPE_LABELS[property.operation_type]}`}</h3>
+                <div className="property-card-price-section">
+                  <div>
+                    <p className="property-card-price">{property.currency} {formatNumbers(property.price)}</p>
+                    {(property.expenses ?? 0) > 0 && (
+                      <p className="property-card-rent">Exp. {property.currency} {formatNumbers(property.expenses ?? 0)}</p>
+                    )}
+                  </div>
+                  {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
+                </div>
+                <div className="property-card-location-section">
+                  <p className="property-card-address">{property.street}</p>
+                  {property.price_square_meter && (
+                    <p className="property-card-location">{property.currency} {formatNumbers(property.price_square_meter)} m²</p>
+                  )}
+                </div>
+                <div className="property-card-details">
+                  {(property.total_surface ?? 0) > 0 && <span className="property-card-detail">{formatNumbers(property.total_surface!)} m² tot.</span>}
+                  {(property.room_amount ?? 0) > 0 && <span className="property-card-detail">{property.room_amount} amb.</span>}
+                  {(property.bathroom_amount ?? 0) > 0 && <span className="property-card-detail">{property.bathroom_amount} baños</span>}
+                </div>
+              </div>}
           </div>
         </div>
         {galleryModal}
@@ -182,7 +211,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
           </div>
           {property.is_development && <div className="delivery-date-content">
               <img src={'/icons/crane_gray.svg'} alt="Crane Icon" />
-              {`En construcción - Entrega ${property.delivery_date}`}
+              {`En construcción - Entrega ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
             </div>}
           <div className="info-section">                 
             {property.is_development
@@ -197,16 +226,9 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   </div>
                   {devFullLocation && <div className="full_location">{devFullLocation}</div>}
                   <div className="address">{property.street}</div>
-                  {!property.is_development 
-                  ? <div className="specs-row">
-                    {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m² tot.</span>
-                      : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m²</span> : null}
-                    {(property.room_amount ?? 0) > 0 && <span>{property.room_amount} amb.</span>}
-                    {(property.bathroom_amount ?? 0) > 0 && <span>{property.bathroom_amount} baños</span>}
-                  </div>
-                  : <div className="specs-row">
+                  <div className="specs-row">
                     {uniqueRoomAmounts.length > 0 && <span className="ambients"><img src="/icons/door.svg" alt="Door Icon" />{uniqueRoomAmounts.join(' - ')} amb.</span>}
-                  </div>}
+                  </div>
                 </div>
               </div>
             : <div className="content-wrapper">
@@ -241,7 +263,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
           {property.is_development && <div className="entrega-delivery-date">
             <div className="delivery-date-content">
               <img src={'/icons/crane.svg'} alt="Crane Icon" />
-              {`En construcción - Entrega ${property.delivery_date}`}
+              {`En construcción - Entrega ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
             </div>
             {showFavoriteBtn && <button className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`} onClick={handleFavorite} aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"} >
               <img src={`/icons/${isFavorite ? "starIsFavorite" : "star"}.svg`} alt="Icono de favorito" />
@@ -310,7 +332,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
             <div className="property-info">
               {property.is_development && <div className="delivery-date-content">
                 <img src={'/icons/crane.svg'} alt="Crane Icon" />
-                {`En construcción - Entrega ${property.delivery_date}`}
+                {`En construcción - Entrega ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
               </div>}
               {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
               <div className="title-row">

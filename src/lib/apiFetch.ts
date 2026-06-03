@@ -70,11 +70,15 @@ export async function apiFetch<TResponse = unknown, TBody = unknown>(
   const response = await fetch(fullUrl, fetchOptions);
   
   if (!response.ok) {
-    /*if (response.status === 401) {
+    if (
+      response.status === 401 &&
+      typeof window !== 'undefined' &&
+      window.location.pathname.startsWith('/protected')
+    ) {
       await signOut({ redirect: false });
       window.location.href = '/login';
       throw new Error('Session expired');
-    }*/
+    }
 
     await response.json()
       .then(data => {

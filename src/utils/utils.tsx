@@ -3,6 +3,7 @@
  */
 
 import { AWS_S3_BUCKET_URL } from "@/app/constants";
+import { CreateProperty } from "@/types/propiedad";
 
 // 🔗 API Endpoints
 export const API_ENDPOINTS = {
@@ -40,24 +41,20 @@ export interface VisitedProperty {
 const VISITED_KEY = 'metroprop_visited_properties';
 const VISITED_MAX = 20;
 
-export function getVisitedProperties(): VisitedProperty[] {
+export function getVisitedProperties(): CreateProperty[] {
   if (typeof window === 'undefined') return [];
   try {
-    return JSON.parse(localStorage.getItem(VISITED_KEY) ?? '[]') as VisitedProperty[];
+    return JSON.parse(localStorage.getItem(VISITED_KEY) ?? '[]') as CreateProperty[];
   } catch {
     return [];
   }
 }
 
-export function saveVisitedProperty(property: VisitedProperty): void {
+export function saveVisitedProperty(property: CreateProperty): void {
   if (typeof window === 'undefined') return;
   try {
-    const lastSlash = property.image.lastIndexOf('/');
-    const thumbImage = lastSlash !== -1
-      ? property.image.slice(0, lastSlash + 1) + 'thumb_' + property.image.slice(lastSlash + 1)
-      : property.image;
     const current = getVisitedProperties().filter(p => p.id !== property.id);
-    const updated = [{ ...property, image: thumbImage }, ...current].slice(0, VISITED_MAX);
+    const updated = [property, ...current].slice(0, VISITED_MAX);
     localStorage.setItem(VISITED_KEY, JSON.stringify(updated));
   } catch {
     // localStorage unavailable — ignore

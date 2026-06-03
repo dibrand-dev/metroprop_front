@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import './Leads.scss';
 // import { useRouter } from 'next/navigation';
+import Submenu from '@/layout/ProfessionalUser/Submenu/Submenu';
 // import { useSession } from 'next-auth/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -10,9 +11,6 @@ import { API_BASE_URL } from '@/utils/utils';
 // import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import Paginator from '@/components/Paginator/Paginator';
 import InputField2 from '@/ui/InputField2/InputField2';
-import SubmenuLeads from './Submenu/Submenu';
-import Checkbox from '@/ui/Checkbox/Checkbox';
-import Select from '@/ui/Select/Select';
 // import { CreateProperty } from '@/types/propiedad';
 
 const iconArrowBack = '/icons/arrow.svg';
@@ -49,7 +47,6 @@ export default function Leads() {
   const [searchQueryEmail, setSearchQueryEmail] = useState('');
   const [searchId, setSearchId] = useState<number | null>(null);
   const [searchEmail, setSearchEmail] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("1");
   // const [deleteModal, setDeleteModal] = useState<{ open: boolean; name: string | null; propertyId: number; leadId: number }>({ open: false, name: null, propertyId: 0, leadId: 0 });
 /*
   const deleteMutation = useMutation({
@@ -131,14 +128,13 @@ export default function Leads() {
     actions: [/*'delete',*/ 'view'] as OrganizationAction[],
   })) ?? [];
   console.log("contactos", contactos, "total", total, "totalPages", totalPages);
-  
   return (
     <div className={`professionalContainer ${!showMenu ? 'activeMenuMobile' : ''}`}>
-      <SubmenuLeads active={showMenu} />
-      <div className={`leads-container ${showMenu ? 'mobile-hidden' : ''}`}>
-        <div className="leads-mobile-header">
+      <Submenu active={showMenu} />
+      <div className={`collaborators-container ${showMenu ? 'mobile-hidden' : ''}`}>
+        <div className="collaborators-mobile-header">
           <button
-            className="leads-back-button"
+            className="collaborators-back-button"
             type="button"
             onClick={() => setShowMenu(true)}
           >
@@ -147,15 +143,17 @@ export default function Leads() {
           </button>
         </div>
 
-        <div className="leads-content">
-          <div className="leads-filter">
-            <Checkbox
-              label=""
-              checked={true}
-              onChange={() => {}}
-            />
+        <div className="collaborators-content">
+          <div className="collaborators-header">
+            <div>
+              <h1>Interesados</h1>
+              <p>Aca podes ver la lista de contactos que los usuarios han hecho.</p>
+            </div>
+          </div>
+
+          <div className="collaborators-filter">
             <InputField2
-              placeholder="ID / Título"
+              placeholder="ID"
               value={searchQuery}
               onChange={handleSearchInputChange}
               onKeyDown={handleSearchKeyDown}
@@ -163,120 +161,53 @@ export default function Leads() {
               iconPosition="right"
               onIconClick={handleSearchById}
             />
+            <InputField2
+              placeholder="Email"
+              value={searchQueryEmail}
+              onChange={handleSearchInputChangeEmail}
+              onKeyDown={handleSearchKeyDownEmail}
+              icon={<img src="/icons/search.svg" alt="" width="18" height="18" />}
+              iconPosition="right"
+              onIconClick={handleSearchByEmail}
+            />
           </div>
 
-          <div className="leads-list-container">
-            <div className="leads-header">
-              <div className="leads-tabs">
-                <button
-                  key="detalles"
-                  type="button"
-                  className={`leads-tab ${activeTab === "1" ? 'active' : ''}`}
-                  onClick={() => setActiveTab("1")}
-                >
-                  Mensajes
-                </button>
-                <button
-                  key="detalles"
-                  type="button"
-                  className={`leads-tab ${activeTab === "2" ? 'active' : ''}`}
-                  onClick={() => setActiveTab("2")}
-                >
-                  Telefono
-                </button>
-                <button
-                  key="detalles"
-                  type="button"
-                  className={`leads-tab ${activeTab === "3" ? 'active' : ''}`}
-                  onClick={() => setActiveTab("3")}
-                >
-                  Whatsapp
-                </button>
+          <div className="collaborators-list">
+            {contactos.map((contacto) => (
+              <div key={contacto.id} className="collaborators-card">
+                <div className="collaborators-card-info">
+                  <p className="collaborators-card-title">
+                    {contacto.name} - {contacto.email} - {contacto.phone}
+                  </p>
+                  <p className="collaborators-card-subtitle">                    
+                    {contacto.property.id} - {contacto.property.publication_title}<br /> 
+                    {contacto.property.street}
+                  </p>
+                </div>
+                <div className="collaborators-card-actions">
+                  <span className="collaborators-role-chip">Fecha de contacto: {contacto.date ?? '-'}</span>
+                  <div className="collaborators-card-tools">
+                    {contacto.actions.map((action) => (
+                      <button
+                        key={action}
+                        className="collaborators-action-button"
+                        type="button"
+                        aria-label={actionIcons[action].label}
+                        title={actionIcons[action].label}
+                        onClick={() => {
+                          // if (action === 'edit') handleEdit(String(contacto.id));
+                          // if (action === 'lock') { setNewPassword(''); setConfirmPassword(''); setPasswordError(''); setLockModal({ open: true, userId: contacto.id, userName: contacto.name }); }
+                          // if (action === 'delete') setDeleteModal({ open: true, name: contacto.name, propertyId: contacto.property.id, leadId: contacto.id });
+                          if (action === 'view') window.open(`/propertyDetail/${contacto.property.id}`, '_blank');
+                        }}
+                      >
+                        <img src={actionIcons[action].src} alt="" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className='leads-paginator'>
-                1 - 10
-              </div>
-            </div>
-            <div className="leads-list">
-               <div className="lead-item unread">
-                <span className="lead-dot" />
-                <Checkbox
-                  label=""
-                  checked={true}
-                  onChange={() => {}}
-                />
-                <img className="lead-star" src="/icons/star_development.svg" alt="" />
-                <span className="lead-name">Name lastname</span>
-                <span className="lead-property">
-                  <span>ID: 324234234</span>
-                  The address and number
-                </span>
-                <span className="lead-operation">
-                  <span>Venta</span>
-                  USD 120.000
-                </span>
-                <span className="lead-status lead-status-badge">
-                  <Select options={[
-                    { value: 'pendiente', label: 'Pendiente' },
-                    { value: 'contactado', label: 'Contactado' },
-                    { value: 'no_interesado', label: 'No interesado'}
-                  ]} value="pendiente" onChange={(val) => console.log(val)} />
-                </span>
-                <span className="lead-date">17 nov</span>
-              </div>
-              <div className="lead-item unread">
-                <span className="lead-dot" />
-                <Checkbox
-                  label=""
-                  checked={true}
-                  onChange={() => {}}
-                />
-                <img className="lead-star" src="/icons/star_development.svg" alt="" />
-                <span className="lead-name">Name lastname</span>
-                <span className="lead-property">
-                  <span>ID: 324234234</span>
-                  The address and number
-                </span>
-                <span className="lead-operation">
-                  <span>Venta</span>
-                  USD 120.000
-                </span>
-                <span className="lead-status lead-status-badge">
-                  <Select options={[
-                    { value: 'pendiente', label: 'Pendiente' },
-                    { value: 'contactado', label: 'Contactado' },
-                    { value: 'no_interesado', label: 'No interesado'}
-                  ]} value="pendiente" onChange={(val) => console.log(val)} />
-                </span>
-                <span className="lead-date">17 nov</span>
-              </div>
-              <div className="lead-item">
-                <span className="lead-dot" />
-                <Checkbox
-                  label=""
-                  checked={true}
-                  onChange={() => {}}
-                />
-                <img className="lead-star" src="/icons/star_development.svg" alt="" />
-                <span className="lead-name">Name lastname</span>
-                <span className="lead-property">
-                  <span>ID: 324234234</span>
-                  The address and number
-                </span>
-                <span className="lead-operation">
-                  <span>Venta</span>
-                  USD 120.000
-                </span>
-                <span className="lead-status lead-status-badge">
-                  <Select options={[
-                    { value: 'pendiente', label: 'Pendiente' },
-                    { value: 'contactado', label: 'Contactado' },
-                    { value: 'no_interesado', label: 'No interesado'}
-                  ]} value="pendiente" onChange={(val) => console.log(val)} />
-                </span>
-                <span className="lead-date">17 nov</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -286,8 +217,8 @@ export default function Leads() {
           onPageChange={(page) => { setCurrentPage(page); }}
         />
 
-        <div className="leads-mobile-footer">
-          {/*<button className="leads-add-button" type="button">
+        <div className="collaborators-mobile-footer">
+          {/*<button className="collaborators-add-button" type="button">
             Agregar colaborador
           </button>*/}
         </div>

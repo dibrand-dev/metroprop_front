@@ -196,28 +196,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   // Save this property to visited history in localStorage
   useEffect(() => {
-    if (!property || property.is_development) return;
-    const address = [property.street, property.number].filter(Boolean).join(' ');
-    const image = galleryImages[0] ?? '/images/property-placeholder.png';
-    const org = (property as any).organization;
-    saveVisitedProperty({
-      id: String(property.id ?? propertyId),
-      price: property.price ?? 0,
-      expenses: property.expenses ?? 0,
-      currency: (property.currency as 'USD' | 'ARS' | 'EUR') ?? 'USD',
-      currencyRent: property.currency_expenses ?? property.currency ?? '',
-      pricePerSqm: property.price_square_meter,
-      title: property.publication_title ?? '',
-      address,
-      rooms: property.room_amount ?? 0,
-      bathrooms: property.bathroom_amount ?? 0,
-      area: property.total_surface ?? property.roofed_surface ?? 0,
-      image,
-      agencyLogo: org?.logo_url,
-      coordinates: Number.isFinite(Number(property.geo_lat)) && Number.isFinite(Number(property.geo_long))
-        ? { lat: Number(property.geo_lat), lng: Number(property.geo_long) }
-        : undefined,
-    });
+    if (!property) return;
+    saveVisitedProperty(property as any);
   }, [property, galleryImages, propertyId]);
 
   // Gallery videos (excluding 360)
@@ -276,8 +256,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     ? property.organization.company_logo.includes('http') 
       ? property.organization.company_logo
       : `${AWS_S3_BUCKET_URL}/${property.organization.company_logo}`
-    : ORGANIZATION_NO_IMAGE; 
-  console.log("PROPERTYY", property)
+    : ORGANIZATION_NO_IMAGE;
   const countryLabel = locations.find(l => l.id === property?.country_id)?.name;
   const stateLabel = locations.find(l => l.id === property?.state_id)?.name;
   const locationLabel = locations.find(l => l.id === property?.location_id)?.name;
@@ -486,14 +465,55 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         Atrás
       </button>  
       <main className="property-detail-content">
-        
+        {isLoading && (
+          <div className="property-detail-skeleton">
+            <div className="skeleton-hero">
+              <div className="skeleton-line w-40" />
+              <div className="skeleton-line w-24 skeleton-title" />
+            </div>
+            <div className="skeleton-gallery">
+              <div className="skeleton-gallery-main skeleton-block" />
+              <div className="skeleton-gallery-grid">
+                <div className="skeleton-block" />
+                <div className="skeleton-block" />
+                <div className="skeleton-block" />
+                <div className="skeleton-block" />
+              </div>
+            </div>
+            <div className="skeleton-features">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="skeleton-feature">
+                  <div className="skeleton-block skeleton-icon" />
+                  <div className="skeleton-line w-16" />
+                </div>
+              ))}
+            </div>
+            <div className="skeleton-body">
+              <div className="skeleton-main">
+                <div className="skeleton-line w-80" />
+                <div className="skeleton-line w-full" />
+                <div className="skeleton-line w-full" />
+                <div className="skeleton-line w-3/4" />
+                <div className="skeleton-map skeleton-block" />
+                <div className="skeleton-line w-48 skeleton-section-title" />
+                <div className="skeleton-tabs">
+                  <div className="skeleton-tab skeleton-block" />
+                  <div className="skeleton-tab skeleton-block" />
+                  <div className="skeleton-tab skeleton-block" />
+                </div>
+              </div>
+              <div className="skeleton-sidebar skeleton-block" />
+            </div>
+          </div>
+        )}
+        {!isLoading && (<>
         <section className="property-detail-hero" id="property-detail-fotos">
            {property?.is_development
            ? <div className="property-detail-hero-row">
             <div className="publish-review-preview-hero">
               <span className="entrega">
                 <img src={'/icons/crane.svg'} alt="Crane Icon" />
-                En pozo - Entrega {property?.development_delivery_date}
+                En pozo - Entrega {new Date(property?.development_delivery_date).toLocaleDateString("es-ES")}
               </span>
             </div>
           </div>
@@ -547,7 +567,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
         {property?.development_id !== null && !property?.is_development && 
         <section className="property-unit-details property-detail-summary">
-          <div className="property-unit-delivery"><img src={'/icons/crane.svg'} alt="Crane Icon" />En pozo - entrega estimada: {property?.development_delivery_date}</div>
+          <div className="property-unit-delivery"><img src={'/icons/crane.svg'} alt="Crane Icon" />En pozo - entrega estimada: {new Date(property?.development?.development_delivery_date).toLocaleDateString("es-ES")}</div>
           <h2>{property?.publication_title}</h2>
           <div className="publish-review-address-1">
             <span className="publish-review-address-icon" aria-hidden="true">
@@ -891,7 +911,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                   {property?.development?.images?.[0] ? <img src={setImagePath(property?.development?.images?.[0]?.url) ?? ''} alt="Imagen del emprendimiento" className="unit-details-development-image" /> : null}
                   <div className="unit-details-development-text">
                     <h5>{property?.development?.publication_title ?? ''}</h5>
-                    <p className="development-delivery">{property?.development?.development_delivery_date ? `Fecha de entrega: ${property.development.development_delivery_date}` : ''}</p>
+                    <p className="development-delivery">{property?.development?.development_delivery_date ? `Fecha de entrega: ${new Date(property?.development?.development_delivery_date).toLocaleDateString("es-ES")}` : ''}</p>
                     <p className="development-rooms"><img src="/icons/door.svg" alt="Rooms" /> {getRoomsRange(property?.development?.units ?? [])}</p>
                   </div>
                 </div>
@@ -964,9 +984,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             </div>
           </section>
         ))}
+        </>)}
       </main>
 
-      <GalleryModal
+      {isGalleryOpen && <GalleryModal
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
         images={galleryImages}
@@ -975,7 +996,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         gallery360={gallery360 as unknown as GalleryVideo[]}
         initialTab={galleryInitialTab}
         initialIndex={galleryInitialIndex}
-      />
+      />}
       {isContactModalOpen && (
         <ContactForm
           isModal
