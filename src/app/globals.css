@@ -18,6 +18,13 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-family-base);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  main {
+    flex-grow: 1;
+  }
 }
 
 @layer utilities {

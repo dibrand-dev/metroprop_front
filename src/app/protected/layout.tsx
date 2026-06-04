@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import Footer from "@/layout/User/Footer/Footer";
 
 export default async function ProtectedLayout({
   children,
@@ -15,5 +16,8 @@ export default async function ProtectedLayout({
       redirect("/login");
     }
 
-    return <>{children}</>;
+    return <>
+      <main>{children}</main>
+      <Footer />
+    </>;
 }

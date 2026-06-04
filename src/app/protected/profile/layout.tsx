@@ -14,6 +14,6 @@ export default function ProfileLayout({
 }) {
   return <>
     <TopNavBar />
-    {children}    
+    {children}
   </>  
 }

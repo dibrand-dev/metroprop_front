@@ -8,6 +8,7 @@ import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
+import { LeadContactType } from '@/types/propiedad';
 
 const QUESTION_CHIPS = [
   'Se puede visitar hoy',
@@ -48,6 +49,7 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
   const [touched, setTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const primaryContactAction = CONTACT_ACTIONS.find((action) => action.id === 'contact');
   const contactActions = isModal && primaryContactAction ? [primaryContactAction] : CONTACT_ACTIONS;
 
@@ -113,7 +115,7 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
   };
   
   const openWhatsApp = (message: string) => {
-    if (!phoneNumber) return;
+    if (!formState.phone) return;
     const encodedMessage = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a><br />${message}`);
     window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank");
   };
@@ -122,6 +124,7 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
     setTouched(true);
     if (!isValid) return;
     setIsSubmitting(true);
+    setSubmitError('');
     try {
       await apiFetch(`${API_BASE_URL}/leads`, {
         method: 'POST',
@@ -132,8 +135,9 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
           phone: formState.phone,
           message: formState.message,
           property_id: propertyId,
-          owner_user_id: userId,
           organization_id: organizationId,
+          contact_type: actionId === 'whatsapp' ? LeadContactType.WHATSAPP : LeadContactType.MESSAGE,
+          user_id: userId
         },
       });
       if (actionId === 'whatsapp') {
@@ -148,7 +152,7 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
         onClose?.();
       }, 3000);
     } catch {
-      // silently fail
+      setSubmitError('Ocurrió un error al enviar el mensaje. Por favor intentá de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -249,6 +253,10 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
           error={fieldErrors.privacy ? ' ' : undefined}
         />
       </div>
+
+      {submitError && (
+        <p className="contact-form-error">{submitError}</p>
+      )}
 
       <div
         className={`property-detail-contact-actions ${isModal ? 'property-detail-contact-actions-modal' : ''}`}

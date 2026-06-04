@@ -30,7 +30,7 @@ const items: SubmenuItem[] = [
   { id: 'sucursales', label: 'Sucursales', href: "/protected/branches", roles: [1] },
   { id: 'destaques', label: 'Destaques', href: "/protected/highlights", roles: [1] },
   { id: 'colaboradores', label: 'Colaboradores', href: "/protected/collaborators", roles: [1] },
-  { id: 'leads', label: 'Interesados', href: "/protected/leadsBack", roles: [1, 3] },
+  // { id: 'leads', label: 'Interesados', href: "/protected/leadsBack", roles: [1, 3] },
   { id: 'datos', label: 'Datos', href: "/protected/profile", roles: [1, 2, 3, 4] },
   { id: 'cambiar_contraseña', label: 'Cambiar contraseña', href: "/protected/changePassword", roles: [1, 2, 3, 4] },
   { id: 'cambiar_email', label: 'Cambiar email', href: "/protected/changeEmail", roles: [1, 2, 3, 4] },

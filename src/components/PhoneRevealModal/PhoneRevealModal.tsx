@@ -8,6 +8,7 @@ import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
+import { LeadContactType } from '@/types/propiedad';
 
 interface PropertyUser {
   name?: string;
@@ -111,8 +112,9 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
           phone: formState.phone,
           message: 'Vio teléfono',
           property_id: propertyId,
-          owner_user_id: userId,
           organization_id: organizationId,
+          contact_type: LeadContactType.SAW_CONTACT,
+          user_id: userId
         },
       });
       setFormState(EMPTY_FORM);

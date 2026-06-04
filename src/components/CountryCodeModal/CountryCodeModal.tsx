@@ -87,9 +87,9 @@ export default function CountryCodeModal({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="country-code-modal-header">
-          <h3>Código de pais</h3>
+          <h3>Código de país</h3>
           <button type="button" onClick={onClose} aria-label="Cerrar">
-            <img src={closeIcon} alt="" />
+            <img src="/icons/close.svg" alt="Cerrar" />
           </button>
         </div>
 
@@ -101,7 +101,7 @@ export default function CountryCodeModal({
             onChange={(event) => setQuery(event.target.value)}
           />
           <span className="country-code-modal-search-icon">
-            <img src={searchIcon} alt="" />
+            <img src="/icons/lupa.svg" alt="" />
           </span>
         </div>
 

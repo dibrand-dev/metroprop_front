@@ -117,7 +117,7 @@ export default function Footer() {
               <p>
                 Metroprop<br />
                 Todos los derechos reservados<br />
-                2025 Metroprop
+                {`${new Date().getFullYear()} Metroprop`}
               </p>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function Footer() {
       {/* Bottom Section - Attribution */}
       <div className="footer-bottom">
         <div className="footer-dibrand">
-          <img src="/icons/logo_dibrand.png" alt="DIBRAND" className="footer-dibrand-icon" />
+          <a href="https://www.dibrand.com" target="_blank" rel="noopener noreferrer"><img src="/icons/logo_dibrand.png" alt="DIBRAND" className="footer-dibrand-icon" /></a>
         </div>
       </div>
     </footer>

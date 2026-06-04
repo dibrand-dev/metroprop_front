@@ -659,10 +659,15 @@ const MyProperties = () => {
                           <span className="myprop-quality-label">Calidad del aviso</span>
                           <DonutChart percent={completeness} />
                         </div>
-
-                        <div className="myprop-views myprop-card-collapsible">
-                          <span className="myprop-views-label">Visualizaciones</span>
-                          <span className="myprop-views-count">{prop.view_count}</span>
+                        <div className="interest-visits-container">
+                          <div className="myprop-views myprop-card-collapsible">
+                            <span className="myprop-views-label">Visualizaciones</span>
+                            <span className="myprop-views-count">{prop.view_count}</span>
+                          </div>
+                          <div className="myprop-interest myprop-card-collapsible">
+                            <span className="myprop-views-label">Interesados</span>
+                            <span className="myprop-views-count">10</span>
+                          </div>
                         </div>
                     </div>
                     <div className="myprop-card-actions">

@@ -80,7 +80,7 @@ export default function CreateAlertModal({ onClose, onSuccess, alertId, initialN
     <div className="create-alert-modal-container" onClick={onClose}>
       <div className="create-alert-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2 className="modal-title">{isEditMode ? 'Editar alerta' : 'Crear alerta'}</h2>
+          <h2 className="modal-title">{isEditMode ? 'Editar búsqueda o alerta' : 'Crear alerta'}</h2>
           <button className="modal-close-button" type="button" onClick={onClose} aria-label="Cerrar modal">
             <img src="/icons/close.svg" alt="Cerrar" />
           </button>
@@ -106,11 +106,11 @@ export default function CreateAlertModal({ onClose, onSuccess, alertId, initialN
                 <InputField
                   id="alert-name"
                   type="text"
-                  placeholder="PH-Villa del parque"
+                  placeholder="Nombre del alerta"
                   value={alertName}
                   onChange={(e) => setAlertName(e.target.value)}
                   autoComplete="off"
-                  label="Nombre de tu alerta"
+                  label={isEditMode ? "Asigná un nombre a tu alerta" : "Nombre de tu alerta"}
                 />
               </div>
 

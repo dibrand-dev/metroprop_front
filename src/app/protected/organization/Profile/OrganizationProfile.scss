@@ -28,7 +28,6 @@
 .professional-profile-container {
   @include flex-column;
   width: 100%;
-  min-height: 100vh;
   flex-direction: column;
   &.mobile-hidden {
     display: none;

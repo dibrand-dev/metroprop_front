@@ -20,7 +20,7 @@ $font-family-button: Montserrat, sans-serif;
   width: 100%;
   position: sticky;
   top: 0;
-  z-index: 251;
+  z-index: 252;
   display: flex;
   align-items: center;
   isolation: isolate;
@@ -461,10 +461,7 @@ $font-family-button: Montserrat, sans-serif;
   flex-shrink: 0;
   justify-content: flex-end;
   width: 33.3%;
-  &.with-search {
-    @media (min-width: 769px) {
-      width: 300px;
-    }
+  &.with-search {   
 
     @media (max-width: 769px) {
       width: 100px;

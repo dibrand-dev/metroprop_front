@@ -676,3 +676,54 @@ export const FREQUENCY_OPTIONS = Object.entries(ALERT_FREQUENCY_LABELS).map(([ke
   value: key,
   label,
 }));
+
+export enum LeadState {
+  NEW = 'Nuevo contacto',
+  CONTACTED = 'Contactado',
+  PENDING = 'Pendiente',
+  QUALIFIED = 'Calificado',
+  LOST = 'Perdido',
+  POTENTIAL_CLIENT = 'Potencial cliente',
+}
+
+export const LEAD_STATE_LABELS: Record<string, string> = {
+  [LeadState.NEW]: 'Nuevo contacto',
+  [LeadState.CONTACTED]: 'Contactado',
+  [LeadState.PENDING]: 'Pendiente',
+  [LeadState.QUALIFIED]: 'Calificado',
+  [LeadState.LOST]: 'Perdido',
+  [LeadState.POTENTIAL_CLIENT]: 'Potencial cliente',
+};
+
+export const LEAD_STATE_OPTIONS = Object.entries(LEAD_STATE_LABELS).map(([key, label]) => ({
+  value: key,
+  label,
+}));
+
+
+export interface Lead {
+    "contact_type": LeadContactType,
+    "highlighted": boolean,
+    "blocked": boolean,
+    "unread": boolean,
+    "lead_state": string,
+    "deleted": boolean,
+    "id": number,
+    "name": string,
+    "email": string,
+    "country_code": null | number,
+    "phone": null | number,
+    "organization_id": null | number,
+    "user_id": null,
+    "property_id": null,
+    "message": null | string,
+    "created_at": string,
+    "updated_at": string,
+    "property": null | CreateProperty
+}
+
+export enum LeadContactType {
+  MESSAGE = 'message',
+  WHATSAPP = 'whatsapp',
+  SAW_CONTACT = 'saw_contact',
+} 

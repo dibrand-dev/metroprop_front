@@ -146,6 +146,12 @@
 
 .property-detail-question-grid,
 .property-detail-input-row,
+.contact-form-error {
+  color: #d32f2f;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
 .property-detail-contact-actions {
     grid-template-columns: minmax(0, 1fr);
 }

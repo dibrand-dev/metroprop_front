@@ -638,7 +638,14 @@
 
 
 /* ── Views ───────────────────────────────────────────────────────────── */
-.myprop-views {
+.interest-visits-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.myprop-views,
+.myprop-interest {
   border: 1.3px solid #A6A6A6;
   display: flex;
   gap: 4px;
@@ -646,6 +653,7 @@
   padding: 8px 16px;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   color: #7A7A7A;
   height: 50%;
   .myprop-views-label {
@@ -662,8 +670,12 @@
     letter-spacing: 0.25%;
     text-align: center;
   }
-
 }
+
+.myprop-interest .myprop-views-count {
+  color: #1e1e1e;
+}
+
 
 .myprop-features-toggle {  
   font-weight: 600;

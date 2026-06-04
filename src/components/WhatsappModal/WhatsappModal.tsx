@@ -5,19 +5,23 @@ import './WhatsappModal.scss';
 import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
+import { apiFetch } from '@/lib/apiFetch';
+import { API_BASE_URL } from '@/utils/utils';
+import { LeadContactType } from '@/types/propiedad';
 
 interface WhatsappModalProps {
   isOpen: boolean;
   onClose: () => void;
   phoneNumber: string;
   propertyId: number;
+  userId?: number;
+  organizationId?: number;
 }
 
 const closeIcon = '/icons/close.svg';
 const flagIcon = '/icons/flag.svg';
-const chevronIcon = '/icons/chevron-up.svg';
 
-export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId }: WhatsappModalProps) {
+export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId, userId, organizationId }: WhatsappModalProps) {
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({
     name: false,
@@ -107,6 +111,29 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
     }));
   };
 
+    const handleSubmit = async () => {
+      if (!validateForm()) return;
+      try {
+        await apiFetch(`${API_BASE_URL}/leads`, {
+          method: 'POST',
+          body: {
+            name: formState.name,
+            email: formState.email,
+            country_code: formState.country,
+            phone: formState.phone,
+            message: "Contacto por whatsapp desde la propiedad " + propertyId,
+            property_id: propertyId,
+            organization_id: organizationId,
+            contact_type: LeadContactType.WHATSAPP,
+            user_id: userId
+          },
+        });
+        openWhatsApp();
+      } catch {
+        // silently fail
+      }
+    };
+
   const openWhatsApp = () => {
     if (!validateForm()) return;
     const message = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a>`);
@@ -182,7 +209,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
             />          
           </div>
 
-          <button type="button" className="whatsapp-modal-submit" onClick={openWhatsApp}>
+          <button type="button" className="whatsapp-modal-submit" onClick={() => handleSubmit()}>
             Iniciar chat
           </button>
         </div>

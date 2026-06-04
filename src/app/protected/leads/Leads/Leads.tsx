@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 import './Leads.scss';
-// import { useRouter } from 'next/navigation';
-// import { useSession } from 'next-auth/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
@@ -13,33 +11,14 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import SubmenuLeads from './Submenu/Submenu';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import Select from '@/ui/Select/Select';
+import { LEAD_STATE_OPTIONS, LeadContactType } from '@/types/propiedad';
+import LeadItem from './Lead/Lead';
+import { Lead } from '@/types/propiedad';
 // import { CreateProperty } from '@/types/propiedad';
 
 const iconArrowBack = '/icons/arrow.svg';
-// const iconLock = '/icons/lock.svg';
-//const iconEdit = '/icons/pencil.svg';
-const iconTrash = '/icons/trash.svg';
-const iconView = '/icons/verDetalle.svg';
 
-type OrganizationAction = 'delete' | 'view';
 
-const actionIcons: Record<OrganizationAction, { src: string; label: string }> = {
-  // lock: { src: iconLock, label: 'Bloquear organización' },
-  // edit: { src: iconEdit, label: 'Editar organización' },
-  delete: { src: iconTrash, label: 'Eliminar organización' },
-  view: { src: iconView, label: 'Ver propiedad' },
-};
-
-interface OrganizationItem {
-  id: number;
-  company_name: string;
-  email: string;
-  branchName: string;
-  branchId: string;
-  role_id: number | null;
-  cuit: string | null;
-  actions: OrganizationAction[];
-}
 const LIMIT = 20;
 export default function Leads() {
   // const queryClient = useQueryClient();
@@ -50,6 +29,7 @@ export default function Leads() {
   const [searchId, setSearchId] = useState<number | null>(null);
   const [searchEmail, setSearchEmail] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("1");
+  const [activeSubmenu, setActiveSubmenu] = useState<'entrada' | 'destacados' | 'eliminados' | 'bloqueados'>('entrada');
   // const [deleteModal, setDeleteModal] = useState<{ open: boolean; name: string | null; propertyId: number; leadId: number }>({ open: false, name: null, propertyId: 0, leadId: 0 });
 /*
   const deleteMutation = useMutation({
@@ -102,8 +82,18 @@ export default function Leads() {
   };
   
   const { data: contactosData } = useQuery<any>({
-    queryKey: ['leads', currentPage, searchId, searchEmail],
+    queryKey: ['leads', activeSubmenu, currentPage, searchId, searchEmail],
     queryFn: async () => {
+      if (activeSubmenu === 'destacados') {
+        return apiFetch(`${API_BASE_URL}/leads/search?highlighted=true&offset=${currentPage}&limit=${LIMIT}`);
+      }
+      if (activeSubmenu === 'eliminados') {
+        return apiFetch(`${API_BASE_URL}/leads/search?deleted=true&offset=${currentPage}&limit=${LIMIT}`);
+      }
+      if (activeSubmenu === 'bloqueados') {
+        return apiFetch(`${API_BASE_URL}/leads/search?blocked=true&offset=${currentPage}&limit=${LIMIT}`);
+      }
+      // entrada — default, supports search filters
       let searchParams = '';
       if (searchId !== null) {
         searchParams = `/search?property_id=${searchId}`;
@@ -118,23 +108,15 @@ export default function Leads() {
 
 
   const rawData: any = contactosData;
-  const rawContactos: any[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
-  const total: number = rawData?.total ?? rawContactos.length;
+  const allContactos: Lead[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
+  const contactTypeFilter = activeTab === "1" ? LeadContactType.MESSAGE : activeTab === "2" ? LeadContactType.SAW_CONTACT : LeadContactType.WHATSAPP;
+  const contactos: Lead[] = allContactos.filter((lead) => lead.contact_type === contactTypeFilter);
+  const total: number = rawData?.total ?? allContactos.length;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
-  const contactos: any[] = rawContactos.map((contacto: any) => ({
-    id: contacto.id,
-    name: contacto.lead?.name ?? contacto.lead?.name ?? '',
-    email: contacto.lead?.email ?? contacto.lead?.email ?? '',
-    phone: contacto.country_code && contacto.phone ? `${contacto.country_code} ${contacto.phone}` : contacto.lead?.country_code && contacto.lead?.phone ? `+${contacto.lead.country_code} ${contacto.lead.phone}` : '',
-    date: contacto.created_at ? new Date(contacto.created_at).toLocaleDateString("es-ES") : '',
-    property: contacto.property,    
-    actions: [/*'delete',*/ 'view'] as OrganizationAction[],
-  })) ?? [];
-  console.log("contactos", contactos, "total", total, "totalPages", totalPages);
-  
+
   return (
     <div className={`professionalContainer ${!showMenu ? 'activeMenuMobile' : ''}`}>
-      <SubmenuLeads active={showMenu} />
+      <SubmenuLeads active={showMenu} onItemChange={(id) => { setActiveSubmenu(id); setCurrentPage(0); }} />
       <div className={`leads-container ${showMenu ? 'mobile-hidden' : ''}`}>
         <div className="leads-mobile-header">
           <button
@@ -169,7 +151,6 @@ export default function Leads() {
             <div className="leads-header">
               <div className="leads-tabs">
                 <button
-                  key="detalles"
                   type="button"
                   className={`leads-tab ${activeTab === "1" ? 'active' : ''}`}
                   onClick={() => setActiveTab("1")}
@@ -177,7 +158,6 @@ export default function Leads() {
                   Mensajes
                 </button>
                 <button
-                  key="detalles"
                   type="button"
                   className={`leads-tab ${activeTab === "2" ? 'active' : ''}`}
                   onClick={() => setActiveTab("2")}
@@ -185,7 +165,6 @@ export default function Leads() {
                   Telefono
                 </button>
                 <button
-                  key="detalles"
                   type="button"
                   className={`leads-tab ${activeTab === "3" ? 'active' : ''}`}
                   onClick={() => setActiveTab("3")}
@@ -198,85 +177,7 @@ export default function Leads() {
               </div>
             </div>
             <div className="leads-list">
-               <div className="lead-item unread">
-                <span className="lead-dot" />
-                <Checkbox
-                  label=""
-                  checked={true}
-                  onChange={() => {}}
-                />
-                <img className="lead-star" src="/icons/star_development.svg" alt="" />
-                <span className="lead-name">Name lastname</span>
-                <span className="lead-property">
-                  <span>ID: 324234234</span>
-                  The address and number
-                </span>
-                <span className="lead-operation">
-                  <span>Venta</span>
-                  USD 120.000
-                </span>
-                <span className="lead-status lead-status-badge">
-                  <Select options={[
-                    { value: 'pendiente', label: 'Pendiente' },
-                    { value: 'contactado', label: 'Contactado' },
-                    { value: 'no_interesado', label: 'No interesado'}
-                  ]} value="pendiente" onChange={(val) => console.log(val)} />
-                </span>
-                <span className="lead-date">17 nov</span>
-              </div>
-              <div className="lead-item unread">
-                <span className="lead-dot" />
-                <Checkbox
-                  label=""
-                  checked={true}
-                  onChange={() => {}}
-                />
-                <img className="lead-star" src="/icons/star_development.svg" alt="" />
-                <span className="lead-name">Name lastname</span>
-                <span className="lead-property">
-                  <span>ID: 324234234</span>
-                  The address and number
-                </span>
-                <span className="lead-operation">
-                  <span>Venta</span>
-                  USD 120.000
-                </span>
-                <span className="lead-status lead-status-badge">
-                  <Select options={[
-                    { value: 'pendiente', label: 'Pendiente' },
-                    { value: 'contactado', label: 'Contactado' },
-                    { value: 'no_interesado', label: 'No interesado'}
-                  ]} value="pendiente" onChange={(val) => console.log(val)} />
-                </span>
-                <span className="lead-date">17 nov</span>
-              </div>
-              <div className="lead-item">
-                <span className="lead-dot" />
-                <Checkbox
-                  label=""
-                  checked={true}
-                  onChange={() => {}}
-                />
-                <img className="lead-star" src="/icons/star_development.svg" alt="" />
-                <span className="lead-name">Name lastname</span>
-                <span className="lead-property">
-                  <span>ID: 324234234</span>
-                  The address and number
-                </span>
-                <span className="lead-operation">
-                  <span>Venta</span>
-                  USD 120.000
-                </span>
-                <span className="lead-status lead-status-badge">
-                  <Select options={[
-                    { value: 'pendiente', label: 'Pendiente' },
-                    { value: 'contactado', label: 'Contactado' },
-                    { value: 'no_interesado', label: 'No interesado'}
-                  ]} value="pendiente" onChange={(val) => console.log(val)} />
-                </span>
-                <span className="lead-date">17 nov</span>
-              </div>
-            </div>
+              {contactos.map((lead) => <LeadItem key={lead.id} lead={lead} />)}
           </div>
         </div>
 
@@ -285,12 +186,6 @@ export default function Leads() {
           totalPages={totalPages}
           onPageChange={(page) => { setCurrentPage(page); }}
         />
-
-        <div className="leads-mobile-footer">
-          {/*<button className="leads-add-button" type="button">
-            Agregar colaborador
-          </button>*/}
-        </div>
       </div>
 
       {/*deleteModal.open && (
@@ -305,5 +200,6 @@ export default function Leads() {
         />
       )*/}
     </div>
+  </div>
   );
 }

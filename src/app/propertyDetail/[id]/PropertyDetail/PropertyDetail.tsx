@@ -452,6 +452,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         onClose={() => setIsWhatsappModalOpen(false)}
         phoneNumber={property?.user ? property.user.phone : property?.owner_phone ?? ''}
         propertyId={property?.id ?? 0}
+        userId={property?.user_id}
+        organizationId={(property as any)?.user?.organization_id ?? property?.organization_id}
       />}
       {isShareModalOpen && <ShareModal
         isOpen={isShareModalOpen}

@@ -20,7 +20,7 @@ interface PropertyData {
 const formatNumeric = (value: string): string => value.replace(/\D/g, '');
 
 export default function Profile() {
-  const { data: sessionData } = useSession();
+  const { data: sessionData, update: updateSession } = useSession();
   const [showMenu, setShowMenu] = useState(false);  
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -63,7 +63,14 @@ export default function Profile() {
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      updateSession({
+        name: data.name,
+        phone: data.phone,
+        phone_additional: data.phone_additional,
+        phone_whatsapp: data.phone_whatsapp,
+        document: data.document,
+      });
       setSuccessMessage('Usuario editado correctamente');
       setErrorMessage('');
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -121,8 +128,8 @@ export default function Profile() {
                 <InputField2
                   type="text"
                   placeholder="Identificador"
-                  value={properties.id}
-                  label="Identificador"
+                  value={`Identificador: ${properties.id}`}
+                  label="Id"
                   disabled={true}
                 />
               </div>

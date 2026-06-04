@@ -11,7 +11,8 @@ interface SubmenuItem {
 }
 
 interface SubmenuProps {
-  active: boolean;  
+  active: boolean;
+  onItemChange?: (id: SubmenuItem['id']) => void;
 }
 
 const items: SubmenuItem[] = [
@@ -21,7 +22,7 @@ const items: SubmenuItem[] = [
   { id: 'bloqueados', label: 'Bloqueados'}
 ];
 
-export default function SubmenuLeads({ active }: SubmenuProps) {
+export default function SubmenuLeads({ active, onItemChange }: SubmenuProps) {
   
   const [activeItemId, setActiveItemId] = useState<'entrada' | 'destacados' | 'eliminados' | 'bloqueados'>('entrada');
 
@@ -33,7 +34,7 @@ export default function SubmenuLeads({ active }: SubmenuProps) {
         return (
           <button
             key={item.id}
-            onClick={() => setActiveItemId(item.id)}
+            onClick={() => { setActiveItemId(item.id); onItemChange?.(item.id); }}
             className={`submenu-item ${isActive ? 'submenu-item-active' : 'submenu-item-inactive'}`}
           >
             <div className="submenu-item-label">
