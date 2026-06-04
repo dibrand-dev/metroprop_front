@@ -12,6 +12,5 @@ export default function Page() {
   return <>
     <Header />
     <MyProperties />
-    <Footer />
   </>;
 }

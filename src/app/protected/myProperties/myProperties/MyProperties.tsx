@@ -103,10 +103,9 @@ const MyProperties = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchId, setSearchId] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusPopoverId, setStatusPopoverId] = useState<number | null>(null);
-  const [pendingAction, setPendingAction] = useState<{ ids: number[]; status?: number; label: string; action: 'status' } | null>(null);
-  const [assignPopoverOpen, setAssignPopoverOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{ ids: number[]; status?: number; label: string; action: 'status' | 'assign' | 'change-status' } | null>(null);
   const [assignSelectedUserId, setAssignSelectedUserId] = useState<number | null>(null);
+  const [pendingStatusValue, setPendingStatusValue] = useState<number | null>(null);
   const [republishModalOpen, setRepublishModalOpen] = useState(false);
   const [republishIds, setRepublishIds] = useState<number[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState('Todas');
@@ -131,19 +130,32 @@ const MyProperties = () => {
 
   const confirmAction = () => {
     if (!pendingAction) return;
-    statusMutation.mutate({ ids: pendingAction.ids, status: pendingAction.status! });
+    if (pendingAction.action === 'assign') {
+      if (assignSelectedUserId === null) return;
+      assignMutation.mutate({ ids: pendingAction.ids, user_id: assignSelectedUserId });
+    } else if (pendingAction.action === 'change-status') {
+      if (pendingStatusValue === null) return;
+      statusMutation.mutate({ ids: pendingAction.ids, status: pendingStatusValue });
+    } else {
+      statusMutation.mutate({ ids: pendingAction.ids, status: pendingAction.status! });
+    }
     setPendingAction(null);
   };
 
   const requestStatusChange = (ids: number[], status: number, label: string) => {
-    setStatusPopoverId(null);
     setPendingAction({ ids, status, label, action: 'status' });
   };
 
   const statusMutation = useMutation({
     mutationFn: ({ ids, status }: { ids: number[]; status: number }) =>
       apiFetch(`${API_BASE_URL}/properties/status`, { method: 'PATCH', body: { ids, status } }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-properties'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-properties'] });
+      setToast({ type: 'success', message: 'Estado actualizado con éxito.' });
+    },
+    onError: () => {
+      setToast({ type: 'error', message: 'No se pudo actualizar el estado. Intentá de nuevo.' });
+    },
   });
 
   const republishMutation = useMutation({
@@ -280,7 +292,6 @@ const MyProperties = () => {
   }, [selectedBranchId]);
 
   useEffect(() => {
-    setAssignPopoverOpen(false);
     setAssignSelectedUserId(null);
   }, [selectedBranchId]);
 
@@ -529,43 +540,15 @@ const MyProperties = () => {
                 onChange={toggleSelectAll}
             />
             {hasOrganization && !isRole2 && !isRole3 && (
-              <div style={{ position: 'relative' }}>
-                <button
-                  type="button"
-                  className="myprop-toolbar-btn"
-                  title="Asignar responsable"
-                  disabled={selectedCount === 0 || !isBranchSelected}
-                  onClick={() => { setAssignPopoverOpen(prev => !prev); setAssignSelectedUserId(null); }}
-                >
-                  <img src="/icons/AsignarUser.svg" alt="Asignar" />
-                </button>
-                {assignPopoverOpen && (
-                  <>
-                    <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setAssignPopoverOpen(false)} />
-                    <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 100, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', padding: 16, minWidth: 220 }}>
-                      <Select
-                        label=""
-                        placeholder="Seleccionar asesor..."
-                        value={String(assignSelectedUserId) ?? ''}
-                        onChange={(value) => setAssignSelectedUserId(value ? Number(value) : null)}
-                        options={orgUsers.map(b => ({ label: b.name, value: String(b.id) }))}
-                      />
-                      <br />
-                      <Button
-                        label="Aceptar"
-                        disabled={assignSelectedUserId === null || !isBranchSelected}
-                        fullWidth
-                        onClick={() => {
-                          if (assignSelectedUserId === null || !isBranchSelected) return;
-                          assignMutation.mutate({ ids: getSelectedPropertyIds(), user_id: assignSelectedUserId });
-                          setAssignPopoverOpen(false);
-                          setAssignSelectedUserId(null);
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
+              <button
+                type="button"
+                className="myprop-toolbar-btn"
+                title="Asignar responsable"
+                disabled={selectedCount === 0 || !isBranchSelected}
+                onClick={() => { setAssignSelectedUserId(null); setPendingAction({ ids: getSelectedPropertyIds(), label: 'Reasignar Colaborador', action: 'assign' }); }}
+              >
+                <img src="/icons/AsignarUser.svg" alt="Asignar" />
+              </button>
             )}
             {!isRole2 && (
             <button type="button" className="myprop-toolbar-btn" title="Republicar" disabled={selectedCount === 0 || (hasOrganization && selectedBranchId === "Todas")} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
@@ -682,31 +665,11 @@ const MyProperties = () => {
                         <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => window.open(`/propertyDetail/${prop.id}`, '_blank')}>
                           <img src="/icons/verDetalle.svg" alt="Ver detalle" />
                         </button>
-                        <div style={{ position: 'relative' }}>
-                          <button type="button" className="myprop-card-action-btn" title="Cambiar estado" onClick={() => setStatusPopoverId(prev => prev === prop.id ? null : (prop.id ?? null))}>
-                            <img src="/icons/cambiarStatus.svg" alt="Cambiar estado" />
-                          </button>
-                          {statusPopoverId === prop.id && (
-                            <>
-                              <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setStatusPopoverId(null)} />
-                              <div style={{ position: 'absolute', bottom: '100%', right: 0, zIndex: 100, background: '#fff', border: '1px solid #e0e0e0', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', padding: '8px 0', minWidth: 180 }}>
-                                {(Object.entries(PROPERTY_STATUS_LABELS) as [string, string][]).map(([key, label]) => (
-                                  <button
-                                    key={key}
-                                    type="button"
-                                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: '#333', textAlign: 'left' }}
-                                    onClick={() => {
-                                      if (prop.id) requestStatusChange([prop.id], Number(key), label);
-                                    }}
-                                  >
-                                    <span className="myprop-card-status-dot" style={{ backgroundColor: STATUS_COLOR_MAP[Number(key)], flexShrink: 0 }} />
-                                    {label}
-                                  </button>
-                                ))}
-                              </div>
-                            </>
-                          )}
-                        </div>
+                        <button type="button" className="myprop-card-action-btn" title="Cambiar estado" onClick={() => {
+                          if (prop.id) { setPendingStatusValue(null); setPendingAction({ ids: [prop.id], label: 'Cambiar Estado', action: 'change-status' }); }
+                        }}>
+                          <img src="/icons/cambiarStatus.svg" alt="Cambiar estado" />
+                        </button>
                         <button
                           type="button"
                           className="myprop-card-action-btn myprop-card-ver-mas"
@@ -729,22 +692,66 @@ const MyProperties = () => {
 
       {pendingAction && (
         <AreYouSureModal
-          title="¿Estás seguro?"
-          text={`Estás por cambiar el estado de ${pendingAction.ids.length} propiedad${pendingAction.ids.length !== 1 ? 'es' : ''} a "${pendingAction.label}".`}
-          onAccept={confirmAction}
+          title={pendingAction.label}
+          subTitle={
+            pendingAction.action === 'assign'
+              ? `Vas a reasignar ${pendingAction.ids.length} publicaciones a otro colaborador.`
+              : pendingAction.action === 'change-status'
+                ? 'Vas a cambiar el estado de la publicación.'
+                : `Vas a ${pendingAction.label} ${pendingAction.ids.length} ${pendingAction.ids.length !== 1 ? 'publicaciones' : 'publicación'}`
+          }
+          text={
+            pendingAction.action === 'assign'
+              ? (
+                <div className="text-left">
+                  <p className="mb-[24px]">Los colaboradores actuales dejarán de gestionarlas.</p>
+                  <Select
+                    label="Nuevo colaborador"
+                    placeholder="Seleccionar colaborador..."
+                    value={String(assignSelectedUserId ?? '')}
+                    onChange={(value) => setAssignSelectedUserId(value ? Number(value) : null)}
+                    options={orgUsers.map(b => ({ label: b.name, value: String(b.id) }))}
+                  />
+                </div>
+              )
+              : pendingAction.action === 'change-status'
+                ? (
+                  <div className="text-left">
+                    <Select
+                      label="Nuevo estado"
+                      placeholder="Seleccionar estado..."
+                      value={String(pendingStatusValue ?? '')}
+                      onChange={(value) => setPendingStatusValue(value ? Number(value) : null)}
+                      options={(Object.entries(PROPERTY_STATUS_LABELS) as [string, string][]).map(([key, label]) => ({ value: key, label }))}
+                    />
+                  </div>
+                )
+                : <p className="text-left">
+                    {pendingAction.label === 'Archivar'
+                    ? 'Podrás encontrar todas tus publicaciones archivadas en la sección Archivados'
+                    : pendingAction.label === 'Dar de baja'
+                      ? 'Las publicaciones dadas de baja no estarán visibles para los usuarios y no se podrán reactivar.'
+                      : 'Los colaboradores actuales dejarán de gestionarlas.'
+                    }
+                  </p>
+          }
+          icon="/icons/exclamation.svg"
+          onAccept={(
+            (pendingAction.action === 'assign' && assignSelectedUserId === null) ||
+            (pendingAction.action === 'change-status' && pendingStatusValue === null)
+          ) ? undefined : confirmAction}
           onCancel={() => setPendingAction(null)}
+          acceptText={(pendingAction.action === 'assign' ? assignMutation.isPending : statusMutation.isPending) ? 'Actualizando...' : 'Aceptar'}
         />
       )}
 
       {republishModalOpen && (
         <AreYouSureModal
           title="Republicar"
+          subTitle={`Vas a republicar ${republishIds.length} propiedad${republishIds.length !== 1 ? 'es' : ''}`}
+          icon="/icons/exclamation.svg"
           text={
             <div className="myprop-republish-modal">
-              <p className="myprop-republish-summary">
-                Vas a republicar {republishIds.length} propiedad{republishIds.length !== 1 ? 'es' : ''}.
-              </p>
-
               <div className="myprop-republish-plans">
                 <p className="myprop-republish-plans-title">Planes disponibles</p>
 

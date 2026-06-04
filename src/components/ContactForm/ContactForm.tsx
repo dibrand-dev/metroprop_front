@@ -117,7 +117,7 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
   const openWhatsApp = (message: string) => {
     if (!formState.phone) return;
     const encodedMessage = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a><br />${message}`);
-    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank");
+    window.open(`https://wa.me/${formState.phone.trim()}?text=${encodedMessage}`, "_blank");
   };
   
   const handleSubmit = async (actionId: string) => {

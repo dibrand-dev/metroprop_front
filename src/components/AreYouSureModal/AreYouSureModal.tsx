@@ -1,3 +1,4 @@
+import Button from '@/ui/Button/Button';
 import './AreYouSureModal.scss';
 
 interface AreYouSureModalProps {
@@ -36,15 +37,9 @@ export default function AreYouSureModal({ title, text, icon, onAccept, onCancel,
             </div>
           </div>
 
-          <div className="are-you-sure-actions">
-            <button className="are-you-sure-btn are-you-sure-btn--cancel" type="button" onClick={onCancel}>
-              {cancelText || 'Cancelar'}
-            </button>
-            {onAccept && (
-              <button className="are-you-sure-btn are-you-sure-btn--accept" type="button" onClick={onAccept}>
-                {acceptText || 'Aceptar'}
-              </button>
-            )}
+          <div className="are-you-sure-actions">            
+            <Button variant="secondary" onClick={onCancel} label={cancelText || 'Cancelar'}  fullWidth />
+            {onAccept && (<Button variant="primary" onClick={onAccept} label={acceptText || 'Aceptar'} fullWidth />)}
           </div>
         </div>
       </div>
