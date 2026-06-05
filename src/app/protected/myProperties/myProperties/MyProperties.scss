@@ -380,6 +380,9 @@
     height: 18px;
     opacity: 0.7;
   }
+  &:disabled {
+    opacity: .3;
+  }
 }
 
 .myprop-toolbar-right {

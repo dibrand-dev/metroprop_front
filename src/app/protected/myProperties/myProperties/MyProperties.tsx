@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { apiFetch } from '@/lib/apiFetch';
@@ -90,6 +91,7 @@ function calcPropertyCompleteness(prop: CreateProperty): number {
 /* ── Main component ─────────────────────────────────────────────────── */
 const MyProperties = () => {
   const { data: sessionData } = useSession();
+  const router = useRouter();
   const sessionUser: any = sessionData?.user;
   const hasOrganization = sessionUser?.organization ?? false;
   const orgId = sessionUser?.organization?.id ?? null;
@@ -543,7 +545,7 @@ const MyProperties = () => {
               <button
                 type="button"
                 className="myprop-toolbar-btn"
-                title="Asignar responsable"
+                title={(selectedCount === 0 || !isBranchSelected) ? "Seleccionar sucursal" : "Asignar responsable"}
                 disabled={selectedCount === 0 || !isBranchSelected}
                 onClick={() => { setAssignSelectedUserId(null); setPendingAction({ ids: getSelectedPropertyIds(), label: 'Reasignar Colaborador', action: 'assign' }); }}
               >
@@ -551,7 +553,7 @@ const MyProperties = () => {
               </button>
             )}
             {!isRole2 && (
-            <button type="button" className="myprop-toolbar-btn" title="Republicar" disabled={selectedCount === 0 || (hasOrganization && selectedBranchId === "Todas")} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
+            <button type="button" className="myprop-toolbar-btn" title={(selectedCount === 0 || (hasOrganization && !isBranchSelected)) ? "Seleccionar sucursal" : "Republicar"} disabled={selectedCount === 0 || (hasOrganization && !isBranchSelected)} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
               <img src="/icons/republicar.svg" alt="Republicar" />
             </button>
             )}
@@ -647,9 +649,13 @@ const MyProperties = () => {
                             <span className="myprop-views-label">Visualizaciones</span>
                             <span className="myprop-views-count">{prop.view_count}</span>
                           </div>
-                          <div className="myprop-interest myprop-card-collapsible">
+                          <div
+                            className={`myprop-interest myprop-card-collapsible${(prop.leads_count ?? 0) > 0 ? ' is-clickable' : ''}`}
+                            onClick={() => { if ((prop.leads_count ?? 0) > 0 && prop.id) router.push(`/protected/leads/${prop.id}`); }}
+                            style={(prop.leads_count ?? 0) > 0 ? { cursor: 'pointer' } : undefined}
+                          >
                             <span className="myprop-views-label">Interesados</span>
-                            <span className="myprop-views-count">10</span>
+                            <span className="myprop-views-count">{prop.leads_count ?? 0}</span>
                           </div>
                         </div>
                     </div>

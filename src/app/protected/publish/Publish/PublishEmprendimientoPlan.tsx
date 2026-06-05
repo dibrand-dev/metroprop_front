@@ -259,6 +259,7 @@ export default function PublishPlansEmprendimiento({
             buttonType="2"
             onClick={() => onSaveAndExit(wizardData)}
             fullWidth={false}
+            
           />
           <Button
             label="Continuar"
@@ -266,6 +267,9 @@ export default function PublishPlansEmprendimiento({
             buttonType="2"
             onClick={handleContinue}
             fullWidth={false}
+            disabled={/* if there is no user selected and has branches */
+              fetchedBranches.length > 0 && user_id === undefined
+            }
           />
         </div>
       </div>

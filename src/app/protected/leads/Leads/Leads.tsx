@@ -5,23 +5,19 @@ import './Leads.scss';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
-// import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
-import Paginator from '@/components/Paginator/Paginator';
+import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import InputField2 from '@/ui/InputField2/InputField2';
 import SubmenuLeads from './Submenu/Submenu';
 import Checkbox from '@/ui/Checkbox/Checkbox';
-import Select from '@/ui/Select/Select';
-import { LEAD_STATE_OPTIONS, LeadContactType } from '@/types/propiedad';
+import { LeadContactType } from '@/types/propiedad';
 import LeadItem from './Lead/Lead';
 import { Lead } from '@/types/propiedad';
-// import { CreateProperty } from '@/types/propiedad';
 
 const iconArrowBack = '/icons/arrow.svg';
 
-
-const LIMIT = 20;
+const LIMIT = 10;
 export default function Leads() {
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
   const [showMenu, setShowMenu] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,31 +26,24 @@ export default function Leads() {
   const [searchEmail, setSearchEmail] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("1");
   const [activeSubmenu, setActiveSubmenu] = useState<'entrada' | 'destacados' | 'eliminados' | 'bloqueados'>('entrada');
-  // const [deleteModal, setDeleteModal] = useState<{ open: boolean; name: string | null; propertyId: number; leadId: number }>({ open: false, name: null, propertyId: 0, leadId: 0 });
-/*
+  const [selectedLeadIds, setSelectedLeadIds] = useState<number[]>([]);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const deleteMutation = useMutation({
-    mutationFn: (organizationId: number) =>
-      apiFetch(`${API_BASE_URL}/organizations/${organizationId}`, { method: 'DELETE' }),
+    mutationFn: (ids: number[]) =>
+      Promise.all(ids.map(id => apiFetch(`${API_BASE_URL}/leads/${id}`, { method: 'PATCH', body: { deleted: true, highlighted: false } }))),
     onSuccess: () => {
-      setDeleteModal({ open: false, name: null, propertyId: 0, leadId: 0 });
-      queryClient.invalidateQueries({ queryKey: ['all-organizations'] });
+      setSelectedLeadIds([]);
+      setDeleteModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
     },
   });
-  */
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setSearchQuery(val);
     if (val.trim() === '') {
       setSearchId(null);
-    }
-  };
-
-  const handleSearchInputChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchQueryEmail(val);
-    if (val.trim() === '') {
-      setSearchEmail(null);
     }
   };
 
@@ -75,10 +64,6 @@ export default function Leads() {
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleSearchById();
-  };
-
-  const handleSearchKeyDownEmail = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSearchByEmail();
   };
   
   const { data: contactosData } = useQuery<any>({
@@ -110,7 +95,10 @@ export default function Leads() {
   const rawData: any = contactosData;
   const allContactos: Lead[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
   const contactTypeFilter = activeTab === "1" ? LeadContactType.MESSAGE : activeTab === "2" ? LeadContactType.SAW_CONTACT : LeadContactType.WHATSAPP;
-  const contactos: Lead[] = allContactos.filter((lead) => lead.contact_type === contactTypeFilter);
+  const contactos: Lead[] = allContactos.filter((lead) =>
+    lead.contact_type === contactTypeFilter &&
+    (activeSubmenu === 'eliminados' ? lead.deleted : !lead.deleted)
+  );
   const total: number = rawData?.total ?? allContactos.length;
   const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 
@@ -133,9 +121,23 @@ export default function Leads() {
           <div className="leads-filter">
             <Checkbox
               label=""
-              checked={true}
-              onChange={() => {}}
+              checked={contactos.length > 0 && contactos.every(l => selectedLeadIds.includes(l.id!))}
+              onChange={(val) => {
+                if (val) {
+                  setSelectedLeadIds(contactos.map(l => l.id!));
+                } else {
+                  setSelectedLeadIds([]);
+                }
+              }}
             />
+            <button
+              className=""
+              type="button"
+              aria-label="Eliminar contacto"
+              onClick={() => { if (selectedLeadIds.length > 0) setDeleteModalOpen(true); }}
+            >
+              <img src="/icons/trash.svg" alt="" />
+            </button>
             <InputField2
               placeholder="ID / Título"
               value={searchQuery}
@@ -173,32 +175,64 @@ export default function Leads() {
                 </button>
               </div>
               <div className='leads-paginator'>
-                1 - 10
+                
+                <span className="leads-paginator-label">
+                  {total > 0
+                    ? `${currentPage * LIMIT + 1} - ${Math.min((currentPage + 1) * LIMIT, total)} de ${total}`
+                    : '0 - 0 de 0'}
+                </span>
+                <button
+                  type="button"
+                  className="leads-paginator-btn"
+                  disabled={currentPage === 0}
+                  onClick={() => setCurrentPage(p => p - 1)}
+                  aria-label="Página anterior"
+                >
+                  <img src="/icons/chevron_blue.svg" alt="" style={{ transform: 'rotate(180deg)' }} />
+                </button>
+                <button
+                  type="button"
+                  className="leads-paginator-btn"
+                  disabled={currentPage >= totalPages - 1}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                  aria-label="Página siguiente"
+                >
+                  <img src="/icons/chevron_blue.svg" alt="" />
+                </button>
               </div>
             </div>
             <div className="leads-list">
-              {contactos.map((lead) => <LeadItem key={lead.id} lead={lead} />)}
+              {contactos.length === 0 ? (
+                <p className="leads-empty">No hay mensajes</p>
+              ) : contactos.map((lead) => (
+                <LeadItem
+                  key={lead.id}
+                  lead={lead}
+                  checked={selectedLeadIds.includes(lead.id!)}
+                  onCheckedChange={(val) => {
+                    if (val) {
+                      setSelectedLeadIds(prev => [...prev, lead.id!]);
+                    } else {
+                      setSelectedLeadIds(prev => prev.filter(id => id !== lead.id));
+                    }
+                  }}
+                />
+              ))}
           </div>
         </div>
-
-        <Paginator
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => { setCurrentPage(page); }}
-        />
       </div>
 
-      {/*deleteModal.open && (
+      {deleteModalOpen && (
         <AreYouSureModal
-          title="Eliminar Contacto"
-          subTitle={`¿Está seguro que desea eliminar el contacto de ${deleteModal.name}?`}
-          text="Todos los datos del contacto se eliminarán permanentemente."
+          title="Eliminar"
+          subTitle={`Vas a eliminar ${selectedLeadIds.length} contacto${selectedLeadIds.length !== 1 ? 's' : ''}`}
+          text="¿Estás seguro?"
           icon="/icons/trash.svg"
-          onCancel={() => setDeleteModal({ open: false, name: null, propertyId: 0, leadId: 0 })}
-          onAccept={() => { if (deleteModal.leadId) deleteMutation.mutate(deleteModal.leadId); }}
+          onCancel={() => setDeleteModalOpen(false)}
+          onAccept={() => deleteMutation.mutate(selectedLeadIds)}
           acceptText={deleteMutation.isPending ? 'Eliminando...' : 'Aceptar'}
         />
-      )*/}
+      )}
     </div>
   </div>
   );

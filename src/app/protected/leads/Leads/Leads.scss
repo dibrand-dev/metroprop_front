@@ -1,3 +1,44 @@
+.property-leads-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.property-leads-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 0 0;
+}
+
+.property-leads-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e1e1e;
+  flex-basis: 100%;
+}
+
+.property-leads-street {
+  font-size: 14px;
+  color: #555;
+}
+
+.property-leads-operation {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1573ff;
+  text-transform: capitalize;
+}
+
+.property-leads-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e1e1e;
+}
+
 .professionalContainer {
   padding: 48px 24px;
   display: flex;
@@ -164,25 +205,72 @@
     }
 
     .leads-paginator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
       padding-right: 16px;
+    }
+
+    .leads-paginator-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      border-radius: 4px;
+
+      &:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+
+      img {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .leads-paginator-label {
+      font-size: 13px;
+      color: #1e1e1e;
+      white-space: nowrap;
+      padding: 0 4px;
     }    
   }
 
   .leads-list {
     background-color: #fff;
     border-radius: 8px;
+    .lead-item-wrapper {
+      border-bottom: 1px solid #A6A6A6;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &.unread .lead-item {
+        font-weight: 600;
+        .lead-dot { visibility: visible; }
+      }
+
+      .lead-message {
+        padding: 12px 16px 16px 56px;
+        font-size: 14px;
+        line-height: 20px;
+        color: #444;
+        background: #f9f9f9;
+        white-space: pre-wrap;
+      }
+    }
     .lead-item {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 16px;
-      border-bottom: 1px solid #A6A6A6;
       min-height: 52px;
       font-weight: 400;
-
-      &:last-child {
-        border-bottom: none;
-      }
 
       .lead-dot {
         width: 8px;
@@ -191,6 +279,7 @@
         background-color: #006aff;
         flex-shrink: 0;
         visibility: hidden;
+        margin-right: 10px;
       }
 
       .lead-star {
@@ -270,18 +359,9 @@
         letter-spacing: 5%;
         width: 100px;
         text-align: right;
-      }
-
-       
-      &.unread {
-        font-weight: 600 !important;
-        .lead-dot {
-          visibility: visible;
-        }
-      }
+      }       
     }
   }
-
 }
 
 .leads-filter {
@@ -293,5 +373,8 @@
   border-bottom-right-radius: 0;
   gap: 10px;
   padding: 13px 16px;
+}
 
+.leads-empty {
+  padding: 16px;
 }

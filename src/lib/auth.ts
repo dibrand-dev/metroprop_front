@@ -85,6 +85,11 @@ export const authOptions = {
       if (trigger === 'update') {
         if (session?.organization !== undefined) token.organization = session.organization;
         if (session?.id !== undefined) token.id = session.id;
+        if (session?.name !== undefined) token.name = session.name;
+        if (session?.phone !== undefined) token.phone = session.phone;
+        if (session?.phone_additional !== undefined) token.phone_additional = session.phone_additional;
+        if (session?.phone_whatsapp !== undefined) token.phone_whatsapp = session.phone_whatsapp;
+        if (session?.document !== undefined) token.document = session.document;
       }
 
       if (account) {
@@ -126,6 +131,7 @@ export const authOptions = {
       if (session?.user) {
        
         session.user.id = token.id || token.sub;
+        if (token.name !== undefined) session.user.name = token.name;
         if (token.apiToken) session.user.apiToken = token.apiToken;
         if (token.organization !== undefined) {
           session.user.organization = token.organization;
