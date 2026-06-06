@@ -240,7 +240,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
             </div>
             <div className="branch-form-field">
               <InputField
-                label="Email (opcional)"
+                label="Email"
                 type="email"
                 placeholder="Email"
                 value={formData.email}

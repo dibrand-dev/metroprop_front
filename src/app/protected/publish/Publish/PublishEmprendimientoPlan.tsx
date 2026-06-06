@@ -36,9 +36,11 @@ export default function PublishPlansEmprendimiento({
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
   const [hired_plan_id, setHired_plan_id] = useState(wizardData.hired_plan_id || 0);
   const [visibility, setVisibility] = useState(wizardData.visibility || 0);
-  const [branchFilter, setBranchFilter] = useState('');
+  const [branchFilter, setBranchFilter] = useState(Number.parseInt(wizardData.branch_id?.toString() || '0'));
   const { data: sessionData } = useSession();
 
+console.log("wizardData", wizardData)
+console.log("branchFilter", branchFilter)
   const { data:plansData , isLoading, isError } = useQuery<Plan[]>({
     queryKey: ['plans'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/plans/`),
@@ -47,12 +49,13 @@ export default function PublishPlansEmprendimiento({
 
   const orgId = (sessionData?.user as any)?.organization?.id ?? null;
   const isRole2 = (sessionData?.user as any)?.role_id === 2;
+  const isRole3 = (sessionData?.user as any)?.role_id === 3;
   const loggedUserId = (sessionData?.user as any)?.id;
 
   const { data: fetchedBranches = [] } = useQuery<any[]>({
     queryKey: ['branches', orgId],
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/branches/organization/${orgId}`),
-    enabled: !!orgId,
+    enabled: !!orgId || isRole3, // Fetch branches if user has an org or is role_id=3 (to find their branch)
   });
 
   const branchOptions = fetchedBranches.map((b: any) => ({
@@ -61,7 +64,12 @@ export default function PublishPlansEmprendimiento({
   }));
 
   useEffect(() => {
-    if (!isRole2 && fetchedBranches.length === 1) {
+    if (wizardData.branch_id !== 0 && wizardData.branch_id !== undefined) {
+      setBranchFilter(wizardData.branch_id.toString());
+      return; // Don't auto-select if we already have a branch in wizardData
+    }
+    
+    if (!isRole3 && fetchedBranches.length === 1) {
       setBranchFilter(String(fetchedBranches[0].id));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -76,13 +84,13 @@ export default function PublishPlansEmprendimiento({
   const rawData: any = usersData;
   const rawUsers: any[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
 
-  // Auto-select branch for role_id=2 users
+  // Auto-select branch for role_id=3 and 2 users
   useEffect(() => {
-    if (!isRole2 || !loggedUserId || rawUsers.length === 0) return;
+    if (!(isRole3 || isRole2) || !loggedUserId || rawUsers.length === 0 || wizardData.branch_id !== 0) return;
     const me = rawUsers.find((u: any) => String(u.id) === String(loggedUserId));
     const myBranch = Array.isArray(me?.branches) && me.branches.length > 0 ? String(me.branches[0].id) : null;
     if (myBranch) setBranchFilter(myBranch);
-  }, [isRole2, loggedUserId, rawUsers]);
+  }, [isRole3, isRole2, loggedUserId, rawUsers, wizardData.branch_id]);
 
   const { data: branchPlans = [], isLoading: loadingPlans } = useQuery<any[]>({
     queryKey: ['branch-plans', branchFilter],
@@ -149,8 +157,8 @@ export default function PublishPlansEmprendimiento({
         {/* Secondary Menu / Tabs */}
         <EmprendimientoTabs currentStep="emprendimiento-plans" goToStep={goToStep} />
 
-        {fetchedBranches.length > 0 && <div className="publish-plans-block">
-          {!isRole2 && <h2>Asigna este aviso a un colaborador</h2>}
+        {fetchedBranches.length > 0 && !isRole3 && <div className="publish-plans-block">
+          {!isRole3 && <h2>Asigna este aviso a un colaborador</h2>}
           <div className="publish-plans-field">
             <Select
               label="Sucursal"
@@ -158,10 +166,10 @@ export default function PublishPlansEmprendimiento({
               value={branchFilter}
               onChange={(value) => { setBranchFilter(value); setUser_id(undefined); setHired_plan_id(0); setVisibility(0); }}
               options={branchOptions}
-              disabled={isRole2}
+              disabled={isRole2 || isRole3}
             />
           </div>
-          {!isRole2 && (
+          {!isRole3 && (
             <div className="publish-plans-field">
               <Select
                 label="Tus colaboradores"
@@ -268,7 +276,7 @@ export default function PublishPlansEmprendimiento({
             onClick={handleContinue}
             fullWidth={false}
             disabled={/* if there is no user selected and has branches */
-              fetchedBranches.length > 0 && user_id === undefined
+              fetchedBranches.length > 0 && user_id === undefined 
             }
           />
         </div>

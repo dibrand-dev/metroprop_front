@@ -45,6 +45,7 @@ export default function PublishPlans({
 
   const orgId = (sessionData?.user as any)?.organization?.id ?? null;
   const isRole2 = (sessionData?.user as any)?.role_id === 2;
+  const isRole3 = (sessionData?.user as any)?.role_id === 3;
   const loggedUserId = (sessionData?.user as any)?.id;
 
   const { data: fetchedBranches = [] } = useQuery<any[]>({
@@ -59,10 +60,15 @@ export default function PublishPlans({
   }));
 
   // Auto-select when only one branch, or when role_id=2 is handled below
-  useEffect(() => {
-    if (!isRole2 && fetchedBranches.length === 1) {
+  useEffect(() => {   
+    if (wizardData.branch_id !== 0 && wizardData.branch_id !== undefined) {
+      setBranchFilter(wizardData.branch_id.toString());
+      return; // Don't auto-select if we already have a branch in wizardData
+    }
+    
+    if (!isRole3 && fetchedBranches.length === 1) {
       setBranchFilter(String(fetchedBranches[0].id));
-    } 
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchedBranches.length]);
 
@@ -77,11 +83,11 @@ export default function PublishPlans({
 
   // Auto-select branch for role_id=2 users
   useEffect(() => {
-    if (!isRole2 || !loggedUserId || rawUsers.length === 0) return;
+    if (!(isRole3 || isRole2) || !loggedUserId || rawUsers.length === 0 || wizardData.branch_id !== 0) return;
     const me = rawUsers.find((u: any) => String(u.id) === String(loggedUserId));
     const myBranch = Array.isArray(me?.branches) && me.branches.length > 0 ? String(me.branches[0].id) : null;
     if (myBranch) setBranchFilter(myBranch);
-  }, [isRole2, loggedUserId, rawUsers]);
+  }, [isRole2, isRole3, loggedUserId, rawUsers, wizardData.branch_id]);
 
   const { data: branchPlans = [], isLoading: loadingPlans } = useQuery<any[]>({
     queryKey: ['branch-plans', branchFilter],
@@ -158,7 +164,7 @@ export default function PublishPlans({
           <div className="publish-plans-section">
             <h1>Ya casi terminas</h1>
 
-            {fetchedBranches.length > 0 && !isRole2 && <div className="publish-plans-block">
+            {fetchedBranches.length > 0 && !isRole3 && <div className="publish-plans-block">
               <h2>Asigna este aviso a un colaborador</h2>
               <div className="publish-plans-field">
                 <Select
@@ -167,10 +173,10 @@ export default function PublishPlans({
                   value={branchFilter}
                   onChange={(value) => { setBranchFilter(value); setUser_id(undefined); setHired_plan_id(0); setVisibility(0); }}
                   options={branchOptions}
-                  disabled={isRole2}
+                  disabled={isRole3 || isRole2}
                 />
               </div>
-              {!isRole2 && (
+              {!isRole3 && (
                 <div className="publish-plans-field">
                   <Select
                     label="Tus colaboradores"
@@ -267,7 +273,7 @@ export default function PublishPlans({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <button className="publish-plans-continue" type="button" onClick={handleContinue}>
+            <button className="publish-plans-continue" type="button" onClick={handleContinue} disabled={hired_plan_id === undefined || (fetchedBranches.length > 0 && user_id === undefined)}>
               Continuar
             </button>
           </div>
