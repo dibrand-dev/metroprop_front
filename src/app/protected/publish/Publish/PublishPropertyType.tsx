@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import './PublishPropertyType.scss';
-import { PropertyType, PropertySubtype, PROPERTY_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPES_BY_TYPE, OperationType, TEMPORAL_RENT_PERIOD_OPTIONS } from '@/types/propiedad';
+import { PropertyType, PropertySubtype, PROPERTY_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPES_BY_TYPE } from '@/types/propiedad';
 import Select from '@/ui/Select/Select';
 import Button from '@/ui/Button/Button';
 
@@ -32,7 +32,6 @@ export default function PublishPropertyType({
     wizardData.property_subtype || undefined
   );
   const [showError, setShowError] = useState(false);
-  const [period, setPeriod] = useState(wizardData.period || '');
   const showSubtypes = useMemo(() => Boolean(selectedProperty), [selectedProperty]);
   const subtypeOptions: PropertySubtype[] = PROPERTY_SUBTYPES_BY_TYPE[selectedProperty as PropertyType] || [];
 
@@ -42,11 +41,10 @@ export default function PublishPropertyType({
     if (selectedProperty) {
       updateWizardData({
         property_type: selectedProperty,
-        property_subtype: selectedSubtype,
-        period: selectedProperty === 3 ? period : undefined,
+        property_subtype: selectedSubtype
       });
     }
-  }, [selectedProperty, selectedSubtype, period, updateWizardData]);
+  }, [selectedProperty, selectedSubtype, updateWizardData]);
 
   const handleContinue = () => {
     if (!selectedProperty) {
@@ -96,15 +94,6 @@ export default function PublishPropertyType({
               <span>Datos obligatorios(*)</span>
             </div>
 
-            {wizardData.operation_type === 3 ? <div className="publish-step-field">
-              <p className="publish-step-field-label propiedad">Periodo*</p>
-              <Select
-                options={TEMPORAL_RENT_PERIOD_OPTIONS}
-                value={period}
-                onChange={(value) => setPeriod(value)}
-              /> 
-            </div> : null}
-
             <div className="publish-step-field">
               <p className="publish-step-field-label propiedad">Propiedad*</p>
               <div className="publish-chip-grid">
@@ -152,7 +141,7 @@ export default function PublishPropertyType({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <Button label="Continuar" variant="primary" onClick={handleContinue} disabled={!selectedProperty || (period === '' && wizardData.operation_type === 3)} />
+            <Button label="Continuar" variant="primary" onClick={handleContinue} disabled={!selectedProperty} />
           </div>
         </div>
       </div>

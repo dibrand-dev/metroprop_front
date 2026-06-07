@@ -5,10 +5,11 @@ import { useCallback } from 'react';
 import './PublishPropertyContent.scss';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
-import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, TEMPORAL_RENT_PERIOD_OPTIONS } from '@/types/propiedad';
 import { API_BASE_URL } from '@/utils/utils';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
+import Button from '@/ui/Button/Button';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -44,7 +45,7 @@ export default function PublishPropertyContent({
   const [surface_front, setSurface_front] = useState(wizardData.surface_front || undefined);
   const [surface_length, setSurface_length] = useState(wizardData.surface_length || undefined);
   const [semiroofed_surface, setSemiroofed_surface] = useState(wizardData.semiroofed_surface || undefined);
-
+  const [period, setPeriod] = useState(wizardData.period || '');
 
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
@@ -108,7 +109,8 @@ export default function PublishPropertyContent({
       garage_coverage,
       surface_front,
       surface_length,
-      semiroofed_surface
+      semiroofed_surface,
+      period: wizardData.operation_type === 3 ? period : undefined,
     }
     onNext(propertyContentUpdate);
   };
@@ -216,6 +218,16 @@ export default function PublishPropertyContent({
                   />
                 </div>
               </div>
+              {wizardData.operation_type === 3 ? <div className="publish-property-content-detail-grid">                
+                <div className="publish-property-content-detail-field">
+                  <Select
+                    options={TEMPORAL_RENT_PERIOD_OPTIONS}
+                    value={period}
+                    onChange={(value) => setPeriod(value)}
+                    label="Periodo de alquiler temporal*"
+                  /> 
+                </div>
+              </div> : null}
               <div className="publish-property-content-inputs">
                 <div className="publish-property-content-detail-field">
                   <InputField
@@ -253,13 +265,7 @@ export default function PublishPropertyContent({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <button
-              className="publish-property-content-continue"
-              type="button"
-              onClick={handleContinue}
-            >
-              Continuar
-            </button>
+            <Button label="Continuar" variant="primary" onClick={handleContinue} disabled={period === '' && wizardData.operation_type === 3}/>
           </div>
         </div>
       </div>
