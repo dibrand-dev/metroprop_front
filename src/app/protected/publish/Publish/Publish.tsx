@@ -21,7 +21,7 @@ import PublishCheckoutDetail from './PublishCheckoutDetail';
 import PublishCheckoutPayment from './PublishCheckoutPayment';
 import PublishCheckoutSuccess from './PublishCheckoutSuccess';
 import PublishEmprendimiento from './PublishEmprendimiento';
-import { OperationType, OPERATION_TYPE_LABELS, CreateProperty, CreatePropertyDraft, PropertyType } from '@/types/propiedad';
+import { OperationType, OPERATION_TYPE_LABELS, CreateProperty, CreatePropertyDraft, PropertyType, CREATE_PROPERTY_PATCH_KEYS, operationOptions, WizardStep, EMPRENDIMIENTO_FLOW, REGULAR_FLOW } from '@/types/propiedad';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { Plan } from '@/types/plan';
 import PublishEmprendimientoAmenidades from './PublishEmprendimientoAmenidades';
@@ -30,100 +30,7 @@ import PublishPlansEmprendimiento from './PublishEmprendimientoPlan';
 import { EmprendimientoStep } from './EmprendimientoTabs';
 import PublishEmprendimientoFinalReview from './PublishEmprendimientoPreview';
 
-const operationOptions: OperationType[] = [OperationType.VENTA, OperationType.ALQUILER, OperationType.ALQUILER_TEMPORAL, OperationType.EMPRENDIMIENTO];
 
-const CREATE_PROPERTY_PATCH_KEYS: (keyof CreateProperty)[] = [
-  'id',
-  'reference_code',
-  'publication_title',
-  'property_type',
-  'status',
-  'operation_type',
-  'price',
-  'currency',
-  'property_subtype',
-  'publication_title_en',
-  'description',
-  'internal_comments',
-  'street',
-  'number',
-  'floor',
-  'apartment',
-  'postal_code',
-  'show_exact_location',
-  'country_id',
-  'state_id',
-  'location_id',
-  'sub_location_id',
-  'geo_lat',
-  'geo_long',
-  'suite_amount',
-  'room_amount',
-  'bathroom_amount',
-  'toilet_amount',
-  'parking_lot_amount',
-  'surface',
-  'roofed_surface',
-  'unroofed_surface',
-  'semiroofed_surface',
-  'total_surface',
-  'surface_measurement',
-  'roofed_surface_measurement',
-  'age',
-  'property_condition',
-  'brightness',
-  'garage_coverage',
-  'surface_front',
-  'surface_length',
-  'situation',
-  'dispositions',
-  'orientation',
-  'floors_amount',
-  'zonification',
-  'construction_year',
-  'last_renovation',
-  'expenses',
-  'commission',
-  'network_share',
-  'period',
-  'price_square_meter',
-  'producer_user',
-  'branch_id',
-  'user_id',
-  'organization_id',
-  'key_contact',
-  'key_agent_user',
-  'key_location',
-  'key_reference_code',
-  'maintenance_user',
-  'owner_name',
-  'owner_phone',
-  'owner_email',
-  'development',
-  'network_information',
-  'transaction_requirements',
-  'images',
-  'plans',
-  'tags',
-  'operations',
-  'videos',
-  'multimedia360',
-  'attached',
-  'currency_expenses',
-  'selected_plan',
-  'view_count',
-  'is_development',
-  'development_id',
-  'development_type',
-  'development_logo',
-  'development_units_total',
-  'development_delivery_date',
-  'development_available_unit_count',
-  'development_units',
-  'development_unit_type',
-  'hired_plan_id',
-  'visibility',
-];
 
 const toCreatePropertyPatch = (data: Partial<CreatePropertyDraft>): Partial<CreateProperty> => {
   const patch: Partial<CreateProperty> = {};
@@ -205,61 +112,11 @@ const DEVELOPMENT_PATCH_EXCLUDED_KEYS: (keyof CreateProperty)[] = [
 
 const toDevelopmentPatch = (data: Partial<CreatePropertyDraft>): Partial<CreateProperty> => {
   const patch = toCreatePropertyPatch(data);
-
   for (const key of DEVELOPMENT_PATCH_EXCLUDED_KEYS) {
     delete patch[key];
   }
-
   return patch;
 };
-
-// Define wizard steps
-enum WizardStep {
-  INITIAL = 'initial',
-  PROPERTY_TYPE = 'property-type',
-  LOCATION = 'location',
-  CONTENT = 'content',
-  DESCRIPTION = 'description',
-  MAIN_INFO = 'main-info',
-  PRICE = 'price',
-  PROPERTY_CONTENT = 'property-content',
-  FINAL_REVIEW = 'final-review',
-  PLANS = 'plans',
-  CHECKOUT_DETAIL = 'checkout-detail',
-  CHECKOUT_PAYMENT = 'checkout-payment',
-  CHECKOUT_SUCCESS = 'checkout-success',
-  EMPRENDIMIENTO = 'emprendimiento',
-  EMPRENDIMIENTO_AMENITIES = 'emprendimiento-amenities',
-  EMPRENDIMIENTO_UNITS = 'emprendimiento-units',
-  EMPRENDIMIENTO_PLANS = 'emprendimiento-plans',
-  EMPRENDIMIENTO_PREVIEW = 'emprendimiento-preview'
-}
-
-// Define step flow based on operation type
-const REGULAR_FLOW = [
-  WizardStep.INITIAL,
-  WizardStep.PROPERTY_TYPE,
-  WizardStep.LOCATION,
-  WizardStep.CONTENT,
-  WizardStep.MAIN_INFO,
-  WizardStep.PROPERTY_CONTENT,
-  WizardStep.DESCRIPTION,
-  WizardStep.PRICE, 
-  WizardStep.PLANS,
-  WizardStep.FINAL_REVIEW,
-  WizardStep.CHECKOUT_DETAIL,
-  WizardStep.CHECKOUT_PAYMENT,
-  WizardStep.CHECKOUT_SUCCESS
-];
-
-const EMPRENDIMIENTO_FLOW = [
-  WizardStep.INITIAL,
-  WizardStep.EMPRENDIMIENTO,
-  WizardStep.EMPRENDIMIENTO_AMENITIES,
-  WizardStep.EMPRENDIMIENTO_UNITS,
-  WizardStep.EMPRENDIMIENTO_PLANS,
-  WizardStep.EMPRENDIMIENTO_PREVIEW
-];
 
 export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   const isEditMode = !!propertyId;

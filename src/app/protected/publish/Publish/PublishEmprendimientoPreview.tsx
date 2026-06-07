@@ -559,10 +559,8 @@ console.log("wizard", wizardData)
             </div>
           </div>
 
-          <div className="publish-review-footer">           
-            <button className="publish-review-continue" type="button" onClick={handlePublish}>
-              {isEditMode ? 'Guardar cambios' : 'Publicar'}
-            </button>
+          <div className="publish-review-footer">
+            <Button variant="primary" label={isEditMode ? 'Guardar cambios' : 'Publicar'} onClick={handlePublish} disabled={(wizardData.development_delivery_date?.trim() === '') || wizardData.development_units_total === null || wizardData.development_type === null || wizardData.publication_title?.trim() === '' || wizardData.development_units?.length === 0 || wizardData.hired_plan_id === null} />
           </div>
         </div>
       </div>

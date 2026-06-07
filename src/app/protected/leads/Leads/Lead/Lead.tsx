@@ -24,7 +24,7 @@ export default function LeadItem({ lead, checked = false, onCheckedChange }: Lea
   const patchLead = useMutation({
     mutationFn: (body: Record<string, unknown>) =>
       apiFetch(`${API_BASE_URL}/leads/${lead.id}`, { method: 'PATCH', body }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['leads'] }),
+    onSuccess: () => queryClient.refetchQueries({ queryKey: ['leads'] }),
   });
 
   const handleStarClick = (e: React.MouseEvent) => {

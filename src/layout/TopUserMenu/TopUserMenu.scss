@@ -46,6 +46,7 @@ $font-family-button: Montserrat, sans-serif;
 
 // Notification Button
 .header-notification-button {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,6 +73,23 @@ $font-family-button: Montserrat, sans-serif;
   @media (max-width: 768px) {
     display: none;
   }
+}
+
+.header-notification-badge {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background-color: #d32f2f;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  border-radius: 8px;
+  text-align: center;
+  pointer-events: none;
 }
 
 // Avatar Wrapper

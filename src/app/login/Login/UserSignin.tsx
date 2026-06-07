@@ -29,6 +29,7 @@ export default function UserSignin() {
   const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
   const [showSuccessModal, setShowSuccessModal] = useState(false);  
   const [showEmailVerificatedModal, setShowEmailVerificatedModal] = useState(false);
+  const [sessionExpiredToast, setSessionExpiredToast] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { update: updateSession } = useSession();
@@ -120,6 +121,14 @@ export default function UserSignin() {
 
   const isFormDisabled = isPending || isGoogleLoading;
 
+  useEffect(() => {
+    if (searchParams.get('sessionExpired') === 'true') {
+      setSessionExpiredToast(true);
+      const timer = window.setTimeout(() => setSessionExpiredToast(false), 4000);
+      return () => window.clearTimeout(timer);
+    }
+  }, [searchParams]);
+
   useEffect(() => {    
     const shouldProcessValidation = searchParams.get('verifyMailToken') !== null && searchParams.get('verifyMailToken') !== "";
     
@@ -172,6 +181,11 @@ export default function UserSignin() {
 
   return (
     <>
+      {sessionExpiredToast && (
+        <div role="status" aria-live="polite" style={{ position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, minWidth: '260px', maxWidth: '420px', borderRadius: '8px', padding: '10px 14px', color: '#fff', fontSize: '14px', fontWeight: 500, boxShadow: '0 6px 18px rgba(0,0,0,0.2)', background: '#c62828' }}>
+          Se cerró la sesión. Logueate nuevamente
+        </div>
+      )}
       <BackButtonLogo />
       <div className="signin-form-container">
         <h1 className="form-title">Iniciar sesión</h1>

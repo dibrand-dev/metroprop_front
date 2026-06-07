@@ -16,7 +16,6 @@ interface PublishPlansProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
-  onBack: () => void;
   goToStep: (step: EmprendimientoStep) => void;
   onComprar: (plan: Plan, branchFilter: number) => void;
   onSaveAndExit: (descriptionData: Partial<CreatePropertyDraft>) => void;
@@ -29,18 +28,15 @@ export default function PublishPlansEmprendimiento({
   updateWizardData,
   onComprar,
   onNext,
-  onBack,
   onSaveAndExit,
   goToStep 
 }: PublishPlansProps) {
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
   const [hired_plan_id, setHired_plan_id] = useState(wizardData.hired_plan_id || 0);
   const [visibility, setVisibility] = useState(wizardData.visibility || 0);
-  const [branchFilter, setBranchFilter] = useState(Number.parseInt(wizardData.branch_id?.toString() || '0'));
+  const [branchFilter, setBranchFilter] = useState(wizardData.branch_id?.toString() || '');
   const { data: sessionData } = useSession();
 
-console.log("wizardData", wizardData)
-console.log("branchFilter", branchFilter)
   const { data:plansData , isLoading, isError } = useQuery<Plan[]>({
     queryKey: ['plans'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/plans/`),
@@ -48,6 +44,7 @@ console.log("branchFilter", branchFilter)
   });
 
   const orgId = (sessionData?.user as any)?.organization?.id ?? null;
+  const isRole1 = (sessionData?.user as any)?.role_id === 1;
   const isRole2 = (sessionData?.user as any)?.role_id === 2;
   const isRole3 = (sessionData?.user as any)?.role_id === 3;
   const loggedUserId = (sessionData?.user as any)?.id;
@@ -86,7 +83,7 @@ console.log("branchFilter", branchFilter)
 
   // Auto-select branch for role_id=3 and 2 users
   useEffect(() => {
-    if (!(isRole3 || isRole2) || !loggedUserId || rawUsers.length === 0 || wizardData.branch_id !== 0) return;
+    if (isRole1 || !loggedUserId || rawUsers.length === 0 || (wizardData.branch_id !== 0 && wizardData.branch_id !== undefined)) return;
     const me = rawUsers.find((u: any) => String(u.id) === String(loggedUserId));
     const myBranch = Array.isArray(me?.branches) && me.branches.length > 0 ? String(me.branches[0].id) : null;
     if (myBranch) setBranchFilter(myBranch);
@@ -111,7 +108,7 @@ console.log("branchFilter", branchFilter)
     .filter((user: any) => {
       if (!branchFilter) return true;
       const userBranchId = String(user.branches.find((b) => String(b.id) === branchFilter)?.id ?? '');
-      return userBranchId === branchFilter;
+      return userBranchId === branchFilter?.toString();
     })
     .map((user: any) => ({
       value: String(user.id),
@@ -177,6 +174,7 @@ console.log("branchFilter", branchFilter)
                 value={user_id ? user_id.toString() : undefined}
                 onChange={(value) => setUser_id(value ? parseInt(value) : undefined)}
                 placeholder="Seleccionar colaborador"
+                disabled={branchFilter === ''}
               />
             </div>
           )}
@@ -267,7 +265,6 @@ console.log("branchFilter", branchFilter)
             buttonType="2"
             onClick={() => onSaveAndExit(wizardData)}
             fullWidth={false}
-            
           />
           <Button
             label="Continuar"
@@ -275,9 +272,7 @@ console.log("branchFilter", branchFilter)
             buttonType="2"
             onClick={handleContinue}
             fullWidth={false}
-            disabled={/* if there is no user selected and has branches */
-              fetchedBranches.length > 0 && user_id === undefined 
-            }
+            disabled={hired_plan_id === undefined || (orgId && (branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)))}
           />
         </div>
       </div>

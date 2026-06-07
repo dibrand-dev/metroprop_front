@@ -13,7 +13,7 @@ export default async function ProtectedLayout({
     const customToken = (await cookies()).get("authToken")?.value;
 
     if (!session && !customToken) {
-      redirect("/login");
+      redirect("/login?sessionExpired=true");
     }
 
     return <>

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import './TopUserMenu.scss';
 import Button from '@/ui/Button/Button';
+import { apiFetch } from '@/lib/apiFetch';
+import { API_BASE_URL } from '@/utils/utils';
 
 const chevronIcon = "/icons/chevron-up.svg";
 const contactosIcon = "/icons/message.svg";
@@ -32,6 +34,7 @@ export default function TopUserMenu() {
   const { data: sessionData, status: sessionStatus } = useSession();
   const [user, setUser] = useState<AppUser | null>(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [unreadLeadsCount, setUnreadLeadsCount] = useState(0);
   const router = useRouter();
   useEffect(() => {
     const loadUser = async () => {
@@ -54,6 +57,17 @@ export default function TopUserMenu() {
 
     loadUser();
   }, [sessionData]);
+
+  useEffect(() => {
+    if (sessionStatus !== 'authenticated') return;
+    apiFetch<{ unread_count: number }>(`${API_BASE_URL}/leads/unread-count`)
+      .then((res) => {
+        if (res && typeof res.unread_count === 'number') {
+          setUnreadLeadsCount(res.unread_count);
+        }
+      })
+      .catch(() => {});
+  }, [sessionStatus]);
 
   const getInitials = (name: string): string => {
     return name
@@ -170,8 +184,17 @@ export default function TopUserMenu() {
         onClick={handlePublish}
       />)}
 
-      <button className="header-notification-button" title="Notificaciones">
+      <button
+        className="header-notification-button"
+        title="Notificaciones"
+        onClick={() => router.push('/protected/leads')}
+      >
         <img src="/icons/iconoir_bell.svg" alt="Notificaciones" />
+        {unreadLeadsCount > 0 && (
+          <span className="header-notification-badge">
+            {unreadLeadsCount > 99 ? '99+' : unreadLeadsCount}
+          </span>
+        )}
       </button>
 
       <div className="header-avatar-wrapper">

@@ -37,7 +37,7 @@ export default function PublishPropertyDescription({
 
   const titleCount = useMemo(() => title.length, [title]);
   const descriptionCount = useMemo(() => description.length, [description]);
-  const showDescriptionError = descriptionCount >= 0 && descriptionCount < descriptionMin && descriptionCount > 0;
+  const showDescriptionError = false; //descriptionCount >= 0 && descriptionCount < descriptionMin && descriptionCount > 0;
 
   // Update wizard data when description data changes
   useEffect(() => {

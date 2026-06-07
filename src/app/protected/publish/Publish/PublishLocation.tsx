@@ -70,7 +70,7 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, onSuggestion
     setSuggestions([]);
     setOpen(false);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!val.trim() || !serviceRef.current) return;
+    if (val.trim().length < 3 || !serviceRef.current) return;
     debounceRef.current = setTimeout(() => {
       serviceRef.current!.getPlacePredictions(
         {
@@ -86,7 +86,7 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, onSuggestion
           }
         }
       );
-    }, 2000);
+    }, 500);
   };
 
   const handleSelect = useCallback((prediction: google.maps.places.AutocompletePrediction) => {

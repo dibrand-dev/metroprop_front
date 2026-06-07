@@ -102,12 +102,17 @@
   border-bottom-left-radius: 8px;
 }
 
+.publish-step-section {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
 .publish-step-title {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 32px;
 
   h1 {
     margin: 0;

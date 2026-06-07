@@ -60,7 +60,7 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, onSuggestion
     setSuggestions([]);
     setOpen(false);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!val.trim() || !serviceRef.current) return;
+    if (val.trim().length < 3 || !serviceRef.current) return;
     debounceRef.current = setTimeout(() => {
       serviceRef.current!.getPlacePredictions(
         { input: val, types: ['address'], componentRestrictions: { country: 'ar' }, language: 'es' },
@@ -68,7 +68,7 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, onSuggestion
           if (status === 'OK' && predictions?.length) { setSuggestions(predictions); setOpen(true); }
         }
       );
-    }, 300);
+    }, 500);
   };
 
   const handleSelect = useCallback((prediction: google.maps.places.AutocompletePrediction) => {
@@ -620,7 +620,7 @@ export default function PublishEmprendimiento({
             buttonType="2"
             onClick={() => handleContinuar(true)}
             fullWidth={false}
-            disabled={isUploading/* || !isFormValid*/}
+            disabled={isUploading || !hasSelectedAddress || (entrega?.trim() === '') || totalUnidades === null || tipoEmprendimiento === null || nombreEmprendimiento.trim() === ''}
           />
         </div>
       </div>

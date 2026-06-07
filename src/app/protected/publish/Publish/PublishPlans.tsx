@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 import { Plan } from '@/types/plan';
+import Button from '@/ui/Button/Button';
 
 interface PublishPlansProps {
   wizardData: CreatePropertyDraft;
@@ -34,7 +35,7 @@ export default function PublishPlans({
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
   const [hired_plan_id, setHired_plan_id] = useState(wizardData.hired_plan_id || 1);
   const [visibility, setVisibility] = useState(wizardData.visibility || 0);
-  const [branchFilter, setBranchFilter] = useState('');
+  const [branchFilter, setBranchFilter] = useState(wizardData.branch_id?.toString() || '');
   const { data: sessionData } = useSession();
 
   const { data:plansData , isLoading, isError } = useQuery<Plan[]>({
@@ -46,6 +47,7 @@ export default function PublishPlans({
   const orgId = (sessionData?.user as any)?.organization?.id ?? null;
   const isRole2 = (sessionData?.user as any)?.role_id === 2;
   const isRole3 = (sessionData?.user as any)?.role_id === 3;
+  const isRole1 = (sessionData?.user as any)?.role_id === 1;
   const loggedUserId = (sessionData?.user as any)?.id;
 
   const { data: fetchedBranches = [] } = useQuery<any[]>({
@@ -62,6 +64,7 @@ export default function PublishPlans({
   // Auto-select when only one branch, or when role_id=2 is handled below
   useEffect(() => {   
     if (wizardData.branch_id !== 0 && wizardData.branch_id !== undefined) {
+      console.log("Auto-selecting branch from wizardData:", wizardData.branch_id);
       setBranchFilter(wizardData.branch_id.toString());
       return; // Don't auto-select if we already have a branch in wizardData
     }
@@ -83,7 +86,7 @@ export default function PublishPlans({
 
   // Auto-select branch for role_id=2 users
   useEffect(() => {
-    if (!(isRole3 || isRole2) || !loggedUserId || rawUsers.length === 0 || wizardData.branch_id !== 0) return;
+    if (isRole1 || !loggedUserId || rawUsers.length === 0 || (wizardData.branch_id !== 0 && wizardData.branch_id !== undefined)) return;
     const me = rawUsers.find((u: any) => String(u.id) === String(loggedUserId));
     const myBranch = Array.isArray(me?.branches) && me.branches.length > 0 ? String(me.branches[0].id) : null;
     if (myBranch) setBranchFilter(myBranch);
@@ -141,6 +144,8 @@ export default function PublishPlans({
   const handleComprar = (plan: any) => {
     onComprar(plan, branchFilter ? Number.parseInt(branchFilter) : undefined);
   };
+  console.log("hired_plan_id === undefined || (fetchedBranches.length > 0 && user_id === undefined)", hired_plan_id === undefined || (fetchedBranches.length > 0 && user_id === undefined))
+  console.log("branchFilter === ''", branchFilter === '')
 
   return (
     <div className="publish-plans">
@@ -184,6 +189,7 @@ export default function PublishPlans({
                     value={user_id ? user_id.toString() : undefined}
                     onChange={(value) => setUser_id(value ? parseInt(value) : undefined)}
                     placeholder="Seleccionar colaborador"
+                    disabled={branchFilter === ''}
                   />
                 </div>
               )}
@@ -273,9 +279,7 @@ export default function PublishPlans({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <button className="publish-plans-continue" type="button" onClick={handleContinue} disabled={hired_plan_id === undefined || (fetchedBranches.length > 0 && user_id === undefined)}>
-              Continuar
-            </button>
+            <Button className="publish-plans-save" variant="primary" onClick={handleContinue} label="Continuar" disabled={hired_plan_id === undefined || branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)} />
           </div>
         </div>
       </div>

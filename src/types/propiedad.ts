@@ -701,7 +701,6 @@ export const LEAD_STATE_OPTIONS = Object.entries(LEAD_STATE_LABELS).map(([key, l
   label,
 }));
 
-
 export interface Lead {
     "contact_type": LeadContactType,
     "highlighted": boolean,
@@ -728,3 +727,217 @@ export enum LeadContactType {
   WHATSAPP = 'whatsapp',
   SAW_CONTACT = 'saw_contact',
 } 
+
+export enum TemporalRentPeriod {
+  SELECCIONAR = 0,                    // seleccionar
+  POR_DIA = 1,                        // Por día
+  POR_FIN_DE_SEMANA = 2,             // Por fin de semana
+  POR_SEMANA = 3,                     // Por semana
+  QUINCENA = 4,                       // Quincena
+  MES = 5,                            // Mes
+  PRIMER_QUINCENA_ENERO = 6,          // 1er quincena de enero
+  SEGUNDA_QUINCENA_ENERO = 7,         // 2da quincena de enero
+  PRIMER_QUINCENA_FEBRERO = 8,        // 1er quincena de febrero
+  SEGUNDA_QUINCENA_FEBRERO = 9,       // 2da quincena de febrero
+  PRIMER_QUINCENA_MARZO = 10,         // 1er quincena de marzo
+  SEGUNDA_QUINCENA_MARZO = 11,        // 2da quincena de marzo
+  ENERO = 12,                         // Enero
+  FEBRERO = 13,                       // Febrero
+  MARZO = 14,                         // Marzo
+  ABRIL = 15,                         // Abril
+  MAYO = 17,                          // Mayo
+  JUNIO = 18,                         // Junio
+  JULIO = 19,                         // Julio
+  AGOSTO = 20,                        // Agosto
+  SEPTIEMBRE = 21,                    // Septiembre
+  OCTUBRE = 22,                       // Octubre
+  NOVIEMBRE = 23,                     // Noviembre
+  DICIEMBRE = 24,                     // Diciembre
+  POR_TEMPORADA = 25,                 // Por temporada
+  POR_ANO = 26,                       // Por año
+  FIN_DE_ANO = 27,                    // Fin de año
+  SEMANA_SANTA = 28,                  // Semana santa
+  PRIMER_QUINCENA_DICIEMBRE = 29,     // 1er quincena de diciembre
+  SEGUNDA_QUINCENA_DICIEMBRE = 30,    // 2da quincena de diciembre
+}
+
+export const TemporalRentPeriodLabels: Record<string, string> = {
+  [TemporalRentPeriod.POR_DIA]: 'Por día',
+  [TemporalRentPeriod.POR_FIN_DE_SEMANA]: 'Por fin de semana',
+  [TemporalRentPeriod.POR_SEMANA]: 'Por semana',
+  [TemporalRentPeriod.QUINCENA]: 'Quincena',
+  [TemporalRentPeriod.MES]: 'Mes',
+  [TemporalRentPeriod.PRIMER_QUINCENA_ENERO]: '1er quincena de enero',
+  [TemporalRentPeriod.SEGUNDA_QUINCENA_ENERO]: '2da quincena de enero',
+  [TemporalRentPeriod.PRIMER_QUINCENA_FEBRERO]: '1er quincena de febrero',
+  [TemporalRentPeriod.SEGUNDA_QUINCENA_FEBRERO]: '2da quincena de febrero',
+  [TemporalRentPeriod.PRIMER_QUINCENA_MARZO]: '1er quincena de marzo',
+  [TemporalRentPeriod.SEGUNDA_QUINCENA_MARZO]: '2da quincena de marzo',
+  [TemporalRentPeriod.ENERO]: 'Enero',
+  [TemporalRentPeriod.FEBRERO]: 'Febrero',
+  [TemporalRentPeriod.MARZO]: 'Marzo',
+  [TemporalRentPeriod.ABRIL]: 'Abril',
+  [TemporalRentPeriod.MAYO]: 'Mayo',
+  [TemporalRentPeriod.JUNIO]: 'Junio',
+  [TemporalRentPeriod.JULIO]: 'Julio',
+  [TemporalRentPeriod.AGOSTO]: 'Agosto',
+  [TemporalRentPeriod.SEPTIEMBRE]: 'Septiembre',
+  [TemporalRentPeriod.OCTUBRE]: 'Octubre',
+  [TemporalRentPeriod.NOVIEMBRE]: 'Noviembre',
+  [TemporalRentPeriod.DICIEMBRE]: 'Diciembre',
+  [TemporalRentPeriod.POR_TEMPORADA]: 'Por temporada',
+  [TemporalRentPeriod.POR_ANO]: 'Por año',
+  [TemporalRentPeriod.FIN_DE_ANO]: 'Fin de año',
+  [TemporalRentPeriod.SEMANA_SANTA]: 'Semana santa',
+  [TemporalRentPeriod.PRIMER_QUINCENA_DICIEMBRE]: '1er quincena de diciembre',
+  [TemporalRentPeriod.SEGUNDA_QUINCENA_DICIEMBRE]: '2da quincena de diciembre',
+};
+
+export const TEMPORAL_RENT_PERIOD_OPTIONS = Object.entries(TemporalRentPeriodLabels).map(([key, label]) => ({
+  value: key,
+  label,
+}));
+
+export const operationOptions: OperationType[] = [OperationType.VENTA, OperationType.ALQUILER, OperationType.ALQUILER_TEMPORAL, OperationType.EMPRENDIMIENTO];
+
+export const CREATE_PROPERTY_PATCH_KEYS: (keyof CreateProperty)[] = [
+  'id',
+  'reference_code',
+  'publication_title',
+  'property_type',
+  'status',
+  'operation_type',
+  'price',
+  'currency',
+  'property_subtype',
+  'publication_title_en',
+  'description',
+  'internal_comments',
+  'street',
+  'number',
+  'floor',
+  'apartment',
+  'postal_code',
+  'show_exact_location',
+  'country_id',
+  'state_id',
+  'location_id',
+  'sub_location_id',
+  'geo_lat',
+  'geo_long',
+  'suite_amount',
+  'room_amount',
+  'bathroom_amount',
+  'toilet_amount',
+  'parking_lot_amount',
+  'surface',
+  'roofed_surface',
+  'unroofed_surface',
+  'semiroofed_surface',
+  'total_surface',
+  'surface_measurement',
+  'roofed_surface_measurement',
+  'age',
+  'property_condition',
+  'brightness',
+  'garage_coverage',
+  'surface_front',
+  'surface_length',
+  'situation',
+  'dispositions',
+  'orientation',
+  'floors_amount',
+  'zonification',
+  'construction_year',
+  'last_renovation',
+  'expenses',
+  'commission',
+  'network_share',
+  'period',
+  'price_square_meter',
+  'producer_user',
+  'branch_id',
+  'user_id',
+  'organization_id',
+  'key_contact',
+  'key_agent_user',
+  'key_location',
+  'key_reference_code',
+  'maintenance_user',
+  'owner_name',
+  'owner_phone',
+  'owner_email',
+  'development',
+  'network_information',
+  'transaction_requirements',
+  'images',
+  'plans',
+  'tags',
+  'operations',
+  'videos',
+  'multimedia360',
+  'attached',
+  'currency_expenses',
+  'selected_plan',
+  'view_count',
+  'is_development',
+  'development_id',
+  'development_type',
+  'development_logo',
+  'development_units_total',
+  'development_delivery_date',
+  'development_available_unit_count',
+  'development_units',
+  'development_unit_type',
+  'hired_plan_id',
+  'visibility',
+];
+
+
+// Define wizard steps
+export enum WizardStep {
+  INITIAL = 'initial',
+  PROPERTY_TYPE = 'property-type',
+  LOCATION = 'location',
+  CONTENT = 'content',
+  DESCRIPTION = 'description',
+  MAIN_INFO = 'main-info',
+  PRICE = 'price',
+  PROPERTY_CONTENT = 'property-content',
+  FINAL_REVIEW = 'final-review',
+  PLANS = 'plans',
+  CHECKOUT_DETAIL = 'checkout-detail',
+  CHECKOUT_PAYMENT = 'checkout-payment',
+  CHECKOUT_SUCCESS = 'checkout-success',
+  EMPRENDIMIENTO = 'emprendimiento',
+  EMPRENDIMIENTO_AMENITIES = 'emprendimiento-amenities',
+  EMPRENDIMIENTO_UNITS = 'emprendimiento-units',
+  EMPRENDIMIENTO_PLANS = 'emprendimiento-plans',
+  EMPRENDIMIENTO_PREVIEW = 'emprendimiento-preview'
+}
+
+// Define step flow based on operation type
+export const REGULAR_FLOW = [
+  WizardStep.INITIAL,
+  WizardStep.PROPERTY_TYPE,
+  WizardStep.LOCATION,
+  WizardStep.CONTENT,
+  WizardStep.MAIN_INFO,
+  WizardStep.PROPERTY_CONTENT,
+  WizardStep.DESCRIPTION,
+  WizardStep.PRICE, 
+  WizardStep.PLANS,
+  WizardStep.FINAL_REVIEW,
+  WizardStep.CHECKOUT_DETAIL,
+  WizardStep.CHECKOUT_PAYMENT,
+  WizardStep.CHECKOUT_SUCCESS
+];
+
+export const EMPRENDIMIENTO_FLOW = [
+  WizardStep.INITIAL,
+  WizardStep.EMPRENDIMIENTO,
+  WizardStep.EMPRENDIMIENTO_AMENITIES,
+  WizardStep.EMPRENDIMIENTO_UNITS,
+  WizardStep.EMPRENDIMIENTO_PLANS,
+  WizardStep.EMPRENDIMIENTO_PREVIEW
+];

@@ -11,7 +11,7 @@ import { useSession } from 'next-auth/react';
 import { API_BASE_URL } from '@/utils/utils';
 
 // ─── MercadoPago configuration ────────────────────────────────────────────────
-const MP_PUBLIC_KEY = 'TEST-814bdb18-b786-49c6-a6e7-276e5f698592';
+const MP_PUBLIC_KEY = 'TEST-8a741dc5-dc45-4271-be8b-501f9ef0107c';
 const MP_SDK_URL = 'https://sdk.mercadopago.com/js/v2';
 
 declare global {
