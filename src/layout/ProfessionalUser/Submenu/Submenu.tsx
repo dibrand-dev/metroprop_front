@@ -25,7 +25,6 @@ const items: SubmenuItem[] = [
   { id: 'users', label: 'Usuarios', href: "/protected/users", roles: [4] },
   { id: 'organizations', label: 'Inmobiliarias', href: "/protected/organizations", roles: [4] },
   { id: 'all-properties', label: 'Todas las Propiedades', href: "/protected/properties", roles: [4] },
-  { id: 'properties', label: 'Propiedades', href: "/protected/myProperties", roles: [4] },
   { id: 'datos_inmobiliaria', label: 'Datos de inmobiliaria', href: "/protected/organization", roles: [1] },
   { id: 'sucursales', label: 'Sucursales', href: "/protected/branches", roles: [1] },
   { id: 'destaques', label: 'Destaques', href: "/protected/highlights", roles: [1] },

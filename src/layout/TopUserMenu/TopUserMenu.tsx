@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import './TopUserMenu.scss';
 import Button from '@/ui/Button/Button';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 
 const chevronIcon = "/icons/chevron-up.svg";
@@ -90,6 +90,8 @@ export default function TopUserMenu() {
     await signOut({
       redirect: false,
     }).catch(err => console.error('Error signing out from NextAuth:', err));
+
+    invalidateSessionTokenCache();
 
     setUser(null);
     setShowUserDropdown(false);

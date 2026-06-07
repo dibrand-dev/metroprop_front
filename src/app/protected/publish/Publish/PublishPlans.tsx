@@ -63,8 +63,7 @@ export default function PublishPlans({
 
   // Auto-select when only one branch, or when role_id=2 is handled below
   useEffect(() => {   
-    if (wizardData.branch_id !== 0 && wizardData.branch_id !== undefined) {
-      console.log("Auto-selecting branch from wizardData:", wizardData.branch_id);
+    if (wizardData.branch_id && wizardData.branch_id !== 0 && wizardData.branch_id !== undefined) {
       setBranchFilter(wizardData.branch_id.toString());
       return; // Don't auto-select if we already have a branch in wizardData
     }
@@ -144,9 +143,7 @@ export default function PublishPlans({
   const handleComprar = (plan: any) => {
     onComprar(plan, branchFilter ? Number.parseInt(branchFilter) : undefined);
   };
-  console.log("hired_plan_id === undefined || (fetchedBranches.length > 0 && user_id === undefined)", hired_plan_id === undefined || (fetchedBranches.length > 0 && user_id === undefined))
-  console.log("branchFilter === ''", branchFilter === '')
-
+  
   return (
     <div className="publish-plans">
       <div className="publish-plans-inner">
@@ -279,7 +276,8 @@ export default function PublishPlans({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <Button className="publish-plans-save" variant="primary" onClick={handleContinue} label="Continuar" disabled={hired_plan_id === undefined || branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)} />
+            <Button className="publish-plans-save" variant="primary" onClick={handleContinue} label="Continuar" 
+            disabled={hired_plan_id === undefined || (orgId && (branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)))} />
           </div>
         </div>
       </div>

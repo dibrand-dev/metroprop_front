@@ -1,5 +1,35 @@
 import { getSession, signOut } from 'next-auth/react';
 
+// ── Session token cache ────────────────────────────────────────────────────
+// Coalesces concurrent getSession() calls into one in-flight request and
+// caches the result for SESSION_CACHE_TTL ms to prevent a separate
+// /api/auth/session request for every apiFetch call.
+const SESSION_CACHE_TTL = 30_000; // 30 s
+let _sessionToken: string | undefined;
+let _sessionExpiry = 0;
+let _sessionInflight: Promise<string | undefined> | null = null;
+
+async function getCachedToken(): Promise<string | undefined> {
+  const now = Date.now();
+  if (_sessionToken !== undefined && now < _sessionExpiry) return _sessionToken;
+  if (_sessionInflight) return _sessionInflight;
+  _sessionInflight = getSession()
+    .then(s => {
+      _sessionToken = (s?.user as any)?.apiToken ?? undefined;
+      _sessionExpiry = Date.now() + SESSION_CACHE_TTL;
+      return _sessionToken;
+    })
+    .finally(() => { _sessionInflight = null; });
+  return _sessionInflight;
+}
+
+/** Call this whenever you know the session has changed (login / logout). */
+export function invalidateSessionTokenCache() {
+  _sessionToken = undefined;
+  _sessionExpiry = 0;
+  _sessionInflight = null;
+}
+
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
 interface ApiFetchOptions<TBody = unknown> {
@@ -31,8 +61,7 @@ export async function apiFetch<TResponse = unknown, TBody = unknown>(
   // ── Resolve auth token ────────────────────────────────────────────────────
   let token = explicitToken;
   if (!token) {
-    const session = await getSession();
-    token = (session?.user as any)?.apiToken ?? undefined;
+    token = await getCachedToken();
   }
 
   // ── Build URL with query params ───────────────────────────────────────────
@@ -75,8 +104,9 @@ export async function apiFetch<TResponse = unknown, TBody = unknown>(
       typeof window !== 'undefined' &&
       window.location.pathname.startsWith('/protected')
     ) {
+      invalidateSessionTokenCache();
       await signOut({ redirect: false });
-      window.location.href = '/login';
+      window.location.href = '/login?sessionExpired=true';
       throw new Error('Session expired');
     }
 

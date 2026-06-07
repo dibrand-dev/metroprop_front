@@ -11,7 +11,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import { useMutation } from '@tanstack/react-query';
 import { useGoogleAuth } from '@/lib/useGoogleAuth';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
 
 const iconGoogle = '/icons/google.svg';
 
@@ -108,6 +108,7 @@ export default function UserSignin() {
             console.error('Error calling set-cookie API:', cookieError);
           }
         }
+        invalidateSessionTokenCache();
         router.push('/');
         setTimeout(() => {
           router.refresh();

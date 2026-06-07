@@ -61,7 +61,7 @@ export default function PublishPlansEmprendimiento({
   }));
 
   useEffect(() => {
-    if (wizardData.branch_id !== 0 && wizardData.branch_id !== undefined) {
+    if (wizardData.branch_id && wizardData.branch_id !== 0 && wizardData.branch_id !== undefined) {
       setBranchFilter(wizardData.branch_id.toString());
       return; // Don't auto-select if we already have a branch in wizardData
     }

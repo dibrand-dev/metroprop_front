@@ -41,7 +41,7 @@ export default function QueryProvider({ children }: QueryProviderProps) {
         },
       })
   );
-
+/*
   // Prefetch locations on provider mount (app startup)
   useEffect(() => {
     queryClient.prefetchQuery({
@@ -51,7 +51,7 @@ export default function QueryProvider({ children }: QueryProviderProps) {
       gcTime: 0,
     });
   }, [queryClient]);
-
+*/
   return (
     <QueryClientProvider client={queryClient}>
       <PrefetchOnSession queryClient={queryClient} />
