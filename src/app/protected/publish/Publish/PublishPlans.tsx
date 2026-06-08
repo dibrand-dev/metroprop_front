@@ -143,7 +143,7 @@ export default function PublishPlans({
   const handleComprar = (plan: any) => {
     onComprar(plan, branchFilter ? Number.parseInt(branchFilter) : undefined);
   };
-  
+  console.log("activePlans", activePlans)
   return (
     <div className="publish-plans">
       <div className="publish-plans-inner">
@@ -228,8 +228,8 @@ export default function PublishPlans({
                     }}
                   >
                     <span className="publish-plans-radio-dot" />
-                    <span className="publish-plans-radio-title">{plan.plan_name}</span>
-                    <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.available}</span>
+                    <span className="publish-plans-radio-title">{plan.plan?.plan_name}</span>
+                    <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.amount_hired ?? '-'}</span>
                   </button>
                 ))}
               </div>
@@ -276,8 +276,12 @@ export default function PublishPlans({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <Button className="publish-plans-save" variant="primary" onClick={handleContinue} label="Continuar" 
-            disabled={hired_plan_id === undefined || (orgId && (branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)))} />
+            <Button
+              className="publish-plans-save"
+              variant="primary"
+              onClick={handleContinue}
+              label="Continuar" // isRole3
+              disabled={hired_plan_id === undefined || (orgId && !isRole3 && (branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)))} />
           </div>
         </div>
       </div>

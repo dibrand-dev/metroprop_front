@@ -108,7 +108,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
     if (prices.length === 0) return '-';
     const currency = units[0]?.currency ?? '';
     return <div className="development-prices"><div className="main-price">{`${currency} ${formatNumbers(Math.min(...prices))}`}</div>
-      <div className="price-per-sqm">{currency} {formatNumbers(Math.min(...pricesSq2))}</div>
+      <div className="price-per-sqm">{currency} x m2 {formatNumbers(Math.min(...pricesSq2))}</div>
     </div>
   };
 
@@ -170,7 +170,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <div className="property-card-location-section">
                   <p className="property-card-address">{property.street}</p>
                   {property.price_square_meter && (
-                    <p className="property-card-location">{property.currency} {formatNumbers(property.price_square_meter)} m²</p>
+                    <p className="property-card-location">{property.currency} x m2 {formatNumbers(property.price_square_meter)} m²</p>
                   )}
                 </div>
                 <div className="property-card-details">
@@ -237,7 +237,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <div className="price-row">
                   <div className="main-price">{property.currency ?? ''} {formatNumbers(property.price)}</div>
                   {(property.price_square_meter ?? 0) > 0 && (
-                    <div className="price-per-sqm">{property.currency ?? ''} {formatNumbers(property.price_square_meter!)}</div>
+                    <div className="price-per-sqm">{property.currency ?? ''} x m2 {formatNumbers(property.price_square_meter!)}</div>
                   )}
                 </div>
                 <div className="address">{property.street}</div>
@@ -285,7 +285,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   ? getPrecioDesde(property.units)
                   : <><div className="total-price">{`${property.currency} ${formatNumbers(property.price)}`}</div>
                       {(property.price_square_meter ?? 0) > 0 && (
-                        <div className="price-per-meter">{property.currency} {formatNumbers(property.price_square_meter!)}</div>
+                        <div className="price-per-meter">{property.currency} x m2 {formatNumbers(property.price_square_meter!)}</div>
                       )}
                     </>}
                 </div>
@@ -342,7 +342,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   ? getPrecioDesde(property.units)
                   : <><div className="total-price">{property.currency} {formatNumbers(property.price)}</div>
                     {property.price_square_meter! > 0 && (
-                      <div className="price-per-meter">{property.currency} {formatNumbers(property.price_square_meter!)}</div>
+                      <div className="price-per-meter">{property.currency} x m2 {formatNumbers(property.price_square_meter!)}</div>
                     )}
                     </>}
                 </div>
@@ -398,7 +398,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <div className="price-section">
                   <div className="total-price">{property.currency} {formatNumbers(property.price)}</div>
                   {property.price_square_meter! > 0 && (
-                    <div className="price-per-meter">{property.currency} {formatNumbers(property.price_square_meter!)}</div>
+                    <div className="price-per-meter">{property.currency} x m2 {formatNumbers(property.price_square_meter!)}</div>
                   )}
                 </div>
                 {property.expenses! > 0 && (

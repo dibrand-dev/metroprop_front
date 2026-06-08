@@ -28,7 +28,7 @@ export default function Highlights() {
   });
   const branches: any[] = Array.isArray(fetchedBranches) ? fetchedBranches : [];
   const branchOptions = [
-    { value: 'todas', label: 'Todas' },
+    //{ value: 'todas', label: 'Todas' },
     ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
   ];
 
@@ -63,45 +63,42 @@ export default function Highlights() {
           <div className="highlights-filter">
             <Select
               label="Sucursal"
-              placeholder="Todas"
               value={branchFilter}
               onChange={(value) => setBranchFilter(value)}
               options={branchOptions}
             />
           </div>
 
-          {branchFilter !== 'todas' && (
-            <div className="highlights-list">
-              <div className="highlights-card">
-                <h3>{branchOptions.find(o => o.value === branchFilter)?.label}</h3>
-                <div className="highlights-table">
-                  <div className="highlights-row highlights-row-header">
-                    <span>Productos</span>
-                    <span>Comprados</span>
-                    <span>Disponibles</span>
-                    <span>Activos</span>
+          <div className="highlights-list">
+            <div className="highlights-card">
+              <h3>{branchOptions.find(o => o.value === branchFilter)?.label}</h3>
+              <div className="highlights-table">
+                <div className="highlights-row highlights-row-header">
+                  <span>Productos</span>
+                  <span>Contratados</span>
+                  <span>Disponibles</span>
+                  <span>Activo</span>
+                </div>
+                {loadingPlans && (
+                  <div className="highlights-row"><span>Cargando...</span></div>
+                )}
+                {!loadingPlans && plans.length === 0 && (
+                  <div className="highlights-row"><span>Sin productos disponibles</span></div>
+                )}
+                {plans.map((plan: any, idx: number) => (
+                  <div key={plan.plan_id ?? idx} className="highlights-row">
+                    <span>{plan.plan?.plan_name ?? '-'}</span>
+                    <span>{plan.plan.highlight_limit ?? plan.total ?? '-'}</span>
+                    <span>{plan.amount_hired ?? '-'}</span>
+                    <span>{plan.plan.is_active ? 'Si' : 'No'}</span>
                   </div>
-                  {loadingPlans && (
-                    <div className="highlights-row"><span>Cargando...</span></div>
-                  )}
-                  {!loadingPlans && plans.length === 0 && (
-                    <div className="highlights-row"><span>Sin productos disponibles</span></div>
-                  )}
-                  {plans.map((plan: any, idx: number) => (
-                    <div key={plan.id ?? idx} className="highlights-row">
-                      <span>{plan.name}</span>
-                      <span>{plan.purchased ?? plan.total ?? '-'}</span>
-                      <span>{plan.available ?? plan.remaining ?? '-'}</span>
-                      <span>{plan.active ?? plan.used ?? '-'}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="highlights-progress">
-                  <div className="highlights-progress-bar" />
-                </div>
+                ))}
+              </div>
+              <div className="highlights-progress">
+                <div className="highlights-progress-bar" />
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

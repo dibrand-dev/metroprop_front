@@ -27,14 +27,13 @@ export default function PublishPropertyType({
   const [selectedProperty, setSelectedProperty] = useState<PropertyType | null>(
     wizardData.property_type || null
   );
-  console.log('Selected property type:', selectedProperty);
+  
   const [selectedSubtype, setSelectedSubtype] = useState<PropertySubtype | undefined>(
     wizardData.property_subtype || undefined
   );
   const [showError, setShowError] = useState(false);
   const showSubtypes = useMemo(() => Boolean(selectedProperty), [selectedProperty]);
   const subtypeOptions: PropertySubtype[] = PROPERTY_SUBTYPES_BY_TYPE[selectedProperty as PropertyType] || [];
-
 
   // Update wizard data when selections change
   useEffect(() => {

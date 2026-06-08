@@ -5,6 +5,7 @@ import './Header.scss';
 import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { TemporalRentPeriod } from '@/types/propiedad';
 
 const logoMetroprop = "/images/metroprop.svg";
 const chevronIcon = "/icons/chevron-up.svg";
@@ -82,9 +83,9 @@ const dropdownItems: DropdownSection = {
     {
       title: 'Duración',
       items: [
-        { label: 'Por días', href: '/results?duration=1&q=Argentina+%7C+Capital+Federal&location_id=146&page=1&limit=20' },
-        { label: 'Temporada completa', href: '/results?duration=2&q=Argentina+%7C+Capital+Federal&location_id=146&page=1&limit=20' },
-        { label: 'Fin de semana', href: '/results?duration=3&q=Argentina+%7C+Capital+Federal&location_id=146&page=1&limit=20' },
+        { label: 'Por días', href: `/results?period=${TemporalRentPeriod.POR_DIA}&q=Argentina+%7C+Capital+Federal&location_id=146&page=1&limit=20` },
+        { label: 'Temporada completa', href: `/results?period=${TemporalRentPeriod.POR_TEMPORADA}&q=Argentina+%7C+Capital+Federal&location_id=146&page=1&limit=20` },
+        { label: 'Fin de semana', href: `/results?period=${TemporalRentPeriod.POR_FIN_DE_SEMANA}&q=Argentina+%7C+Capital+Federal&location_id=146&page=1&limit=20` },
       ],
     },
     {

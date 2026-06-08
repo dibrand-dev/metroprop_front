@@ -272,7 +272,7 @@ export default function PublishPlansEmprendimiento({
             buttonType="2"
             onClick={handleContinue}
             fullWidth={false}
-            disabled={hired_plan_id === undefined || (orgId && (branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)))}
+            disabled={hired_plan_id === undefined || (orgId && !isRole3 && (branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)))}
           />
         </div>
       </div>

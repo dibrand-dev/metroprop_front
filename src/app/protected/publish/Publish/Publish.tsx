@@ -214,7 +214,6 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     mutationFn: async (draftData: Partial<CreatePropertyDraft>) => {
       const user_id = sessionData?.user?.id;
       const organization_id = sessionData?.user?.organization_id ?? undefined;
-      const branch_id = sessionData?.user?.branch_id;
       if (!user_id) throw new Error('User not authenticated');
 
       return apiFetch(`${API_BASE_URL}/properties/draft`, {
@@ -222,7 +221,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
         body: {
           user_id,
           organization_id,
-          branch_id,
+          branch_id: draftData.branch_id,
           operation_type: draftData.operation_type,
           property_type: draftData.property_type,
           is_development: draftData.is_development,
@@ -254,16 +253,30 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     }
 
     const _wizardData = {...wizardData};
+    if (sessionData?.user.organization) {      
+      for (const branch of sessionData.user.organization.branches ?? []) {
+        const found = (branch.users ?? []).find((u: any) => String(u.id) === sessionData.user?.id);
+        if (found) {
+          console.log("Found user in branch:", branch.id);
+          _wizardData.branch_id = branch.id;
+          break;
+        }
+      }
+    }
+
     if (is_development) {
       _wizardData.operation_type = OperationType.VENTA;
       _wizardData.property_type = PropertyType.EMPRENDIMIENTO;
       _wizardData.is_development = true;
     }
-
+console.log("_wizardData", _wizardData)
     // Create mode: create a new draft
     try {
       const draftData = await createDraftMutation.mutateAsync(_wizardData);
-      updateWizardData({ draft_id: draftData.id });
+      const _draftDataToUpdate = {
+        draft_id: draftData.id
+      }
+      updateWizardData(_draftDataToUpdate);
       goToNextStep();
     } catch (error: any) {
       console.error('Error creating draft:', error?.message || error);
@@ -303,6 +316,13 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     }
     if (nextStep) {
       goToNextStep();
+    } else {
+      // If not going to next step, show success modal for 2 seconds before hiding it (used for "Save and Exit" flow)
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        window.location.href = '/protected/myProperties';
+      }, 2000);
     }
   }
 

@@ -20,12 +20,6 @@ import Button from '@/ui/Button/Button';
 
 type ToastState = { type: 'success' | 'error'; message: string } | null;
 
-const PLAN_MAP: Record<number, string> = {
-  1: 'Simple',
-  2: 'Destacado',
-  3: 'Premium',
-};
-
 const STATUS_COLOR_MAP: Record<number, string> = {
   [PropertyStatus.DRAFT]: '#9e9e9e',
   [PropertyStatus.A_COTIZAR]: '#2196f3',
@@ -263,11 +257,21 @@ const MyProperties = () => {
 
       return results;
     },
-    enabled: branchOverviewOpen && hasBranches,
+    enabled: hasBranches,
   });
 
   const availablePlans = hasOrganization && hasBranches && republishBranchId !== 'Todas' ? branchPlans : userPlans;
   const loadingAvailablePlans = hasOrganization && hasBranches && republishBranchId !== 'Todas' ? loadingBranchPlans : loadingUserPlans;
+
+  const hiredPlanNameMap = useMemo<Record<number, string>>(() => {
+    const map: Record<number, string> = {};
+    branchOverviewPlans.forEach((entry: any) => {
+      (Array.isArray(entry.plans) ? entry.plans : []).forEach((p: any) => {
+        if (p?.id != null) map[Number(p.id)] = p?.plan?.plan_name ?? p?.plan_name ?? String(p.id);
+      });
+    });
+    return map;
+  }, [branchOverviewPlans]);
 
   useEffect(() => {
     if (isRole1 || !loggedUserId || rawUsers.length === 0) return;
@@ -611,7 +615,9 @@ const MyProperties = () => {
             const completeness = calcPropertyCompleteness(prop);
             const statusNum = prop.status as PropertyStatus || PropertyStatus.DISPONIBLE;
             const statusInfo = PROPERTY_STATUS_LABELS[statusNum];
-            const planLabel = prop.selected_plan ? (PLAN_MAP[prop.selected_plan] ?? '--') : '--';
+            const planLabel = prop.hired_plan_id & prop.hired_plan_id !== 0
+              ? (hiredPlanNameMap[prop.hired_plan_id] ?? String(prop.hired_plan_id))
+              : 'Gratis';
             const startDate = (prop as any).created_at
               ? new Date((prop as any).created_at).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
               : '--';
