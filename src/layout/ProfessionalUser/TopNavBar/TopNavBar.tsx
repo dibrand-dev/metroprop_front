@@ -3,6 +3,7 @@
 import './TopNavBar.scss';
 import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 const logoMetroprop = "/images/metroprop.svg";
 interface TopNavBarProps {
@@ -21,14 +22,14 @@ export default function TopNavBar({
         <div className="topnavbar-menu-items">
           {!isRole4 && menuItems.map((item, index) => (
             <button key={index} className="topnavbar-dropdown">
-              <a href={item.link}>{item.label}</a>
+              <Link href={item.link}>{item.label}</Link>
             </button>
           ))}
         </div>
 
         {/* Logo */}
         <div className="topnavbar-logo">
-          <a href="/"><img src={logoMetroprop} alt="MetroProp Logo" /></a>
+          <Link href="/"><img src={logoMetroprop} alt="MetroProp Logo" /></Link>
         </div>
         <TopUserMenu />
       </nav>

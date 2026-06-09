@@ -14,6 +14,7 @@ import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import Button from '@/ui/Button/Button';
 import { useGoogleAuth } from '@/lib/useGoogleAuth';
 import { apiFetch } from '@/lib/apiFetch';
+import Link from 'next/link';
 
 const iconGoogle = "/icons/google.svg";
 
@@ -270,12 +271,12 @@ export default function UserSignup() {
         <span className="merged-signup-signin-text">
           ¿Ya tenés cuenta?
         </span>
-        <a 
+        <Link 
           href="/login" 
           className="merged-signup-link"
         >
           Iniciar sesión
-        </a>
+        </Link>
       </div>
 
       {/* Divider */}
@@ -332,9 +333,9 @@ export default function UserSignup() {
       <p className="merged-signup-cta-text">
         ¿Formás parte del mercado inmobiliario<br />y aún no tenés cuenta?
       </p>
-      <a href="/professionalSignup" className="merged-signup-cta-link">
+      <Link href="/professionalSignup" className="merged-signup-cta-link">
         Crear cuenta profesional
-      </a>
+      </Link>
     </div>
 
     {showEmailVerificationModal && 

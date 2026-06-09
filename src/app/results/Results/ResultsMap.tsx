@@ -10,6 +10,7 @@ import './ResultsMap.scss';
 import { API_BASE_URL } from '@/utils/utils';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import { apiFetch } from '@/lib/apiFetch';
+import Link from 'next/link';
 
 interface Bounds {
   northEastLat: number;
@@ -420,7 +421,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                 {isFetchingProperty && !selectedProperty ? (
                   <div style={{ padding: '8px' }}>Cargando...</div>
                 ) : selectedProperty ? (
-                  <a href={`/propertyDetail/${selectedProperty.id}`} className='linkToPropertyInfoWindow'><PropertyCard property={selectedProperty} cardType="gridList" fromMap={true} /></a>
+                  <Link href={`/propertyDetail/${selectedProperty.id}`} className='linkToPropertyInfoWindow'><PropertyCard property={selectedProperty} cardType="gridList" fromMap={true} /></Link>
                 ) : null}
               </InfoWindow>
             );

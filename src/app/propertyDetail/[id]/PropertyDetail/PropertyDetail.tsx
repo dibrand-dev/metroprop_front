@@ -24,6 +24,7 @@ import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/apiFetch';
 import { useFavoriteIds, useToggleFavorite } from '@/lib/useFavoriteIds';
 import ShareModal from '@/components/ShareModal/ShareModal';
+import Link from 'next/link';
 
 interface PropertyDetailProps {
   propertyId: string;
@@ -908,7 +909,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             ): property?.development && (
             <section className="unit-details-development">
               <h4>Esta unidad pertenece al emprendimiento</h4>
-              <a href={`/propertyDetail/${property?.development?.id}`} target="_blank" rel="noopener noreferrer">
+              <Link href={`/propertyDetail/${property?.development?.id}`} target="_blank" rel="noopener noreferrer">
                 <div className="unit-details-development-info">
                   {property?.development?.images?.[0] ? <img src={setImagePath(property?.development?.images?.[0]?.url) ?? ''} alt="Imagen del emprendimiento" className="unit-details-development-image" /> : null}
                   <div className="unit-details-development-text">
@@ -917,7 +918,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                     <p className="development-rooms"><img src="/icons/door.svg" alt="Rooms" /> {getRoomsRange(property?.development?.units ?? [])}</p>
                   </div>
                 </div>
-              </a>
+              </Link>
             </section>)}
           </div>
 

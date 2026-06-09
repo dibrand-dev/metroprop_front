@@ -21,9 +21,7 @@ export default function Leads() {
   const [showMenu, setShowMenu] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchQueryEmail, setSearchQueryEmail] = useState('');
-  const [searchId, setSearchId] = useState<number | null>(null);
-  const [searchEmail, setSearchEmail] = useState<string | null>(null);
+  const [search, setSearch] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("1");
   const [activeSubmenu, setActiveSubmenu] = useState<'entrada' | 'destacados' | 'eliminados' | 'bloqueados'>('entrada');
   const [selectedLeadIds, setSelectedLeadIds] = useState<number[]>([]);
@@ -43,31 +41,23 @@ export default function Leads() {
     const val = e.target.value;
     setSearchQuery(val);
     if (val.trim() === '') {
-      setSearchId(null);
+      setSearch(null);
     }
   };
 
-  const handleSearchById = () => {
+  const handleSearch = () => {
     const trimmed = searchQuery.trim();
-    const num = Number(trimmed);
-    if (trimmed && !Number.isNaN(num) && num > 0) {
-      setSearchId(num);
-    }
-  };
-
-  const handleSearchByEmail = () => {
-    const trimmed = searchQueryEmail.trim();
     if (trimmed) {
-      setSearchEmail(trimmed);
+      setSearch(trimmed);
     }
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSearchById();
+    if (e.key === 'Enter') handleSearch();
   };
   
   const { data: contactosData } = useQuery<any>({
-    queryKey: ['leads', activeSubmenu, currentPage, searchId, searchEmail],
+    queryKey: ['leads', activeSubmenu, currentPage, search],
     queryFn: async () => {
       if (activeSubmenu === 'destacados') {
         return apiFetch(`${API_BASE_URL}/leads/search?highlighted=true&offset=${currentPage}&limit=${LIMIT}`);
@@ -80,11 +70,8 @@ export default function Leads() {
       }
       // entrada — default, supports search filters
       let searchParams = '';
-      if (searchId !== null) {
-        searchParams = `/search?property_id=${searchId}`;
-      }
-      if (searchEmail !== null) {
-        searchParams = searchParams === '' ? `/search?email=${searchEmail}` : `${searchParams}&email=${searchEmail}`;
+      if (search !== null) {
+        searchParams = `/search?search=${search}`;
       }
       return apiFetch(`${API_BASE_URL}/leads${searchParams ? `${searchParams}&offset=${currentPage}&limit=${LIMIT}` : `?offset=${currentPage}&limit=${LIMIT}`}`);
     },
@@ -139,13 +126,13 @@ export default function Leads() {
               <img src="/icons/trash.svg" alt="" />
             </button>
             <InputField2
-              placeholder="ID / Título"
+              placeholder="Email / Teléfono / Nombre"
               value={searchQuery}
               onChange={handleSearchInputChange}
               onKeyDown={handleSearchKeyDown}
               icon={<img src="/icons/search.svg" alt="" width="18" height="18" />}
               iconPosition="right"
-              onIconClick={handleSearchById}
+              onIconClick={handleSearch}
             />
           </div>
 

@@ -28,15 +28,32 @@ export default function Highlights() {
   });
   const branches: any[] = Array.isArray(fetchedBranches) ? fetchedBranches : [];
   const branchOptions = [
-    //{ value: 'todas', label: 'Todas' },
+    { value: 'todas', label: 'Todas' },
     ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
   ];
 
   const { data: plans = [], isLoading: loadingPlans } = useQuery<any[]>({
     queryKey: ['branch-plans', branchFilter],
-    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}`),
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}/availability`),
     enabled: branchFilter !== 'todas',
   });
+
+  const { data: allBranchPlans = [], isLoading: loadingAllPlans } = useQuery<{ branchId: number; plans: any[] }[]>({
+    queryKey: ['branch-plans-all', branches.map((b: any) => b.id).join(',')],
+    queryFn: async () => {
+      const results = await Promise.all(
+        branches.map(async (b: any) => ({
+          branchId: b.id,
+          plans: await apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${b.id}/availability`),
+        })),
+      );
+      return results;
+    },
+    enabled: branchFilter === 'todas' && branches.length > 0,
+  });
+
+  const showAll = branchFilter === 'todas';
+  const loadingAny = showAll ? loadingAllPlans : loadingPlans;
 
   return (
     <div className={`professionalContainer ${!showMenu ? 'activeMenuMobile' : ''}`}>
@@ -70,14 +87,58 @@ export default function Highlights() {
           </div>
 
           <div className="highlights-list">
+            {showAll ? (
+              <>
+                {loadingAllPlans && (
+                  <div className="highlights-card"><div className="highlights-row"><span>Cargando...</span></div></div>
+                )}
+                {!loadingAllPlans && allBranchPlans.map(({ branchId, plans: branchPlans }) => {
+                  const branch = branches.find((b: any) => b.id === branchId);
+                  const branchName = branch?.branch_name ?? branch?.name ?? String(branchId);
+                  return (
+                    <div key={branchId} className="highlights-card">
+                      <h3>{branchName}</h3>
+                      <div className="highlights-table">
+                        <div className="highlights-row highlights-row-header">
+                          <span>Productos</span>
+                          <span>Contratados</span>
+                          <span>Usados</span>
+                          <span>Disponibles</span>
+                          <span>Fecha de contratación</span>
+                          <span>Fecha de finalización</span>
+                        </div>
+                        {branchPlans.length === 0 && (
+                          <div className="highlights-row"><span>Sin productos disponibles</span></div>
+                        )}
+                        {branchPlans.map((plan: any, idx: number) => (
+                          <div key={plan.plan_id ?? idx} className="highlights-row">
+                            <span>{plan.plan_name}</span>
+                            <span>{plan.highlight_limit ?? '-'}</span>
+                            <span>{plan.used ?? '-'}</span>
+                            <span>{plan.available ?? '-'}</span>
+                            <span>{plan.start_date && !isNaN(new Date(plan.start_date).getTime()) ? new Date(plan.start_date).toLocaleDateString("es-ES") : '-'}</span>
+                            <span>{plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="highlights-progress">
+                        <div className="highlights-progress-bar" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
             <div className="highlights-card">
               <h3>{branchOptions.find(o => o.value === branchFilter)?.label}</h3>
               <div className="highlights-table">
                 <div className="highlights-row highlights-row-header">
                   <span>Productos</span>
                   <span>Contratados</span>
+                  <span>Usados</span>
                   <span>Disponibles</span>
-                  <span>Activo</span>
+                  <span>Fecha de contratación</span>
+                  <span>Fecha de finalización</span>
                 </div>
                 {loadingPlans && (
                   <div className="highlights-row"><span>Cargando...</span></div>
@@ -87,10 +148,12 @@ export default function Highlights() {
                 )}
                 {plans.map((plan: any, idx: number) => (
                   <div key={plan.plan_id ?? idx} className="highlights-row">
-                    <span>{plan.plan?.plan_name ?? '-'}</span>
-                    <span>{plan.plan.highlight_limit ?? plan.total ?? '-'}</span>
-                    <span>{plan.amount_hired ?? '-'}</span>
-                    <span>{plan.plan.is_active ? 'Si' : 'No'}</span>
+                    <span>{plan.plan_name}</span>
+                    <span>{plan.highlight_limit ?? '-'}</span>
+                    <span>{plan.used ?? '-'}</span>
+                    <span>{plan.available ?? '-'}</span>
+                    <span>{plan.start_date && !isNaN(new Date(plan.start_date).getTime()) ? new Date(plan.start_date).toLocaleDateString("es-ES") : '-'}</span>
+                    <span>{plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
                   </div>
                 ))}
               </div>
@@ -98,6 +161,7 @@ export default function Highlights() {
                 <div className="highlights-progress-bar" />
               </div>
             </div>
+            )}
           </div>
         </div>
       </div>

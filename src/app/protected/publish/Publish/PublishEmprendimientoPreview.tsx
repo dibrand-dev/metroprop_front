@@ -269,8 +269,7 @@ export default function PublishEmprendimientoFinalReview({
 
   const agentLogo: string = setImagePath((sessionData?.user as any)?.organization?.company_logo) || ORGANIZATION_NO_IMAGE;
   const agentName: string = (sessionData?.user as any)?.organization?.company_name || sessionData?.user?.name || '';
-console.log("wizard", wizardData)
- 
+
  const openGallery = (tab: GalleryTab = 'fotos', index = 0) => {
     setGalleryInitialTab(tab);
     setGalleryInitialIndex(index);

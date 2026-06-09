@@ -93,7 +93,7 @@ export default function PublishPlans({
 
   const { data: branchPlans = [], isLoading: loadingPlans } = useQuery<any[]>({
     queryKey: ['branch-plans', branchFilter],
-    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}`),
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}/availability`),
     enabled: !!branchFilter && !!orgId,
   });
 
@@ -228,8 +228,9 @@ export default function PublishPlans({
                     }}
                   >
                     <span className="publish-plans-radio-dot" />
-                    <span className="publish-plans-radio-title">{plan.plan?.plan_name}</span>
-                    <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.amount_hired ?? '-'}</span>
+                    <span className="publish-plans-radio-title">{plan.plan_name}</span>
+                    <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.available ?? '-'}</span>
+                    <span className="publish-plans-radio-vencimiento">Vencimiento: {plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
                   </button>
                 ))}
               </div>

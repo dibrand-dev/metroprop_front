@@ -201,6 +201,8 @@ const MyProperties = () => {
   });
 
   const hasBranches = (fetchedBranches?.length ?? 0) > 0;
+  const firstBranchId = fetchedBranches[0]?.id ?? null;
+
   const { data: branchPlans = [], isLoading: loadingBranchPlans } = useQuery<any[]>({
     queryKey: ['republish-branch-plans', republishBranchId],
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${republishBranchId}/availability`),
@@ -211,6 +213,12 @@ const MyProperties = () => {
     queryKey: ['republish-user-plans', loggedUserId],
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${loggedUserId}/availability`),
     enabled: republishModalOpen && !!loggedUserId && (!hasOrganization || !hasBranches),
+  });
+
+  const { data: onLoadUserAvailability } = useQuery<any[]>({
+    queryKey: ['onload-user-availability', loggedUserId],
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${loggedUserId}/availability`),
+    enabled: !!loggedUserId && !hasOrganization,
   });
 
   const rawUsers: any[] = useMemo(() => {
@@ -251,7 +259,7 @@ const MyProperties = () => {
       const results = await Promise.all(
         branchIds.map(async (branchId: number) => ({
           branchId,
-          plans: await apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchId}`),
+          plans: await apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchId}/availability`),
         })),
       );
 
@@ -272,13 +280,19 @@ const MyProperties = () => {
     });
     return map;
   }, [branchOverviewPlans]);
-
+console.log("hiredPlanNameMap", hiredPlanNameMap)
   useEffect(() => {
     if (isRole1 || !loggedUserId || rawUsers.length === 0) return;
     const me = rawUsers.find((u: any) => String(u.id) === String(loggedUserId));
     const myBranch = Array.isArray(me?.branches) && me.branches.length > 0 ? String(me.branches[0].id) : null;
     if (myBranch) setSelectedBranchId(myBranch);
   }, [isRole1, loggedUserId, rawUsers]);
+
+  useEffect(() => {
+    if (onLoadUserAvailability !== undefined) {
+      console.log('[MyProperties] onload user availability (userId:', loggedUserId, '):', onLoadUserAvailability);
+    }
+  }, [onLoadUserAvailability, loggedUserId]);
 
   useEffect(() => {
     if (!republishModalOpen) return;
@@ -466,6 +480,7 @@ const MyProperties = () => {
         onClearFilters={clearFilters}
         showFiltersMobile={showFiltersMobile}
         onCloseFiltersMobile={() => setShowFiltersMobile(false)}
+        planNameMap={hiredPlanNameMap}
       />
 
       {/* ── Main content ── */}
@@ -509,18 +524,22 @@ const MyProperties = () => {
                         <div className="myprop-overview-row myprop-overview-row-header">
                           <span>Productos</span>
                           <span>Contratados</span>
+                          <span>Usados</span>
                           <span>Disponibles</span>
-                          <span>Activo</span>
+                          <span>Fecha de contratación</span>
+                          <span>Fecha de finalización</span>
                         </div>
                         {plans.length === 0 && (
-                          <div className="myprop-overview-row"><span>Sin productos disponibles</span></div>
+                          <div className="myprop-overview-row text-left"><span className="justify-self-start">Sin productos disponibles</span></div>
                         )}
                         {plans.map((plan: any, idx: number) => (
                           <div key={plan.id ?? idx} className="myprop-overview-row">
-                            <span>{plan.plan.plan_name}</span>
-                            <span>{plan.plan.highlight_limit ?? plan.total ?? '-'}</span>
-                            <span>{plan.amount_hired ?? '-'}</span>
-                            <span>{plan.plan.is_active ? 'Si' : 'No'}</span>
+                            <span>{plan.plan_name}</span>
+                            <span>{plan.highlight_limit ?? '-'}</span>
+                            <span>{plan.used ?? '-'}</span>
+                            <span>{plan.available ?? '-'}</span>
+                            <span>{plan.start_date && !isNaN(new Date(plan.start_date).getTime()) ? new Date(plan.start_date).toLocaleDateString("es-ES") : '-'}</span>
+                            <span>{plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
                           </div>
                         ))}
                       </div>

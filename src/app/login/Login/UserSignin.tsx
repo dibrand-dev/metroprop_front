@@ -12,6 +12,7 @@ import SuccessModal from '../../../components/SuccessModal/SuccessModal';
 import { useMutation } from '@tanstack/react-query';
 import { useGoogleAuth } from '@/lib/useGoogleAuth';
 import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
+import Link from 'next/link';
 
 const iconGoogle = '/icons/google.svg';
 
@@ -219,9 +220,9 @@ export default function UserSignin() {
             />
           </div>
 
-          <a href="/forgotPassword" className="create-account-link block" style={{ marginBottom: '24px' }}>
+          <Link href="/forgotPassword" className="create-account-link block" style={{ marginBottom: '24px' }}>
             Olvidé mi contraseña
-          </a>
+          </Link>
 
           <div style={{ marginBottom: '24px' }}>
             <Button
@@ -239,9 +240,9 @@ export default function UserSignin() {
 
           <div className="create-account">
             <span className="create-account-text">¿No tenés cuenta?</span>
-            <a href="/signup" className="create-account-link">
+            <Link href="/signup" className="create-account-link">
               Crear una cuenta
-            </a>
+            </Link>
           </div>
 
           <div className="divider-container" style={{ marginTop: '32px', marginBottom: '32px' }}>

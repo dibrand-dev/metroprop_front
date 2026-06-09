@@ -7,6 +7,7 @@ import './TopUserMenu.scss';
 import Button from '@/ui/Button/Button';
 import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
+import Link from 'next/link';
 
 const chevronIcon = "/icons/chevron-up.svg";
 const contactosIcon = "/icons/message.svg";
@@ -19,7 +20,7 @@ interface MenuItemType {
   id: string;
   label: string;
   icon?: string;
-  href?: string;
+  href?: URL | string;
   onClick?: () => void;
   isLogout?: boolean;
 }
@@ -175,30 +176,31 @@ export default function TopUserMenu() {
         />
       )}
       {sessionData?.user?.role_id !== 4 && (
-      <Button
-        label="Publicar"
-        type="button"
-        variant="primary"
-        buttonType="1"
-        state="default"                 
-        fullWidth={false}
-        size="medium"
-        onClick={handlePublish}
-      />)}
-
-      <button
-        className="header-notification-button"
-        title="Notificaciones"
-        onClick={() => router.push('/protected/leads')}
-      >
-        <img src="/icons/iconoir_bell.svg" alt="Notificaciones" />
-        {unreadLeadsCount > 0 && (
-          <span className="header-notification-badge">
-            {unreadLeadsCount > 99 ? '99+' : unreadLeadsCount}
-          </span>
-        )}
-      </button>
-
+      <>
+        <Button
+          label="Publicar"
+          type="button"
+          variant="primary"
+          buttonType="1"
+          state="default"                 
+          fullWidth={false}
+          size="medium"
+          onClick={handlePublish}
+        />
+        <button
+          className="header-notification-button"
+          title="Notificaciones"
+          onClick={() => router.push('/protected/leads')}
+        >
+          <img src="/icons/iconoir_bell.svg" alt="Notificaciones" />
+          {unreadLeadsCount > 0 && (
+            <span className="header-notification-badge">
+              {unreadLeadsCount > 99 ? '99+' : unreadLeadsCount}
+            </span>
+          )}
+        </button>
+      </>
+      )}
       <div className="header-avatar-wrapper">
         <button
           className="header-avatar-button"
@@ -247,7 +249,7 @@ export default function TopUserMenu() {
                     <span className="header-dropdown-item-label">{item.label}</span>
                   </button>
                 ) : (
-                  <a
+                  <Link
                     key={item.id}
                     href={item.href}
                     className="header-dropdown-item"
@@ -256,7 +258,7 @@ export default function TopUserMenu() {
                       <img src={item.icon} alt={item.label} />
                     </div>}
                     <span className="header-dropdown-item-label">{item.label}</span>
-                  </a>
+                  </Link>
                 )
               ))}
             </div>

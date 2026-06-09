@@ -37,6 +37,7 @@ interface MyPropertiesFiltersProps {
   onClearFilters: () => void;
   showFiltersMobile: boolean;
   onCloseFiltersMobile: () => void;
+  planNameMap?: Record<number, string>;
 }
 
 const getDisplayValue = (value: unknown) => {
@@ -54,6 +55,7 @@ export default function MyPropertiesFilters({
   onClearFilters,
   showFiltersMobile,
   onCloseFiltersMobile,
+  planNameMap = {},
 }: MyPropertiesFiltersProps) {
   const { data: sessionData } = useSession();
   const { data: locations = [] } = useLocations();
@@ -74,6 +76,8 @@ export default function MyPropertiesFilters({
 		});
 	}
 
+  console.log("planNameMap", planNameMap);
+
   const filterGroups: FilterGroup[] = Object.keys(facets).map(facetKey => ({
     facetKey,
     title: FILTER_VALUE_LABEL[facetKey] ?? facetKey,
@@ -89,7 +93,9 @@ export default function MyPropertiesFilters({
               ? getDisplayValue(OPERATION_TYPE_LABELS[item.value as OperationType] ?? item.value)
               : facetKey === 'user_id'
                 ? getDisplayValue(userMap.get(String((item as any).user_name)) ?? (item as any).user_name)
-                : getDisplayValue(item.value),
+                : facetKey === 'hired_plan_id'
+                  ? (Number(item.value) === 0 ? 'Gratis' : getDisplayValue(planNameMap[Number(item.value)] ?? item.value))
+                  : getDisplayValue(item.value),
       value: String(item.value),
       count: item.count,
     })),

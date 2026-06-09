@@ -142,7 +142,7 @@
 
 .myprop-overview-row {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 2fr) repeat(5, minmax(0, 1fr));
   gap: 12px;
   align-items: center;
   padding: 10px 12px;
@@ -152,7 +152,7 @@
   font-size: 14px;
 
   span:last-child {
-    justify-self: end;
+    justify-self: start;
   }
 }
 

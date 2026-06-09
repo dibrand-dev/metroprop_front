@@ -2,6 +2,7 @@
 
 import { LOCATION_CABA_ID } from '@/app/constants';
 import './Footer.scss';
+import Link from 'next/link';
 
 const logoMetroprop = "/images/metroprop.svg";
 const qrCode = "/images/qr.png";
@@ -21,15 +22,15 @@ export default function Footer() {
             </p>
 
             <div className="footer-social">
-              <a href="#" className="footer-social-icon" aria-label="Facebook">
+              <Link href="#" className="footer-social-icon" aria-label="Facebook">
                 <img src="/icons/fb.svg" alt="Facebook" />
-              </a>
-              <a href="#" className="footer-social-icon" aria-label="Instagram">
+              </Link>
+              <Link href="#" className="footer-social-icon" aria-label="Instagram">
                 <img src="/icons/instagram.svg" alt="Instagram" />
-              </a>
-              <a href="#" className="footer-social-icon" aria-label="YouTube">
+              </Link>
+              <Link href="#" className="footer-social-icon" aria-label="YouTube">
                 <img src="/icons/youtube.svg" alt="YouTube" />
-              </a>
+              </Link>
             </div>
 
             <div className="footer-contact">
@@ -47,26 +48,26 @@ export default function Footer() {
           <div className="footer-map">
             <h3 className="footer-map-title">Mapa de sitio</h3>
             <ul className="footer-map-list">
-              <li><a href="/results?operation_type=1">Comprar</a></li>
-              <li><a href="/results?operation_type=2">Alquilar</a></li>
-              <li><a href="/results?operation_type=3">Temporal</a></li>
-              <li><a href="#">Emprendimientos</a></li>
-              <li><a href="/protected/publish">Publicar</a></li>
-              <li><a href="#">Mi cuenta</a></li>
-              <li><a href="#">Contáctanos</a></li>
+              <li><Link href="/results?operation_type=1">Comprar</Link></li>
+              <li><Link href="/results?operation_type=2">Alquilar</Link></li>
+              <li><Link href="/results?operation_type=3">Temporal</Link></li>
+              <li><Link href="#">Emprendimientos</Link></li>
+              <li><Link href="/protected/publish">Publicar</Link></li>
+              <li><Link href="#">Mi cuenta</Link></li>
+              <li><Link href="#">Contáctanos</Link></li>
             </ul>
           </div>
 
           <div className="footer-zones">
             <h3 className="footer-zones-title">Zonas más buscadas</h3>
             <ul className="footer-zones-list">
-              <li><a href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&page=1&limit=20`}>Capital Federal</a></li>
-              <li><a href="/results?q=G.B.A.+Zona+Norte&location_id=147&page=1&limit=20">GBA Norte</a></li>
-              <li><a href="/results?q=G.B.A.+Zona+Sur&location_id=149&page=1&limit=20">GBA Sur</a></li>
-              <li><a href="/results?q=G.B.A.+Zona+Oeste&location_id=148&page=1&limit=20">GBA Oeste</a></li>
-              <li><a href="/results?q=Santa+Fé&location_id=170&page=1&limit=20">Santa Fé</a></li>
-              <li><a href="/results?q=Costa+Atlantica&location_id=150&page=1&limit=20">Buenos Aires Costa Atlántica</a></li>
-              <li><a href="/results?q=Cordoba&location_id=155&page=1&limit=20">Córdoba</a></li>
+              <li><Link href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&page=1&limit=20`}>Capital Federal</Link></li>
+              <li><Link href="/results?q=G.B.A.+Zona+Norte&location_id=147&page=1&limit=20">GBA Norte</Link></li>
+              <li><Link href="/results?q=G.B.A.+Zona+Sur&location_id=149&page=1&limit=20">GBA Sur</Link></li>
+              <li><Link href="/results?q=G.B.A.+Zona+Oeste&location_id=148&page=1&limit=20">GBA Oeste</Link></li>
+              <li><Link href="/results?q=Santa+Fé&location_id=170&page=1&limit=20">Santa Fé</Link></li>
+              <li><Link href="/results?q=Costa+Atlantica&location_id=150&page=1&limit=20">Buenos Aires Costa Atlántica</Link></li>
+              <li><Link href="/results?q=Cordoba&location_id=155&page=1&limit=20">Córdoba</Link></li>
             </ul>
           </div>
         </div>
@@ -74,26 +75,26 @@ export default function Footer() {
         <div className="footer-map desktop-only">
             <h3 className="footer-map-title">Mapa de sitio</h3>
             <ul className="footer-map-list">
-              <li><a href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=1&page=1&limit=20`}>Comprar</a></li>
-              <li><a href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=2&page=1&limit=20`}>Alquilar</a></li>
-              <li><a href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=3&page=1&limit=20`}>Temporal</a></li>
-              <li><a href="#">Emprendimientos</a></li>
-              <li><a href="/protected/publish">Publicar</a></li>
-              <li><a href="#">Mi cuenta</a></li>
-              <li><a href="#">Contáctanos</a></li>
+              <li><Link href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=1&page=1&limit=20`}>Comprar</Link></li>
+              <li><Link href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=2&page=1&limit=20`}>Alquilar</Link></li>
+              <li><Link href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=3&page=1&limit=20`}>Temporal</Link></li>
+              <li><Link href="#">Emprendimientos</Link></li>
+              <li><Link href="/protected/publish">Publicar</Link></li>
+              <li><Link href="#">Mi cuenta</Link></li>
+              <li><Link href="#">Contáctanos</Link></li>
             </ul>
           </div>
 
           <div className="footer-zones desktop-only">
             <h3 className="footer-zones-title">Zonas más buscadas</h3>
             <ul className="footer-zones-list">
-              <li><a href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&page=1&limit=20`}>Capital Federal</a></li>
-              <li><a href="/results?q=G.B.A.+Zona+Norte&location_id=147&page=1&limit=20">GBA Norte</a></li>
-              <li><a href="/results?q=G.B.A.+Zona+Sur&location_id=149&page=1&limit=20">GBA Sur</a></li>
-              <li><a href="/results?q=G.B.A.+Zona+Oeste&location_id=148&page=1&limit=20">GBA Oeste</a></li>
-              <li><a href="/results?q=Santa+Fé&location_id=170&page=1&limit=20">Santa Fé</a></li>
-              <li><a href="/results?q=Costa+Atlantica&location_id=150&page=1&limit=20">Buenos Aires Costa Atlántica</a></li>
-              <li><a href="/results?q=Cordoba&location_id=155&page=1&limit=20">Córdoba</a></li>
+              <li><Link href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&page=1&limit=20`}>Capital Federal</Link></li>
+              <li><Link href="/results?q=G.B.A.+Zona+Norte&location_id=147&page=1&limit=20">GBA Norte</Link></li>
+              <li><Link href="/results?q=G.B.A.+Zona+Sur&location_id=149&page=1&limit=20">GBA Sur</Link></li>
+              <li><Link href="/results?q=G.B.A.+Zona+Oeste&location_id=148&page=1&limit=20">GBA Oeste</Link></li>
+              <li><Link href="/results?q=Santa+Fé&location_id=170&page=1&limit=20">Santa Fé</Link></li>
+              <li><Link href="/results?q=Costa+Atlantica&location_id=150&page=1&limit=20">Buenos Aires Costa Atlántica</Link></li>
+              <li><Link href="/results?q=Cordoba&location_id=155&page=1&limit=20">Córdoba</Link></li>
             </ul>
           </div>
 
@@ -104,8 +105,8 @@ export default function Footer() {
           <div className="footer-terms">
             <h3 className="footer-terms-title">Términos y condiciones</h3>
             <ul className="footer-terms-list">
-              <li><a href="#">Normas de confidencialidad y privacidad</a></li>
-              <li><a href="#">Normativa alquiler temporario turístico</a></li>
+              <li><Link href="#">Normas de confidencialidad y privacidad</Link></li>
+              <li><Link href="#">Normativa alquiler temporario turístico</Link></li>
             </ul>
           </div>
 

@@ -121,6 +121,7 @@ export default function PublishPlansEmprendimiento({
       user_id,
       hired_plan_id,
       visibility,
+      purchased_plan_id,
       branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
     });
   }, [user_id, hired_plan_id, visibility, branchFilter, updateWizardData]);
@@ -130,6 +131,7 @@ export default function PublishPlansEmprendimiento({
       user_id,
       hired_plan_id,
       visibility,
+      purchased_plan_id,
       branch_id: Number.parseInt(branchFilter)
     });
   };
@@ -212,12 +214,14 @@ export default function PublishPlansEmprendimiento({
                 className={`publish-plans-radio ${hired_plan_id === plan.plan_id ? 'is-selected is-highlighted' : ''}`}
                 onClick={() => {
                   setHired_plan_id(plan.plan_id);
+                  // setPurchased_plan_id(plan.id);
                   setVisibility(plan.plan_visibility);
                 }}
               >
                 <span className="publish-plans-radio-dot" />
                 <span className="publish-plans-radio-title">{plan.plan_name}</span>
                 <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.available}</span>
+                <span className="publish-plans-radio-subtitle">Vencimiento: {plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
               </button>
             ))}
           </div>

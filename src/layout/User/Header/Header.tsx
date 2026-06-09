@@ -6,6 +6,7 @@ import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { TemporalRentPeriod } from '@/types/propiedad';
+import Link from 'next/link';
 
 const logoMetroprop = "/images/metroprop.svg";
 const chevronIcon = "/icons/chevron-up.svg";
@@ -173,7 +174,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           {/* Desktop Navigation */}
           <nav className={`header-nav ${mobileMenuOpen ? 'mobile-open' : ''}`}>
             <div className='mobile-header-open-nav'>
-              <a href="/" className='home-link'><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /></a>
+              <Link href="/" className='home-link'><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /></Link>
               <button
                 className="close-button"
                 onClick={toggleMobileMenu}
@@ -288,14 +289,14 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           </div>
         )} 
         <div className="header-logo">
-          <a href="/">
+          <Link href="/">
             <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
-          </a>
+          </Link>
         </div>
         <div className={`${showFilter ? 'with-search' : ''} header-logo-mobile`}>
-          <a href="/">
+          <Link href="/">
             <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
-          </a>
+          </Link>
         </div>        
 
         {/* Right Section - Login Button or User Menu */}

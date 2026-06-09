@@ -1,5 +1,6 @@
 import { useRouter } from 'next/navigation';
 import './BackButtonLogo.scss';
+import Link from 'next/link';
 
 const logoMetroprop = "/images/metroprop.svg";
 
@@ -16,7 +17,7 @@ export default function BackButtonLogo({ showLogo = true }: { showLogo?: boolean
           </button>         
         </div>
         {showLogo && <div className="signin-logo">
-          <a href="/"><img src={logoMetroprop} alt="Metroprop Logo" /></a>
+          <Link href="/"><img src={logoMetroprop} alt="Metroprop Logo" /></Link>
         </div>}
       </div>
   </>);

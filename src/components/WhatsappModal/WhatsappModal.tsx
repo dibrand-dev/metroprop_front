@@ -136,7 +136,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
 
   const openWhatsApp = () => {
     if (!validateForm()) return;
-    const message = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a>`);
+    const message = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</Link>`);
     window.open(`https://wa.me/${formState.phone.trim()}?text=${message}`, "_blank");
   };
   
