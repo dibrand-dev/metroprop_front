@@ -2,8 +2,8 @@
 
 import { useMemo, useState, useEffect, useRef } from 'react';
 import './PropertyDetail.scss';
-import Header from '@/layout/User/Header/Header';
-import Footer from '@/layout/User/Footer/Footer';
+import Header from '@/layout/Header/Header';
+import Footer from '@/layout/Footer/Footer';
 import Button from '@/ui/Button/Button';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import PropertyDetailSubmenu from './PropertyDetailSubmenu/PropertyDetailSubmenu';

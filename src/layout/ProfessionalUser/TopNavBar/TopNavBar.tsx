@@ -1,7 +1,7 @@
 'use client';
 
 import './TopNavBar.scss';
-import TopUserMenu from '@/layout/TopUserMenu/TopUserMenu';
+import TopUserMenu from '@/layout/Header/TopUserMenu/TopUserMenu';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 

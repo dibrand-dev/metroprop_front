@@ -168,7 +168,7 @@ export default function Alerts() {
         </div>
         <div className="collaborators-list">
           {isLoading && <p>Cargando alertas...</p>}
-          {alerts.map((alert) => {
+          {alerts?.length > 0 && alerts.map((alert) => {
             const filterChips = parseFilters(alert.filters, locationMap, tagsMap);
             return (
               <div key={alert.id} className="collaborators-card">
@@ -227,6 +227,9 @@ export default function Alerts() {
               </div>
             );
           })}
+          {!isLoading && alerts.length === 0 && (
+            <p>No tenés alertas.</p>
+          )}
         </div>
       </div>
 
