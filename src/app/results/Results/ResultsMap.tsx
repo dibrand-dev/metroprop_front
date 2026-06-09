@@ -421,7 +421,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                 {isFetchingProperty && !selectedProperty ? (
                   <div style={{ padding: '8px' }}>Cargando...</div>
                 ) : selectedProperty ? (
-                  <Link href={`/propertyDetail/${selectedProperty.id}`} className='linkToPropertyInfoWindow'><PropertyCard property={selectedProperty} cardType="gridList" fromMap={true} /></Link>
+                  <Link prefetch={false}  href={`/propertyDetail/${selectedProperty.id}`} className='linkToPropertyInfoWindow'><PropertyCard property={selectedProperty} cardType="gridList" fromMap={true} /></Link>
                 ) : null}
               </InfoWindow>
             );

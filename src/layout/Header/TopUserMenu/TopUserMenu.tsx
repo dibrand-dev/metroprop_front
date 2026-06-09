@@ -247,7 +247,7 @@ export default function TopUserMenu() {
                     <span className="header-dropdown-item-label">{item.label}</span>
                   </button>
                 ) : (
-                  <Link
+                  <Link prefetch={false} 
                     key={item.id}
                     href={item.href}
                     className="header-dropdown-item"

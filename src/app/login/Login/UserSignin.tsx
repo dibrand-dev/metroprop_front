@@ -220,7 +220,7 @@ export default function UserSignin() {
             />
           </div>
 
-          <Link href="/forgotPassword" className="create-account-link block" style={{ marginBottom: '24px' }}>
+          <Link prefetch={false}  href="/forgotPassword" className="create-account-link block" style={{ marginBottom: '24px' }}>
             Olvidé mi contraseña
           </Link>
 
@@ -240,7 +240,7 @@ export default function UserSignin() {
 
           <div className="create-account">
             <span className="create-account-text">¿No tenés cuenta?</span>
-            <Link href="/signup" className="create-account-link">
+            <Link prefetch={false}  href="/signup" className="create-account-link">
               Crear una cuenta
             </Link>
           </div>

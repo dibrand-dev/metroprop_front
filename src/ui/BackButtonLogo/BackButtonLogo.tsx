@@ -17,7 +17,7 @@ export default function BackButtonLogo({ showLogo = true }: { showLogo?: boolean
           </button>         
         </div>
         {showLogo && <div className="signin-logo">
-          <Link href="/"><img src={logoMetroprop} alt="Metroprop Logo" /></Link>
+          <Link prefetch={false}  href="/"><img src={logoMetroprop} alt="Metroprop Logo" /></Link>
         </div>}
       </div>
   </>);

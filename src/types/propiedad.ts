@@ -446,6 +446,7 @@ export interface CreateProperty {
   hired_plan_id: number;
   visibility: number;
   leads_count: number;
+  purchased_plan_id?: number;
 }
 
 // ==========================================================================

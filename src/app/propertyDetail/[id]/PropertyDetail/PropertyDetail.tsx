@@ -428,7 +428,6 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
     <div className="property-detail-page">
-			<Header />
       <PropertyDetailSubmenu
         className={isSubmenuVisible ? 'is-visible' : ''}
         style={{ top: submenuOffset }}
@@ -909,7 +908,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             ): property?.development && (
             <section className="unit-details-development">
               <h4>Esta unidad pertenece al emprendimiento</h4>
-              <Link href={`/propertyDetail/${property?.development?.id}`} target="_blank" rel="noopener noreferrer">
+              <Link prefetch={false}  href={`/propertyDetail/${property?.development?.id}`} target="_blank" rel="noopener noreferrer">
                 <div className="unit-details-development-info">
                   {property?.development?.images?.[0] ? <img src={setImagePath(property?.development?.images?.[0]?.url) ?? ''} alt="Imagen del emprendimiento" className="unit-details-development-image" /> : null}
                   <div className="unit-details-development-text">
@@ -1027,8 +1026,6 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           />
         ))}
       </div>
-
-      <Footer />
     </div>
     </APIProvider>
   );

@@ -57,7 +57,7 @@ export default function PropertyLeads({ propertyId }: { propertyId: number }) {
       <div className="leads-container">
         {/* Back + property info */}
         <div className="property-leads-header">
-          <Link href="/protected/leads" className="leads-back-button">
+          <Link prefetch={false}  href="/protected/leads" className="leads-back-button">
             <img src={iconArrowBack} alt="Volver" />
             <span>Interesados</span>
           </Link>

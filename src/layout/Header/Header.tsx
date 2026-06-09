@@ -150,16 +150,14 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
 
   return (
     <header className="header-container">
-      <div className="topnavbar-menu-items">
-        {!isRole4 && (<>
+      {!isRole4 && (<div className="topnavbar-menu-items">        
+        <button className="topnavbar-dropdown">
+          <Link prefetch={false}  href="/protected/myProperties">Mis publicaciones</Link>
+        </button>
           <button className="topnavbar-dropdown">
-            <Link href="/protected/myProperties">Mis publicaciones</Link>
-          </button>
-           <button className="topnavbar-dropdown">
-            <Link href="/protected/leads">Interesados</Link>
-          </button></>
-        )}
-      </div>
+          <Link prefetch={false}  href="/protected/leads">Interesados</Link>
+        </button>
+      </div>)}
       {(openDropdown !== null || mobileMenuOpen) && (
         <button
           type="button"
@@ -187,7 +185,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           {/* Desktop Navigation */}
           <nav className={`header-nav ${mobileMenuOpen ? 'mobile-open' : ''}`}>
             <div className='mobile-header-open-nav'>
-              <Link href="/" className='home-link'><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /></Link>
+              <Link prefetch={false}  href="/" className='home-link'><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /></Link>
               <button
                 className="close-button"
                 onClick={toggleMobileMenu}
@@ -302,12 +300,12 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           </div>
         )} 
         <div className="header-logo">
-          <Link href="/">
+          <Link prefetch={false}  href="/">
             <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
           </Link>
         </div>
         <div className={`${showFilter ? 'with-search' : ''} header-logo-mobile`}>
-          <Link href="/">
+          <Link prefetch={false}  href="/">
             <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
           </Link>
         </div>        

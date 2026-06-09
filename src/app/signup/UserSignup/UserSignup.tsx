@@ -271,7 +271,7 @@ export default function UserSignup() {
         <span className="merged-signup-signin-text">
           ¿Ya tenés cuenta?
         </span>
-        <Link 
+        <Link prefetch={false}  
           href="/login" 
           className="merged-signup-link"
         >
@@ -333,7 +333,7 @@ export default function UserSignup() {
       <p className="merged-signup-cta-text">
         ¿Formás parte del mercado inmobiliario<br />y aún no tenés cuenta?
       </p>
-      <Link href="/professionalSignup" className="merged-signup-cta-link">
+      <Link prefetch={false}  href="/professionalSignup" className="merged-signup-cta-link">
         Crear cuenta profesional
       </Link>
     </div>

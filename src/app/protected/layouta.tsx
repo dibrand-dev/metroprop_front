@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Footer from "@/layout/Footer/Footer";
 import Header from "@/layout/Header/Header";
-import './layout.scss';
+import './layouta.scss';
 
 export default async function ProtectedLayout({
   children,

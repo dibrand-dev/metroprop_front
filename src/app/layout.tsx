@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "../providers/QueryProvider";
 import { SessionProvider } from "next-auth/react";
+import LayoutWrapper from "@/layout/LayoutWrapper";
 
 const inter = Inter({ subsets: ["latin"], display: 'swap', variable: '--font-inter' });
 
@@ -21,8 +22,8 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className}`}>
         <SessionProvider>
-          <QueryProvider>
-            {children}          
+          <QueryProvider>            
+            <LayoutWrapper>{children}</LayoutWrapper>
           </QueryProvider>
         </SessionProvider>
       </body>

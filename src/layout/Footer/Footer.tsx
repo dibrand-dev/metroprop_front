@@ -22,13 +22,13 @@ export default function Footer() {
             </p>
 
             <div className="footer-social">
-              <Link href="#" className="footer-social-icon" aria-label="Facebook">
+              <Link prefetch={false}  href="#" className="footer-social-icon" aria-label="Facebook">
                 <img src="/icons/fb.svg" alt="Facebook" />
               </Link>
-              <Link href="#" className="footer-social-icon" aria-label="Instagram">
+              <Link prefetch={false}  href="#" className="footer-social-icon" aria-label="Instagram">
                 <img src="/icons/instagram.svg" alt="Instagram" />
               </Link>
-              <Link href="#" className="footer-social-icon" aria-label="YouTube">
+              <Link prefetch={false}  href="#" className="footer-social-icon" aria-label="YouTube">
                 <img src="/icons/youtube.svg" alt="YouTube" />
               </Link>
             </div>
@@ -48,26 +48,26 @@ export default function Footer() {
           <div className="footer-map">
             <h3 className="footer-map-title">Mapa de sitio</h3>
             <ul className="footer-map-list">
-              <li><Link href="/results?operation_type=1">Comprar</Link></li>
-              <li><Link href="/results?operation_type=2">Alquilar</Link></li>
-              <li><Link href="/results?operation_type=3">Temporal</Link></li>
-              <li><Link href="#">Emprendimientos</Link></li>
-              <li><Link href="/protected/publish">Publicar</Link></li>
-              <li><Link href="#">Mi cuenta</Link></li>
-              <li><Link href="#">Contáctanos</Link></li>
+              <li><Link prefetch={false}  href="/results?operation_type=1">Comprar</Link></li>
+              <li><Link prefetch={false}  href="/results?operation_type=2">Alquilar</Link></li>
+              <li><Link prefetch={false}  href="/results?operation_type=3">Temporal</Link></li>
+              <li><Link prefetch={false}  href="#">Emprendimientos</Link></li>
+              <li><Link prefetch={false}  href="/protected/publish">Publicar</Link></li>
+              <li><Link prefetch={false}  href="#">Mi cuenta</Link></li>
+              <li><Link prefetch={false}  href="#">Contáctanos</Link></li>
             </ul>
           </div>
 
           <div className="footer-zones">
             <h3 className="footer-zones-title">Zonas más buscadas</h3>
             <ul className="footer-zones-list">
-              <li><Link href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&page=1&limit=20`}>Capital Federal</Link></li>
-              <li><Link href="/results?q=G.B.A.+Zona+Norte&location_id=147&page=1&limit=20">GBA Norte</Link></li>
-              <li><Link href="/results?q=G.B.A.+Zona+Sur&location_id=149&page=1&limit=20">GBA Sur</Link></li>
-              <li><Link href="/results?q=G.B.A.+Zona+Oeste&location_id=148&page=1&limit=20">GBA Oeste</Link></li>
-              <li><Link href="/results?q=Santa+Fé&location_id=170&page=1&limit=20">Santa Fé</Link></li>
-              <li><Link href="/results?q=Costa+Atlantica&location_id=150&page=1&limit=20">Buenos Aires Costa Atlántica</Link></li>
-              <li><Link href="/results?q=Cordoba&location_id=155&page=1&limit=20">Córdoba</Link></li>
+              <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&page=1&limit=20`}>Capital Federal</Link></li>
+              <li><Link prefetch={false}  href="/results?q=G.B.A.+Zona+Norte&location_id=147&page=1&limit=20">GBA Norte</Link></li>
+              <li><Link prefetch={false}  href="/results?q=G.B.A.+Zona+Sur&location_id=149&page=1&limit=20">GBA Sur</Link></li>
+              <li><Link prefetch={false}  href="/results?q=G.B.A.+Zona+Oeste&location_id=148&page=1&limit=20">GBA Oeste</Link></li>
+              <li><Link prefetch={false}  href="/results?q=Santa+Fé&location_id=170&page=1&limit=20">Santa Fé</Link></li>
+              <li><Link prefetch={false}  href="/results?q=Costa+Atlantica&location_id=150&page=1&limit=20">Buenos Aires Costa Atlántica</Link></li>
+              <li><Link prefetch={false}  href="/results?q=Cordoba&location_id=155&page=1&limit=20">Córdoba</Link></li>
             </ul>
           </div>
         </div>
@@ -75,26 +75,26 @@ export default function Footer() {
         <div className="footer-map desktop-only">
             <h3 className="footer-map-title">Mapa de sitio</h3>
             <ul className="footer-map-list">
-              <li><Link href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=1&page=1&limit=20`}>Comprar</Link></li>
-              <li><Link href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=2&page=1&limit=20`}>Alquilar</Link></li>
-              <li><Link href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=3&page=1&limit=20`}>Temporal</Link></li>
-              <li><Link href="#">Emprendimientos</Link></li>
-              <li><Link href="/protected/publish">Publicar</Link></li>
-              <li><Link href="#">Mi cuenta</Link></li>
-              <li><Link href="#">Contáctanos</Link></li>
+              <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=1&page=1&limit=20`}>Comprar</Link></li>
+              <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=2&page=1&limit=20`}>Alquilar</Link></li>
+              <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=3&page=1&limit=20`}>Temporal</Link></li>
+              <li><Link prefetch={false}  href="#">Emprendimientos</Link></li>
+              <li><Link prefetch={false}  href="/protected/publish">Publicar</Link></li>
+              <li><Link prefetch={false}  href="#">Mi cuenta</Link></li>
+              <li><Link prefetch={false}  href="#">Contáctanos</Link></li>
             </ul>
           </div>
 
           <div className="footer-zones desktop-only">
             <h3 className="footer-zones-title">Zonas más buscadas</h3>
             <ul className="footer-zones-list">
-              <li><Link href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&page=1&limit=20`}>Capital Federal</Link></li>
-              <li><Link href="/results?q=G.B.A.+Zona+Norte&location_id=147&page=1&limit=20">GBA Norte</Link></li>
-              <li><Link href="/results?q=G.B.A.+Zona+Sur&location_id=149&page=1&limit=20">GBA Sur</Link></li>
-              <li><Link href="/results?q=G.B.A.+Zona+Oeste&location_id=148&page=1&limit=20">GBA Oeste</Link></li>
-              <li><Link href="/results?q=Santa+Fé&location_id=170&page=1&limit=20">Santa Fé</Link></li>
-              <li><Link href="/results?q=Costa+Atlantica&location_id=150&page=1&limit=20">Buenos Aires Costa Atlántica</Link></li>
-              <li><Link href="/results?q=Cordoba&location_id=155&page=1&limit=20">Córdoba</Link></li>
+              <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&page=1&limit=20`}>Capital Federal</Link></li>
+              <li><Link prefetch={false}  href="/results?q=G.B.A.+Zona+Norte&location_id=147&page=1&limit=20">GBA Norte</Link></li>
+              <li><Link prefetch={false}  href="/results?q=G.B.A.+Zona+Sur&location_id=149&page=1&limit=20">GBA Sur</Link></li>
+              <li><Link prefetch={false}  href="/results?q=G.B.A.+Zona+Oeste&location_id=148&page=1&limit=20">GBA Oeste</Link></li>
+              <li><Link prefetch={false}  href="/results?q=Santa+Fé&location_id=170&page=1&limit=20">Santa Fé</Link></li>
+              <li><Link prefetch={false}  href="/results?q=Costa+Atlantica&location_id=150&page=1&limit=20">Buenos Aires Costa Atlántica</Link></li>
+              <li><Link prefetch={false}  href="/results?q=Cordoba&location_id=155&page=1&limit=20">Córdoba</Link></li>
             </ul>
           </div>
 
@@ -105,8 +105,8 @@ export default function Footer() {
           <div className="footer-terms">
             <h3 className="footer-terms-title">Términos y condiciones</h3>
             <ul className="footer-terms-list">
-              <li><Link href="#">Normas de confidencialidad y privacidad</Link></li>
-              <li><Link href="#">Normativa alquiler temporario turístico</Link></li>
+              <li><Link prefetch={false}  href="#">Normas de confidencialidad y privacidad</Link></li>
+              <li><Link prefetch={false}  href="#">Normativa alquiler temporario turístico</Link></li>
             </ul>
           </div>
 

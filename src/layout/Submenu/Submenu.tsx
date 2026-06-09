@@ -70,7 +70,7 @@ export default function Submenu({ active, onHide }: SubmenuProps) {
         const isActive = activeItemId === item.id;
 
         return (
-          <Link
+          <Link prefetch={false} 
             key={item.id}
             href={item.href}
             className={`submenu-item ${isActive ? 'submenu-item-active' : 'submenu-item-inactive'}`}

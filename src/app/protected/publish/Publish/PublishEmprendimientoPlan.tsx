@@ -34,6 +34,7 @@ export default function PublishPlansEmprendimiento({
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
   const [hired_plan_id, setHired_plan_id] = useState(wizardData.hired_plan_id || 0);
   const [visibility, setVisibility] = useState(wizardData.visibility || 0);
+  const [purchased_plan_id, setPurchased_plan_id] = useState(wizardData.purchased_plan_id || 0);
   const [branchFilter, setBranchFilter] = useState(wizardData.branch_id?.toString() || '');
   const { data: sessionData } = useSession();
 
@@ -129,9 +130,9 @@ export default function PublishPlansEmprendimiento({
   const handleContinue = () => {
     onNext({
       user_id,
-      hired_plan_id,
       visibility,
       purchased_plan_id,
+      hired_plan_id,      
       branch_id: Number.parseInt(branchFilter)
     });
   };
@@ -163,7 +164,7 @@ export default function PublishPlansEmprendimiento({
               label="Sucursal"
               placeholder="Seleccionar sucursal"
               value={branchFilter}
-              onChange={(value) => { setBranchFilter(value); setUser_id(undefined); setHired_plan_id(0); setVisibility(0); }}
+              onChange={(value) => { setBranchFilter(value); setUser_id(undefined); setHired_plan_id(0); setVisibility(0); setPurchased_plan_id(0); }}
               options={branchOptions}
               disabled={isRole2 || isRole3}
             />
@@ -192,6 +193,7 @@ export default function PublishPlansEmprendimiento({
               onClick={() => {
                 setHired_plan_id(0);
                 setVisibility(0);
+                setPurchased_plan_id(0);
               }}
             >
               <span className="publish-plans-radio-dot" />
@@ -214,14 +216,14 @@ export default function PublishPlansEmprendimiento({
                 className={`publish-plans-radio ${hired_plan_id === plan.plan_id ? 'is-selected is-highlighted' : ''}`}
                 onClick={() => {
                   setHired_plan_id(plan.plan_id);
-                  // setPurchased_plan_id(plan.id);
+                  setPurchased_plan_id(plan.purchased_plan_id);
                   setVisibility(plan.plan_visibility);
                 }}
               >
                 <span className="publish-plans-radio-dot" />
                 <span className="publish-plans-radio-title">{plan.plan_name}</span>
                 <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.available}</span>
-                <span className="publish-plans-radio-subtitle">Vencimiento: {plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
+                <span className="publish-plans-radio-vencimiento">Vencimiento: {plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
               </button>
             ))}
           </div>

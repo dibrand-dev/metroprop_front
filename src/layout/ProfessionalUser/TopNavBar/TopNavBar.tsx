@@ -22,14 +22,14 @@ export default function TopNavBar({
         <div className="topnavbar-menu-items">
           {!isRole4 && menuItems.map((item, index) => (
             <button key={index} className="topnavbar-dropdown">
-              <Link href={item.link}>{item.label}</Link>
+              <Link prefetch={false}  href={item.link}>{item.label}</Link>
             </button>
           ))}
         </div>
 
         {/* Logo */}
         <div className="topnavbar-logo">
-          <Link href="/"><img src={logoMetroprop} alt="MetroProp Logo" /></Link>
+          <Link prefetch={false}  href="/"><img src={logoMetroprop} alt="MetroProp Logo" /></Link>
         </div>
         <TopUserMenu />
       </nav>

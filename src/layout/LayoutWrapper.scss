@@ -1,0 +1,54 @@
+.bodyContainer {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    .topnavbar-menu-items {
+        display: none;
+    }
+    &.login, &.signup, &.professionalSignup, &.forgotPassword, &.resetPassword {
+        header, footer {
+            display: none;
+        }
+    }
+    &.protected-publish {
+        .header-nav-wrapper {
+            visibility: hidden !important;
+        }
+
+        .topnavbar-menu-items {
+            display: none !important;
+        }
+    }
+    &.protected-myProperties, &.protected-contacts, &.protected-favorites, &.protected-leads, &.protected-alerts {
+        .header-nav-wrapper {
+            display: flex !important;
+        }
+
+        .topnavbar-menu-items {
+            display: none !important;
+        }
+    }
+}
+
+.bodyContainer[class*="protected-admin-"] {
+    .header-nav-wrapper {
+        display: none !important;
+    }
+
+    .topnavbar-menu-items {
+        display: flex !important;
+    }
+}
+
+.professionalContainer {
+    padding: 48px 24px;
+    display: flex;
+    align-items: flex-start;
+    
+    @media (max-width: 768px) {
+        padding: 0;
+        &.activeMenuMobile {
+            background-color: white;
+        }
+    }
+}

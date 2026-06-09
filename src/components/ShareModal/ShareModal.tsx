@@ -82,8 +82,8 @@ export default function ShareModal({ isOpen, onClose, property, propertyId }: Sh
     {
       label: 'LinkedIn',
       button: (
-        <LinkedinShareButton url={url} title={title}>
-          <LinkedinIcon size={ICON_SIZE} round={ICON_ROUND} />
+        <LinkedinShareButton prefetch={false} edinShareButton url={url} title={title}>
+          <Link prefetch={false} edinIcon size={ICON_SIZE} round={ICON_ROUND} />
         </LinkedinShareButton>
       ),
     },

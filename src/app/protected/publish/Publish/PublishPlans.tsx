@@ -34,7 +34,8 @@ export default function PublishPlans({
 }: PublishPlansProps) {
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
   const [hired_plan_id, setHired_plan_id] = useState(wizardData.hired_plan_id || 1);
-  const [visibility, setVisibility] = useState(wizardData.visibility || 0);
+  const [visibility, setVisibility] = useState(wizardData.visibility || 0);  
+  const [purchased_plan_id, setPurchased_plan_id] = useState(wizardData.purchased_plan_id || 0);
   const [branchFilter, setBranchFilter] = useState(wizardData.branch_id?.toString() || '');
   const { data: sessionData } = useSession();
 
@@ -123,6 +124,7 @@ export default function PublishPlans({
       user_id,
       hired_plan_id,
       visibility,
+      purchased_plan_id,
       branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
     });
   }, [user_id, hired_plan_id, visibility, branchFilter, updateWizardData]);
@@ -136,6 +138,7 @@ export default function PublishPlans({
       user_id,
       hired_plan_id,
       visibility,
+      purchased_plan_id,
       branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
     });
   };
@@ -173,7 +176,7 @@ export default function PublishPlans({
                   label="Sucursal"
                   placeholder="Seleccionar sucursal"
                   value={branchFilter}
-                  onChange={(value) => { setBranchFilter(value); setUser_id(undefined); setHired_plan_id(0); setVisibility(0); }}
+                  onChange={(value) => { setBranchFilter(value); setUser_id(undefined); setHired_plan_id(0); setVisibility(0); setPurchased_plan_id(0); }}
                   options={branchOptions}
                   disabled={isRole3 || isRole2}
                 />
@@ -202,6 +205,7 @@ export default function PublishPlans({
                   onClick={() => {
                     setHired_plan_id(0);
                     setVisibility(0);
+                    setPurchased_plan_id(0);
                   }}
                 >
                   <span className="publish-plans-radio-dot" />
@@ -225,6 +229,7 @@ export default function PublishPlans({
                     onClick={() => {
                       setHired_plan_id(plan.plan_id);
                       setVisibility(plan.plan_visibility);
+                      setPurchased_plan_id(plan.purchased_plan_id);
                     }}
                   >
                     <span className="publish-plans-radio-dot" />
