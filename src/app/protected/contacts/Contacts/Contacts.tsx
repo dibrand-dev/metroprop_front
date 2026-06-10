@@ -44,7 +44,6 @@ export default function Contacts() {
             isLoggedIn={true}
             onFavorite={() => handleToggleFavorite(property.id ?? 0)}
             onWhatsapp={() => {
-              console.log("onWhatsapp")
               setWhatsappModalInfo({ phoneNumber: property.user ? property.user.phone : property.owner_phone ?? '', propertyId: property.id ?? 0 });
               setIsWhatsappModalOpen(true);
             }}

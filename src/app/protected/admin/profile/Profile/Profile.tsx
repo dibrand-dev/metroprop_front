@@ -94,7 +94,6 @@ export default function Profile() {
   const handleSave = () => {
     updateUserMutation.mutate(properties);
   };
- console.log("sessionData", sessionData)
   return (
       <div className={`professional-profile-container ${showMenu ? 'mobile-hidden' : ''}`}>
         {/* Header */}

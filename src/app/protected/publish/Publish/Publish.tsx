@@ -257,7 +257,6 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
       for (const branch of sessionData.user.organization.branches ?? []) {
         const found = (branch.users ?? []).find((u: any) => String(u.id) === sessionData.user?.id);
         if (found) {
-          console.log("Found user in branch:", branch.id);
           _wizardData.branch_id = branch.id;
           break;
         }
@@ -269,7 +268,6 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
       _wizardData.property_type = PropertyType.EMPRENDIMIENTO;
       _wizardData.is_development = true;
     }
-console.log("_wizardData", _wizardData)
     // Create mode: create a new draft
     try {
       const draftData = await createDraftMutation.mutateAsync(_wizardData);
@@ -327,7 +325,6 @@ console.log("_wizardData", _wizardData)
   }
 
   const saveCurrentStepEmprendimiento = async (wizardDataUpdate: Partial<CreatePropertyDraft>, nextStep: boolean) => {
-    console.log("wizardDataUpdatewizardDataUpdate", wizardDataUpdate)
     const _wizardDataUpdate = toDevelopmentPatch(wizardDataUpdate);
     delete _wizardDataUpdate.draft_id;
     _wizardDataUpdate.operation_type = OperationType.VENTA;

@@ -88,7 +88,7 @@ export default function PublishFinalReview({
     key: group.type.toString(),
     label: group.title
   }));
-console.log("wizardData", wizardData)
+  
   useEffect(() => {
     if (!wizardData) return;
     const hasDetails = !!(

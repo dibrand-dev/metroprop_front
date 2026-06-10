@@ -82,7 +82,6 @@ export default function Plans() {
 
   if (isLoading) return <div>Cargando...</div>;
   if (isError) return <div>Error cargando los planes</div>;
-  console.log("plansData", plansData)
   return (
     <>
       <div className={`partners-container ${showMenu ? 'mobile-hidden' : ''}`}>

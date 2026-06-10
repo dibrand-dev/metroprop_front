@@ -127,7 +127,6 @@ export default function Leads() {
     property: contacto.property,    
     actions: [/*'delete',*/ 'view'] as OrganizationAction[],
   })) ?? [];
-  console.log("contactos", contactos, "total", total, "totalPages", totalPages);
   return (
     <>
       <div className={`collaborators-container ${showMenu ? 'mobile-hidden' : ''}`}>

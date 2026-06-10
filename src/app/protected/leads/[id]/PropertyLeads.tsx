@@ -32,7 +32,6 @@ export default function PropertyLeads({ propertyId }: { propertyId: number }) {
       queryClient.invalidateQueries({ queryKey: ['property-leads', propertyId] });
     },
   });
-console.log("search", search)
   const { data: contactosData } = useQuery<any>({
     queryKey: ['leads', propertyId, currentPage, search],
     queryFn: async () => {

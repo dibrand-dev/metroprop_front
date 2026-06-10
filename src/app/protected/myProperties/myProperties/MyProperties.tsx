@@ -277,7 +277,6 @@ const MyProperties = () => {
 
   const hiredPlanNameMap = useMemo<Record<number, string>>(() => {
     const map: Record<number, string> = {};
-    console.log("branchOverviewPlans", branchOverviewPlans)
     branchOverviewPlans.forEach((entry: any) => {
       (Array.isArray(entry.plans) ? entry.plans : []).forEach((p: any) => {
         if (p?.purchased_plan_id != null) map[Number(p.purchased_plan_id)] = p?.plan_name ?? '';
@@ -285,7 +284,6 @@ const MyProperties = () => {
     });
     return map;
   }, [branchOverviewPlans]);
-console.log("hiredPlanNameMap", hiredPlanNameMap)
   useEffect(() => {
     if (isRole1 || !loggedUserId || rawUsers.length === 0) return;
     const me = rawUsers.find((u: any) => String(u.id) === String(loggedUserId));

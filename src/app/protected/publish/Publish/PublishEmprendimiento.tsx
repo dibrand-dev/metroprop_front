@@ -324,7 +324,6 @@ export default function PublishEmprendimiento({
       }
     }
     if (nextStep) {
-      console.log("wizardData", wizardData);
       onNext(wizardData);
     }
   };

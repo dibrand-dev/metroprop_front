@@ -76,8 +76,6 @@ export default function MyPropertiesFilters({
 		});
 	}
 
-  console.log("planNameMap", planNameMap);
-
   const filterGroups: FilterGroup[] = Object.keys(facets).map(facetKey => ({
     facetKey,
     title: FILTER_VALUE_LABEL[facetKey] ?? facetKey,

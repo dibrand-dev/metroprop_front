@@ -146,7 +146,7 @@ export default function PublishPlans({
   const handleComprar = (plan: any) => {
     onComprar(plan, branchFilter ? Number.parseInt(branchFilter) : undefined);
   };
-  console.log("activePlans", activePlans)
+  
   return (
     <div className="publish-plans">
       <div className="publish-plans-inner">
