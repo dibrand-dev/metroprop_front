@@ -9,6 +9,7 @@ import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 import { LeadContactType } from '@/types/propiedad';
 import { useSession } from 'next-auth/react';
+import SuccessModal from '../SuccessModal/SuccessModal';
 
 interface WhatsappModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ const flagIcon = '/icons/flag.svg';
 export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId, userId, organizationId }: WhatsappModalProps) {
   const { data: sessionData } = useSession();
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({
     name: false,
     email: false,
@@ -149,10 +151,21 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
 
   const openWhatsApp = () => {
     if (!validateForm()) return;
-    const message = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</Link>`);
-    window.open(`https://wa.me/${formState.phone.trim()}?text=${message}`, "_blank");
+    if (!formState.phone || !phoneNumber) {
+      setShowSuccess(true);
+      setTimeout(() => {        
+        setShowSuccess(false);
+        onClose?.();
+      }, 3000);
+      return;
+    };
+    const message = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a>`);
+    window.open(`https://wa.me/${phoneNumber.trim()}?text=${message}`, "_blank");
   };
   
+  if (showSuccess) {
+    return <SuccessModal title="¡Mensaje enviado!" text="Nos pondremos en contacto a la brevedad." />;
+  }
   return (
     <div className="whatsapp-modal-overlay" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="whatsapp-modal" onClick={(event) => event.stopPropagation()}>

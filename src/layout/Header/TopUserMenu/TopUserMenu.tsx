@@ -206,7 +206,8 @@ export default function TopUserMenu() {
           title={user?.name}
         >
           <div className="header-avatar">
-            {getInitials(user?.name || '')}
+            {/*sessionData?.user?.image ? <img src={sessionData.user.image} alt={sessionData.user.name ?? ''} /> : getInitials(sessionData?.user?.name || '')*/}
+            {getInitials(sessionData?.user?.name || '')}
           </div>
           <img src={chevronIcon} alt="" className="header-avatar-chevron" />
         </button>

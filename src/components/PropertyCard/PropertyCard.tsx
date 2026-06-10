@@ -429,7 +429,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 {uniqueRoomAmounts.length > 0 && <span>{uniqueRoomAmounts.join(' - ')} amb.</span>}
                 <p>{property.publication_title}</p>
                 <div className="contacts-button-container">
-                  <Button 
+                  {(property?.user?.phone || property?.user?.email) && <Button 
                     label={property?.user?.phone ?? property?.user?.email}
                     variant="secondary"
                     buttonType="1"
@@ -445,7 +445,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                         window.location.href = `mailto:${property.user.email}`;
                       }
                     }}
-                  />
+                  />}
                   {onWhatsapp && property?.user?.phone && <Button
                     label="Whatsapp"
                     variant="primary"
