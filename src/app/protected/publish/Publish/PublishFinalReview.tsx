@@ -10,7 +10,6 @@ import { ORGANIZATION_NO_IMAGE } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import { useLocations } from '@/lib/locations';
-import { formatNumbers } from '@/utils/utils';
 
 const iconChevron = '/icons/chevron-up.svg';
 
