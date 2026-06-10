@@ -5,7 +5,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
-import { apiFetch } from '@/lib/apiFetch';
+import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
 
 interface UseGoogleAuthOptions {
   /** Page path for the Google OAuth callback, e.g. '/login' */
@@ -56,7 +56,22 @@ export function useGoogleAuth({
     if (!(data?.access_token && data?.user)) return;
     const sessionUpdate: Record<string, unknown> = {};
     if (data.user?.id) sessionUpdate.id = String(data.user.id);
+    if (data.user?.name) sessionUpdate.name = data.user.name;
     if (data.user?.organization) sessionUpdate.organization = data.user.organization;
+    if (data.access_token) sessionUpdate.apiToken = data.access_token;
+    if (data.user?.role_id !== undefined) sessionUpdate.role_id = data.user.role_id;
+
+    // If role_id is missing from the registration response, fetch the full user profile
+    if (sessionUpdate.role_id === undefined && data.user?.id && data.access_token) {
+      try {
+        const fullUser = await apiFetch<any>(`${API_BASE_URL}/users/${data.user.id}`, { token: data.access_token });
+        if (fullUser?.role_id !== undefined) sessionUpdate.role_id = fullUser.role_id;
+        if (fullUser?.phone) sessionUpdate.phone = fullUser.phone;
+      } catch {
+        // silently continue without role_id
+      }
+    }
+
     if (Object.keys(sessionUpdate).length > 0) {
       await updateSession(sessionUpdate);
     }
@@ -74,6 +89,7 @@ export function useGoogleAuth({
     },
     onSuccess: async (data: any) => {
       await storeAuthData(data);
+      invalidateSessionTokenCache();
       const isNew = data.message === 'Usuario creado exitosamente con Google';
       if (isNew) {
         onNewUserRef.current?.();
@@ -88,13 +104,14 @@ export function useGoogleAuth({
     },
   });
 
-  const processGoogleSession = (user: { email?: string | null; name?: string | null; image?: string | null; id?: string }) => {
+  const processGoogleSession = (user: { email?: string | null; name?: string | null; image?: string | null; id?: string; role_id?: number }) => {
     if (!user?.email) return;
     googleRegistrationMutation.mutate({
       email: user.email,
       name: user.name ?? undefined,
       avatar: user.image ?? undefined,
       google_id: user.id,
+      role_id: user.role_id,
     });
   };
 

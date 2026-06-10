@@ -86,6 +86,8 @@ export const authOptions = {
         if (session?.organization !== undefined) token.organization = session.organization;
         if (session?.id !== undefined) token.id = session.id;
         if (session?.name !== undefined) token.name = session.name;
+        if (session?.apiToken !== undefined) token.apiToken = session.apiToken;
+        if (session?.role_id !== undefined) token.role_id = session.role_id;
         if (session?.phone !== undefined) token.phone = session.phone;
         if (session?.phone_additional !== undefined) token.phone_additional = session.phone_additional;
         if (session?.phone_whatsapp !== undefined) token.phone_whatsapp = session.phone_whatsapp;

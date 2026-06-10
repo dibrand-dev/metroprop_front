@@ -150,14 +150,6 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
 
   return (
     <header className="header-container">
-      <div className="topnavbar-menu-items">        
-        {!isRole4 && (<><button className="topnavbar-dropdown">
-          <Link prefetch={false}  href="/protected/myProperties">Mis publicaciones</Link>
-        </button>
-          <button className="topnavbar-dropdown">
-          <Link prefetch={false}  href="/protected/leads">Interesados</Link>
-        </button></>)}
-      </div>
       {(openDropdown !== null || mobileMenuOpen) && (
         <button
           type="button"
@@ -170,6 +162,14 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
         />
       )}
       <div className="header-content">
+        <div className="topnavbar-menu-items">        
+          {!isRole4 && (<><button className="topnavbar-dropdown">
+            <Link prefetch={false}  href="/protected/myProperties">Mis publicaciones</Link>
+          </button>
+            <button className="topnavbar-dropdown">
+            <Link prefetch={false}  href="/protected/leads">Interesados</Link>
+          </button></>)}
+        </div>
         {/* Left Section - Navigation Dropdowns / Hamburger Menu */}
         <div className={`header-nav-wrapper ${showFilter ? 'with-search' : ''}`}>
           {/* Hamburger Button for Mobile */}
