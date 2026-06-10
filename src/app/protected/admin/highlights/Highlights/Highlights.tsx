@@ -31,13 +31,7 @@ export default function Highlights() {
     { value: 'todas', label: 'Todas' },
     ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
   ];
-
-  const { data: plans = [], isLoading: loadingPlans } = useQuery<any[]>({
-    queryKey: ['branch-plans', branchFilter],
-    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}/availability`),
-    enabled: branchFilter !== 'todas',
-  });
-
+  
   const { data: allBranchPlans = [], isLoading: loadingAllPlans } = useQuery<{ branchId: number; plans: any[] }[]>({
     queryKey: ['branch-plans-all', branches.map((b: any) => b.id).join(',')],
     queryFn: async () => {
@@ -49,11 +43,11 @@ export default function Highlights() {
       );
       return results;
     },
-    enabled: branchFilter === 'todas' && branches.length > 0,
+    enabled: branches.length > 0,
   });
 
   const showAll = branchFilter === 'todas';
-  const loadingAny = showAll ? loadingAllPlans : loadingPlans;
+  const filteredPlans = allBranchPlans.find((e) => String(e.branchId) === branchFilter)?.plans ?? [];
 
   return (
       <div className={`highlights-container ${showMenu ? 'mobile-hidden' : ''}`}>
@@ -135,13 +129,13 @@ export default function Highlights() {
                   <span>Fecha de contratación</span>
                   <span>Fecha de finalización</span>
                 </div>
-                {loadingPlans && (
+                {loadingAllPlans && (
                   <div className="highlights-row"><span>Cargando...</span></div>
                 )}
-                {!loadingPlans && plans.length === 0 && (
+                {!loadingAllPlans && filteredPlans.length === 0 && (
                   <div className="highlights-row"><span>Sin productos disponibles</span></div>
                 )}
-                {plans.map((plan: any, idx: number) => (
+                {filteredPlans.map((plan: any, idx: number) => (
                   <div key={plan.plan_id ?? idx} className="highlights-row">
                     <span>{plan.plan_name}</span>
                     <span>{plan.highlight_limit ?? '-'}</span>

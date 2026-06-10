@@ -9,6 +9,7 @@ import Button from '@/ui/Button/Button';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 import { LeadContactType } from '@/types/propiedad';
+import { useSession } from 'next-auth/react';
 
 interface PropertyUser {
   name?: string;
@@ -47,6 +48,7 @@ const EMPTY_FORM = {
 };
 
 export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, organizationId, ownerName, ownerEmail, ownerPhone, user }: PhoneRevealModalProps) {
+  const { data: sessionData } = useSession();
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [formState, setFormState] = useState(EMPTY_FORM);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -54,6 +56,17 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
   const [touched, setTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    const u = sessionData?.user as any;
+    if (!u) return;
+    setFormState((prev) => ({
+      ...prev,
+      name: u.name ?? prev.name,
+      email: u.email ?? prev.email,
+      phone: u.phone ?? prev.phone,
+    }));
+  }, [sessionData]);
 
   useEffect(() => {
     if (!isOpen) return;

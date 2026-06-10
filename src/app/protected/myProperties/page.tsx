@@ -1,12 +1,10 @@
-import Footer from '@/layout/Footer/Footer';
-import Header from '@/layout/Header/Header';
 import MyProperties from './myProperties/MyProperties';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
-  title: "Metroprop",
-  description: "Mis publicaciones | MetroProp",
+  title: "Metroprop - Mis publicaciones",
+  description: "Metroprop - Tu plataforma inmobiliaria de confianza. Encuentra, publica y gestiona propiedades con facilidad. ¡Únete a la comunidad Metroprop hoy mismo!",
 };
 
 export default function Page() {

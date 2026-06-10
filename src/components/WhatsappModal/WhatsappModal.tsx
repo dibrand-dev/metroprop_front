@@ -8,6 +8,7 @@ import Checkbox from '@/ui/Checkbox/Checkbox';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 import { LeadContactType } from '@/types/propiedad';
+import { useSession } from 'next-auth/react';
 
 interface WhatsappModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ const closeIcon = '/icons/close.svg';
 const flagIcon = '/icons/flag.svg';
 
 export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId, userId, organizationId }: WhatsappModalProps) {
+  const { data: sessionData } = useSession();
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({
     name: false,
@@ -40,6 +42,17 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
     termsAccepted: false,
     privacyAccepted: false,
   });
+
+  useEffect(() => {
+    const u = sessionData?.user as any;
+    if (!u) return;
+    setFormState((prev) => ({
+      ...prev,
+      name: u.name ?? prev.name,
+      email: u.email ?? prev.email,
+      phone: u.phone ?? prev.phone,
+    }));
+  }, [sessionData]);
 
   useEffect(() => {
     if (!isOpen) return;

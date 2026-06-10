@@ -2,9 +2,11 @@
     max-width: 1240px;
     width: 100%;
     margin: 32px auto;
-    @media (max-width: 894px) {
+   
+    @media (max-width: 1240px) {
         padding: 16px;
     }
+
     h1 {
         font-weight: 700;
         font-size: 36px;        

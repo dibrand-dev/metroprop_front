@@ -508,7 +508,11 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             </div>
           </div>
         )}
-        {!isLoading && (<>
+        {!isLoading && !property ? (
+          <div className="property-detail-not-found">
+            <h1>Propiedad no encontrada</h1>
+          </div>
+        ) : (<>
         <section className="property-detail-hero" id="property-detail-fotos">
            {property?.is_development
            ? <div className="property-detail-hero-row">

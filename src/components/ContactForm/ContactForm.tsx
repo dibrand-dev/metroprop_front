@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import "./ContactForm.scss";
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
@@ -9,6 +9,7 @@ import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 import { LeadContactType } from '@/types/propiedad';
+import { useSession } from 'next-auth/react';
 
 const QUESTION_CHIPS = [
   'Se puede visitar hoy',
@@ -41,6 +42,7 @@ function isValidEmail(email: string) {
 const EMPTY_FORM = { name: '', country: '', email: '', phone: '', message: '' };
 
 export default function ContactForm({ isModal = false, propertyId, userId, organizationId, onClose, phoneNumber, favorite = false }: ContactFormProps) {
+  const { data: sessionData } = useSession();
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [formState, setFormState] = useState(EMPTY_FORM);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -50,6 +52,18 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  useEffect(() => {
+    const u = sessionData?.user as any;
+    if (!u) return;
+    setFormState((prev) => ({
+      ...prev,
+      name: u.name ?? prev.name,
+      email: u.email ?? prev.email,
+      phone: u.phone ?? prev.phone,
+    }));
+  }, [sessionData]);
+
   const primaryContactAction = CONTACT_ACTIONS.find((action) => action.id === 'contact');
   const contactActions = isModal && primaryContactAction ? [primaryContactAction] : CONTACT_ACTIONS;
 
