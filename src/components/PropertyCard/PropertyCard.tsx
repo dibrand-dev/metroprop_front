@@ -414,7 +414,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 )}
                 {showFavoriteBtn && (
                   <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
-                    <HeartIcon isFavorite={true} />
+                    <HeartIcon isFavorite={isFavorite} />
                   </button>
                 )}
               </div>

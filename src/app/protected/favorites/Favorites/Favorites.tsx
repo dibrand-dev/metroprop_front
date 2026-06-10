@@ -23,6 +23,9 @@ export default function Favorites() {
   const toggleFavorite = useToggleFavorite();
   const handleToggleFavorite = async (id: number) => {
     await toggleFavorite(id);
+    queryClient.invalidateQueries({ queryKey: ['leads-my-contacts'] });
+    queryClient.invalidateQueries({ queryKey: ['similar-by-surface'] });
+    queryClient.invalidateQueries({ queryKey: ['similar-by-price'] });
     queryClient.invalidateQueries({ queryKey: ['my-favourites'] });
   };
   const favourites = data ?? [];

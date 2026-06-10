@@ -7,13 +7,14 @@ import { API_BASE_URL } from '@/utils/utils';
 import { CreateProperty } from '@/types/propiedad';
 import './Contacts.scss';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
-import { useToggleFavorite } from '@/lib/useFavoriteIds';
+import { useFavoriteIds, useToggleFavorite } from '@/lib/useFavoriteIds';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 
 type Tab = 'contactos' | 'contactados';
 
 export default function Contacts() {
   const queryClient = useQueryClient();
+  const favoriteIds = useFavoriteIds();  
   const [isWhatsappModalOpen, setIsWhatsappModalOpen] = useState(false);
   const [whatsappModalInfo, setWhatsappModalInfo] = useState({ phoneNumber: '', propertyId: 0 });
 
@@ -25,8 +26,10 @@ export default function Contacts() {
   const toggleFavorite = useToggleFavorite();
   const handleToggleFavorite = async (id: number) => {
     await toggleFavorite(id);
-    queryClient.invalidateQueries({ queryKey: ['leads'] });
     queryClient.invalidateQueries({ queryKey: ['leads-my-contacts'] });
+    queryClient.invalidateQueries({ queryKey: ['similar-by-surface'] });
+    queryClient.invalidateQueries({ queryKey: ['similar-by-price'] });
+    queryClient.invalidateQueries({ queryKey: ['my-favourites'] });
   };
 
   const leads = contactadosData ?? [];
@@ -39,7 +42,7 @@ export default function Contacts() {
         {leads.map(property => (
           <PropertyCard
             key={property.id}
-            property={property}
+            property={{ ...property, isFavorite: favoriteIds.has(property.id ?? 0) } as any}
             cardType="contacts"
             isLoggedIn={true}
             onFavorite={() => handleToggleFavorite(property.id ?? 0)}

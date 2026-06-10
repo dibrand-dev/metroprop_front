@@ -9,7 +9,7 @@ import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import PropertyDetailSubmenu from './PropertyDetailSubmenu/PropertyDetailSubmenu';
 import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype } from '@/types/propiedad';
 import { API_BASE_URL, saveVisitedProperty, setImagePath } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
@@ -25,6 +25,7 @@ import { apiFetch } from '@/lib/apiFetch';
 import { useFavoriteIds, useToggleFavorite } from '@/lib/useFavoriteIds';
 import ShareModal from '@/components/ShareModal/ShareModal';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 interface PropertyDetailProps {
   propertyId: string;
@@ -41,6 +42,9 @@ const CONTACT_ACTIONS = [
 ];
 
 export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
+  const { data: sessionData } = useSession();
+  const isLoggedIn = !!sessionData?.user;
+  const queryClient = useQueryClient();
   const router = useRouter();
   const { data: locations = [] } = useLocations();
   const [activeTab, setActiveTab] = useState<string>('');
@@ -180,7 +184,15 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   const dynamicAmenities = getAmenitiesByTab();
   const favoriteIds = useFavoriteIds();
+
   const toggleFavorite = useToggleFavorite();
+  const handleToggleFavorite = async (id: number) => {
+    await toggleFavorite(id);
+    queryClient.invalidateQueries({ queryKey: ['leads-my-contacts'] });
+    queryClient.invalidateQueries({ queryKey: ['similar-by-surface'] });
+    queryClient.invalidateQueries({ queryKey: ['similar-by-price'] });
+    queryClient.invalidateQueries({ queryKey: ['my-favourites'] });
+  };
 
   // Gallery images (non-blueprint, completed uploads)
   const galleryImages = useMemo(() => {
@@ -973,8 +985,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               >
                 {(similarPropertiesData[index] ?? []).map((item) => <PropertyCard
                   key={item.id}
-                  property={{ ...item, isFavorite: false } as any}
+                  property={{ ...item, isFavorite: favoriteIds.has(item.id ?? 0) } as any}
                   cardType="home"
+                  isLoggedIn={isLoggedIn}
+                  onFavorite={() => handleToggleFavorite(property.id ?? 0)}
                 />)}
               </div>
               {similarCanScrollRight[index] && (
