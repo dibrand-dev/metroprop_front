@@ -132,7 +132,7 @@ export default function PublishPlansEmprendimiento({
       user_id,
       visibility,
       purchased_plan_id,
-      hired_plan_id,      
+      hired_plan_id,
       branch_id: Number.parseInt(branchFilter)
     });
   };
@@ -211,9 +211,9 @@ export default function PublishPlansEmprendimiento({
             )}
             {activePlans.map((plan) => (
               <button
-                key={plan.id}
+                key={plan.purchased_plan_id}
                 type="button"
-                className={`publish-plans-radio ${hired_plan_id === plan.id ? 'is-selected is-highlighted' : ''}`}
+                className={`publish-plans-radio ${purchased_plan_id === plan.purchased_plan_id ? 'is-selected is-highlighted' : ''}`}
                 onClick={() => {
                   setHired_plan_id(plan.plan_id);
                   setPurchased_plan_id(plan.purchased_plan_id);
@@ -271,6 +271,7 @@ export default function PublishPlansEmprendimiento({
             buttonType="2"
             onClick={() => onSaveAndExit(wizardData)}
             fullWidth={false}
+            disabled={(wizardData.development_delivery_date?.trim() === '') || wizardData.development_type === null || wizardData.publication_title?.trim() === ''}
           />
           <Button
             label="Continuar"

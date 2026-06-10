@@ -92,7 +92,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
       setShowSuccessModal(true);
       setTimeout(() => {
         setShowSuccessModal(false);
-        router.push('/protected/plans'); 
+        router.push('/protected/admin/plans'); 
       }, 3000);
     },
   });

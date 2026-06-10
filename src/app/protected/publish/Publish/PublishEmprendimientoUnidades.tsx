@@ -19,7 +19,6 @@ interface PublishEmprendimientoProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: () => void;
-  onBack: () => void;
   goToStep: (step: EmprendimientoStep) => void;
 }
 
@@ -30,7 +29,6 @@ export default function PublishEmprendimientoUnidades({
   wizardData,
   updateWizardData,
   onNext,
-  onBack,
   goToStep,
 }: PublishEmprendimientoProps) {
   // Images component ref

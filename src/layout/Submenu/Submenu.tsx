@@ -58,7 +58,7 @@ export default function Submenu({ active, onHide }: SubmenuProps) {
 
   const activeItemId = useMemo(() => {
     if (!pathname) return '';
-    if (pathname.startsWith('/protected/branchForm')) return 'ubicacion';
+    if (pathname.startsWith('/protected/admin/branchForm')) return 'ubicacion';
     const matched = visibleItems.find((item) => item.href === pathname);
     return matched?.id ?? '';
   }, [pathname, visibleItems]);

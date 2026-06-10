@@ -61,7 +61,7 @@ export default function Branches() {
   };
 
   const handleEdit = (id: string) => {
-    router.push(`/protected/branchForm/${id}`);
+    router.push(`/protected/admin/branchForm/${id}`);
   };
 
   return (
@@ -83,7 +83,7 @@ export default function Branches() {
               <h1>Sucursales</h1>
               <p>{branchDescription}</p>
             </div>
-            <Button onClick={() => router.push('/protected/branchForm')} label="Agregar sucursal" />
+            <Button onClick={() => router.push('/protected/admin/branchForm')} label="Agregar sucursal" />
           </div>
 
           <div className="branches-list">
@@ -122,7 +122,7 @@ export default function Branches() {
         </div>
 
         <div className="branches-mobile-footer">
-          <button className="branches-add-button" type="button" onClick={() => router.push('/protected/branchForm')}>
+          <button className="branches-add-button" type="button" onClick={() => router.push('/protected/admin/branchForm')}>
             Agregar sucursal
           </button>
         </div>

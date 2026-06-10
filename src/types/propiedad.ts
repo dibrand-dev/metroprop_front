@@ -891,6 +891,7 @@ export const CREATE_PROPERTY_PATCH_KEYS: (keyof CreateProperty)[] = [
   'development_units',
   'development_unit_type',
   'hired_plan_id',
+  'purchased_plan_id',
   'visibility',
 ];
 

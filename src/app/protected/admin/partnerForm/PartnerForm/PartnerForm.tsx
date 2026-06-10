@@ -72,7 +72,7 @@ export default function PartnerForm({ partnerId }: PartnerFormProps) {
       setShowSuccessModal(true);
       setTimeout(() => {
         setShowSuccessModal(false);
-        router.push('/protected/partners'); 
+        router.push('/protected/admin/partners'); 
       }, 3000);
     },
   });

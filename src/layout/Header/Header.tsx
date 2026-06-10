@@ -150,14 +150,14 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
 
   return (
     <header className="header-container">
-      {!isRole4 && (<div className="topnavbar-menu-items">        
-        <button className="topnavbar-dropdown">
+      <div className="topnavbar-menu-items">        
+        {!isRole4 && (<><button className="topnavbar-dropdown">
           <Link prefetch={false}  href="/protected/myProperties">Mis publicaciones</Link>
         </button>
           <button className="topnavbar-dropdown">
           <Link prefetch={false}  href="/protected/leads">Interesados</Link>
-        </button>
-      </div>)}
+        </button></>)}
+      </div>
       {(openDropdown !== null || mobileMenuOpen) && (
         <button
           type="button"

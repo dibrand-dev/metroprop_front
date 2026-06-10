@@ -327,6 +327,7 @@ console.log("_wizardData", _wizardData)
   }
 
   const saveCurrentStepEmprendimiento = async (wizardDataUpdate: Partial<CreatePropertyDraft>, nextStep: boolean) => {
+    console.log("wizardDataUpdatewizardDataUpdate", wizardDataUpdate)
     const _wizardDataUpdate = toDevelopmentPatch(wizardDataUpdate);
     delete _wizardDataUpdate.draft_id;
     _wizardDataUpdate.operation_type = OperationType.VENTA;
@@ -540,8 +541,7 @@ console.log("_wizardData", _wizardData)
           <PublishEmprendimientoUnidades
             wizardData={wizardData}
             updateWizardData={updateWizardData}
-            onNext={() => goToNextStep()}
-            onSaveAndExit={(plansUpdate) => saveCurrentStepEmprendimiento(plansUpdate, false)}
+            onNext={() => goToNextStep()}            
             goToStep={(step: EmprendimientoStep) => setCurrentStep(step as WizardStep)}
           />
         );

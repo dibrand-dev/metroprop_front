@@ -102,7 +102,7 @@ export default function Plans() {
               <h1>Planes</h1>
               <p>Aca podes crear, eliminar, deshabilitar y actualizar los planes</p>
             </div>
-            <button className="partners-add-button" type="button" onClick={() => router.push('/protected/planForm')}>
+            <button className="partners-add-button" type="button" onClick={() => router.push('/protected/admin/planForm')}>
               Agregar plan
             </button>
           </div>
@@ -126,7 +126,7 @@ export default function Plans() {
                       type="button"
                       title="Editar plan"
                       aria-label="Editar plan"
-                      onClick={() => router.push(`/protected/planForm/${plan.id}`)}
+                      onClick={() => router.push(`/protected/admin/planForm/${plan.id}`)}
                     >
                       <img src={iconPencil} alt="Editar plan" />
                     </button>
@@ -156,7 +156,7 @@ export default function Plans() {
         </div>
 
         <div className="partners-mobile-footer">
-          <button className="partners-add-button" type="button" onClick={() => router.push('/protected/planForm')}>
+          <button className="partners-add-button" type="button" onClick={() => router.push('/protected/admin/planForm')}>
             Agregar plan
           </button>
         </div>

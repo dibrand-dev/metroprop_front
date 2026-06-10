@@ -223,9 +223,9 @@ export default function PublishPlans({
                 )}
                 {activePlans.map((plan) => (
                   <button
-                    key={plan.plan_id}
+                    key={plan.purchased_plan_id}
                     type="button"
-                    className={`publish-plans-radio ${hired_plan_id === plan.plan_id ? 'is-selected is-highlighted' : ''}`}
+                    className={`publish-plans-radio ${purchased_plan_id === plan.purchased_plan_id ? 'is-selected is-highlighted' : ''}`}
                     onClick={() => {
                       setHired_plan_id(plan.plan_id);
                       setVisibility(plan.plan_visibility);

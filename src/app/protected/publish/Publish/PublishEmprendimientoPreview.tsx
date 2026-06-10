@@ -46,7 +46,8 @@ export default function PublishEmprendimientoFinalReview({
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryInitialTab, setGalleryInitialTab] = useState<GalleryTab>('fotos');
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
-  
+  const [disablePublish, setDisablePublish] = useState(false);
+
   const unidadesPorTipo = (wizardData.development_units ?? []).reduce<Record<string, CreateProperty[]>>((acc, unit) => {
     const rooms = unit.room_amount ?? 0;
     const key = rooms === 0 ? 'Monoambiente' : rooms === 1 ? '1 ambiente' : `${rooms} ambientes`;
@@ -260,6 +261,7 @@ export default function PublishEmprendimientoFinalReview({
   const dynamicAmenities = getAmenitiesByTab();
   
   const handlePublish = () => {
+    setDisablePublish(true);
     const propertyPublishUpdate = { 
       status: PropertyStatus.DISPONIBLE
     }
@@ -336,7 +338,7 @@ export default function PublishEmprendimientoFinalReview({
                       <div key={image} className="property-detail-gallery-item" onClick={() => openGallery('fotos', index + 1)} style={{ cursor: 'pointer' }}>
                         <img src={image} alt={`Vista ${index + 2}`} className="property-detail-gallery-image" />
                         {index === 3 && (
-                          <div className="property-detail-gallery-overlay">
+                          <div className="property-detail-gallery-overlay-preview">
                             <span onClick={(e) => e.stopPropagation()}>
                               <Button label="Ver todas las fotos" variant="secondary" icon={<img src="/icons/verGaleria.svg" alt="" />} onClick={() => openGallery('fotos', 0)} />
                             </span>
@@ -559,7 +561,7 @@ export default function PublishEmprendimientoFinalReview({
           </div>
 
           <div className="publish-review-footer">
-            <Button variant="primary" label={isEditMode ? 'Guardar cambios' : 'Publicar'} onClick={handlePublish} disabled={(wizardData.development_delivery_date?.trim() === '') || wizardData.development_units_total === null || wizardData.development_type === null || wizardData.publication_title?.trim() === '' || wizardData.development_units?.length === 0 || wizardData.hired_plan_id === null} />
+            <Button variant="primary" label={isEditMode ? 'Guardar cambios' : 'Publicar'} onClick={handlePublish} disabled={disablePublish || (wizardData.development_delivery_date?.trim() === '') || wizardData.development_units_total === null || wizardData.development_type === null || wizardData.publication_title?.trim() === '' || wizardData.development_units?.length === 0 || wizardData.hired_plan_id === null} />
           </div>
         </div>
       </div>

@@ -131,7 +131,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
       setShowSuccessModal(true);
       setTimeout(() => {
         setShowSuccessModal(false);
-        router.push('/protected/collaborators');
+        router.push('/protected/admin/collaborators');
       }, 3000);
     },
     onError: (err: any) => {
@@ -170,7 +170,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
                   variant="secondary"
                   buttonType="2"
                   size="medium"
-                  onClick={() => router.push('/protected/collaborators')}
+                  onClick={() => router.push('/protected/admin/collaborators')}
                 />  
                 <Button
                   label={saveMutation.isPending ? 'Guardando...' : 'Guardar'}
@@ -290,7 +290,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
             buttonType="2"
             fullWidth={true}
             size="medium"
-            onClick={() => router.push('/protected/collaborators')}
+            onClick={() => router.push('/protected/admin/collaborators')}
           />
           <Button
             label={saveMutation.isPending ? 'Guardando...' : 'Guardar colaborador'}

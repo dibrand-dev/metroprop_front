@@ -129,9 +129,9 @@ export default function Collaborators() {
   const handleEdit = (id: string) => {
     const loggedInUserId = String((sessionData?.user as any)?.id ?? '');
     if (loggedInUserId && id === loggedInUserId) {
-      router.push('/protected/profile');
+      router.push('/protected/admin/profile');
     } else {
-      router.push(`/protected/collaboratorForm/${id}`);
+      router.push(`/protected/admin/collaboratorForm/${id}`);
     }
   };
 
@@ -155,7 +155,7 @@ export default function Collaborators() {
               <h1>Colaboradores</h1>
               <p>{collaboratorsDescription}</p>
             </div>
-            <button className="collaborators-add-button" type="button" onClick={() => router.push('/protected/collaboratorForm')} >
+            <button className="collaborators-add-button" type="button" onClick={() => router.push('/protected/admin/collaboratorForm')} >
               Agregar colaborador
             </button>
           </div>
@@ -207,7 +207,7 @@ export default function Collaborators() {
         </div>
 
         <div className="collaborators-mobile-footer">
-          <button className="collaborators-add-button" type="button">
+          <button className="collaborators-add-button" type="button" onClick={() => router.push('/protected/admin/collaboratorForm')}>
             Agregar colaborador
           </button>
         </div>

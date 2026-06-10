@@ -152,7 +152,7 @@ export default function PublishEmprendimientoAmenidades({
             variant="secondary"
             buttonType="2"
             onClick={() => onSaveAndExit(wizardData)}
-            fullWidth={false}
+            fullWidth={false}            
           />
           <Button
             label="Continuar"

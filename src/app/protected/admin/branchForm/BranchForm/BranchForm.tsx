@@ -157,7 +157,7 @@ export default function BranchForm({ branchId }: BranchFormProps) {
       setShowSuccessModal(true);
       setTimeout(() => {
         setShowSuccessModal(false);
-        router.push('/protected/branches');
+        router.push('/protected/admin/branches');
       }, 3000);
     },
     onError: (err: any) => {
