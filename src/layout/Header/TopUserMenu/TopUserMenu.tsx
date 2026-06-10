@@ -251,6 +251,7 @@ export default function TopUserMenu() {
                     key={item.id}
                     href={item.href}
                     className="header-dropdown-item"
+                    onNavigate={() => setShowUserDropdown(false)}
                   >
                     {item.icon && <div className="header-dropdown-item-icon">
                       <img src={item.icon} alt={item.label} />

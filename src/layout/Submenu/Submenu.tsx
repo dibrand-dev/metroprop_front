@@ -74,7 +74,7 @@ export default function Submenu({ active, onHide }: SubmenuProps) {
             key={item.id}
             href={item.href}
             className={`submenu-item ${isActive ? 'submenu-item-active' : 'submenu-item-inactive'}`}
-            onClick={() => onHide?.()}
+            onNavigate={() => onHide?.()}
           >
             <div className="submenu-item-label">
               <span>{item.label}</span>

@@ -673,9 +673,9 @@ console.log("hiredPlanNameMap", hiredPlanNameMap)
                       <span>{statusInfo}</span>
                     </div>
                   </div>
-                    <div className={`myprop-card-content-center${prop.id && expandedCardIds.has(prop.id) ? ' is-expanded' : ''}`}>
-                        <PropertyCardMyProperties property={prop} />
-
+                  <div className={`myprop-card-content-center${prop.id && expandedCardIds.has(prop.id) ? ' is-expanded' : ''}`}>
+                      <PropertyCardMyProperties property={prop} />
+                      <div className="myprop-card-content-statistics">
                         <div className="myprop-quality myprop-card-collapsible">
                           <span className="myprop-quality-label">Calidad del aviso</span>
                           <DonutChart percent={completeness} />
@@ -694,35 +694,36 @@ console.log("hiredPlanNameMap", hiredPlanNameMap)
                             <span className="myprop-views-count">{prop.leads_count ?? 0}</span>
                           </div>
                         </div>
-                    </div>
-                    <div className="myprop-card-actions">
-                        {!isRole3 && (
-                        <button type="button" className="myprop-card-action-btn" title="Republicar" onClick={() => prop.id && openRepublishModal([prop.id], String((prop as any)?.branch_id ?? (prop as any)?.branch?.id ?? ''))}>​
-                          <img src="/icons/republicar.svg" alt="Republicar" />
-                        </button>
-                        )}                        
-                        <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.open(`/protected/publish/${prop.development_id ? prop.development_id : prop.id}`, '_blank')}>
-                          <img src="/icons/pencil.svg" alt="Editar" />
-                        </button>
-                        <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => window.open(`/propertyDetail/${prop.id}`, '_blank')}>
-                          <img src="/icons/verDetalle.svg" alt="Ver detalle" />
-                        </button>
-                        <button type="button" className="myprop-card-action-btn" title="Cambiar estado" onClick={() => {
-                          if (prop.id) { setPendingStatusValue(null); setPendingAction({ ids: [prop.id], label: 'Cambiar Estado', action: 'change-status' }); }
-                        }}>
-                          <img src="/icons/cambiarStatus.svg" alt="Cambiar estado" />
-                        </button>
-                        <button
-                          type="button"
-                          className="myprop-card-action-btn myprop-card-ver-mas"
-                          onClick={() => prop.id && toggleCardExpanded(prop.id)}
-                        >
-                          {prop.id && expandedCardIds.has(prop.id) ? 'Ver menos' : 'Ver más'}
-                          <div className={`myprop-card-action-trigger-ver-mas ${prop.id && expandedCardIds.has(prop.id) ? 'expanded' : ''}`}>             
-                            <img src="/icons/chevron-up.svg" alt="" aria-hidden="true" />
-                          </div>
-                        </button>
-                    </div>
+                      </div>
+                  </div>
+                  <div className="myprop-card-actions">
+                      {!isRole3 && (
+                      <button type="button" className="myprop-card-action-btn" title="Republicar" onClick={() => prop.id && openRepublishModal([prop.id], String((prop as any)?.branch_id ?? (prop as any)?.branch?.id ?? ''))}>​
+                        <img src="/icons/republicar.svg" alt="Republicar" />
+                      </button>
+                      )}                        
+                      <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.open(`/protected/publish/${prop.development_id ? prop.development_id : prop.id}`, '_blank')}>
+                        <img src="/icons/pencil.svg" alt="Editar" />
+                      </button>
+                      <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => window.open(`/propertyDetail/${prop.id}`, '_blank')}>
+                        <img src="/icons/verDetalle.svg" alt="Ver detalle" />
+                      </button>
+                      <button type="button" className="myprop-card-action-btn" title="Cambiar estado" onClick={() => {
+                        if (prop.id) { setPendingStatusValue(null); setPendingAction({ ids: [prop.id], label: 'Cambiar Estado', action: 'change-status' }); }
+                      }}>
+                        <img src="/icons/cambiarStatus.svg" alt="Cambiar estado" />
+                      </button>
+                      <button
+                        type="button"
+                        className="myprop-card-action-btn myprop-card-ver-mas"
+                        onClick={() => prop.id && toggleCardExpanded(prop.id)}
+                      >
+                        {prop.id && expandedCardIds.has(prop.id) ? 'Ver menos' : 'Ver más'}
+                        <div className={`myprop-card-action-trigger-ver-mas ${prop.id && expandedCardIds.has(prop.id) ? 'expanded' : ''}`}>             
+                          <img src="/icons/chevron-up.svg" alt="" aria-hidden="true" />
+                        </div>
+                      </button>
+                  </div>
                 </div>
             </div>);
           })}

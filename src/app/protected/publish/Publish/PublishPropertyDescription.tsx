@@ -33,7 +33,7 @@ export default function PublishPropertyDescription({
 }: PublishPropertyDescriptionProps) {
   const [title, setTitle] = useState(wizardData.publication_title || '');
   const [description, setDescription] = useState(wizardData.description || '');
-  const [showTooltip, setShowTooltip] = useState(true);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const titleCount = useMemo(() => title.length, [title]);
   const descriptionCount = useMemo(() => description.length, [description]);

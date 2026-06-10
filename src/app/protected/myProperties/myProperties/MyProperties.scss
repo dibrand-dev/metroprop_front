@@ -492,6 +492,11 @@
   }
 
   .myprop-card-content-top {
+    @media (max-width: 500px) {
+      flex-direction: column;
+      gap: 8px;
+    }
+
     .myprop-card-infobar {
       display: flex;
       align-items: center;
@@ -518,6 +523,15 @@
     @media (max-width: 873px) {
       flex-direction: column;
       gap: 0;
+    }
+  }
+
+  .myprop-card-content-statistics {
+    display: flex;
+    gap: 24px;
+     @media (max-width: 873px) {
+      flex-direction: column;
+      gap: 8px;
     }
   }
 }
