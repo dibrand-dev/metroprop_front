@@ -277,9 +277,10 @@ const MyProperties = () => {
 
   const hiredPlanNameMap = useMemo<Record<number, string>>(() => {
     const map: Record<number, string> = {};
+    console.log("branchOverviewPlans", branchOverviewPlans)
     branchOverviewPlans.forEach((entry: any) => {
       (Array.isArray(entry.plans) ? entry.plans : []).forEach((p: any) => {
-        if (p?.id != null) map[Number(p.id)] = p?.plan?.plan_name ?? p?.plan_name ?? String(p.id);
+        if (p?.purchased_plan_id != null) map[Number(p.purchased_plan_id)] = p?.plan_name ?? '';
       });
     });
     return map;
