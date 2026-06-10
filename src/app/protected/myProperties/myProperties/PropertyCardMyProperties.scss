@@ -1,8 +1,7 @@
 @use '@/styles/variables' as *;
 
 .property-card-myProperties-list {
-  width: 100%;
-  filter: $shadow-md;
+  flex-grow: 1;
 
   .card-content {
     border: 1.3px solid #A6A6A6;
@@ -23,6 +22,10 @@
     object-fit: cover;
     flex-shrink: 0;
     aspect-ratio: 3/2;
+
+    @media (max-width: 400px) {
+      display: none;
+    }
   }
 
   .property-info {
@@ -47,9 +50,12 @@
       line-height: 20px;
       letter-spacing: 0.75%;
       color: #1E1E1E;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+      
     }
 
     .property-street {

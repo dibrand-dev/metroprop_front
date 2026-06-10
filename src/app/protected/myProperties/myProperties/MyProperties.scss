@@ -340,9 +340,10 @@
   flex-direction: column;
   padding: 24px;
   gap: 16px;
-
-  @media (max-width: 768px) {
+  max-width: calc(100% - 361px);
+  @media (max-width: 1082px) {
     padding: 16px;
+    max-width: 100%;
     &.is-filters-open {
       overflow: hidden;
     }
@@ -463,6 +464,7 @@
   padding-right: 24px;
   padding-bottom: 16px;
   padding-left: 24px;
+  max-width: 100%;
 
   @media (max-width: 873px) {
     padding: 8px;
@@ -479,7 +481,7 @@
 .myprop-card-content {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: calc(100% - 32px);
   gap: 8px;
 
   .myprop-card-content-top,
@@ -512,6 +514,7 @@
 
   .myprop-card-content-center {
     gap: 24px;
+    max-width: 100%;
     @media (max-width: 873px) {
       flex-direction: column;
       gap: 0;
@@ -530,10 +533,12 @@
   .myprop-card-collapsible {
     display: none !important;
   }
+  .myprop-card-content-center.is-expanded {
+    gap: 16px;
+  }
 
   .myprop-card-content-center.is-expanded .myprop-card-collapsible {
     display: flex !important;
-    gap: 16px;
   }
 }
 
