@@ -112,7 +112,7 @@ export default function Users() {
 
         <div className="collaborators-content">
           <div className="collaborators-header">
-            <div>
+            <div className="collaborators-header-container">
               <h1>Usuarios</h1>
               <p>{usersDescription}</p>
             </div>

@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import './PublishEmprendimientoPreview.scss';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreateProperty, CreatePropertyDraft, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
 import { useQuery } from '@tanstack/react-query';
-import { API_BASE_URL, setImagePath } from '@/utils/utils';
+import { API_BASE_URL, setImagePath, formatNumbers, formatCurrency } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
 import { ORGANIZATION_NO_IMAGE } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
@@ -61,7 +61,7 @@ export default function PublishEmprendimientoFinalReview({
     const prices = units.map(u => u.price ?? 0).filter(p => p > 0);
     if (prices.length === 0) return '-';
     const currency = units[0]?.currency ?? '';
-    return `${currency} ${Math.min(...prices).toLocaleString('es-AR')}`;
+    return `${formatCurrency(currency)} ${Math.min(...prices).toLocaleString('es-AR')}`;
   };
 
    const devMinPrice = (() => {
@@ -69,7 +69,7 @@ export default function PublishEmprendimientoFinalReview({
       if (prices.length === 0) return null;
       const min = Math.min(...prices);
       const currency = (wizardData.development_units ?? [])[0]?.currency ?? '';
-      return `Venta desde ${currency} ${formatNumbers(min)}`;
+      return `Venta desde ${formatCurrency(currency)} ${formatNumbers(min)}`;
     })();
 
   const getSupDesde = (units: CreateProperty[]) => {
@@ -121,7 +121,7 @@ export default function PublishEmprendimientoFinalReview({
   // Format price display
   const formatPrice = (amount: string, currency: string) => {
     if (!amount) return '';
-    return `${currency} ${amount}`;
+    return `${formatCurrency(currency)} ${amount}`;
   };
 
   // Gallery images (non-blueprint, completed uploads)
@@ -245,7 +245,7 @@ export default function PublishEmprendimientoFinalReview({
     });
 
     result[4] = [];
-    if (wizardData?.expenses)  result[4].push(`Expensas: ${formatNumbers(wizardData.expenses)} ${wizardData.currency_expenses ?? ''}`);
+    if (wizardData?.expenses)  result[4].push(`Expensas: ${formatNumbers(wizardData.expenses)} ${formatCurrency(wizardData.currency_expenses ?? '')}`);
     if (wizardData?.floors_amount)  result[4].push(`Pisos: ${wizardData.floors_amount}`);
     if (wizardData?.garage_coverage)  result[4].push(`Cobertura cochera: ${wizardData.garage_coverage}`);
     if (wizardData?.postal_code)  result[4].push(`Código postal: ${wizardData.postal_code}`);
@@ -485,10 +485,10 @@ export default function PublishEmprendimientoFinalReview({
                       </div>
                       {unidades.map((unit, index) => {
                         const pricePerM2 = unit.price && Number(unit.total_surface) > 0
-                          ? `${unit.currency ?? ''} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
+                          ? `${formatCurrency(unit.currency ?? '')} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
                           : '-';
                         const priceTotal = unit.price
-                          ? `${unit.currency ?? ''} ${unit.price.toLocaleString('es-AR')}`
+                          ? `${formatCurrency(unit.currency ?? '')} ${unit.price.toLocaleString('es-AR')}`
                           : '-';
                         return (
                           <div key={unit.id ?? index} className="table-row">

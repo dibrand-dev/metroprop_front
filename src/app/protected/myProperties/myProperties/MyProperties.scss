@@ -153,6 +153,34 @@
   span:last-child {
     justify-self: start;
   }
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 8px;
+
+    &.myprop-overview-row-header {
+      display: none;
+    }
+
+    span {
+      font-size: 13px;
+
+      &:nth-child(1) {
+        grid-column: 1 / -1;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 1px solid #e0e8ff;
+        padding-bottom: 4px;
+        margin-bottom: 2px;
+      }
+
+      &:nth-child(2)::before { content: "Contratados: "; color: #666; font-weight: 500; }
+      &:nth-child(3)::before { content: "Usados: "; color: #666; font-weight: 500; }
+      &:nth-child(4)::before { content: "Disponibles: "; color: #666; font-weight: 500; }
+      &:nth-child(5)::before { content: "Desde: "; color: #666; font-weight: 500; }
+      &:nth-child(6)::before { content: "Hasta: "; color: #666; font-weight: 500; }
+    }
+  }
 }
 
 .myprop-overview-row-header {
@@ -435,6 +463,11 @@
   padding-right: 24px;
   padding-bottom: 16px;
   padding-left: 24px;
+
+  @media (max-width: 873px) {
+    padding: 8px;
+    gap: 0;
+  }
 }
 
 .myprop-card-check {
@@ -481,6 +514,7 @@
     gap: 24px;
     @media (max-width: 873px) {
       flex-direction: column;
+      gap: 0;
     }
   }
 }
@@ -499,6 +533,7 @@
 
   .myprop-card-content-center.is-expanded .myprop-card-collapsible {
     display: flex !important;
+    gap: 16px;
   }
 }
 

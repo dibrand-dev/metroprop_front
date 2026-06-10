@@ -65,7 +65,7 @@ export default function Submenu({ active, onHide }: SubmenuProps) {
 
   return (
     <div className={`submenu-container ${active ? 'submenu-active' : ''}`}>
-      <p className="submenu-header-mobile">Inmobiliaria</p>
+      <p className="submenu-header-mobile"></p>
       {visibleItems.map((item) => {
         const isActive = activeItemId === item.id;
 
@@ -74,7 +74,7 @@ export default function Submenu({ active, onHide }: SubmenuProps) {
             key={item.id}
             href={item.href}
             className={`submenu-item ${isActive ? 'submenu-item-active' : 'submenu-item-inactive'}`}
-            onClick={() => { if (isActive) onHide?.(); }}
+            onClick={() => onHide?.()}
           >
             <div className="submenu-item-label">
               <span>{item.label}</span>

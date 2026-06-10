@@ -8,6 +8,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import { apiFetch } from '@/lib/apiFetch';
+import Button from '@/ui/Button/Button';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconRefresh = '/icons/refresh.svg';
@@ -103,7 +104,7 @@ export default function Partners() {
 
         <div className="partners-content">
           <div className="partners-header">
-            <div>
+            <div className="partners-header-container">
               <h1>Partners</h1>
               <p>Aca podes crear, eliminar, deshabilitar y actualizar keys de los partners</p>
             </div>
@@ -174,9 +175,7 @@ export default function Partners() {
         </div>
 
         <div className="partners-mobile-footer">
-          <button className="partners-add-button" type="button" onClick={() => router.push('/protected/partnerForm')}>
-            Agregar partner
-          </button>
+          <Button type="button" variant="primary" onClick={() => router.push('/protected/partnerForm')} label="Agregar partner" fullWidth />
         </div>
       </div>
 

@@ -19,6 +19,13 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 export const formatNumbers = (price: number) => Math.ceil(price).toLocaleString('en-US');
 
+export const formatCurrency = (currency: string | null | undefined): string => {
+  if (!currency) return '';
+  if (currency === 'ARS') return '$';
+  if (currency === 'USD') return 'U$D';
+  return currency;
+};
+
 // ─── Visited Properties (localStorage) ──────────────────────────────────────
 
 export interface VisitedProperty {

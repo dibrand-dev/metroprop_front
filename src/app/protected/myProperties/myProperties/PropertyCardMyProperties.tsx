@@ -2,7 +2,7 @@
 import React from 'react';
 import './PropertyCardMyProperties.scss';
 import { CreateProperty, OPERATION_TYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
-import { formatNumbers, setImagePath } from '@/utils/utils';
+import { formatNumbers, setImagePath, formatCurrency } from '@/utils/utils';
 import { PROPERTY_NO_IMAGE } from '@/app/constants';
 
 interface PropertyCardMyPropertiesProps {
@@ -27,7 +27,7 @@ const PropertyCardMyProperties: React.FC<PropertyCardMyPropertiesProps> = ({ pro
           <div className='property-street'>{property.street}</div>
           <div className='property-type-price'>
             <span className='publication-type'>{OPERATION_TYPE_LABELS[property.operation_type]}</span>
-            <span>{property.currency} {formatNumbers(property.price)}</span>
+            <span>{formatCurrency(property.currency)} {formatNumbers(property.price)}</span>
             
           </div>
         </div>

@@ -109,7 +109,10 @@ const MyProperties = () => {
   const [republishBranchId, setRepublishBranchId] = useState<string>('Todas');
   const [branchOverviewOpen, setBranchOverviewOpen] = useState(false);
   const [republishUserId, setRepublishUserId] = useState<number | undefined>(undefined);
-  const [republishPlanId, setRepublishPlanId] = useState<number>(0);
+  const [republishHiredPlanId, setRepublishHiredPlanId] = useState<number | undefined>(undefined);
+  const [republishPurchasedPlanId, setRepublishPurchasedPlanId] = useState<number | undefined>(undefined);
+  const [republishVisibility, setRepublishVisibility] = useState<number | undefined>(undefined);
+
   const [republishError, setRepublishError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
@@ -156,7 +159,7 @@ const MyProperties = () => {
   });
 
   const republishMutation = useMutation({
-    mutationFn: (body: { ids: number[]; hired_plan_id: number; branch_id?: number; user_id?: number }) =>
+    mutationFn: (body: { ids: number[]; hired_plan_id: number; purchased_plan_id: number; visibility: number; branch_id?: number; user_id?: number }) =>
       apiFetch(`${API_BASE_URL}/properties/republish`, { method: 'PATCH', body }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-properties'] });
@@ -165,7 +168,9 @@ const MyProperties = () => {
       setSelectedBranchId('');
       setRepublishBranchId('Todas');
       setRepublishUserId(undefined);
-      setRepublishPlanId(0);
+      setRepublishHiredPlanId(undefined);
+      setRepublishPurchasedPlanId(undefined);
+      setRepublishVisibility(undefined);
       setRepublishError(null);
       setSelectedIds(new Set());
       setAllSelected(false);
@@ -201,7 +206,6 @@ const MyProperties = () => {
   });
 
   const hasBranches = (fetchedBranches?.length ?? 0) > 0;
-  const firstBranchId = fetchedBranches[0]?.id ?? null;
 
   const { data: branchPlans = [], isLoading: loadingBranchPlans } = useQuery<any[]>({
     queryKey: ['republish-branch-plans', republishBranchId],
@@ -303,7 +307,9 @@ console.log("hiredPlanNameMap", hiredPlanNameMap)
 
   useEffect(() => {
     if (!republishModalOpen) return;
-    setRepublishPlanId(0);
+    setRepublishHiredPlanId(undefined);
+    setRepublishPurchasedPlanId(undefined);
+    setRepublishVisibility(undefined);
     setRepublishUserId(undefined);
   }, [selectedBranchId, republishModalOpen]);
 
@@ -370,12 +376,14 @@ console.log("hiredPlanNameMap", hiredPlanNameMap)
     setRepublishIds(ids);
     setRepublishBranchId(branchId ?? selectedBranchId);
     setRepublishUserId(undefined);
-    setRepublishPlanId(0);
+    setRepublishHiredPlanId(undefined);
+    setRepublishPurchasedPlanId(undefined);
+    setRepublishVisibility(undefined);
     setRepublishError(null);
   };
 
   const handleRepublishAccept = () => {
-    if (republishPlanId === 0) {
+    if (republishPurchasedPlanId === undefined) {
       setRepublishError('Selecciona un plan para continuar.');
       return;
     }
@@ -385,9 +393,11 @@ console.log("hiredPlanNameMap", hiredPlanNameMap)
       return;
     }
 
-    const body: { ids: number[]; hired_plan_id: number; branch_id?: number; user_id?: number } = {
+    const body: { ids: number[]; hired_plan_id: number; purchased_plan_id: number; visibility: number; branch_id?: number; user_id?: number } = {
       ids: republishIds,
-      hired_plan_id: republishPlanId,
+      hired_plan_id: republishHiredPlanId!,
+      purchased_plan_id: republishPurchasedPlanId!,
+      visibility: republishVisibility!
     };
 
     if (hasOrganization && hasBranches && republishBranchId && republishBranchId !== 'Todas') {
@@ -796,9 +806,11 @@ console.log("hiredPlanNameMap", hiredPlanNameMap)
                 )}
                 <button
                   type="button"
-                  className={`myprop-republish-plan-btn ${republishPlanId === 0 ? 'is-selected' : ''}`}
+                  className={`myprop-republish-plan-btn ${republishPurchasedPlanId === 0 ? 'is-selected' : ''}`}
                   onClick={() => {
-                    setRepublishPlanId(0);
+                    setRepublishHiredPlanId(0);
+                    setRepublishPurchasedPlanId(0);
+                    setRepublishVisibility(0);
                     setRepublishError(null);
                   }}
                 >
@@ -813,10 +825,12 @@ console.log("hiredPlanNameMap", hiredPlanNameMap)
                   <button
                     key={plan.plan_id}
                     type="button"
-                    className={`myprop-republish-plan-btn ${republishPlanId === plan.plan_id ? 'is-selected' : ''}`}
-                    onClick={() => {
-                      setRepublishPlanId(plan.plan_id);
+                    className={`myprop-republish-plan-btn ${republishPurchasedPlanId === plan.purchased_plan_id ? 'is-selected is-highlighted' : ''}`}
+                    onClick={() => {                      
                       setRepublishError(null);
+                      setRepublishHiredPlanId(plan.plan_id);
+                      setRepublishPurchasedPlanId(plan.purchased_plan_id);
+                      setRepublishVisibility(plan.plan_visibility);
                     }}
                   >
                     <span>{plan.plan_name}</span>
@@ -835,7 +849,9 @@ console.log("hiredPlanNameMap", hiredPlanNameMap)
             setRepublishModalOpen(false);
             setRepublishIds([]);
             setRepublishUserId(undefined);
-            setRepublishPlanId(0);
+            setRepublishHiredPlanId(undefined);
+            setRepublishPurchasedPlanId(undefined);
+            setRepublishVisibility(undefined);
             setRepublishError(null);
           }}
         />

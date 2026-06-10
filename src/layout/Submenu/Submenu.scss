@@ -8,9 +8,6 @@ $color-bg-light: #ebf2fd;
 $color-bg-primary: #ffffff;
 $color-border: #006aff;
 
-// Typography
-$font-family-heading: var(--font-inter), sans-serif;
-
 // Main Container
 .submenu-container {
   display: none;
@@ -116,7 +113,6 @@ $font-family-heading: var(--font-inter), sans-serif;
   transition: all 0.3s ease;
 
   span {
-    font-family: $font-family-heading;
     font-size: 16px;
     font-weight: 600;
     line-height: 18px;

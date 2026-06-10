@@ -28,7 +28,6 @@ export default function SubmenuLeads({ active, onItemChange }: SubmenuProps) {
 
   return (
     <div className={`submenu-container ${active ? 'submenu-active' : ''}`}>
-      <p className="submenu-header-mobile">aa</p>
       {items.map((item) => {
         const isActive = activeItemId === item.id;
         return (

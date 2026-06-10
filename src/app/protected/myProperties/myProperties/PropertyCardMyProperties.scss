@@ -5,12 +5,16 @@
   filter: $shadow-md;
 
   .card-content {
-    border: 1.3px solid $border-color;
+    border: 1.3px solid #A6A6A6;
     border-radius: $border-radius-md;
     padding: 16px;
     display: flex;
     gap: $spacing-md;
     align-items: center;
+
+    @media (max-width: 768px) {
+      padding: 8px;
+    }
   }
 
   .property-image {
@@ -43,6 +47,9 @@
       line-height: 20px;
       letter-spacing: 0.75%;
       color: #1E1E1E;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .property-street {

@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import './Organizations.scss';
-import { useRouter } from 'next/navigation';
 import { useAdminMenu } from '../../AdminLayoutClient';
-import { useSession } from 'next-auth/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
@@ -14,7 +12,6 @@ import InputField2 from '@/ui/InputField2/InputField2';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconLock = '/icons/lock.svg';
-//const iconEdit = '/icons/pencil.svg';
 const iconTrash = '/icons/trash.svg';
 
 const organizationsDescription =
@@ -122,7 +119,7 @@ export default function Organizations() {
 
         <div className="collaborators-content">
           <div className="collaborators-header">
-            <div>
+            <div className="collaborators-header-container">
               <h1>Organizaciones</h1>
               <p>{organizationsDescription}</p>
             </div>

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreateProperty, CreateAttached, PROPERTY_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, OPERATION_TYPE_LABELS } from '@/types/propiedad';
-import { formatNumbers, HeartIcon, setImagePath } from '@/utils/utils';
+import { formatNumbers, HeartIcon, setImagePath, formatCurrency } from '@/utils/utils';
 import { PROPERTY_NO_IMAGE } from '@/app/constants';
 import GalleryModal, { GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
 import { API_BASE_URL } from '@/utils/utils';
@@ -107,8 +107,8 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
     const pricesSq2 = units.map(u => u.price_square_meter ?? 0).filter(p => p > 0);
     if (prices.length === 0) return '-';
     const currency = units[0]?.currency ?? '';
-    return <div className="development-prices"><div className="main-price">{`${currency} ${formatNumbers(Math.min(...prices))}`}</div>
-      <div className="price-per-sqm">{currency}/m2 {formatNumbers(Math.min(...pricesSq2))}</div>
+    return <div className="development-prices"><div className="main-price">{`${formatCurrency(currency)} ${formatNumbers(Math.min(...prices))}`}</div>
+      <div className="price-per-sqm">{formatCurrency(currency)}/m2 {formatNumbers(Math.min(...pricesSq2))}</div>
     </div>
   };
 
@@ -160,9 +160,9 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <h3 className="property-card-title">{`${PROPERTY_TYPE_LABELS[property.property_type]}${property.property_subtype ? ` - ${PROPERTY_SUBTYPE_LABELS[property.property_subtype]}` : ''} en ${OPERATION_TYPE_LABELS[property.operation_type]}`}</h3>
                 <div className="property-card-price-section">
                   <div>
-                    <p className="property-card-price">{property.currency} {formatNumbers(property.price)}</p>
+                    <p className="property-card-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</p>
                     {(property.expenses ?? 0) > 0 && (
-                      <p className="property-card-rent">Exp. {property.currency} {formatNumbers(property.expenses ?? 0)}</p>
+                      <p className="property-card-rent">Exp. {formatCurrency(property.currency)} {formatNumbers(property.expenses ?? 0)}</p>
                     )}
                   </div>
                   {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
@@ -170,7 +170,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <div className="property-card-location-section">
                   <p className="property-card-address">{property.street}</p>
                   {property.price_square_meter && (
-                    <p className="property-card-location">{property.currency}/m2 {formatNumbers(property.price_square_meter)} m²</p>
+                    <p className="property-card-location">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter)} m²</p>
                   )}
                 </div>
                 <div className="property-card-details">
@@ -235,9 +235,9 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
               {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
               <div className="property-details">
                 <div className="price-row">
-                  <div className="main-price">{property.currency ?? ''} {formatNumbers(property.price)}</div>
+                  <div className="main-price">{formatCurrency(property.currency ?? '')} {formatNumbers(property.price)}</div>
                   {(property.price_square_meter ?? 0) > 0 && (
-                    <div className="price-per-sqm">{property.currency ?? ''}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                    <div className="price-per-sqm">{formatCurrency(property.currency ?? '')}/m2 {formatNumbers(property.price_square_meter!)}</div>
                   )}
                 </div>
                 <div className="address">{property.street}</div>
@@ -283,9 +283,9 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <div className="price-section">                  
                   {property.is_development
                   ? getPrecioDesde(property.units)
-                  : <><div className="total-price">{`${property.currency} ${formatNumbers(property.price)}`}</div>
+                  : <><div className="total-price">{`${formatCurrency(property.currency)} ${formatNumbers(property.price)}`}</div>
                       {(property.price_square_meter ?? 0) > 0 && (
-                        <div className="price-per-meter">{property.currency}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                        <div className="price-per-meter">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter!)}</div>
                       )}
                     </>}
                 </div>
@@ -340,14 +340,14 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   {property.is_development && <span className="desde-text">Desde</span>}
                   {property.is_development
                   ? getPrecioDesde(property.units)
-                  : <><div className="total-price">{property.currency} {formatNumbers(property.price)}</div>
+                  : <><div className="total-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</div>
                     {property.price_square_meter! > 0 && (
-                      <div className="price-per-meter">{property.currency}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                      <div className="price-per-meter">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter!)}</div>
                     )}
                     </>}
                 </div>
                 {property.expenses! > 0 && (
-                  <div className="expenses">{property.currency} {formatNumbers(property.expenses!)} expensas</div>
+                  <div className="expenses">{formatCurrency(property.currency)} {formatNumbers(property.expenses!)} expensas</div>
                 )}
                 {showFavoriteBtn && (
                   <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
@@ -403,14 +403,14 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   {property.is_development && <span className="desde-text">Desde</span>}
                   {property.is_development
                   ? getPrecioDesde(property.units)
-                  : <><div className="total-price">{property.currency} {formatNumbers(property.price)}</div>
+                  : <><div className="total-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</div>
                     {property.price_square_meter! > 0 && (
-                      <div className="price-per-meter">{property.currency}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                      <div className="price-per-meter">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter!)}</div>
                     )}
                   </>}
                 </div>
                 {property.expenses! > 0 && (
-                  <div className="expenses">{property.currency} {formatNumbers(property.expenses!)} expensas</div>
+                  <div className="expenses">{formatCurrency(property.currency)} {formatNumbers(property.expenses!)} expensas</div>
                 )}
                 {showFavoriteBtn && (
                   <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">

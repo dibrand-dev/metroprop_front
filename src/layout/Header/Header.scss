@@ -729,7 +729,7 @@ $font-family-button: Montserrat, sans-serif;
   flex-shrink: 0;
   width: 33.3%; 
   @media (max-width: 768px) {
-    display: none;
+    display: none !important;
   }
 }
 

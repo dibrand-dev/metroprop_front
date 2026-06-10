@@ -5,13 +5,11 @@ import './Properties.scss';
 import { useAdminMenu } from '../../AdminLayoutClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL, setImagePath } from '@/utils/utils';
+import { API_BASE_URL, setImagePath, formatCurrency } from '@/utils/utils';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import Paginator from '@/components/Paginator/Paginator';
 import InputField2 from '@/ui/InputField2/InputField2';
 import type { CreateProperty } from '@/types/propiedad';
-import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
-import Select from '@/ui/Select/Select';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconTrash = '/icons/trash.svg';
@@ -44,7 +42,6 @@ export default function Properties() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchId, setSearchId] = useState<number | null>(null);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; propertyId: number | null; propertyTitle: string }>({ open: false, propertyId: null, propertyTitle: '' });
-  const [locationText, setLocationText] = useState('');
   
   const deleteMutation = useMutation({
     mutationFn: (propertyId: number) =>
@@ -150,7 +147,7 @@ export default function Properties() {
 
         <div className="collaborators-content">
           <div className="collaborators-header">
-            <div>
+            <div className="collaborators-header-container">
               <h1>Propiedades</h1>
               <p>{propertiesDescription}</p>
             </div>
@@ -223,7 +220,7 @@ export default function Properties() {
                       {property.title}
                     </p>
                     <p className="collaborators-card-subtitle">
-                      ID: {property.id} | {property.currency} {property.price.toLocaleString('es-AR')} | {property.location}
+                      ID: {property.id} | {formatCurrency(property.currency)} {property.price.toLocaleString('es-AR')} | {property.location}
                     </p>
                     <div className="property-owner-info">
                       {property.organization ? (

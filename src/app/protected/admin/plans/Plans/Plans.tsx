@@ -8,6 +8,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import { apiFetch } from '@/lib/apiFetch';
+import Button from '@/ui/Button/Button';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconRefresh = '/icons/refresh.svg';
@@ -98,7 +99,7 @@ export default function Plans() {
 
         <div className="partners-content">
           <div className="partners-header">
-            <div>
+            <div className="partners-header-container">
               <h1>Planes</h1>
               <p>Aca podes crear, eliminar, deshabilitar y actualizar los planes</p>
             </div>
@@ -156,9 +157,7 @@ export default function Plans() {
         </div>
 
         <div className="partners-mobile-footer">
-          <button className="partners-add-button" type="button" onClick={() => router.push('/protected/admin/planForm')}>
-            Agregar plan
-          </button>
+          <Button type="button" variant="primary" onClick={() => router.push('/protected/admin/planForm')} label="Agregar plan" fullWidth />
         </div>
       </div>
 

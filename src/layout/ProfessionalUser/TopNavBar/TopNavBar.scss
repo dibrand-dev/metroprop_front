@@ -10,7 +10,6 @@ $color-bg-primary: #ffffff;
 $color-border: #a6a6a6;
 
 // Typography
-$font-family-heading: var(--font-inter), sans-serif;
 $font-family-button: Montserrat, sans-serif;
 
 // Main Container
@@ -61,7 +60,6 @@ $font-family-button: Montserrat, sans-serif;
   background: none;
   border: none;
   cursor: pointer;
-  font-family: $font-family-heading;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -188,7 +186,6 @@ $font-family-button: Montserrat, sans-serif;
   background-color: $color-tertiary;
   color: white;
   border-radius: 50%;
-  font-family: $font-family-heading;
   font-size: 18px;
   font-weight: 500;
   line-height: 28px;
@@ -230,7 +227,7 @@ $font-family-button: Montserrat, sans-serif;
 // User Name
 .topnavbar-user-name {
   margin: 0;
-  font-family: $font-family-heading;
+  
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;
@@ -241,7 +238,7 @@ $font-family-button: Montserrat, sans-serif;
 // User Email
 .topnavbar-user-email {
   margin: 0;
-  font-family: $font-family-heading;
+  
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
@@ -262,7 +259,7 @@ $font-family-button: Montserrat, sans-serif;
   background: none;
   border: none;
   text-align: left;
-  font-family: $font-family-heading;
+  
   font-size: 14px;
   font-weight: 500;
   color: $color-text-primary;
@@ -292,7 +289,7 @@ $font-family-button: Montserrat, sans-serif;
   border-radius: 0;
   cursor: pointer;
   text-align: left;
-  font-family: $font-family-heading;
+  
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;

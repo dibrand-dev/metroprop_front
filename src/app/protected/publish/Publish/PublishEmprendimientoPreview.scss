@@ -64,7 +64,6 @@
 }
 
 .publish-review-route {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
@@ -79,7 +78,6 @@
   border: none;
   background: none;
   padding: 0;
-  font-family: 'Inter', sans-serif;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -147,7 +145,6 @@
 
   h3 {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
     line-height: 18px;
@@ -199,7 +196,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-family: 'Inter', sans-serif;
+  
   color: #1e1e1e;
 
   strong {
@@ -214,7 +211,7 @@
 
   span {
     color: #1E1E1E;
-    font-family: Inter;
+    
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
@@ -305,7 +302,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  font-family: 'Inter', sans-serif;
+  
   font-size: 14px;
   font-weight: 600;
   color: #1e1e1e;
@@ -334,7 +331,7 @@
   p {
     margin: 0;
     color: var(--Metroprop-Texto-principal, #1E1E1E);
-    font-family: Inter;
+    
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -353,7 +350,7 @@
   gap: 8px;
   cursor: pointer;
   color: #1E1E1E;
-  font-family: Inter;
+  
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
@@ -471,7 +468,7 @@
   border-radius: 8px 8px 0 0;
   background: #ffffff;
   padding: 8px 12px;
-  font-family: 'Inter', sans-serif;
+  
   font-size: 14px;
   font-weight: 600;
   color: #1e1e1e;
@@ -488,7 +485,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-family: 'Inter', sans-serif;
+  
   font-size: 16px;
   color: #1e1e1e;
   padding: 8px 0;
@@ -501,7 +498,7 @@
   margin: 8px 0;
   h3 {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    
     font-size: 22px;
     font-weight: 600;
     color: #1e1e1e;
@@ -509,7 +506,7 @@
 
   p {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    
     font-size: 16px;
     font-weight: 600;
     color: #1e1e1e;
@@ -551,7 +548,7 @@
   flex-direction: column;
   gap: 8px;
   color: #7a7a7a;
-  font-family: 'Inter', sans-serif;
+  
   font-size: 16px;
   font-weight: 600;
 
@@ -587,7 +584,7 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  font-family: 'Inter', sans-serif;
+  
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
@@ -608,7 +605,7 @@
   padding: 14px 32px;
   background: #006aff;
   color: #ffffff;
-  font-family: 'Inter', sans-serif;
+  
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.16px;

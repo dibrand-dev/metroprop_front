@@ -17,7 +17,7 @@ import PropertyMap from './PropertyMap/PropertyMap';
 import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
 import ContactForm from '../../../../components/ContactForm/ContactForm';
 import { useLocations } from '@/lib/locations';
-import { formatNumbers } from '@/utils/utils';
+import { formatNumbers, formatCurrency } from '@/utils/utils';
 import { AWS_S3_BUCKET_URL, ORGANIZATION_NO_IMAGE } from '@/app/constants';
 import { fetchProperties } from '@/lib/properties';
 import { useRouter } from 'next/navigation';
@@ -167,7 +167,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         .map((option: AmenityTag) => option.name);
     });
     result[4] = [];
-    if (property?.expenses)  result[4].push(`Expensas: ${formatNumbers(property.expenses)} ${property.currency_expenses ?? ''}`);
+    if (property?.expenses)  result[4].push(`Expensas: ${formatNumbers(property.expenses)} ${formatCurrency(property.currency_expenses ?? '')}`);
     if (property?.floors_amount)  result[4].push(`Pisos: ${property.floors_amount}`);
     if (property?.garage_coverage)  result[4].push(`Cobertura cochera: ${property.garage_coverage}`);
     if (property?.postal_code)  result[4].push(`Código postal: ${property.postal_code}`);
@@ -239,7 +239,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const showSummaryToggle = (property?.description?.length ?? 0) > 140;
 
   // Derived display values
-  const priceDisplay = property?.price_square_meter ? `${property.currency} ${formatNumbers(property.price_square_meter)}  /m²` : '';
+  const priceDisplay = property?.price_square_meter ? `${formatCurrency(property.currency)} ${formatNumbers(property.price_square_meter)}  /m²` : '';
   const statusDisplay = `${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `- ${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}${property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}`;
 
   const devMinPrice = (() => {
@@ -247,7 +247,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     if (prices.length === 0) return null;
     const min = Math.min(...prices);
     const currency = (property?.units ?? [])[0]?.currency ?? property?.currency ?? '';
-    return `Venta desde ${currency} ${formatNumbers(min)}`;
+    return `Venta desde ${formatCurrency(currency)} ${formatNumbers(min)}`;
   })();
   const uniqueRoomAmounts = [...new Set((property?.units ?? []).map(u => u.room_amount ?? 0))].sort((a, b) => a - b);
   const showUnitFilters = uniqueRoomAmounts.length > 1;
@@ -366,7 +366,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     const prices = units.map(u => u.price ?? 0).filter(p => p > 0);
     if (prices.length === 0) return '-';
     const currency = units[0]?.currency ?? '';
-    return `${currency} ${Math.min(...prices).toLocaleString('es-AR')}`;
+    return `${formatCurrency(currency)} ${Math.min(...prices).toLocaleString('es-AR')}`;
   };
   const getSupDesde = (units: CreateProperty[]) => {
     const sups = units.map(u => Number(u.total_surface)).filter(s => s > 0);
@@ -540,7 +540,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           <h1 className="property-detail-title">{property 
             ? property.is_development 
               ? (devMinPrice ?? 'Venta desde -')
-              : `${ property.development_id !== null ? 'Venta desde ' : ''}${property.currency} ${formatNumbers(property.price)}`
+              : `${ property.development_id !== null ? 'Venta desde ' : ''}${formatCurrency(property.currency)} ${formatNumbers(property.price)}`
             : ''}</h1>
         </section>
 
@@ -762,10 +762,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                         </div>
                         {unidades.map((unit, index) => {
                           const pricePerM2 = unit.price && Number(unit.total_surface) > 0
-                            ? `${unit.currency ?? ''} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
+                            ? `${formatCurrency(unit.currency ?? '')} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
                             : '-';
                           const priceTotal = unit.price
-                            ? `${unit.currency ?? ''} ${unit.price.toLocaleString('es-AR')}`
+                            ? `${formatCurrency(unit.currency ?? '')} ${unit.price.toLocaleString('es-AR')}`
                             : '-';
                           const canOpenUnit = !!unit.id;
                           return (
@@ -798,10 +798,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                       <div className="units-list units-list-mobile">
                         {unidades.map((unit, index) => {
                           const pricePerM2 = unit.price && Number(unit.total_surface) > 0
-                            ? `${unit.currency ?? ''} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
+                            ? `${formatCurrency(unit.currency ?? '')} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
                             : '-';
                           const priceTotal = unit.price
-                            ? `${unit.currency ?? ''} ${unit.price.toLocaleString('es-AR')}`
+                            ? `${formatCurrency(unit.currency ?? '')} ${unit.price.toLocaleString('es-AR')}`
                             : '-';
                           const canOpenUnit = !!unit.id;
                           return (

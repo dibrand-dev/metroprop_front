@@ -6,7 +6,7 @@ import { Lead, LEAD_STATE_OPTIONS, OPERATION_TYPE_LABELS } from "@/types/propied
 import Checkbox from "@/ui/Checkbox/Checkbox";
 import Select from "@/ui/Select/Select";
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, formatCurrency } from '@/utils/utils';
 
 interface LeadItemProps {
   lead: Lead;
@@ -66,15 +66,19 @@ export default function LeadItem({ lead, checked = false, onCheckedChange }: Lea
         </span>
         <span className="lead-operation">
           <span>{OPERATION_TYPE_LABELS[lead.property?.operation_type as keyof typeof OPERATION_TYPE_LABELS]}</span>
-          {lead.property?.price > 0 ? `${lead.property?.currency ?? ''} ${lead.property?.price ?? ''}` : lead.property?.publication_title ?? ''}
+          {lead.property?.price > 0 ? `${formatCurrency(lead.property?.currency)} ${lead.property?.price ?? ''}` : lead.property?.publication_title ?? ''}
         </span>
         <span className="lead-status lead-status-badge" onClick={e => e.stopPropagation()}>
           <Select options={LEAD_STATE_OPTIONS} value={leadState} onChange={handleStateChange} />
         </span>
         <span className="lead-date">{new Date(lead.created_at).toLocaleDateString("es-ES", { day: '2-digit', month: 'short' }).replace('.', '')}</span>
       </div>
-      {expanded && lead.message && (
-        <div className="lead-message">{lead.message}</div>
+      {expanded && lead.message && (        
+        <div className="lead-message">
+          Nombre: {lead.name}<br />
+          Email: {lead.email}<br />
+          <p className="mt-4">{lead.message}</p></div>
+        
       )}
     </div>
   );

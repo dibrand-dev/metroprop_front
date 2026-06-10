@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import './PublishFinalReview.scss';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
 import { useQuery } from '@tanstack/react-query';
-import { API_BASE_URL, setImagePath } from '@/utils/utils';
+import { API_BASE_URL, setImagePath, formatNumbers, formatCurrency } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
 import { ORGANIZATION_NO_IMAGE } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
@@ -81,7 +81,7 @@ export default function PublishFinalReview({
   // Format price display
   const formatPrice = (amount: string, currency: string) => {
     if (!amount) return '';
-    return `${currency} ${amount}`;
+    return `${formatCurrency(currency)} ${amount}`;
   };
 
   // Build amenity tabs from amenityGroups
@@ -172,7 +172,7 @@ console.log("wizardData", wizardData)
     });
 
     result[4] = [];
-    if (wizardData?.expenses)  result[4].push(`Expensas: ${formatNumbers(wizardData.expenses)} ${wizardData.currency_expenses ?? ''}`);
+    if (wizardData?.expenses)  result[4].push(`Expensas: ${formatNumbers(wizardData.expenses)} ${formatCurrency(wizardData.currency_expenses ?? '')}`);
     if (wizardData?.floors_amount)  result[4].push(`Pisos: ${wizardData.floors_amount}`);
     if (wizardData?.garage_coverage)  result[4].push(`Cobertura cochera: ${wizardData.garage_coverage}`);
     if (wizardData?.postal_code)  result[4].push(`Código postal: ${wizardData.postal_code}`);
@@ -238,7 +238,7 @@ console.log("wizardData", wizardData)
                     </div>
                     <div className="publish-review-preview-meta">
                       {wizardData.price && wizardData.total_surface && (
-                      <span>{wizardData.currency}/m2 {formatNumbers((wizardData.price / wizardData.total_surface))}</span>
+                      <span>{formatCurrency(wizardData.currency)}/m2 {formatNumbers((wizardData.price / wizardData.total_surface))}</span>
                       )}
                       <span className="publish-review-info" aria-hidden="true">
                         <svg viewBox="0 0 24 24">
