@@ -19,7 +19,7 @@ const items: SubmenuItem[] = [
   { id: 'entrada', label: 'Bandeja de entrada' },
   { id: 'destacados', label: 'Destacados' },
   { id: 'eliminados', label: 'Eliminados'},
-  { id: 'bloqueados', label: 'Bloqueados'}
+  //{ id: 'bloqueados', label: 'Bloqueados'}
 ];
 
 export default function SubmenuLeads({ active, onItemChange }: SubmenuProps) {

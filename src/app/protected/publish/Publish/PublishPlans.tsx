@@ -127,7 +127,7 @@ export default function PublishPlans({
       purchased_plan_id,
       branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
     });
-  }, [user_id, hired_plan_id, visibility, branchFilter, updateWizardData]);
+  }, [user_id, hired_plan_id, visibility, purchased_plan_id, branchFilter, updateWizardData]);
 
   const handleBack = () => {
     onBack();

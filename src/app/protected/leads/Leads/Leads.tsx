@@ -6,12 +6,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
-import InputField2 from '@/ui/InputField2/InputField2';
 import SubmenuLeads from './Submenu/Submenu';
-import Checkbox from '@/ui/Checkbox/Checkbox';
 import { LeadContactType } from '@/types/propiedad';
 import LeadItem from './Lead/Lead';
 import { Lead } from '@/types/propiedad';
+import LeadsFilter from './LeadsFilter/LeadsFilter';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -20,7 +19,6 @@ export default function Leads() {
   const queryClient = useQueryClient();
   const [showMenu, setShowMenu] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
   const [search, setSearch] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("1");
   const [activeSubmenu, setActiveSubmenu] = useState<'entrada' | 'destacados' | 'eliminados' | 'bloqueados'>('entrada');
@@ -36,25 +34,6 @@ export default function Leads() {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
     },
   });
-
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    if (val.trim() === '') {
-      setSearch(null);
-    }
-  };
-
-  const handleSearch = () => {
-    const trimmed = searchQuery.trim();
-    if (trimmed) {
-      setSearch(trimmed);
-    }
-  };
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSearch();
-  };
   
   const { data: contactosData } = useQuery<any>({
     queryKey: ['leads', activeSubmenu, currentPage, search],
@@ -105,36 +84,15 @@ export default function Leads() {
         </div>
 
         <div className="leads-content">
-          <div className="leads-filter">
-            <Checkbox
-              label=""
-              checked={contactos.length > 0 && contactos.every(l => selectedLeadIds.includes(l.id!))}
-              onChange={(val) => {
-                if (val) {
-                  setSelectedLeadIds(contactos.map(l => l.id!));
-                } else {
-                  setSelectedLeadIds([]);
-                }
-              }}
-            />
-            <button
-              className=""
-              type="button"
-              aria-label="Eliminar contacto"
-              onClick={() => { if (selectedLeadIds.length > 0) setDeleteModalOpen(true); }}
-            >
-              <img src="/icons/trash.svg" alt="" />
-            </button>
-            <InputField2
-              placeholder="Email / Teléfono / Nombre"
-              value={searchQuery}
-              onChange={handleSearchInputChange}
-              onKeyDown={handleSearchKeyDown}
-              icon={<img src="/icons/search.svg" alt="" width="18" height="18" />}
-              iconPosition="right"
-              onIconClick={handleSearch}
-            />
-          </div>
+          <LeadsFilter
+            allChecked={contactos.length > 0 && contactos.every(l => selectedLeadIds.includes(l.id!))}
+            onCheckAll={(val) => {
+              if (val) setSelectedLeadIds(contactos.map(l => l.id!));
+              else setSelectedLeadIds([]);
+            }}
+            onDeleteClick={() => { if (selectedLeadIds.length > 0) setDeleteModalOpen(true); }}
+            setSearch={setSearch}
+          />
 
           <div className="leads-list-container">
             <div className="leads-header">

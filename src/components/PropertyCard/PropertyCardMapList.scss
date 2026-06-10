@@ -237,7 +237,8 @@
   border-radius: 8px;
   padding: 8px;
   background-color: #ffffff;
-  width: 444px;
+  max-width: 444px;
+  width: 100%;
   position: absolute;
   margin: 8px;
 }

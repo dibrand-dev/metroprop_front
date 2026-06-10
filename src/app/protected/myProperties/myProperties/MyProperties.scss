@@ -674,8 +674,18 @@
   }
 }
 
-.myprop-interest .myprop-views-count {
-  color: #1e1e1e;
+.myprop-interest {
+  .myprop-views-count {
+    color: #1e1e1e;
+  }
+
+  &:hover {
+    color: #006aff;
+    border-color: #006aff;
+    .myprop-views-count {
+      color: #006aff;
+    }
+  }
 }
 
 

@@ -320,7 +320,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
   if (cardType === 'favorites') {
     return (
       <>
-        <div className="property-card-favorites-list" onClick={goToDetail}>
+        <div className={`property-card-favorites-list ${property.is_development ? 'is-development' : ''}`} onClick={goToDetail}>
           <div className="card-content">
             <img
               src={gallery.firstImage}
@@ -382,7 +382,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
   if (cardType === 'contacts') {
     return (
       <>
-        <div className="property-card-favorites-list" onClick={goToDetail}>
+        <div className={`property-card-favorites-list ${property.is_development ? 'is-development' : ''}`} onClick={goToDetail}>
           <div className="card-content">
             <div className="contact-date">Contactado el {new Date(property.lead_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</div>
             <img
@@ -393,13 +393,21 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
               title="Abrir galería"
             />
             <div className="property-info">
+              {property.is_development && <div className="delivery-date-content">
+                <img src={'/icons/crane.svg'} alt="Crane Icon" />
+                {`En construcción - Entrega ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
+              </div>}
               {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
               <div className="title-row">
                 <div className="price-section">
-                  <div className="total-price">{property.currency} {formatNumbers(property.price)}</div>
-                  {property.price_square_meter! > 0 && (
-                    <div className="price-per-meter">{property.currency}/m2 {formatNumbers(property.price_square_meter!)}</div>
-                  )}
+                  {property.is_development && <span className="desde-text">Desde</span>}
+                  {property.is_development
+                  ? getPrecioDesde(property.units)
+                  : <><div className="total-price">{property.currency} {formatNumbers(property.price)}</div>
+                    {property.price_square_meter! > 0 && (
+                      <div className="price-per-meter">{property.currency}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                    )}
+                  </>}
                 </div>
                 {property.expenses! > 0 && (
                   <div className="expenses">{property.currency} {formatNumbers(property.expenses!)} expensas</div>
@@ -418,10 +426,11 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   {(property.room_amount ?? 0) > 0 && <span>{property.room_amount} amb.</span>}
                   {(property.bathroom_amount ?? 0) > 0 && <span>{property.bathroom_amount} baños</span>}
                 </div>
+                {uniqueRoomAmounts.length > 0 && <span>{uniqueRoomAmounts.join(' - ')} amb.</span>}
                 <p>{property.publication_title}</p>
                 <div className="contacts-button-container">
                   <Button 
-                    label={property.user ? property.user.phone : property.owner_phone ?? ''}
+                    label={property?.user?.phone ?? property?.user?.email}
                     variant="secondary"
                     buttonType="1"
                     size="small"
@@ -429,11 +438,15 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                     iconPosition="left"
                     onClick={(e) => { 
                       e.stopPropagation(); 
-                      const cleanNumber = (property.user ? property.user.phone : property.owner_phone ?? '').replace(/[^\d+#]/g, '');
-                      window.location.href = `tel:${cleanNumber}`;
+                      if (property?.user?.phone) {
+                        const cleanNumber = (property.user.phone).replace(/[^\d+#]/g, '');
+                        window.location.href = `tel:${cleanNumber}`;
+                      } else if (property?.user.email) {
+                        window.location.href = `mailto:${property.user.email}`;
+                      }
                     }}
                   />
-                  {onWhatsapp && <Button
+                  {onWhatsapp && property?.user?.phone && <Button
                     label="Whatsapp"
                     variant="primary"
                     buttonType="1"

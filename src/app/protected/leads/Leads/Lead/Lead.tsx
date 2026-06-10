@@ -66,7 +66,7 @@ export default function LeadItem({ lead, checked = false, onCheckedChange }: Lea
         </span>
         <span className="lead-operation">
           <span>{OPERATION_TYPE_LABELS[lead.property?.operation_type as keyof typeof OPERATION_TYPE_LABELS]}</span>
-          {`${lead.property?.currency ?? ''} ${lead.property?.price ?? ''}`}
+          {lead.property?.price > 0 ? `${lead.property?.currency ?? ''} ${lead.property?.price ?? ''}` : lead.property?.publication_title ?? ''}
         </span>
         <span className="lead-status lead-status-badge" onClick={e => e.stopPropagation()}>
           <Select options={LEAD_STATE_OPTIONS} value={leadState} onChange={handleStateChange} />

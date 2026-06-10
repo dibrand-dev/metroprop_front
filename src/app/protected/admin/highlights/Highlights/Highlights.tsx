@@ -119,9 +119,6 @@ export default function Highlights() {
                           </div>
                         ))}
                       </div>
-                      <div className="highlights-progress">
-                        <div className="highlights-progress-bar" />
-                      </div>
                     </div>
                   );
                 })}
@@ -154,9 +151,6 @@ export default function Highlights() {
                     <span>{plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
                   </div>
                 ))}
-              </div>
-              <div className="highlights-progress">
-                <div className="highlights-progress-bar" />
               </div>
             </div>
             )}
