@@ -68,6 +68,16 @@ export function saveVisitedProperty(property: CreateProperty): void {
   }
 }
 
+export function removeVisitedProperty(propertyId: number): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const current = getVisitedProperties().filter(p => p.id !== propertyId);
+    localStorage.setItem(VISITED_KEY, JSON.stringify(current));
+  } catch {
+    // localStorage unavailable — ignore
+  }
+}
+
 export function setImagePath(imagePath: string) {
   if (!imagePath) return '';
   return imagePath.includes('http') ? imagePath : `${AWS_S3_BUCKET_URL}/${imagePath}`;  

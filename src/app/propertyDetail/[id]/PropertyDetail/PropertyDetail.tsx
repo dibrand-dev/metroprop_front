@@ -11,7 +11,7 @@ import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype } from '@/types/propiedad';
-import { API_BASE_URL, saveVisitedProperty, setImagePath } from '@/utils/utils';
+import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
 import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
@@ -82,6 +82,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     queryFn: async () => apiFetch<CreateProperty>(`${API_BASE_URL}/properties/${propertyId}`),
     enabled: !!propertyId,
   });
+
+  // Remove from visited if property not found (404)
+  useEffect(() => {
+    if (!isLoading && !property && isError && propertyId) {
+      removeVisitedProperty(Number(propertyId));
+    }
+  }, [isLoading, property, isError, propertyId]);
 
   // Fetch tags for amenity tab names
   const { data: tagsData = [] } = useQuery<AmenityTag[]>({
