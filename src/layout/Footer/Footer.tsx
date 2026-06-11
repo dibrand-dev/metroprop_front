@@ -36,7 +36,6 @@ export default function Footer() {
             <div className="footer-contact">
               <p className="footer-contact-text">
                 Buenos Aires, Argentina<br />
-                Olazabal 1515, oficina 708<br />
                 <a href="mailto:consultas@metroprop.com">consultas@metroprop.com</a>
               </p>
             </div>
@@ -128,7 +127,7 @@ export default function Footer() {
       {/* Bottom Section - Attribution */}
       <div className="footer-bottom">
         <div className="footer-dibrand">
-          <a href="https://www.dibrand.com" target="_blank" rel="noopener noreferrer"><img src="/icons/logo_dibrand.png" alt="DIBRAND" className="footer-dibrand-icon" /></a>
+          <a href="https://www.dibrand.co/es" target="_blank" rel="noopener noreferrer"><img src="/icons/logo_dibrand.png" alt="DIBRAND" className="footer-dibrand-icon" /></a>
         </div>
       </div>
     </footer>

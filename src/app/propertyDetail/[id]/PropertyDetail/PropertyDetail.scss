@@ -751,6 +751,13 @@
   flex-direction: column;
 }
 
+.property-detail-gallery-modal-close-container {
+  width: 100%;
+  text-align: right;
+  padding: 16px 24px 0 0;
+  z-index: 1;
+  height: 72px;
+}
 
 .property-detail-contact-modal-close,
 .property-detail-gallery-modal-close {

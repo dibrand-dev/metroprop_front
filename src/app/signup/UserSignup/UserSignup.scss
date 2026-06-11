@@ -47,6 +47,14 @@
   }
 }
 
+.signup-right-panel {
+    position: relative;
+    flex-grow: 1;
+    @media (max-width: 768px) {
+        display: none;
+    }
+}
+
 // Title
 .merged-signup-title {
   

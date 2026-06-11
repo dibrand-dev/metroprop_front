@@ -17,7 +17,7 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
     ? API_ENDPOINTS.PRODUCTION
     : API_ENDPOINTS.DEVELOPMENT);
 
-export const formatNumbers = (price: number) => Math.ceil(price).toLocaleString('en-US');
+export const formatNumbers = (price: number) => Math.ceil(price).toLocaleString('es-AR');
 
 export const formatCurrency = (currency: string | null | undefined): string => {
   if (!currency) return '';

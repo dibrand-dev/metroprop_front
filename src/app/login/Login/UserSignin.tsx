@@ -13,6 +13,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useGoogleAuth } from '@/lib/useGoogleAuth';
 import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const iconGoogle = '/icons/google.svg';
 

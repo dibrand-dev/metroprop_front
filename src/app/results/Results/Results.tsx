@@ -88,6 +88,7 @@ export default function Results() {
     queryKey: ['properties', activeSearch, currentPage],
     queryFn: () => fetchProperties({
       ...searchParamsToFilterParams(new URLSearchParams(activeSearch)),
+      fetch_map_info: true,
       page: currentPage,
       limit,
     }),
@@ -257,7 +258,7 @@ export default function Results() {
           ) : (
             <div className="property-list">
               {properties.map((property) => (                
-                <div className="property-wrapper">
+                <div className="property-wrapper" key={property.id}>
                   <PropertyCard
                     cardType="map"
                     property={{ ...property, isFavorite: favorites.has(property.id ?? 0) } as any}

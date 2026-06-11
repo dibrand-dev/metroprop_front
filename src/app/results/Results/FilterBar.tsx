@@ -1153,7 +1153,7 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [], propert
               aria-expanded={filtrosOpen}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M2.5 5h15M5 10h10M7.5 15h5" stroke="#006AFF" strokeWidth="2" strokeLinecap="round" />
+                <path d="M2.5 5h15M5 10h10M7.5 15h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
               <span>Filtros</span>
               {filtrosBadge > 0 && <span className="filter-badge">{filtrosBadge}</span>}

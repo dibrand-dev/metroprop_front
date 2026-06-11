@@ -178,6 +178,14 @@
     flex: 1;
 }
 
+.signup-right-panel {
+    position: relative;
+    flex-grow: 1;
+    @media (max-width: 768px) {
+        display: none;
+    }
+}
+
 /* Desktop Styles */
 @media (min-width: 768px) {
     .signup-wrapper {
@@ -187,21 +195,16 @@
     }
 
     .signup-left-panel {
-    width: 40%;
-    background-color: #ebf2fd;
-    padding: 24px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
+        width: 40%;
+        background-color: #ebf2fd;
+        padding: 24px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
     }
 
-    .signup-right-panel {
-    width: 60%;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    overflow: hidden;
-    }
+    
+
 
     .signup-right-panel::before {
     content: '';

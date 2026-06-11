@@ -104,21 +104,23 @@ export default function GalleryModal({
           <div className="property-gallery-lightbox-spinner" />
         </div>
       )}
-      <button
-        type="button"
-        className="property-detail-gallery-modal-close"
-        aria-label="Cerrar"
-        onClick={onClose}
-    >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path
-            d="M6 6l12 12M18 6l-12 12"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-        />
-        </svg>
-    </button>
+      <div className="property-detail-gallery-modal-close-container">
+        <button
+          type="button"
+          className="property-detail-gallery-modal-close"
+          aria-label="Cerrar"
+          onClick={onClose}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                d="M6 6l12 12M18 6l-12 12"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      </div>
 
       {/* Tabs — hidden when only one tab exists */}
       {!isLoading && [images.length > 0, videos.length > 0, plans.length > 0, gallery360.length > 0].filter(Boolean).length > 1 && (

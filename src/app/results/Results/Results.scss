@@ -475,6 +475,15 @@
     .filter-dropdown-chevron.open {
       transform: rotate(180deg);
     }
+
+    &.active {
+      background-color: #006AFF;
+      color: #fff;
+
+      svg {
+        color: #fff;
+      }
+    }
   }
 
   .filter-dropdown-wrapper {
@@ -669,12 +678,11 @@
     gap: 8px;
     transition: all 0.2s;
     position: relative;
-  height: 48px;
+    height: 48px;
 
     svg {
       width: 20px;
       height: 20px;
-      color: #666;
     }
 
     .filter-badge {
@@ -692,6 +700,15 @@
 
       @media (max-width: 999px) {
         display: none;
+      }
+    }
+
+    &.active {
+      background-color: #006AFF;
+      color: #fff;
+
+      svg {
+        color: #fff;
       }
     }
   }
@@ -1078,11 +1095,6 @@
       flex: 1;
       min-width: 0;
     }
-  }
-
-  .filter-button.active {
-    border-color: #006AFF;
-    color: #006AFF;
   }
 }
 

@@ -50,6 +50,10 @@ export default function Highlights() {
   const showAll = branchFilter === 'todas';
   const filteredPlans = allBranchPlans.find((e) => String(e.branchId) === branchFilter)?.plans ?? [];
 
+  console.log("allBranchPlans", allBranchPlans)
+  console.log("branchFilter", branchFilter)
+  console.log("filteredPlans", filteredPlans)
+
   return (
       <div className={`highlights-container ${showMenu ? 'mobile-hidden' : ''}`}>
         <div className="highlights-mobile-header">
@@ -104,7 +108,7 @@ export default function Highlights() {
                           <div className="highlights-row"><span>Sin productos disponibles</span></div>
                         )}
                         {branchPlans.map((plan: any, idx: number) => (
-                          <div key={plan.plan_id ?? idx} className="highlights-row">
+                          <div key={plan.purchased_plan_id ?? idx} className="highlights-row">
                             <span>{plan.plan_name}</span>
                             <span>{plan.highlight_limit ?? '-'}</span>
                             <span>{plan.used ?? '-'}</span>
@@ -137,7 +141,7 @@ export default function Highlights() {
                   <div className="highlights-row"><span>Sin productos disponibles</span></div>
                 )}
                 {filteredPlans.map((plan: any, idx: number) => (
-                  <div key={plan.plan_id ?? idx} className="highlights-row">
+                  <div key={plan.purchased_plan_id ?? idx} className="highlights-row">
                     <span>{plan.plan_name}</span>
                     <span>{plan.highlight_limit ?? '-'}</span>
                     <span>{plan.used ?? '-'}</span>

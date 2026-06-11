@@ -12,6 +12,7 @@ import EmailVerificationModal from '../../../components/EmailVerificationModal/E
 import { useRouter } from 'next/navigation';
 import { API_BASE_URL } from '@/utils/utils';
 import { apiFetch } from '@/lib/apiFetch';
+import Image from 'next/image';
 
 // Email validation helper
 const isValidEmail = (email: string): boolean => {
@@ -414,6 +415,15 @@ export default function ProfessionalSignup() {
               )}
             </form>
           </div>
+        </div>
+        <div className="signup-right-panel">
+          <Image
+            src="/images/Inicio-sesion.png"
+            alt="Hero"
+            fill
+            priority
+            style={{ objectFit: 'cover' }}
+          />
         </div>
       </div>
       {showEmailVerificationModal && (
