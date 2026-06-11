@@ -31,7 +31,7 @@ export default function Highlights() {
     { value: 'todas', label: 'Todas' },
     ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
   ];
-  
+
   const { data: allBranchPlans = [], isLoading: loadingAllPlans } = useQuery<{ branchId: number; plans: any[] }[]>({
     queryKey: ['branch-plans-all', branches.map((b: any) => b.id).join(',')],
     queryFn: async () => {
@@ -44,6 +44,7 @@ export default function Highlights() {
       return results;
     },
     enabled: branches.length > 0,
+    staleTime: 5 * 60 * 1000,
   });
 
   const showAll = branchFilter === 'todas';
