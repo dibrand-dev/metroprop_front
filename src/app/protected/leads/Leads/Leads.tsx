@@ -72,17 +72,6 @@ export default function Leads() {
     <div className={`professionalContainer ${!showMenu ? 'activeMenuMobile' : ''}`}>
       <SubmenuLeads active={showMenu} onItemChange={(id) => { setActiveSubmenu(id); setCurrentPage(0); }} />
       <div className={`leads-container ${showMenu ? 'mobile-hidden' : ''}`}>
-        <div className="leads-mobile-header">
-          <button
-            className="leads-back-button"
-            type="button"
-            onClick={() => setShowMenu(true)}
-          >
-            <img src={iconArrowBack} alt="Back" />
-            <span>Interesados</span>
-          </button>
-        </div>
-
         <div className="leads-content">
           <LeadsFilter
             allChecked={contactos.length > 0 && contactos.every(l => selectedLeadIds.includes(l.id!))}

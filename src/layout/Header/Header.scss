@@ -116,7 +116,7 @@ $font-family-button: Montserrat, sans-serif;
   gap: 6px;
   position: relative;
 
-  @media (max-width: 768px) {
+  @media (max-width: 925px) {
     display: flex;
   }
 
@@ -159,7 +159,7 @@ $font-family-button: Montserrat, sans-serif;
   align-items: center;
   flex-shrink: 0;
 
-  @media (max-width: 768px) {
+  @media (max-width: 925px) {
     position: absolute;
     top: -21px;
     left: 0;

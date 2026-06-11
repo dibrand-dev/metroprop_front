@@ -9,6 +9,21 @@ $color-bg-primary: #ffffff;
 $color-border: #006aff;
 
 // Main Container
+.submenu-dropdown-mobile {
+  display: none;
+
+  @media (max-width: 1000px) {
+    display: block;
+    width: 100%;
+  }
+
+  .select-container {
+    .select-trigger.selected {
+      border: none;
+    }
+  }
+}
+
 .submenu-container {
   display: none;
   flex-direction: column;
@@ -27,7 +42,7 @@ $color-border: #006aff;
     padding: 24px 16px;
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 1000px) {
     max-width: 403px;
     display: flex;
   }
@@ -144,6 +159,29 @@ $color-border: #006aff;
   .submenu-item-label {
     span {
       font-size: 14px;
+    }
+  }
+}
+
+
+@media (max-width: 1000px) {
+  .bodyContainer.protected-leads {
+    .professionalContainer {
+      flex-direction: column;
+      padding: 0;
+      gap: 0;
+      .submenu-container {   
+        display: none;
+      }
+
+      .leads-content {
+        border-radius: 0;
+        border-top: 1px solid #a6a6a6;
+      }
+
+      .leads-list-container {
+        margin: 8px;
+      }
     }
   }
 }

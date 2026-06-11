@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import './Submenu.scss';
+import Select from '@/ui/Select/Select';
 
 const iconChevron = "/icons/chevron_blue.svg";
 
@@ -26,23 +27,40 @@ export default function SubmenuLeads({ active, onItemChange }: SubmenuProps) {
   
   const [activeItemId, setActiveItemId] = useState<'entrada' | 'destacados' | 'eliminados' | 'bloqueados'>('entrada');
 
+  const handleDropdownChange = (id: SubmenuItem['id']) => {
+    setActiveItemId(id);
+    onItemChange?.(id);
+  };
+
   return (
-    <div className={`submenu-container ${active ? 'submenu-active' : ''}`}>
-      {items.map((item) => {
-        const isActive = activeItemId === item.id;
-        return (
-          <button
-            key={item.id}
-            onClick={() => { setActiveItemId(item.id); onItemChange?.(item.id); }}
-            className={`submenu-item ${isActive ? 'submenu-item-active' : 'submenu-item-inactive'}`}
-          >
-            <div className="submenu-item-label">
-              <span>{item.label}</span>
-            </div>
-            <img src={iconChevron} alt="chevron" className="submenu-item-chevron" />
-          </button>
-        );
-      })}
-    </div>
+    <>
+      <div className="submenu-dropdown-mobile">
+        <Select 
+          value={activeItemId}
+          onChange={(value) => {
+            setActiveItemId(value)
+            onItemChange?.(value);
+          }}
+          options={items.map((item) => ({ value: item.id, label: item.label }))}
+        />
+      </div>
+      <div className={`submenu-container ${active ? 'submenu-active' : ''}`}>
+        {items.map((item) => {
+          const isActive = activeItemId === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => { setActiveItemId(item.id); onItemChange?.(item.id); }}
+              className={`submenu-item ${isActive ? 'submenu-item-active' : 'submenu-item-inactive'}`}
+            >
+              <div className="submenu-item-label">
+                <span>{item.label}</span>
+              </div>
+              <img src={iconChevron} alt="chevron" className="submenu-item-chevron" />
+            </button>
+          );
+        })}
+      </div>
+    </>
   );
 }
