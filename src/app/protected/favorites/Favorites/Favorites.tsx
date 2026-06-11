@@ -13,7 +13,7 @@ import { useState } from 'react';
 export default function Favorites() {
   const queryClient = useQueryClient();
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [contactModalInfo, setContactModalInfo] = useState<{ phoneNumber: string; propertyId: number; userId: number; organizationId?: number }>({ phoneNumber: '', propertyId: 0, userId: 0, organizationId: undefined });
+  const [contactModalInfo, setContactModalInfo] = useState<{ phoneNumber: string; propertyId: number; userId: number; organizationId?: number; phone_whatsapp?: string }>({ phoneNumber: '', propertyId: 0, userId: 0, organizationId: undefined, phone_whatsapp: undefined });
 
   const { data, isLoading } = useQuery<CreateProperty[]>({
     queryKey: ['my-favourites'],
@@ -43,7 +43,7 @@ export default function Favorites() {
             isLoggedIn={true}
             onFavorite={() => handleToggleFavorite(property.id ?? 0)} 
             onWhatsapp={() => {
-              setContactModalInfo({ phoneNumber: property.user ? property.user.phone : property.owner_phone ?? '', propertyId: property.id ?? 0, userId: property.user_id ?? 0, organizationId: property.organization_id ?? undefined });
+              setContactModalInfo({ phoneNumber: property.user ? property.user.phone : property.owner_phone ?? '', propertyId: property.id ?? 0, userId: property.user_id ?? 0, organizationId: property.organization_id ?? undefined, phone_whatsapp: property.user ? property.user.phone_whatsapp : undefined });
               setIsContactModalOpen(true);
             }}
           />
@@ -58,6 +58,7 @@ export default function Favorites() {
         userId={contactModalInfo.userId}
         organizationId={contactModalInfo.organizationId}
         phoneNumber={contactModalInfo.phoneNumber}
+        phone_whatsapp={contactModalInfo.phone_whatsapp ? contactModalInfo.phone_whatsapp : false}
         onClose={() => setIsContactModalOpen(false)}
         favorite
       />}

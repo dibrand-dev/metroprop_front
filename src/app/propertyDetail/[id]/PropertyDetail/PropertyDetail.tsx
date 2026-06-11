@@ -469,7 +469,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       {isWhatsappModalOpen && <WhatsappModal
         isOpen={isWhatsappModalOpen}
         onClose={() => setIsWhatsappModalOpen(false)}
-        phoneNumber={property?.user ? property.user.phone : property?.owner_phone ?? ''}
+        phoneNumber={property?.user?.phone_whatsapp ? property.user.phone_whatsapp : property?.user?.phone ?? ''}
         propertyId={property?.id ?? 0}
         userId={property?.user_id}
         organizationId={(property as any)?.user?.organization_id ?? property?.organization_id}
@@ -949,7 +949,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               propertyId={property?.id}
               userId={property?.user_id}
               organizationId={(property as any)?.user?.organization_id ?? property?.organization_id}
-              phoneNumber={property?.user ? property.user.phone : property?.owner_phone ?? ''}
+              phoneNumber={property?.user ? property.user.phone : false}
+              phone_whatsapp={property?.user ? property.user.phone_whatsapp : false}
             />
 
             <div className="property-detail-agent">
@@ -1030,6 +1031,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           propertyId={property?.id}
           userId={property?.user_id}
           organizationId={(property as any)?.user?.organization_id ?? property?.organization_id}
+          phoneNumber={property?.user ? property.user.phone : false}
+          phone_whatsapp={property?.user ? property.user.phone_whatsapp : false}
           onClose={() => setIsContactModalOpen(false)}
       />)}
       <div className="property-detail-mobile-actions">

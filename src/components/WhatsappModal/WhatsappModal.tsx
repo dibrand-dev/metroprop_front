@@ -151,6 +151,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
 
   const openWhatsApp = () => {
     if (!validateForm()) return;
+    console.log({ formState, phoneNumber });
     if (!formState.phone || !phoneNumber) {
       setShowSuccess(true);
       setTimeout(() => {        
@@ -160,9 +161,10 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
       return;
     };
     const message = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a>`);
+    console.log("message", message);
     window.open(`https://wa.me/${phoneNumber.trim()}?text=${message}`, "_blank");
   };
-  
+
   if (showSuccess) {
     return <SuccessModal title="¡Mensaje enviado!" text="Nos pondremos en contacto a la brevedad." />;
   }

@@ -84,11 +84,6 @@ $transition-time: 0.2s;
     opacity: 0.6;
   }
 
-  &:focus {
-    outline: 2px solid $color-primary;
-    outline-offset: 2px;
-    border-radius: $border-radius-sm;
-  }
 }
 
 // Checkbox Box

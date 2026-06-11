@@ -29,7 +29,7 @@ export default function Profile() {
     name: '',
     document: '',
     phone: '',
-    phone_additional: '',
+    // phone_additional: '',
     phone_whatsapp: '',
     email: '',
     phone_whatsapp_available: ''
@@ -57,7 +57,7 @@ export default function Profile() {
         body: {
           name: data.name,
           phone: data.phone,
-          phone_additional: data.phone_additional,
+          // phone_additional: data.phone_additional,
           phone_whatsapp: data.phone_whatsapp,
           document: data.document,
         },
@@ -67,7 +67,7 @@ export default function Profile() {
       updateSession({
         name: data.name,
         phone: data.phone,
-        phone_additional: data.phone_additional,
+        // phone_additional: data.phone_additional,
         phone_whatsapp: data.phone_whatsapp,
         document: data.document,
       });
@@ -176,17 +176,14 @@ export default function Profile() {
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 label="Número de teléfono"
               />
-              <InputField2
+              {/*<InputField2
                 type="tel"
                 placeholder="Número de teléfono adicional"
                 value={properties.phone_additional}
                 onChange={(e) => handleInputChange('phone_additional', e.target.value)}
                 label="Número de teléfono adicional"
-              />       
-            </div>
-            <div className="professional-profile-fields">
-              <div className="telefono-container">
-                <InputField2
+              />   */}  
+              <InputField2
                   type="tel"
                   placeholder="Número de WhatsApp"
                   value={properties.phone_whatsapp}
@@ -194,9 +191,10 @@ export default function Profile() {
                   label="Número de WhatsApp"
                   disabled={properties.phone_whatsapp_available === "0"}
                 />
-               <Checkbox label="Permitir contacto por WhatsApp" checked={properties.phone_whatsapp_available === "1"} onChange={(checked) => handleInputChange('phone_whatsapp_available', checked ? "1" : "0")} />
-              </div> 
-            </div>
+              <div className="telefono-container">                
+                <Checkbox label="Permitir contacto por WhatsApp" checked={properties.phone_whatsapp_available === "1"} onChange={(checked) => handleInputChange('phone_whatsapp_available', checked ? "1" : "0")} />
+              </div>   
+            </div>           
           </section>
           {/* Save Button */}          
           <button className="professional-profile-save-button" onClick={handleSave} disabled={updateUserMutation.isPending}>

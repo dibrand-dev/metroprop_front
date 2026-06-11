@@ -31,7 +31,6 @@ export default function Contacts() {
     queryClient.invalidateQueries({ queryKey: ['similar-by-price'] });
     queryClient.invalidateQueries({ queryKey: ['my-favourites'] });
   };
-
   const leads = contactadosData ?? [];
   const isLoading = loadingContactados;
   return (
@@ -47,7 +46,7 @@ export default function Contacts() {
             isLoggedIn={true}
             onFavorite={() => handleToggleFavorite(property.id ?? 0)}
             onWhatsapp={() => {
-              setWhatsappModalInfo({ phoneNumber: property.user ? property.user.phone : property.owner_phone ?? '', propertyId: property.id ?? 0 });
+              setWhatsappModalInfo({ phoneNumber: property.user?.phone_whatsapp ? property.user.phone_whatsapp : property.user.phone ?? '', propertyId: property.id ?? 0 });
               setIsWhatsappModalOpen(true);
             }}
           />

@@ -32,6 +32,7 @@ interface ContactFormProps {
   organizationId?: number;
   onClose?: () => void;
   phoneNumber?: string;
+  phone_whatsapp?: string;
   favorite?: boolean;
 }
 
@@ -41,7 +42,7 @@ function isValidEmail(email: string) {
 
 const EMPTY_FORM = { name: '', country: '', email: '', phone: '', message: '' };
 
-export default function ContactForm({ isModal = false, propertyId, userId, organizationId, onClose, phoneNumber, favorite = false }: ContactFormProps) {
+export default function ContactForm({ isModal = false, propertyId, userId, organizationId, onClose, phoneNumber, phone_whatsapp, favorite = false }: ContactFormProps) {
   const { data: sessionData } = useSession();
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [formState, setFormState] = useState(EMPTY_FORM);
@@ -52,7 +53,7 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
-
+console.log({ phoneNumber, phone_whatsapp });
   useEffect(() => {
     const u = sessionData?.user as any;
     if (!u) return;
@@ -127,18 +128,19 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
     setPrivacyAccepted(false);
     setTouched(false);
   };
-  
+
   const openWhatsApp = (message: string) => {
-    if (!formState.phone || !phoneNumber) {
+    if (!formState.phone || (!phone_whatsapp && !phoneNumber)) {
       setShowSuccess(true);
-      setTimeout(() => {        
+      setTimeout(() => {
         setShowSuccess(false);
         onClose?.();
       }, 3000);
       return;
-    };
-    const encodedMessage = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a><br />${message}`);
-    window.open(`https://wa.me/${phoneNumber.trim()}?text=${encodedMessage}`, "_blank");
+    } else {
+      const encodedMessage = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a><br />${message}`);
+      window.open(`https://wa.me/${(phone_whatsapp ?? phoneNumber).trim()}?text=${encodedMessage}`, "_blank");
+    }
   };
   
   const handleSubmit = async (actionId: string) => {
