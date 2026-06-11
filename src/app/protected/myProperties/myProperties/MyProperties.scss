@@ -529,8 +529,8 @@
   .myprop-card-content-statistics {
     display: flex;
     gap: 24px;
-     @media (max-width: 873px) {
-      flex-direction: column;
+    @media (max-width: 873px) {
+      flex-direction: row;
       gap: 8px;
     }
   }
@@ -553,6 +553,7 @@
 
   .myprop-card-content-center.is-expanded .myprop-card-collapsible {
     display: flex !important;
+    flex-grow: 1;
   }
 }
 
@@ -698,6 +699,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
 }
 
 .myprop-views,
