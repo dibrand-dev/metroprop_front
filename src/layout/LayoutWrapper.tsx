@@ -7,9 +7,10 @@ import Footer from './Footer/Footer';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const showFilter = pathname === '/results';
   return (
     <div className={`bodyContainer ${pathname.replace(/\//g, '-').replace(/^-/, '')}`}>
-      <Header className={styles.header}/>
+      <Header className={styles.header} showFilter={showFilter}/>
       <main className={styles.mainContent}>{children}</main>
       <Footer />
     </div>
