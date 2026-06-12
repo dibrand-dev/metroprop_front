@@ -40,7 +40,7 @@ const formatCuit = (input: string, finalize = false): string => {
   return `${digits.slice(0, 2)}-${digits.slice(2)}`;
 };
 
-const formatPhone = (input: string): string => input.replace(/\D/g, '');
+const formatPhone = (input: string): string => input.replace(/\D/g, '').slice(0, 13);
 
 export default function ProfessionalSignup() {
   const [userType, setUserType] = useState<string>('');
@@ -159,8 +159,8 @@ export default function ProfessionalSignup() {
         name: !name ? 'Por favor ingresa tu nombre' : '',
         businessName: !businessName ? 'Por favor ingresa la razón social' : '',
         fiscalCondition: !fiscalCondition ? 'Por favor selecciona una condición fiscal' : '',
-        cuit: !cuit ? 'Por favor ingresa el CUIT' : '',
-        phone: !phone ? 'Por favor ingresa el teléfono' : '',
+        cuit: !cuit ? 'Por favor ingresa el CUIT' : (cuit.replace(/\D/g, '').length < 10 ? 'El CUIT debe tener al menos 10 caracteres' : ''),
+        phone: !phone ? 'Por favor ingresa el teléfono' : (phone.length < 10 ? 'El teléfono debe tener al menos 10 dígitos' : (phone.length > 13 ? 'El teléfono no puede tener más de 13 dígitos' : '')),
         termsAccepted: !termsAccepted ? 'Debes aceptar los términos y condiciones' : '',
         privacyAccepted: !privacyAccepted ? 'Debes aceptar la política de privacidad' : '',
       });
@@ -183,6 +183,16 @@ export default function ProfessionalSignup() {
     if (password !== confirmPassword) {
       setFieldErrors((prev) => ({ ...prev, password: 'Las contraseñas no coinciden', confirmPassword: 'Las contraseñas no coinciden' }));
       // setError('Las contraseñas no coinciden');
+      return;
+    }
+
+    if (cuit.replace(/\D/g, '').length < 10) {
+      setFieldErrors((prev) => ({ ...prev, cuit: 'El CUIT debe tener al menos 10 caracteres' }));
+      return;
+    }
+
+    if (phone.length < 10 || phone.length > 13) {
+      setFieldErrors((prev) => ({ ...prev, phone: phone.length < 10 ? 'El teléfono debe tener al menos 10 dígitos' : 'El teléfono no puede tener más de 13 dígitos' }));
       return;
     }
 
@@ -430,7 +440,7 @@ export default function ProfessionalSignup() {
       {showEmailVerificationModal && (
         <EmailVerificationModal 
           title="¡Te enviamos un e-mail para validar tu cuenta!" 
-          text={`Ingresa a tu casilla de mail ${email} para continuar.`} 
+          text={`Ingresá a tu casilla de mail ${email} para continuar.`} 
           onClose={() => router.push('/')} 
           onResendEmail={isResendDisabled ? undefined : handleResendEmail}
           resendMessage={resendMessage}

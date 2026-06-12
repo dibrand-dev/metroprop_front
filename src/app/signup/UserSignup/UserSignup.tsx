@@ -341,7 +341,7 @@ export default function UserSignup() {
     {showEmailVerificationModal && 
     <EmailVerificationModal 
       title="¡Te enviamos un e-mail para validar tu cuenta!" 
-      text={`Ingresa a tu casilla de mail ${email} para continuar.`} 
+      text={`Ingresá a tu casilla de mail ${email} para continuar.`} 
       onClose={() => router.push('/')} 
       onResendEmail={isResendDisabled ? undefined : handleResendEmail}
       resendMessage={resendMessage}

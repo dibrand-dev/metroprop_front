@@ -281,7 +281,7 @@ export default function UserSignin() {
           )}
         </form>
       </div>
-      {showEmailVerificatedModal && <SuccessModal title="¡Email verificado!" text="Puedes loguearte con tu email." />}
+      {showEmailVerificatedModal && <SuccessModal title="¡E-mail verificado!" text="Ya podés loguearte con tu e-mail." />}
       {showSuccessModal && <SuccessModal title="¡Cuenta creada exitosamente!" text="Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión y comenzar a explorar nuestras propiedades." />}
     </>
   );

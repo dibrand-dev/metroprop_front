@@ -71,19 +71,19 @@ export default function ResetPassword() {
         newPassword: !newPassword ? 'Por favor ingresa tu contraseña nueva' : '',
         confirmPassword: !confirmPassword ? 'Por favor confirma tu contraseña' : '',
       });
-      setError('Por favor completa todos los campos');
+      // setError('Por favor completa todos los campos');
       return;
     }
 
     if (newPassword.length < 6 || newPassword.length > 10) {
       setFieldErrors((prev) => ({ ...prev, newPassword: 'La contraseña debe tener entre 6 y 10 caracteres' }));
-      setError('La contraseña debe tener entre 6 y 10 caracteres');
+      // setError('La contraseña debe tener entre 6 y 10 caracteres');
       return;
     }
 
     if (newPassword !== confirmPassword) {
       setFieldErrors({ newPassword: 'Las contraseñas no coinciden', confirmPassword: 'Las contraseñas no coinciden' });
-      setError('Las contraseñas no coinciden');
+      // setError('Las contraseñas no coinciden');
       return;
     }
 

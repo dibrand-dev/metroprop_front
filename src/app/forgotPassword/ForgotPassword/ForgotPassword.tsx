@@ -41,13 +41,13 @@ export default function ForgotPassword() {
 
     if (!email) {
       setFieldError('Por favor ingresa tu correo electrónico');
-      setError('Por favor ingresa tu correo electrónico');
+      // setError('Por favor ingresa tu correo electrónico');
       return;
     }
 
     if (!isValidEmail(email)) {
       setFieldError('Por favor ingresa un correo electrónico válido');
-      setError('Por favor ingresa un correo electrónico válido');
+      // setError('Por favor ingresa un correo electrónico válido');
       return;
     }
 
@@ -80,7 +80,7 @@ export default function ForgotPassword() {
           </p>
           <InputField2
             label="Correo electrónico*"
-            type="email"
+            type="text"
             placeholder="Correo electrónico*"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
