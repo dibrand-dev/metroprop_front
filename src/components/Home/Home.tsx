@@ -156,7 +156,7 @@ export default function Home() {
                   <LocationAutocompleteInput
                     value={searchQuery}
                     onChange={setSearchQuery}
-                    placeholder="Escribí una ubicación o alguna característica"
+                    placeholder="Escribí una ubicación"
                     onSubmit={(value, locationId) => router.replace(`/results?${value ? `q=${encodeURIComponent(value)}&` : ''}${locationId != null ? `location_id=${locationId}&` : ''}operation_type=${searchActive}&page=1&limit=20`)}
                   />
                 </div>

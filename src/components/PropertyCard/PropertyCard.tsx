@@ -93,11 +93,9 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
 
   const { data: locations = [] } = useLocations();
 
-  const devLocationId = property.is_development
-    ? (property.sub_location_id ?? property.state_id ?? property.location_id ?? null)
-    : null;
-  const devFullLocation = devLocationId
-    ? (locations.find(l => l.id === devLocationId)?.full_location ?? null)
+  const propLocationId = (property.sub_location_id ?? property.state_id ?? property.location_id ?? null)
+  const devFullLocation = propLocationId
+    ? (locations.find(l => l.id === propLocationId)?.full_location ?? null)
     : null;
 
   const uniqueRoomAmounts = [...new Set((property?.units ?? []).map(u => u.room_amount ?? 0))].sort((a, b) => a - b);
@@ -169,9 +167,10 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 </div>
                 <div className="property-card-location-section">
                   <p className="property-card-address">{property.street}</p>
-                  {property.price_square_meter && (
+                  {/*property.price_square_meter && (
                     <p className="property-card-location">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter)} m²</p>
-                  )}
+                  )*/}
+                  {devFullLocation && <div className="full_location">{devFullLocation}</div>}
                 </div>
                 <div className="property-card-details">
                   {(property.total_surface ?? 0) > 0 && <span className="property-card-detail">{formatNumbers(property.total_surface!)} m² tot.</span>}
