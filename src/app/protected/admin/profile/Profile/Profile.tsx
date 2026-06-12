@@ -184,13 +184,13 @@ export default function Profile() {
                 label="Número de teléfono adicional"
               />   */}  
               <InputField2
-                  type="tel"
-                  placeholder="Número de WhatsApp"
-                  value={properties.phone_whatsapp}
-                  onChange={(e) => handleInputChange('phone_whatsapp', e.target.value)}
-                  label="Número de WhatsApp"
-                  disabled={properties.phone_whatsapp_available === "0"}
-                />
+                type="tel"
+                placeholder="Número de WhatsApp"
+                value={properties.phone_whatsapp}
+                onChange={(e) => handleInputChange('phone_whatsapp', e.target.value)}
+                label="Número de WhatsApp"
+                disabled={properties.phone_whatsapp_available === "0"}
+              />
               <div className="telefono-container">                
                 <Checkbox label="Permitir contacto por WhatsApp" checked={properties.phone_whatsapp_available === "1"} onChange={(checked) => handleInputChange('phone_whatsapp_available', checked ? "1" : "0")} />
               </div>   

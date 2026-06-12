@@ -162,7 +162,6 @@ export default function BranchForm({ branchId }: BranchFormProps) {
     },
     onError: (err: any) => {
       setErrorMessage(err?.message ?? 'Error al guardar la sucursal. Intenta de nuevo.');
-      setSuccessMessage('');
     },
   });
 

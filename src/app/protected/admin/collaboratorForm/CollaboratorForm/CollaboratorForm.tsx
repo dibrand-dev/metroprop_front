@@ -33,7 +33,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
     password: '',
     email: '',
     phone: '',
-    phone_additional: '',
+    phone_whatsapp: '',
   });
 
   const handleInputChange = (field: string, value: any) => {
@@ -81,15 +81,15 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
       name: c.name ?? '',
       password: '',
       email: c.email ?? '',
-      phone: formatPhone(c.phone ?? ''),
-      phone_additional: formatPhone(c.alternative_phone ?? c.phone_additional ?? ''),
+      phone: formatPhone(c.phone ?? ''),  
+      phone_whatsapp: formatPhone(c.phone_whatsapp ?? c.phone ?? ''),
       branchIds: String(c.branches?.[0]?.id ?? ''),
     });
   }, [collaboratorData]);
 
   const phoneRegex = /^\+?[1-9]\d{1,14}$/;
   const isPhoneValid = phoneRegex.test(formData.phone.trim());
-  const isPhoneAdditionalValid = phoneRegex.test(formData.phone_additional.trim());
+  const isPhoneWhatsappValid = phoneRegex.test(formData.phone_whatsapp.trim());
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim());
   const isFormValid = formData.role_id.trim().length > 0 && formData.email.trim().length > 0 && isEmailValid && isPhoneValid;
 
@@ -101,7 +101,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
         password: formData.password || undefined,
         email: formData.email || undefined,
         phone: formData.phone || undefined,
-        phone_additional: formData.phone_additional || undefined,
+        phone_whatsapp: formData.phone_whatsapp || undefined,
         role_id: formData.role_id || undefined,
         branchIds: [formData.branchIds]
       //  country_id: LOCATION_ARGENTINA_ID,
@@ -124,7 +124,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
           password: '',
           email: '',
           phone: '',
-          phone_additional: '',
+          phone_whatsapp: '',
           branchIds: [],
         });
       }
@@ -259,12 +259,12 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
               </div>
               <div className="branch-form-field">
                 <InputField
-                  label="Teléfono adicional (opcional)"
+                  label="Número de WhatsApp (opcional)"
                   type="tel"
-                  placeholder="Número de teléfono adicional"
-                  value={formData.phone_additional}
-                  onChange={(event) => handleInputChange('phone_additional', formatPhone(event.target.value))}
-                  error={formData.phone_additional.trim().length > 0 && !isPhoneAdditionalValid ? 'Formato inválido. Ej: 541130475755' : undefined}
+                  placeholder="Número de WhatsApp"
+                  value={formData.phone_whatsapp}
+                  onChange={(event) => handleInputChange('phone_whatsapp', formatPhone(event.target.value))}
+                  error={formData.phone_whatsapp.trim().length > 0 && !isPhoneWhatsappValid ? 'Formato inválido. Ej: 541130475755' : undefined}
                 />
               </div>
             </div>
