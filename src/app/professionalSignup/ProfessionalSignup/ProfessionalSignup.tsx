@@ -55,7 +55,6 @@ export default function ProfessionalSignup() {
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const [privacyAccepted, setPrivacyAccepted] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const [isPending, startTransition] = useTransition();
   const [fieldErrors, setFieldErrors] = useState({ userType: '', email: '', password: '', confirmPassword: '', name: '', businessName: '', fiscalCondition: '', cuit: '', phone: '', termsAccepted: '', privacyAccepted: '' });
   const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
   const [resendDisabledUntil, setResendDisabledUntil] = useState<number | null>(null);
@@ -111,6 +110,8 @@ export default function ProfessionalSignup() {
     },
   });
 
+  const isPending = registerProfessionalMutation.isPending;
+
   // Mutation for resend email
   const resendEmailMutation = useMutation({
     mutationFn: async (email: string) => {
@@ -163,30 +164,30 @@ export default function ProfessionalSignup() {
         termsAccepted: !termsAccepted ? 'Debes aceptar los términos y condiciones' : '',
         privacyAccepted: !privacyAccepted ? 'Debes aceptar la política de privacidad' : '',
       });
-      setError('Por favor completa todos los campos');
+      // setError('Por favor completa todos los campos');
       return;
     }
 
     if (!isValidEmail(email)) {
       setFieldErrors((prev) => ({ ...prev, email: 'Por favor ingresa un correo electrónico válido' }));
-      setError('Por favor ingresa un correo electrónico válido');
+      // setError('Por favor ingresa un correo electrónico válido');
       return;
     }
 
     if (password.length < 6 || password.length > 10) {
       setFieldErrors((prev) => ({ ...prev, password: 'La contraseña debe tener entre 6 y 10 caracteres' }));
-      setError('La contraseña debe tener entre 6 y 10 caracteres');
+      // setError('La contraseña debe tener entre 6 y 10 caracteres');
       return;
     }
 
     if (password !== confirmPassword) {
       setFieldErrors((prev) => ({ ...prev, password: 'Las contraseñas no coinciden', confirmPassword: 'Las contraseñas no coinciden' }));
-      setError('Las contraseñas no coinciden');
+      // setError('Las contraseñas no coinciden');
       return;
     }
 
     if (!termsAccepted || !privacyAccepted) {
-      setError('Debes aceptar los términos y condiciones');
+      // setError('Debes aceptar los términos y condiciones');
       return;
     }
 

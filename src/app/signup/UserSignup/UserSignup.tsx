@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import InputField2 from '@/ui/InputField2/InputField2';
@@ -30,7 +30,6 @@ export default function UserSignup() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({ email: '', password: '', confirmPassword: '', agreeTerms: '', agreePrivacy: '' });
   const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
@@ -38,8 +37,8 @@ export default function UserSignup() {
   const [resendDisabledUntil, setResendDisabledUntil] = useState<number | null>(null);
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { update: updateSession } = useSession();
+  // const searchParams = useSearchParams();
+  // const { update: updateSession } = useSession();
 
   // Mutation for user registration
   const registerUserMutation = useMutation({
@@ -119,25 +118,25 @@ export default function UserSignup() {
         agreeTerms: !agreeTerms ? 'Debes aceptar los términos y condiciones' : '',
         agreePrivacy: !agreePrivacy ? 'Debes aceptar los términos y condiciones' : ''
       });
-      setError('Por favor completa todos los campos');
+      // setError('Por favor completa todos los campos');
       return;
     }
 
     if (!isValidEmail(email)) {
       setFieldErrors({ email: 'Por favor ingresa un correo electrónico válido', password: '', confirmPassword: '', agreeTerms: '', agreePrivacy: '' });
-      setError('Por favor ingresa un correo electrónico válido');
+      // setError('Por favor ingresa un correo electrónico válido');
       return;
     }
 
     if (password.length < 6 || password.length > 10) {
       setFieldErrors({ email: '', password: 'La contraseña debe tener entre 6 y 10 caracteres', confirmPassword: '', agreeTerms: '', agreePrivacy: '' });
-      setError('La contraseña debe tener entre 6 y 10 caracteres');
+      // setError('La contraseña debe tener entre 6 y 10 caracteres');
       return;
     }
 
     if (password !== confirmPassword) {
       setFieldErrors({ email: '', password: 'Las contraseñas no coinciden', confirmPassword: 'Las contraseñas no coinciden', agreeTerms: '', agreePrivacy: '' });
-      setError('Las contraseñas no coinciden');
+      // setError('Las contraseñas no coinciden');
       return;
     }
 
@@ -147,7 +146,7 @@ export default function UserSignup() {
         agreeTerms: !agreeTerms ? 'Debes aceptar los términos y condiciones' : '',
         agreePrivacy: !agreePrivacy ? 'Debes aceptar la política de privacidad' : '',
       }));
-      setError('Debes aceptar los términos y condiciones');
+      // setError('Debes aceptar los términos y condiciones');
       return;
     }
 
@@ -197,6 +196,7 @@ export default function UserSignup() {
   const resendMessage = isResendDisabled 
     ? `Podrás reenviar el correo en ${formatRemainingTime(remainingTime)}`
     : undefined;
+  const isPending = registerUserMutation.isPending;
   const isFormDisabled = isPending || isGoogleLoading;
   
   return (

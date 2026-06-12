@@ -70,13 +70,13 @@ export default function UserSignin() {
         email: !email ? 'Por favor ingresa tu correo electrónico' : '',
         password: !password ? 'Por favor ingresa tu contraseña' : '',
       });
-      setError('Por favor completa todos los campos');
+      // setError('Por favor completa todos los campos');
       return;
     }
 
     if (!isValidEmail(email)) {
       setFieldErrors({ email: 'Por favor ingresa un correo electrónico válido', password: '' });
-      setError('Por favor ingresa un correo electrónico válido');
+      // setError('Por favor ingresa un correo electrónico válido');
       return;
     }
     startTransition(async () => {
