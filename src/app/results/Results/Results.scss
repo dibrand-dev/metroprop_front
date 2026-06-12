@@ -476,7 +476,7 @@
       transform: rotate(180deg);
     }
 
-    &.active {
+    &.active, &:hover {
       background-color: #006AFF;
       color: #fff;
 
@@ -703,7 +703,7 @@
       }
     }
 
-    &.active {
+    &.active, &:hover {
       background-color: #006AFF;
       color: #fff;
 
