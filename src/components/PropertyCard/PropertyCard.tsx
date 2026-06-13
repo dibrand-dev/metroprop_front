@@ -130,11 +130,11 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
           <div className="property-card-info">
             {property.is_development
             ? <div className="content-wrapper">
-                <div className="delivery-date-content">
-                  <img src={'/icons/crane_gray.svg'} alt="Crane Icon" />
-                  {`En const. - Entrega ${new Date(property.delivery_date ?? property.development_delivery_date).toLocaleDateString("es-ES", { month: '2-digit', year: '2-digit' })}`}
-                </div>
                 <div className="property-details property-details-development">
+                  <div className="delivery-date-content">
+                    <img src={'/icons/crane_gray.svg'} alt="Crane Icon" />
+                    {`En const. - Entrega ${new Date(property.delivery_date ?? property.development_delivery_date).toLocaleDateString("es-ES", { month: '2-digit', year: '2-digit' })}`}
+                  </div>
                   <div className="property-card-price-section">
                     <div>
                       <p>Desde</p>
@@ -144,9 +144,9 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   </div>
                   {devFullLocation && <div className="full_location">{devFullLocation}</div>}
                   <div className="address">{property.street}</div>
-                  <div className="specs-row">
-                    {uniqueRoomAmounts.length > 0 && <span className="ambients"><img src="/icons/door.svg" alt="Door Icon" />{uniqueRoomAmounts.join(' - ')} amb.</span>}
-                  </div>
+                  {uniqueRoomAmounts.length > 0 && <div className="specs-row">
+                    <span className="ambients"><img src="/icons/door.svg" alt="Door Icon" />{uniqueRoomAmounts.join(' - ')} amb.</span>
+                  </div>}
                 </div>
               </div>
             : <div className="content-wrapper">            

@@ -1,6 +1,6 @@
 "use client";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "./globals.scss";
 import QueryProvider from "../providers/QueryProvider";
 import { SessionProvider } from "next-auth/react";
 import LayoutWrapper from "@/layout/LayoutWrapper";

@@ -47,6 +47,7 @@ body {
   height: 100%;
   max-width: 264px;
   cursor: pointer;
+  
   &:hover .property-card-info {
     background-color: #ffffff;
   }
@@ -81,30 +82,35 @@ body {
         display: flex;
         gap: 8px;
         padding: 0;
-        margin-bottom: 8px;
         img {
             width: 24px;
         }
     }
     
-    .property-details.property-details-development {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        
-        .development-prices .main-price {
-            border-right: 0 none;
-        }
+    .property-details {
+        width: 100%;
+        justify-content: space-between;
+        height: 100%;
 
-        .price-per-sqm {
-            display: none;
-        }
+        &.property-details-development {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            
+            .development-prices .main-price {
+                border-right: 0 none;
+            }
 
-        .address,
-        .full_location {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            .price-per-sqm {
+                display: none;
+            }
+
+            .address,
+            .full_location {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
         }
     }
 
@@ -167,16 +173,24 @@ body {
         border-radius: 8px;
         border-top-left-radius: 0;
         border-top-right-radius: 0;
+        
+            .content-wrapper {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                align-items: stretch;
+                justify-content: space-between;
+                width: 100%;
+                height: 100%;
+            }
     }
 
     .property-card-title {
         font-size: 14px;
         font-weight: 500;
         line-height: 18px;
-        height: 36px;
         letter-spacing: 0.25px;
         color: #7a7a7a;
-        margin: 0 0 8px 0;
         text-transform: lowercase;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -193,7 +207,6 @@ body {
         align-items: center;
         justify-content: space-between;
         gap: 8px;
-        margin-bottom: 16px;
         .agency-logo {
             width: 56px;
         }
@@ -263,4 +276,10 @@ body {
       }
     }
   }  
+}
+
+.full_location {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
