@@ -943,3 +943,28 @@ export const EMPRENDIMIENTO_FLOW = [
   WizardStep.EMPRENDIMIENTO_PLANS,
   WizardStep.EMPRENDIMIENTO_PREVIEW
 ];
+
+export enum BannerPlacement {
+  HEADER = 1,
+  FOOTER = 2,
+  SIDEBAR = 3,
+}
+
+export const BannerPlacementLabels: Record<BannerPlacement, string> = {
+  [BannerPlacement.HEADER]: 'Header',
+  [BannerPlacement.FOOTER]: 'Footer',
+  [BannerPlacement.SIDEBAR]: 'Sidebar',
+};
+
+export const BANNER_PLACEMENT_OPTIONS = Object.entries(BannerPlacementLabels).map(([key, label]) => ({
+  value: key,
+  label,
+}));
+
+export type AdBanner = {
+  id: number;
+  image_url: string;
+  name: string;
+  placement: BannerPlacement;
+  status: boolean;
+}

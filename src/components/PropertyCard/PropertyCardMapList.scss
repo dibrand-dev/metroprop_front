@@ -7,24 +7,6 @@
   cursor: pointer;
   position: relative;
 
-  .overlay-btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: none;
-    background: #fff;
-    color: #1E1E1E;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s ease, color 0.15s ease;
-
-    &:hover {
-      background: #006AFF;
-      color: #fff;
-    }
-  }
-
   .card-content {
     background: $background-color;
     border: 1.3px solid $border-color;

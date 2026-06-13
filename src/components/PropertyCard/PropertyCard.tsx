@@ -7,7 +7,6 @@ import { PROPERTY_NO_IMAGE } from '@/app/constants';
 import GalleryModal, { GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
 import { API_BASE_URL } from '@/utils/utils';
 import { apiFetch } from '@/lib/apiFetch';
-import './PropertyCard.scss';
 import './PropertyCardGridList.scss';
 import './PropertyCardMapList.scss';
 import './PropertyCardFavoritesList.scss';
@@ -25,10 +24,6 @@ export interface PropertyCardProps {
   fromMap?: boolean;
   onWhatsapp?: () => void;
 }
-
-const starIcon = <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-<path d="M4.84586 15.8735L8.99989 13.242L13.1539 15.9081L12.066 10.9221L15.7255 7.59811L10.9121 7.14798L8.99989 2.43898L7.08772 7.11336L2.27431 7.56348L5.93382 10.9221L4.84586 15.8735ZM8.99989 14.8721L4.21286 17.908C4.0722 17.981 3.94164 18.0105 3.8212 17.9967C3.70163 17.9819 3.58514 17.9385 3.47173 17.8665C3.35744 17.7926 3.27128 17.6883 3.21326 17.5535C3.15523 17.4187 3.14996 17.2714 3.19743 17.1117L4.47133 11.4193L0.257958 7.58287C0.139271 7.48131 0.0610263 7.35989 0.0232224 7.21862C-0.0145815 7.07735 -0.00622944 6.94208 0.0482785 6.81281C0.102786 6.68355 0.175317 6.57736 0.265871 6.49426C0.357303 6.41393 0.480386 6.35946 0.635118 6.33083L6.19493 5.82115L8.36294 0.430735C8.42272 0.278385 8.50888 0.168508 8.62141 0.101105C8.73394 0.0337016 8.8601 0 8.99989 0C9.13968 0 9.26627 0.0337016 9.37969 0.101105C9.4931 0.168508 9.57882 0.278385 9.63684 0.430735L11.8048 5.82115L17.3633 6.33083C17.519 6.35853 17.6425 6.41347 17.7339 6.49565C17.8253 6.5769 17.8983 6.68262 17.9528 6.81281C18.0064 6.94208 18.0144 7.07735 17.9766 7.21862C17.9388 7.35989 17.8605 7.48131 17.7418 7.58287L13.5284 11.4193L14.8023 17.1117C14.8516 17.2696 14.8467 17.4164 14.7878 17.5521C14.7289 17.6878 14.6423 17.7922 14.528 17.8651C14.4155 17.939 14.299 17.9828 14.1786 17.9967C14.059 18.0105 13.9289 17.981 13.7882 17.908L8.99989 14.8721Z" fill="#1E1E1E"/>
-</svg>
 
 function useGallery(property: CreateProperty, fromMap?: boolean) {
   const router = useRouter();
@@ -166,10 +161,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
                 </div>
                 <div className="property-card-location-section">
-                  <p className="property-card-address">{property.street}</p>
-                  {/*property.price_square_meter && (
-                    <p className="property-card-location">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter)} m²</p>
-                  )*/}
+                  <p className="property-card-address">{property.street}</p>                  
                   {devFullLocation && <div className="full_location">{devFullLocation}</div>}
                 </div>
                 <div className="property-card-details">
