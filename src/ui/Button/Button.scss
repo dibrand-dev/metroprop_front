@@ -29,12 +29,7 @@ $transition-time: 0.2s;
   white-space: nowrap;
   position: relative;
   overflow: hidden;
-
-  &:focus {
-    outline: 2px solid $primary-color;
-    outline-offset: 2px;
-  }
-
+ 
   &:disabled,
   &.btn-disabled {
     cursor: not-allowed;

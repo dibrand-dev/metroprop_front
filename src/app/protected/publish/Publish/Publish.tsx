@@ -354,8 +354,8 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
           <div className="publish-page">
             <div className="publish-card">
               <div className="publish-card-header">
-                <h1>Que queres publicar?</h1>
-                <p>Elegi un tipo de operacion para continuar</p>
+                <h1>¿Qué querés publicar?</h1>
+                <p>Elegí un tipo de operación para continuar</p>
               </div>
               <div className="publish-options">
                 {operationOptions.map((option) => (
