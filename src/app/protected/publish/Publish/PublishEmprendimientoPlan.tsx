@@ -184,7 +184,7 @@ export default function PublishPlansEmprendimiento({
         </div>}
 
         <div className="publish-plans-block">
-          <h2>Elegi el plan con el que vas a publicar</h2>
+          <h2>Elegí el plan con el que vas a publicar</h2>
           <div className="publish-plans-group">
             <h3>Planes disponibles</h3>
             <button                    
@@ -229,7 +229,7 @@ export default function PublishPlansEmprendimiento({
           </div>
 
           <div className="publish-plans-group">
-            <h3>Mas planes para vos</h3>
+            <h3>Más planes para vos</h3>
             
             <div className="publish-plans-cards">
               {plansData?.map((plan: Plan, idx: number) => (

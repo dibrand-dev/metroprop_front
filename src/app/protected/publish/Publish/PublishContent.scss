@@ -279,6 +279,14 @@
     border-color: #ff6b6b;
   }
 
+  &.shift-left {
+    transform: translateX(-40px);
+  }
+
+  &.shift-right {
+    transform: translateX(40px);
+  }
+
   &:hover {
     transform: scale(1.02);
   }
@@ -465,6 +473,14 @@
     opacity: 0.5;
     transform: scale(0.95);
     border-color: #ff6b6b;
+  }
+
+  &.shift-left {
+    transform: translateX(-40px);
+  }
+
+  &.shift-right {
+    transform: translateX(40px);
   }
 
   &:hover {

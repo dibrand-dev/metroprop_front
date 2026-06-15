@@ -16,10 +16,10 @@ const accordionItems = [
   {
     id: 'videos',
     title: 'Videos',
-    description: 'Agrega hasta 10 videos de la propiedad desde YouTube.',
+    description: 'Agregá hasta 10 videos de la propiedad desde YouTube.',
   },
   { id: 'planos', title: 'Planos', description: 'Formato HEIC, JFIF, PNG, JPG, JPEG, WEBP, PDF, máximo 20 MB.' },
-  { id: 'recorrido', title: 'Recorrido 360', description: 'Agrega un recorrido 360° para mostrar los detalles de la propiedad.' },
+  { id: 'recorrido', title: 'Recorrido 360', description: 'Agregá un recorrido 360° para mostrar los detalles de la propiedad.' },
 ];
 
 export interface EmprendimientoImagesRef {
@@ -71,6 +71,7 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [draggedType, setDraggedType] = useState<'image' | 'plan' | 'video' | null>(null);
     const [dragOverGrid, setDragOverGrid] = useState<'image' | 'plan' | 'video' | null>(null);
+    const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
     const [openAccordions, setOpenAccordions] = useState<string[]>([]);
 
     const imageInputRef = useRef<HTMLInputElement>(null);
@@ -185,6 +186,20 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
       setDraggedIndex(index); setDraggedType(type); e.dataTransfer.effectAllowed = 'move';
     };
     const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+    const handleItemDragOver = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video') => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (draggedType === type) setDragOverIndex(index);
+    };
+    const getShift = (itemIndex: number, type: 'image' | 'plan' | 'video'): string => {
+      if (draggedIndex === null || dragOverIndex === null || draggedType !== type || itemIndex === draggedIndex) return '';
+      if (draggedIndex < dragOverIndex) {
+        if (itemIndex > draggedIndex && itemIndex <= dragOverIndex) return 'shift-left';
+      } else if (draggedIndex > dragOverIndex) {
+        if (itemIndex >= dragOverIndex && itemIndex < draggedIndex) return 'shift-right';
+      }
+      return '';
+    };
     const handleGridDragOver = (e: React.DragEvent, type: 'image' | 'plan' | 'video') => {
       e.preventDefault();
       if (draggedType === type) { setDragOverGrid(type); e.dataTransfer.dropEffect = 'move'; }
@@ -220,9 +235,9 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
         newPreviews.splice(dropIndex, 0, draggedPreview);
         setVideosPreview(newPreviews);
       }
-      setDraggedIndex(null); setDraggedType(null); setDragOverGrid(null);
+      setDraggedIndex(null); setDraggedType(null); setDragOverGrid(null); setDragOverIndex(null);
     };
-    const handleDragEnd = () => { setDraggedIndex(null); setDraggedType(null); setDragOverGrid(null); };
+    const handleDragEnd = () => { setDraggedIndex(null); setDraggedType(null); setDragOverGrid(null); setDragOverIndex(null); };
 
     const addUrl = (index: number) => {
       if (!multimedia360[index]?.trim() || multimedia360.length >= 10) return;
@@ -322,8 +337,8 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                   const hasError = image.upload_status === 'failed' || image.error_message;
                   return (
                     <div key={`${image.id || image.url}-${index}`}
-                      className={`publish-content-thumb ${hasError ? 'has-error' : ''} ${draggedIndex === index && draggedType === 'image' ? 'dragging' : ''}`}
-                      draggable onDragStart={(e) => handleDragStart(e, index, 'image')} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, index, 'image')} onDragEnd={handleDragEnd}
+                      className={`publish-content-thumb ${hasError ? 'has-error' : ''} ${draggedIndex === index && draggedType === 'image' ? 'dragging' : ''} ${getShift(index, 'image')}`}
+                      draggable onDragStart={(e) => handleDragStart(e, index, 'image')} onDragOver={(e) => handleItemDragOver(e, index, 'image')} onDrop={(e) => handleDrop(e, index, 'image')} onDragEnd={handleDragEnd}
                     >
                       {index === 0 && <div className="publish-content-thumb-main-label">Foto principal</div>}
                       {isUp ? <div className="publish-content-upload-loading"><div className="spinner" /><span>Subiendo...</span></div>
@@ -338,8 +353,8 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                   const ui = images.length + index;
                   return (
                     <div key={`up-img-${index}`}
-                      className={`publish-content-thumb ${draggedIndex === ui && draggedType === 'image' ? 'dragging' : ''}`}
-                      draggable onDragStart={(e) => handleDragStart(e, ui, 'image')} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, ui, 'image')} onDragEnd={handleDragEnd}
+                      className={`publish-content-thumb ${draggedIndex === ui && draggedType === 'image' ? 'dragging' : ''} ${getShift(ui, 'image')}`}
+                      draggable onDragStart={(e) => handleDragStart(e, ui, 'image')} onDragOver={(e) => handleItemDragOver(e, ui, 'image')} onDrop={(e) => handleDrop(e, ui, 'image')} onDragEnd={handleDragEnd}
                     >
                       {ui === 0 && <div className="publish-content-thumb-main-label">Foto principal</div>}
                       <img src={URL.createObjectURL(file)} alt="Foto" />
@@ -396,8 +411,8 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                           const pi = (plans.length) + index;
                           return (
                             <div key={`up-plan-${index}`}
-                              className={`publish-content-thumb ${draggedIndex === pi && draggedType === 'plan' ? 'dragging' : ''}`}
-                              draggable onDragStart={(e) => handleDragStart(e, pi, 'plan')} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, pi, 'plan')} onDragEnd={handleDragEnd}
+                              className={`publish-content-thumb ${draggedIndex === pi && draggedType === 'plan' ? 'dragging' : ''} ${getShift(pi, 'plan')}`}
+                              draggable onDragStart={(e) => handleDragStart(e, pi, 'plan')} onDragOver={(e) => handleItemDragOver(e, pi, 'plan')} onDrop={(e) => handleDrop(e, pi, 'plan')} onDragEnd={handleDragEnd}
                             >
                               {file.type === 'application/pdf'
                                 ? <div className="publish-content-pdf-thumb"><span>PDF</span><small>{file.name}</small></div>
@@ -412,7 +427,7 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                       <div className="publish-content-videos-container">
                         <div className="publish-content-input-row">
                           <InputField
-                            placeholder="Pega el link de YouTube"
+                            placeholder="Pegá el link de YouTube"
                             value={currentVideoUrl}
                             onChange={(event) => setCurrentVideoUrl(event.target.value)}
                           />
@@ -437,10 +452,10 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                             {videosPreview?.map((video, index) => (
                               <div
                                 key={`video-${index}`}
-                                className={`publish-content-video-thumb ${draggedIndex === index && draggedType === 'video' ? 'dragging' : ''}`}
+                                className={`publish-content-video-thumb ${draggedIndex === index && draggedType === 'video' ? 'dragging' : ''} ${getShift(index, 'video')}`}
                                 draggable
                                 onDragStart={(e) => handleDragStart(e, index, 'video')}
-                                onDragOver={handleDragOver}
+                                onDragOver={(e) => handleItemDragOver(e, index, 'video')}
                                 onDrop={(e) => handleDrop(e, index, 'video')}
                                 onDragEnd={handleDragEnd}
                               >

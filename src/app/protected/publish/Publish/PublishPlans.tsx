@@ -167,7 +167,7 @@ export default function PublishPlans({
           </div>
 
           <div className="publish-plans-section">
-            <h1>Ya casi terminas</h1>
+            <h1>Ya casi terminás</h1>
 
             {fetchedBranches.length > 0 && !isRole3 && <div className="publish-plans-block">
               <h2>Asigna este aviso a un colaborador</h2>
@@ -196,7 +196,7 @@ export default function PublishPlans({
             </div>}
 
             <div className="publish-plans-block">
-              <h2>Elegi el plan con el que vas a publicar</h2>
+              <h2>Elegí el plan con el que vas a publicar</h2>
               <div className="publish-plans-group">
                 <h3>Planes disponibles</h3>
                 <button                    
@@ -241,7 +241,7 @@ export default function PublishPlans({
               </div>
 
               <div className="publish-plans-group">
-                <h3>Mas planes para vos</h3>
+                <h3>Más planes para vos</h3>
                 
                 <div className="publish-plans-cards">
                   {plansData?.map((plan: Plan, idx: number) => (

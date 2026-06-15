@@ -29,6 +29,7 @@ import PublishEmprendimientoUnidades from './PublishEmprendimientoUnidades';
 import PublishPlansEmprendimiento from './PublishEmprendimientoPlan';
 import { EmprendimientoStep } from './EmprendimientoTabs';
 import PublishEmprendimientoFinalReview from './PublishEmprendimientoPreview';
+import Image from 'next/image';
 
 
 
@@ -157,6 +158,10 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
       .finally(() => setIsLoadingProperty(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentStep]);
+
   const getCurrentFlow = useCallback(() => {
     if (
       wizardData.operation_type === OperationType.EMPRENDIMIENTO ||
@@ -352,6 +357,13 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
       case WizardStep.INITIAL:
         return (
           <div className="publish-page">
+            <Image
+              src="/images/publicarBG.png"
+              alt="Publicar fondo"              
+              fill
+              priority              
+              style={{ objectFit: 'cover' }}
+            />
             <div className="publish-card">
               <div className="publish-card-header">
                 <h1>¿Qué querés publicar?</h1>

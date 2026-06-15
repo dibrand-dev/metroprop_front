@@ -89,7 +89,7 @@ export default function PublishPropertyType({
 
           <div className="publish-step-section">
             <div className="publish-step-title">
-              <h1>Selecciona que tipo de propiedad deseas publicar</h1>
+              <h1>Seleccioná que tipo de propiedad deseás publicar</h1>
               <span>Datos obligatorios(*)</span>
             </div>
 

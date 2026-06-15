@@ -136,7 +136,7 @@ export default function PublishPropertyContent({
 
           <div className="publish-property-content-section">
             <div className="publish-property-content-header">
-              <h1>Suma las comodidades adicionales</h1>
+              <h1>Sumá las comodidades adicionales</h1>
               <button className="publish-property-content-idea" type="button" aria-label="Idea">
                 ?
               </button>
@@ -204,7 +204,7 @@ export default function PublishPropertyContent({
                     label="Cantidad de plantas"
                     options={[{ label: '1', value: '1' }, { label: '2', value: '2' }, { label: '3', value: '3' }, { label: '4+', value: '4+' }]}
                     value={floors_amount?.toString() ?? ''}
-                    onChange={(value) => setFloors_amount(value ? parseInt(value) : 0)}
+                    onChange={(value) => setFloors_amount(value ? parseInt(value) : undefined)}
                     placeholder="Seleccionar"
                   />
                 </div>
@@ -231,19 +231,19 @@ export default function PublishPropertyContent({
               <div className="publish-property-content-inputs">
                 <div className="publish-property-content-detail-field">
                   <InputField
-                    label="Frente del terreno (m2)"
+                    label="Frente del terreno (mts)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={surface_front ?? ''}
-                    onChange={(event) => setSurface_front(event.target.value ? parseInt(event.target.value) : 0)}
+                    value={surface_front ?? null}
+                    onChange={(event) => setSurface_front(parseInt(event.target.value) || undefined)}
                     type="number"
                   />
                 </div>
                 <div className="publish-property-content-detail-field">
                   <InputField
-                    label="Largo del terreno (m2)"
+                    label="Largo del terreno (mts)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={surface_length ?? ''}
-                    onChange={(event) => setSurface_length(event.target.value ? parseInt(event.target.value) : 0)}
+                    value={surface_length ?? null}
+                    onChange={(event) => setSurface_length(parseInt(event.target.value) || undefined)}
                     type="number"
                   />
                 </div>
@@ -251,8 +251,8 @@ export default function PublishPropertyContent({
                   <InputField
                     label="Superficie semicubierta (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={semiroofed_surface ?? ''}
-                    onChange={(event) => setSemiroofed_surface(event.target.value ? parseInt(event.target.value) : 0)}
+                    value={semiroofed_surface ?? null}
+                    onChange={(event) => setSemiroofed_surface(parseInt(event.target.value) || undefined)}
                     type="number"
                   />
                 </div>

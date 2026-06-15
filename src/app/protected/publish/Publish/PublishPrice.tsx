@@ -81,7 +81,7 @@ export default function PublishPrice({
 
           <div className="publish-price-section">
             <div className="publish-price-header">
-              <h1>Ingresa el precio</h1>
+              <h1>Ingresá el precio</h1>
               <span>Datos obligatorios(*)</span>
             </div>
 
@@ -96,7 +96,7 @@ export default function PublishPrice({
                   />
                   <InputField
                     value={price ?? null}
-                    onChange={(event) => setPrice(Number(event.target.value))}
+                    onChange={(event) => setPrice(Number(event.target.value) || undefined)}
                     placeholder={'Ej. 700000'}
                     type="number"
                   />
@@ -114,7 +114,7 @@ export default function PublishPrice({
                   />
                   <InputField
                     value={expenses ?? null}
-                    onChange={(event) => setExpenses(Number(event.target.value))}
+                    onChange={(event) => setExpenses(Number(event.target.value) || undefined)}
                     placeholder="Ej. 100000"
                     type="number"
                     disabled={withoutExpenses}

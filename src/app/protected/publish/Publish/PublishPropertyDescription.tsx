@@ -12,9 +12,9 @@ const descriptionMax = 10000;
 const descriptionMin = 150;
 
 const tooltipTextPrimary =
-  'Inclui tipo de propiedad, operacion, m2, ubicacion y un dato clave que destaque tu publicacion.';
+  'Incluí tipo de propiedad, operación, m2, ubicación y un dato clave que destaque tu publicación.';
 const tooltipTextSecondary =
-  'Detalla los ambientes, las caracteristicas destacadas y los alrededores. Separa la informacion en parrafos. Los emojis no se mostraran en el aviso.';
+  'Detallá los ambientes, las características destacadas y los alrededores. Separa la información en párrafos. Los emojis no se mostrarán en el aviso.';
 
 interface PublishPropertyDescriptionProps {
   wizardData: CreatePropertyDraft;
@@ -80,7 +80,7 @@ export default function PublishPropertyDescription({
           <div className="publish-property-description-section">
             <div className="publish-property-description-header">
               <div className="publish-property-description-title">
-                <h1>Describí tu propiedad para atraer mas interesados</h1>
+                <h1>Describí tu propiedad para atraer más interesados</h1>
                 <span>Datos obligatorios(*)</span>
               </div>
               <button

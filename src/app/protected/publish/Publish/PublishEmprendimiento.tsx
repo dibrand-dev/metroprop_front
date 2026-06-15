@@ -470,8 +470,8 @@ export default function PublishEmprendimiento({
                   <InputField
                     label="Total de unidades*"
                     type='number'
-                    value={totalUnidades}
-                    onChange={e => setTotalUnidades(e.target.value)}
+                    value={totalUnidades ?? null}
+                    onChange={e => setTotalUnidades(Number(e.target.value) || null)}
                     placeholder="Total de unidades"
                     error={submitted && !totalUnidades ? 'Este campo es obligatorio' : ''}
                   />                  

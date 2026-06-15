@@ -19,17 +19,17 @@ const accordionItems = [
   {
     id: 'videos',
     title: 'Videos',
-    description: 'Agrega hasta 10 videos de la propiedad desde YouTube.',
+    description: 'Agregá hasta 10 videos de la propiedad desde YouTube.',
   },
   {
     id: 'planos',
     title: 'Planos',
-    description: 'Formato HEIC, JFIF, PNG, JPG, JPEG, WEBP, PDF, maximo 20 MB.',
+    description: 'Formato HEIC, JFIF, PNG, JPG, JPEG, WEBP, PDF, máximo 20 MB.',
   },
   {
     id: 'recorrido',
     title: 'Recorrido 360',
-    description: 'Agrega un recorrido 360 para mostrar los detalles de la propiedad.',
+    description: 'Agregá un recorrido 360° para mostrar los detalles de la propiedad.',
   },
 ];
 
@@ -91,6 +91,7 @@ export default function PublishContent({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [draggedType, setDraggedType] = useState<'image' | 'plan' | 'video' | null>(null);
   const [dragOverGrid, setDragOverGrid] = useState<'image' | 'plan' | 'video' | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   
   const imageInputRef = useRef<HTMLInputElement>(null);
   const imageGridInputRef = useRef<HTMLInputElement>(null);
@@ -315,6 +316,16 @@ export default function PublishContent({
     }
   };
 
+  const getShift = (itemIndex: number, type: 'image' | 'plan' | 'video'): string => {
+    if (draggedIndex === null || dragOverIndex === null || draggedType !== type || itemIndex === draggedIndex) return '';
+    if (draggedIndex < dragOverIndex) {
+      if (itemIndex > draggedIndex && itemIndex <= dragOverIndex) return 'shift-left';
+    } else if (draggedIndex > dragOverIndex) {
+      if (itemIndex >= dragOverIndex && itemIndex < draggedIndex) return 'shift-right';
+    }
+    return '';
+  };
+
   // Drag and drop functions
   const handleDragStart = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video') => {
     setDraggedIndex(index);
@@ -325,6 +336,14 @@ export default function PublishContent({
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleItemDragOver = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video') => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (draggedType === type) {
+      setDragOverIndex(index);
+    }
   };
 
   const handleGridDragOver = (e: React.DragEvent, type: 'image' | 'plan' | 'video') => {
@@ -383,12 +402,14 @@ export default function PublishContent({
     setDraggedIndex(null);
     setDraggedType(null);
     setDragOverGrid(null);
+    setDragOverIndex(null);
   };
 
   const handleDragEnd = () => {
     setDraggedIndex(null);
     setDraggedType(null);
     setDragOverGrid(null);
+    setDragOverIndex(null);
   };
 
   return (
@@ -399,11 +420,9 @@ export default function PublishContent({
             <div className="publish-content-route">
              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <Button
-              label="Guardar y salir"
-              variant="text"
-              onClick={onSaveAndExit}
-            />
+             <button className="publish-location-link" type="button" onClick={onSaveAndExit}>
+              Guardar y salir
+            </button>
           </div>
 
           <div className="publish-content-status">
@@ -414,7 +433,7 @@ export default function PublishContent({
 
           <div className="publish-content-section">
             <div className="publish-content-header">
-              <h1>Carga las fotos y videos de la propiedad</h1>
+              <h1>Cargá las fotos y videos de la propiedad</h1>
               <div className="publish-content-required">
                 <span>Datos obligatorios(*)</span>
                 <button
@@ -429,8 +448,8 @@ export default function PublishContent({
               {showTooltip ? (
                 <div className="publish-content-tooltip">
                   <p>
-                    Recomendacion: subi fotos claras y horizontales. No incluyas
-                    datos personales en las imagenes.
+                    Recomendación: subí fotos claras y horizontales. No incluyas
+                    datos personales en las imágenes.
                   </p>
                 </div>
               ) : null}
@@ -439,7 +458,7 @@ export default function PublishContent({
             <div className="publish-content-field">
               <div className="publish-content-field-title">
                 <h2>Fotos*</h2>
-                <p>Formato JPG, JPEG, WEBP, maximo 20 MB.</p>
+                <p>Formato JPG, JPEG, WEBP, máximo 20 MB.</p>
               </div>
 
               <div className="publish-content-upload">
@@ -494,11 +513,11 @@ export default function PublishContent({
                       return (
                         <div 
                           key={`${image.id || image.url}-${index}`} 
-                          className={`publish-content-thumb ${hasError ? 'has-error' : ''} ${draggedIndex === index && draggedType === 'image' ? 'dragging' : ''}`}
+                          className={`publish-content-thumb ${hasError ? 'has-error' : ''} ${draggedIndex === index && draggedType === 'image' ? 'dragging' : ''} ${getShift(index, 'image')}`}
                           style={hasError ? { border: '2px solid #d32f2f' } : {}}
                           draggable
                           onDragStart={(e) => handleDragStart(e, index, 'image')}
-                          onDragOver={handleDragOver}
+                          onDragOver={(e) => handleItemDragOver(e, index, 'image')}
                           onDrop={(e) => handleDrop(e, index, 'image')}
                           onDragEnd={handleDragEnd}
                         >
@@ -534,10 +553,10 @@ export default function PublishContent({
                       return (
                         <div
                           key={`uploaded-${index}`}
-                          className={`publish-content-thumb ${draggedIndex === unifiedIndex && draggedType === 'image' ? 'dragging' : ''}`}
+                          className={`publish-content-thumb ${draggedIndex === unifiedIndex && draggedType === 'image' ? 'dragging' : ''} ${getShift(unifiedIndex, 'image')}`}
                           draggable
                           onDragStart={(e) => handleDragStart(e, unifiedIndex, 'image')}
-                          onDragOver={handleDragOver}
+                          onDragOver={(e) => handleItemDragOver(e, unifiedIndex, 'image')}
                           onDrop={(e) => handleDrop(e, unifiedIndex, 'image')}
                           onDragEnd={handleDragEnd}
                         >
@@ -563,7 +582,7 @@ export default function PublishContent({
 
             <div className="publish-content-field">
               <div className="publish-content-field-title">
-                <h2>Agrega mas contenido</h2>
+                <h2>Agregá más contenido</h2>
               </div>
               <div className="publish-content-accordion">
                 {accordionItems.map((item) => (
@@ -588,7 +607,7 @@ export default function PublishContent({
                           <div className="publish-content-videos-container">
                             <div className="publish-content-input-row">
                               <InputField                              
-                                placeholder="Pega el link de YouTube"
+                                placeholder="Pegá el link de YouTube"
                                 value={currentVideoUrl}
                                 onChange={(event) => setCurrentVideoUrl(event.target.value)}
                               />
@@ -613,10 +632,10 @@ export default function PublishContent({
                                 {videosPreview?.map((video, index) => (
                                   <div
                                     key={`video-${index}`}
-                                    className={`publish-content-video-thumb ${draggedIndex === index && draggedType === 'video' ? 'dragging' : ''}`}
+                                    className={`publish-content-video-thumb ${draggedIndex === index && draggedType === 'video' ? 'dragging' : ''} ${getShift(index, 'video')}`}
                                     draggable
                                     onDragStart={(e) => handleDragStart(e, index, 'video')}
-                                    onDragOver={handleDragOver}
+                                    onDragOver={(e) => handleItemDragOver(e, index, 'video')}
                                     onDrop={(e) => handleDrop(e, index, 'video')}
                                     onDragEnd={handleDragEnd}
                                   >
@@ -743,10 +762,10 @@ export default function PublishContent({
                             {uploadedPlans.map((file, index) => (
                               <div
                                 key={`plan-local-${index}`}
-                                className={`publish-content-thumb ${draggedIndex === (plans?.length ?? 0) + index && draggedType === 'plan' ? 'dragging' : ''}`}
+                                className={`publish-content-thumb ${draggedIndex === (plans?.length ?? 0) + index && draggedType === 'plan' ? 'dragging' : ''} ${getShift((plans?.length ?? 0) + index, 'plan')}`}
                                 draggable
                                 onDragStart={(e) => handleDragStart(e, (plans?.length ?? 0) + index, 'plan')}
-                                onDragOver={handleDragOver}
+                                onDragOver={(e) => handleItemDragOver(e, (plans?.length ?? 0) + index, 'plan')}
                                 onDrop={(e) => handleDrop(e, (plans?.length ?? 0) + index, 'plan')}
                                 onDragEnd={handleDragEnd}
                               >
