@@ -358,7 +358,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
         return (
           <div className="publish-page">
             <Image
-              src="/images/publicarBG.png"
+              src="/images/publicarBg.png"
               alt="Publicar fondo"              
               fill
               priority              
