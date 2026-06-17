@@ -565,7 +565,8 @@ const MyProperties = () => {
         {/* Toolbar */}
         <div className="myprop-toolbar">
           <div className="myprop-toolbar-left">            
-            <Checkbox
+            <div className="flex items-center">
+              <Checkbox
                 label={
                     selectedCount > 0
                     ? `${selectedCount} Publicación${selectedCount !== 1 ? 'es' : ''} seleccionada${selectedCount !== 1 ? 's' : ''}`
@@ -573,29 +574,32 @@ const MyProperties = () => {
                 }
                 checked={allSelected}
                 onChange={toggleSelectAll}
-            />
-            {hasOrganization && (isRole1 || isRole2) && (
-              <button
-                type="button"
-                className="myprop-toolbar-btn"
-                title={(selectedCount === 0 || !isBranchSelected) ? "Seleccionar sucursal" : "Asignar responsable"}
-                disabled={selectedCount === 0 || !isBranchSelected}
-                onClick={() => { setAssignSelectedUserId(null); setPendingAction({ ids: getSelectedPropertyIds(), label: 'Reasignar Colaborador', action: 'assign' }); }}
-              >
-                <img src="/icons/AsignarUser.svg" alt="Asignar" />
+              />
+            </div>
+            <div className="flex items-center gap-[24px]">
+              {hasOrganization && (isRole1 || isRole2) && (
+                <button
+                  type="button"
+                  className="myprop-toolbar-btn"
+                  title={(selectedCount === 0 || !isBranchSelected) ? "Seleccionar sucursal" : "Asignar responsable"}
+                  disabled={selectedCount === 0 || !isBranchSelected}
+                  onClick={() => { setAssignSelectedUserId(null); setPendingAction({ ids: getSelectedPropertyIds(), label: 'Reasignar Colaborador', action: 'assign' }); }}
+                >
+                  <img src="/icons/AsignarUser.svg" alt="Asignar" />
+                </button>
+              )}
+              {!isRole3 && (
+              <button type="button" className="myprop-toolbar-btn" title={(selectedCount === 0 || (hasOrganization && !isBranchSelected)) ? "Seleccionar sucursal" : "Republicar"} disabled={selectedCount === 0 || (hasOrganization && !isBranchSelected)} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
+                <img src="/icons/republicar.svg" alt="Republicar" />
               </button>
-            )}
-            {!isRole3 && (
-            <button type="button" className="myprop-toolbar-btn" title={(selectedCount === 0 || (hasOrganization && !isBranchSelected)) ? "Seleccionar sucursal" : "Republicar"} disabled={selectedCount === 0 || (hasOrganization && !isBranchSelected)} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
-              <img src="/icons/republicar.svg" alt="Republicar" />
-            </button>
-            )}
-            <button type="button" className="myprop-toolbar-btn" title="Archivar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
-              <img src="/icons/archivar.svg" alt="Archivar" />
-            </button>
-            <button type="button" className="myprop-toolbar-btn" title="Dar de baja" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DRAFT, 'Dar de baja')}>
-              <img src="/icons/power.svg" alt="Dar de baja" />
-            </button>
+              )}
+              <button type="button" className="myprop-toolbar-btn" title="Archivar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
+                <img src="/icons/archivar.svg" alt="Archivar" />
+              </button>
+              <button type="button" className="myprop-toolbar-btn" title="Dar de baja" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DRAFT, 'Dar de baja')}>
+                <img src="/icons/power.svg" alt="Dar de baja" />
+              </button>
+            </div>
           </div>
 
           <div className="myprop-toolbar-right">
@@ -650,14 +654,14 @@ const MyProperties = () => {
               ? new Date((prop as any).created_at).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
               : '--';
             return (
-            <div key={prop.id ?? idx} className="myprop-card">
+            <div key={prop.id ?? idx} className={`myprop-card${isSelected ? ' is-selected' : ''}`}>
                 {/* Checkbox */}
                 <div className="myprop-card-check">
-                <Checkbox
-                  label=""
-                  checked={isSelected}
-                  onChange={() => toggleSelect(idx)}
-                />
+                  <Checkbox
+                    label=""
+                    checked={isSelected}
+                    onChange={() => toggleSelect(idx)}
+                  />
                 </div>
 
                 <div className="myprop-card-content">

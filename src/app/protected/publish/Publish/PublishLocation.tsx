@@ -381,6 +381,7 @@ export default function PublishLocation({
       state_id,
       location_id,
       sub_location_id,
+      show_exact_location,
       geo_lat,
       geo_long
     }

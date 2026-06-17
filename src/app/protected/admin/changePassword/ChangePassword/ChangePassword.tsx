@@ -184,7 +184,7 @@ export default function ChangePassword() {
         {showConfirm && (
         <AreYouSureModal
           title="Cambiar contraseña"
-          text="¿Estás seguro que deseas cambiar tu contraseña?"
+          text="¿Estás seguro que deseás cambiar tu contraseña?"
           icon="/icons/lock.svg"
           onAccept={handleConfirm}
           onCancel={() => setShowConfirm(false)}

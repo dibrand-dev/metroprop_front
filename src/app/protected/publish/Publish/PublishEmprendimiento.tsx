@@ -334,38 +334,6 @@ export default function PublishEmprendimiento({
     }
   };
 
-  // Video management functions
-  const addVideo = () => {
-    const trimmedUrl = currentVideoUrl.trim();
-    if (!trimmedUrl || !isValidYouTubeUrl(trimmedUrl)) {
-      alert('Por favor, ingresa una URL válida de YouTube');
-      return;
-    }
-    
-    if (videos.length >= 10) {
-      alert('Máximo 10 videos permitidos');
-      return;
-    }
-
-    const videoId = extractYouTubeId(trimmedUrl);
-    if (videoId) {
-      const newVideo: VideoPreview = {
-        url: trimmedUrl,
-        id: videoId,
-        thumbnail: getYouTubeThumbnail(videoId)
-      };
-      setVideos(prev => [...prev, newVideo.url]);
-      setVideosPreview(prev => [...(prev ?? []), newVideo]);
-      setCurrentVideoUrl(''); // Clear input field
-    }
-  };
-
-  const removeVideo = (index: number) => {
-    setVideos(prev => prev.filter((_, i) => i !== index));
-    setVideosPreview(prev => prev?.filter((_, i) => i !== index));
-  };
-
-
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
     <div className="publish-emprendimiento">
