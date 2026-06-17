@@ -194,9 +194,6 @@
 .property-detail-info {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  border: 1px solid #d7d7d7;
-  background: #ffffff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -205,6 +202,66 @@
   svg {
     width: 18px;
     height: 18px;
+  }
+}
+
+.price-info-popover {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #006aff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 24px 16px 16px 16px;
+  min-width: 220px;
+  z-index: 1000;
+
+  .price-info-popover-close {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      color: #1e1e1e;
+    }
+  }
+
+  .price-info-popover-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 8px;
+  }
+
+  .price-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .price-info-label {
+    font-size: 14px;
+    color: #1e1e1e;
+    font-weight: 500;
+  }
+
+  .price-info-value {
+    font-size: 14px;
+    color: #6b6b6b;
+    font-weight: 400;
   }
 }
 

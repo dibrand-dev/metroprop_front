@@ -246,9 +246,9 @@ export default function PublishLocation({
 
   // Query for zones (loads when location is selected)
   const { data: zones = [], isLoading: loadingZones } = useQuery({
-    queryKey: ['zones', sub_location_id],
+    queryKey: ['zones', location_id],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: location_id } }),
-    enabled: !!sub_location_id,
+    enabled: !!location_id,
   });
   
   const hasAddress = useMemo(() => street.trim().length > 0, [street]);

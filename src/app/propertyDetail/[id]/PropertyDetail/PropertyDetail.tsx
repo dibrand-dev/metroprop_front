@@ -65,6 +65,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');
   const [openUnitGroups, setOpenUnitGroups] = useState<Record<string, boolean>>({});
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isPriceInfoPopoverOpen, setIsPriceInfoPopoverOpen] = useState(false);
 
   const toggleUnitGroup = (tipo: string) => {
     setOpenUnitGroups(prev => ({ ...prev, [tipo]: !prev[tipo] }));
@@ -428,6 +429,21 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     return () => window.removeEventListener('resize', updateOffset);
   }, []);
 
+  // Close popover when clicking outside
+  useEffect(() => {
+    if (!isPriceInfoPopoverOpen) return;
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.price-info-popover') && !target.closest('.property-detail-info')) {
+        setIsPriceInfoPopoverOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isPriceInfoPopoverOpen]);
+
 
   const handleSubmenuItemClick = (itemId: string) => {
     const target = document.getElementById(`property-detail-${itemId}`);
@@ -546,17 +562,41 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             <p className="property-detail-status"><span className='status-icon'></span>{statusDisplay}</p>
             <div className="property-detail-price">
               <span>{priceDisplay}</span>
-              <button
-                type="button"
-                className="property-detail-info"
-                aria-label="Mas informacion"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
-                  <path d="M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M11 11h2v6h-2z" fill="currentColor" />
-                </svg>
-              </button>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  className="property-detail-info"
+                  aria-label="Mas informacion"
+                  onClick={() => setIsPriceInfoPopoverOpen(!isPriceInfoPopoverOpen)}
+                >
+                  <img src="/icons/infoPrice.svg" alt="Info Icon" />
+                </button>
+                {isPriceInfoPopoverOpen && (
+                  <div className="price-info-popover">
+                    <button 
+                      className="price-info-popover-close" 
+                      onClick={() => setIsPriceInfoPopoverOpen(false)}
+                      aria-label="Cerrar"
+                    >
+                      ×
+                    </button>
+                    <div className="price-info-popover-content">
+                      <div className="price-info-item">
+                        <span className="price-info-label">Cubierto</span>
+                        <span className="price-info-value">100% / m²</span>
+                      </div>
+                      <div className="price-info-item">
+                        <span className="price-info-label">Semi Cubierto</span>
+                        <span className="price-info-value">50% / m²</span>
+                      </div>
+                      <div className="price-info-item">
+                        <span className="price-info-label">Descubierto</span>
+                        <span className="price-info-value">0%</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>}
 

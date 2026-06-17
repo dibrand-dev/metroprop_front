@@ -97,7 +97,7 @@ export default function TopUserMenu() {
   const menuItems: MenuItemType[] = [
     {
       id: 'contactos',
-      label: 'Contactos',
+      label: 'Contactados',
       icon: contactosIcon,
       href: '/protected/contacts'
     },

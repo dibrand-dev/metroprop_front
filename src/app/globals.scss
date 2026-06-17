@@ -48,12 +48,15 @@ body {
   max-width: 264px;
   cursor: pointer;
   
-  &:hover .property-card-info {
-    background-color: #ffffff;
-  }
-
+ 
   &.home {
     position: relative;
+
+    &:hover .property-card-info {
+        background-color: #ffffff;
+    }
+
+
     .entrega-delivery-date {
         position: absolute;
         top: 16px;
