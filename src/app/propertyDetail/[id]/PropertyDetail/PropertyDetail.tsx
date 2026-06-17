@@ -11,7 +11,7 @@ import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype } from '@/types/propiedad';
-import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath, getInitials } from '@/utils/utils';
+import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath, getInitials, formatStreetAddress } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
 import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
@@ -278,11 +278,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       ? property.organization.company_logo
       : `${AWS_S3_BUCKET_URL}/${property.organization.company_logo}`
     : false;
+
+  const formattedStreet = formatStreetAddress(property?.street, property?.show_exact_location);
   const countryLabel = locations.find(l => l.id === property?.country_id)?.name;
   const stateLabel = locations.find(l => l.id === property?.state_id)?.name;
   const locationLabel = locations.find(l => l.id === property?.location_id)?.name;
   const subLocationLabel = locations.find(l => l.id === property?.sub_location_id)?.name;
-  const addressParts = [property?.street, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
+  const addressParts = [formattedStreet, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
   const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
 
   const updateSimilarScrollState = (index: number) => {
@@ -928,7 +930,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 <span>{address}</span>
               </div>
               <div className="property-detail-map-image">
-                <PropertyMap address={property?.street ?? ''} lat={isNaN(Number(property?.geo_lat)) ? undefined : Number(property?.geo_lat)} lng={isNaN(Number(property?.geo_long)) ? undefined : Number(property?.geo_long)} />
+                <PropertyMap address={formattedStreet} lat={isNaN(Number(property?.geo_lat)) ? undefined : Number(property?.geo_lat)} lng={isNaN(Number(property?.geo_long)) ? undefined : Number(property?.geo_long)} />
               </div>
             </section>
 

@@ -121,3 +121,24 @@ export function HeartIcon({ isFavorite }: { isFavorite?: boolean }): JSX.Element
       .map(word => word.charAt(0).toUpperCase())
       .join('');
   };
+
+  // Format street address based on show_exact_location
+  export const formatStreetAddress = (street: string | undefined, showExactLocation: boolean | undefined) => {
+    if (!street || showExactLocation) return street ?? '';
+    
+    // Extract number from the beginning or end of the street
+    const matchStart = street.match(/^(\d+)/);
+    const matchEnd = street.match(/(\d+)$/);
+    
+    if (matchStart) {
+      const originalNumber = parseInt(matchStart[1]);
+      const roundedNumber = Math.floor(originalNumber / 100) * 100;
+      return street.replace(/^\d+/, String(roundedNumber));
+    } else if (matchEnd) {
+      const originalNumber = parseInt(matchEnd[1]);
+      const roundedNumber = Math.floor(originalNumber / 100) * 100;
+      return street.replace(/\d+$/, String(roundedNumber));
+    }
+    
+    return street;
+  };

@@ -4,14 +4,14 @@ import { useState, useEffect, useMemo } from 'react';
 import './PublishEmprendimientoPreview.scss';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreateProperty, CreatePropertyDraft, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
 import { useQuery } from '@tanstack/react-query';
-import { API_BASE_URL, setImagePath, formatNumbers, formatCurrency, getInitials } from '@/utils/utils';
+import { API_BASE_URL, setImagePath, formatNumbers, formatCurrency, getInitials, formatStreetAddress } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
 import { ORGANIZATION_NO_IMAGE } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import { useLocations } from '@/lib/locations';
 import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
-import GalleryModal, { GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
+import GalleryModal, { GalleryTab, GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
 import Button from '@/ui/Button/Button';
 
 const iconCrane = '/icons/crane.svg';
@@ -38,7 +38,7 @@ export default function PublishEmprendimientoFinalReview({
   const stateLabel = locations.find(l => l.id === wizardData.state_id)?.name;
   const locationLabel = locations.find(l => l.id === wizardData.location_id)?.name;
   const subLocationLabel = locations.find(l => l.id === wizardData.sub_location_id)?.name;
-  const addressParts = [wizardData.street, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
+  const addressParts = [formatStreetAddress(wizardData.street, wizardData.show_exact_location), subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
   const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import './PublishFinalReview.scss';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
 import { useQuery } from '@tanstack/react-query';
-import { API_BASE_URL, setImagePath, formatNumbers, formatCurrency, getInitials } from '@/utils/utils';
+import { API_BASE_URL, setImagePath, formatNumbers, formatCurrency, getInitials, formatStreetAddress } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
 import { apiFetch } from '@/lib/apiFetch';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
@@ -32,11 +32,13 @@ export default function PublishFinalReview({
   const { data: locations = [] } = useLocations();
   const { data: sessionData } = useSession();
   const [activeTab, setActiveTab] = useState<string>('');
+
+  const formattedStreet = formatStreetAddress(wizardData.street, wizardData.show_exact_location);
   const countryLabel = locations.find(l => l.id === wizardData.country_id)?.name;
   const stateLabel = locations.find(l => l.id === wizardData.state_id)?.name;
   const locationLabel = locations.find(l => l.id === wizardData.location_id)?.name;
   const subLocationLabel = locations.find(l => l.id === wizardData.sub_location_id)?.name;
-  const addressParts = [wizardData.street, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
+  const addressParts = [formattedStreet, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
   const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
 
