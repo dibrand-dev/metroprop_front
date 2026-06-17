@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import './TopUserMenu.scss';
 import Button from '@/ui/Button/Button';
 import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, getInitials } from '@/utils/utils';
 import Link from 'next/link';
 
 const chevronIcon = "/icons/chevron-up.svg";
@@ -67,14 +67,6 @@ export default function TopUserMenu() {
 
     loadUser();
   }, [sessionData]);
-
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .slice(0, 2)
-      .map(word => word.charAt(0).toUpperCase())
-      .join('');
-  };
 
   const handleLogout = async () => {
     localStorage.removeItem('authToken');

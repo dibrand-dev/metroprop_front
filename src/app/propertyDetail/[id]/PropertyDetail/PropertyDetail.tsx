@@ -11,7 +11,7 @@ import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype } from '@/types/propiedad';
-import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath } from '@/utils/utils';
+import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath, getInitials } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
 import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
@@ -276,7 +276,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     ? property.organization.company_logo.includes('http') 
       ? property.organization.company_logo
       : `${AWS_S3_BUCKET_URL}/${property.organization.company_logo}`
-    : ORGANIZATION_NO_IMAGE;
+    : false;
   const countryLabel = locations.find(l => l.id === property?.country_id)?.name;
   const stateLabel = locations.find(l => l.id === property?.state_id)?.name;
   const locationLabel = locations.find(l => l.id === property?.location_id)?.name;
@@ -955,7 +955,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
             <div className="property-detail-agent">
               <div className="property-detail-agent-header">
-                <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />
+                {agentLogo
+                  ? <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />
+                  : <div className="header-avatar">
+                    {/*sessionData?.user?.image ? <img src={sessionData.user.image} alt={sessionData.user.name ?? ''} /> : getInitials(sessionData?.user?.name || '')*/}
+                    {getInitials(agentName)}
+                  </div>}
                 <div>
                   <h4>{agentName}</h4>
                   <span>{property?.organization?.name ?? ''}</span>

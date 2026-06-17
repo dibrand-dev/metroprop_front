@@ -114,3 +114,10 @@ export function HeartIcon({ isFavorite }: { isFavorite?: boolean }): JSX.Element
     window.open(whatsappUrl, '_blank');
   }
   
+  export const getInitials = (name: string): string => {
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map(word => word.charAt(0).toUpperCase())
+      .join('');
+  };

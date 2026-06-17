@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import './PublishEmprendimientoPreview.scss';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreateProperty, CreatePropertyDraft, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
 import { useQuery } from '@tanstack/react-query';
-import { API_BASE_URL, setImagePath, formatNumbers, formatCurrency } from '@/utils/utils';
+import { API_BASE_URL, setImagePath, formatNumbers, formatCurrency, getInitials } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
 import { ORGANIZATION_NO_IMAGE } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
@@ -268,7 +268,7 @@ export default function PublishEmprendimientoFinalReview({
     onNext(propertyPublishUpdate);
   };
 
-  const agentLogo: string = setImagePath((sessionData?.user as any)?.organization?.company_logo) || ORGANIZATION_NO_IMAGE;
+  const agentLogo: string | false = setImagePath((sessionData?.user as any)?.organization?.company_logo) || false;
   const agentName: string = (sessionData?.user as any)?.organization?.company_name || sessionData?.user?.name || '';
 
  const openGallery = (tab: GalleryTab = 'fotos', index = 0) => {
@@ -547,7 +547,12 @@ export default function PublishEmprendimientoFinalReview({
                 <p>Estos son los datos que verán los interesados</p>
                 <div className="publish-review-contact-card">
                   <div className="publish-review-contact-logo">
-                    {agentLogo && <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />}
+                    {agentLogo
+                      ? <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />
+                      : <div className="header-avatar">
+                        {/*sessionData?.user?.image ? <img src={sessionData.user.image} alt={sessionData.user.name ?? ''} /> : getInitials(sessionData?.user?.name || '')*/}
+                        {getInitials(agentName)}
+                      </div>}
                   </div>
                   {sessionData?.user && <div className="publish-review-contact-info">
                     <div className="publish-review-contact-name">{agentName}</div>
