@@ -22,6 +22,7 @@ interface SubmenuProps {
 
 const items: SubmenuItem[] = [
   { id: 'partners', label: 'Partners', href: "/protected/admin/partners", roles: [4] },
+  { id: 'ads', label: 'Ads & Banners', href: "/protected/admin/ads", roles: [4] },
   { id: 'plans', label: 'Planes', href: "/protected/admin/plans", roles: [4] },
   { id: 'users', label: 'Usuarios', href: "/protected/admin/users", roles: [4] },
   { id: 'organizations', label: 'Inmobiliarias', href: "/protected/admin/organizations", roles: [4] },

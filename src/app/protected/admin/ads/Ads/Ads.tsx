@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import { apiFetch } from '@/lib/apiFetch';
 import Button from '@/ui/Button/Button';
+import { BANNER_PLACEMENT_OPTIONS } from '@/types/propiedad';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconRefresh = '/icons/refresh.svg';
@@ -75,9 +76,10 @@ export default function Ads() {
     delete: { title: 'Eliminar Ad', subTitle: '¿Estás seguro que desea eliminar el ad?', icon: iconWhiteTrash, iconBackgroundColor: '#E84545' },
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading ads</div>;
+  if (isLoading) return <div>Cargando...</div>;
+  if (isError) return <div>Error cargando Ads</div>;
 
+  console.log("adsData", adsData)
   return (
     <>
       <div className={`partners-container ${showMenu ? 'mobile-hidden' : ''}`}>
@@ -104,18 +106,19 @@ export default function Ads() {
           </div>
 
           <div className="partners-list">
-            {adsData?.ads?.map((ad) => (
+            {adsData?.map((ad) => (
               <div key={ad.id} className="partners-card">
                 <div className="partners-card-info">
                   <p className="partners-card-title">
                     {ad.name ?? ''}
                   </p>
                   <p className="partners-card-subtitle">
-                    {ad.placements ?? ''}
+                    {//ad.placements?.map((placement) => BANNER_PLACEMENT_OPTIONS.find(option => option.value === placement)?.label).join(', ') ?? ''}
+                    ad.placements ?? ''}
                   </p>
                 </div>
                 <div className="partners-card-actions">
-                  <span className="partners-role-chip">{ad.status === 1 ? 'Habilitado' : 'Deshabilitado'}</span>                  
+                  <span className="partners-role-chip">{ad.status ? 'Habilitado' : 'Deshabilitado'}</span>                  
                   <div className="partners-card-tools">                   
                     <button
                       className="partners-action-button"
@@ -131,7 +134,7 @@ export default function Ads() {
                       aria-label={ad.status === 1 ? "Deshabilitar ad" : "Habilitar ad"}
                       onClick={() => ad.status === 1 ? desHabilitar(ad.id) : habilitar(ad.id)}
                     >
-                      <img src={ad.status === 1 ? iconLock : iconCheck} alt={ad.status === 1 ? "Deshabilitar ad" : "Habilitar ad"} />
+                      <img src={ad.status ? iconLock : iconCheck} alt={ad.status ? "Deshabilitar ad" : "Habilitar ad"} />
                     </button>
                     <button
                       className="partners-action-button"
@@ -149,7 +152,7 @@ export default function Ads() {
         </div>
 
         <div className="partners-mobile-footer">
-          <Button type="button" variant="primary" onClick={() => router.push('/protected/adForm')} label="Agregar ad" fullWidth />
+          <Button type="button" variant="primary" onClick={() => router.push('/protected/admin/adsForm')} label="Agregar ad" fullWidth />
         </div>
       </div>
 

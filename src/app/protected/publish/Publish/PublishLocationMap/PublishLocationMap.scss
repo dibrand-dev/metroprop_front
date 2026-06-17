@@ -36,3 +36,26 @@
   margin-top: -2px;
   filter: blur(2px);
 }
+
+// Transparent overlay that captures the first click to activate interactivity
+.publish-location-map-activate-overlay {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  z-index: 20;
+
+  &::after {
+    content: 'Clic para ajustar la ubicación';
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.62);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+}

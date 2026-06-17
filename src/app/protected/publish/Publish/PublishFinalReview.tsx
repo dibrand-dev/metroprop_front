@@ -105,7 +105,7 @@ export default function PublishFinalReview({
 
 
   // Build property title
-  const propertyTitle = wizardData.publication_title || `${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} ${wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}`;
+  const propertyTitle = wizardData.publication_title || `${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} ${wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}`;
   
   // Build property features from wizard data
   const buildFeatures = () => {
@@ -208,7 +208,7 @@ export default function PublishFinalReview({
         <div className="publish-review-card">
           <div className="publish-review-top">
             <div className="publish-review-route">              
-              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
+              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
             <button className="publish-review-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
@@ -222,11 +222,11 @@ export default function PublishFinalReview({
           </div>
 
           <div className="publish-review-section">
-            <h1>Revision final del aviso y datos de contacto</h1>
+            <h1>Revisión final del aviso y datos de contacto</h1>
             <h2>Vista previa</h2>
 
             <div className="publish-review-preview">
-              <h3>Asi se vera tu publicacion</h3>
+              <h3>Así se verá tu publicación</h3>
 
               <div className="publish-review-preview-card">
                 <div>
@@ -285,7 +285,7 @@ export default function PublishFinalReview({
                 <div className="publish-review-summary">
                   <h4>{propertyTitle}</h4>
                   <p>
-                    {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm2'}.`}
+                    {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm2'}.`}
                   </p>
                   {(wizardData.description && wizardData.description.length > 1200) && (
                   <button type="button" className="publish-review-summary-toggle">
@@ -332,7 +332,7 @@ export default function PublishFinalReview({
                 </div>
 
                 <div className="publish-review-amenities">
-                  <h4>Conoce mas sobre esta propiedad</h4>
+                  <h4>Conocé más sobre esta propiedad</h4>
                   <div className="publish-review-amenities-tabs">
                     {dynamicAmenities[4] && dynamicAmenities[4].length > 0 && (
                       <button
@@ -371,7 +371,7 @@ export default function PublishFinalReview({
 
               <div className="publish-review-contact">
                 <h3>Datos de contacto</h3>
-                <p>Estos son los datos que veran los interesados</p>
+                <p>Estos son los datos que verán los interesados</p>
                 <div className="publish-review-contact-card">
                   <div className="publish-review-contact-logo">
                     {agentLogo && <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />}

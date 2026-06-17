@@ -129,10 +129,14 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, onSuggestion
     <div className="publish-location-autocomplete">
       {/* Hidden div required by PlacesService for API attribution */}
       <div ref={attrDivRef} style={{ display: 'none' }} aria-hidden="true" />
+      <label htmlFor="address-autocomplete" className="input-label">
+        Calle y número*
+      </label>
       <InputField2
+        id="address-autocomplete"
         ref={inputRef}
         type="text"
-        label="Calle y numero*"
+        label="Dirección"
         placeholder="Dirección"        
         value={value}
         onChange={handleChange}
@@ -209,6 +213,7 @@ export default function PublishLocation({
   const [hasSelectedAutocompleteLocation, setHasSelectedAutocompleteLocation] = useState(
     Boolean(wizardData.location_id || wizardData.state_id || wizardData.country_id || wizardData.geo_lat || wizardData.geo_long)
   );
+  const [mapInteractive, setMapInteractive] = useState(false);
 
   const handleCoordinatesChange = (lat: number, lng: number) => {
     setGeo_lat(lat);
@@ -282,6 +287,7 @@ export default function PublishLocation({
 
   const handlePlaceSelect = useCallback((data: PlaceData) => {
     setStreet(data.street);
+    setMapInteractive(false);
     // Immediately try to match country; if found cascade state/city via pending
     const countryMatch = findBestMatch(countryOptions, data.countryName);
     if (countryMatch) {
@@ -386,7 +392,7 @@ export default function PublishLocation({
       <div className="publish-location-inner">
         <div className="publish-location-card">
           <div className="publish-location-top">
-            <p className="publish-location-label">{wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}</p>
+            <p className="publish-location-label">{wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}</p>
             <button className="publish-location-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
@@ -446,11 +452,11 @@ export default function PublishLocation({
               <div className="publish-location-row">
                 <div className="publish-location-field">
                   <Select
-                    label="Localidad"
+                    label="Barrio"
                     options={locationOptions}
                     value={location_id ? location_id.toString() : undefined}
                     onChange={handleLocationChange}
-                    placeholder={loadingLocations ? "Cargando localidades..." : "Seleccionar localidad"}
+                    placeholder={loadingLocations ? "Cargando barrios..." : "Seleccionar barrio"}
                     disabled={!hasSelectedAutocompleteLocation || !state_id || loadingLocations || locationOptions.length === 0}
                   />
                 </div>
@@ -486,11 +492,11 @@ export default function PublishLocation({
               <h2>Vista previa del aviso</h2>
               {showMapPreview && (
                 <div className="publish-location-toggle">
-                  <span>Mostrar la ubicacion exacta</span>
+                  <span>Mostrar la ubicación exacta</span>
                   <SwitchToggle
                     checked={show_exact_location}
                     onChange={setShow_exact_location}
-                    ariaLabel="Mostrar ubicacion exacta"
+                    ariaLabel="Mostrar ubicación exacta"
                   />
                 </div>
               )}
@@ -502,10 +508,12 @@ export default function PublishLocation({
                 onStreetChange={setStreet}
                 onCoordinatesChange={handleCoordinatesChange}
                 disabled={!hasSelectedAutocompleteLocation}
+                interactive={mapInteractive}
+                onActivate={() => setMapInteractive(true)}
               />
-              {showMapPreview && showMapNote && (
+              {showMapPreview && showMapNote && mapInteractive && (
                 <div className="publish-location-map-note">
-                  <p>Arrastra el marcador para ajustar la ubicacion</p>
+                  <p>Arrastra el marcador para ajustar la ubicación</p>
                   <button
                     type="button"
                     aria-label="Cerrar"

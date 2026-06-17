@@ -350,7 +350,7 @@ export default function OrganizationProfile() {
                 options={locationOptions}
                 value={location_id ? location_id.toString() : undefined}
                 onChange={(v) => { setLocation_id(v ? parseInt(v) : undefined); setSub_location_id(undefined); }}
-                placeholder={loadingLocations ? 'Cargando localidades...' : 'Seleccionar localidad'}
+                placeholder={loadingLocations ? 'Cargando barrios...' : 'Seleccionar barrio'}
                 disabled={!(isEditing && activeSection === 'ubicacion') || !state_id || loadingLocations}
               />
               {zoneOptions.length > 0 && (

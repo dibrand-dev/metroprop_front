@@ -167,7 +167,7 @@ export default function PublishEmprendimientoFinalReview({
 
 
   // Build property title
-  const propertyTitle = wizardData.publication_title || `${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} - ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} ${wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : 'No especificado'}`;
+  const propertyTitle = wizardData.publication_title || `${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} ${wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}`;
   
   // Build property features from unit ranges
   const buildFeatures = () => {
@@ -308,11 +308,11 @@ export default function PublishEmprendimientoFinalReview({
           <EmprendimientoTabs currentStep="emprendimiento-preview" goToStep={goToStep} />
 
           <div className="publish-review-section">
-            <h1>Revision final del aviso y datos de contacto</h1>
+            <h1>Revisión final del aviso y datos de contacto</h1>
             <h2>Vista previa</h2>
 
             <div className="publish-review-preview">
-              <h3>Asi se vera tu publicacion</h3>
+              <h3>Así se verá tu publicación</h3>
 
               <div className="publish-review-preview-card">
                 <div>
@@ -372,11 +372,11 @@ export default function PublishEmprendimientoFinalReview({
                 <div className="description-section">
                   <h4>Sobre el emprendimiento</h4>
                   <p>
-                    {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : 'No especificado'} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : 'No especificado'} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm2'}.`}
+                    {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm2'}.`}
                   </p>
                   {(wizardData.description && wizardData.description.length > 1200) && (
                   <button type="button" className="publish-review-summary-toggle">
-                    Leer descripcion completa
+                    Leer descripción completa
                     <img src="/icons/chevron-up.svg" alt="" />
                   </button>)}
                 </div>
@@ -544,7 +544,7 @@ export default function PublishEmprendimientoFinalReview({
 
               <div className="publish-review-contact">
                 <h3>Datos de contacto</h3>
-                <p>Estos son los datos que veran los interesados</p>
+                <p>Estos son los datos que verán los interesados</p>
                 <div className="publish-review-contact-card">
                   <div className="publish-review-contact-logo">
                     {agentLogo && <img src={agentLogo} alt={`${agentName} logo`} className="property-detail-agent-logo" />}

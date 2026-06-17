@@ -97,3 +97,20 @@ export function HeartIcon({ isFavorite }: { isFavorite?: boolean }): JSX.Element
       />
     </svg>;
 }
+
+
+  export function sendPropertyToWhatsApp(propertyId: number, phone: string, message: string) {    
+    // Use \n for line breaks and regular text for the URL
+    const fullMessage = `Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información?
+
+    Ver propiedad: https://metroprop.com/property/${propertyId}
+
+    ${message}`;
+    
+    // Safely encode the text for the URL API
+    const encodedText = encodeURIComponent(fullMessage);
+    const whatsappUrl = `https://wa.me/${(phone)}?text=${encodedText}`;
+    
+    window.open(whatsappUrl, '_blank');
+  }
+  

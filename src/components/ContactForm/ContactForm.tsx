@@ -7,7 +7,7 @@ import Checkbox from '@/ui/Checkbox/Checkbox';
 import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, sendPropertyToWhatsApp } from '@/utils/utils';
 import { LeadContactType } from '@/types/propiedad';
 import { useSession } from 'next-auth/react';
 
@@ -130,7 +130,7 @@ console.log({ phoneNumber, phone_whatsapp });
   };
 
   const openWhatsApp = (message: string) => {
-    if (!formState.phone || (!phone_whatsapp && !phoneNumber)) {
+    if (!phone_whatsapp && !phoneNumber)   {
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
@@ -138,8 +138,7 @@ console.log({ phoneNumber, phone_whatsapp });
       }, 3000);
       return;
     } else {
-      const encodedMessage = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a><br />${message}`);
-      window.open(`https://wa.me/${(phone_whatsapp ?? phoneNumber).trim()}?text=${encodedMessage}`, "_blank");
+      propertyId && sendPropertyToWhatsApp(propertyId, phone_whatsapp ?? phoneNumber ?? '', message);
     }
   };
   
@@ -192,13 +191,13 @@ console.log({ phoneNumber, phone_whatsapp });
     >
       {!isModal && (
         <div className="property-detail-contact-header">
-          <h2>Contacta al anunciante</h2>
+          <h2>Contactá al anunciante</h2>
         </div>
       )}
 
       {!favorite && <div className="property-detail-contact-block">
         <h3>Preguntas para el anunciante</h3>
-        <p>Selecciona una o mas preguntas, o escribi tu consulta.</p>
+        <p>Seleccioná una o más preguntas, o escribí tu consulta.</p>
         <div className="property-detail-question-grid">
           {QUESTION_CHIPS.map((question) => (
             <button
@@ -264,13 +263,13 @@ console.log({ phoneNumber, phone_whatsapp });
 
       <div className="property-detail-contact-terms">
         <Checkbox
-          label="Acepto terminos y condiciones"
+          label="Acepto términos y condiciones"
           checked={termsAccepted}
           onChange={setTermsAccepted}
           error={fieldErrors.terms ? ' ' : undefined}
         />
         <Checkbox
-          label="Acepto politica de privacidad"
+          label="Acepto política de privacidad"
           checked={privacyAccepted}
           onChange={setPrivacyAccepted}
           error={fieldErrors.privacy ? ' ' : undefined}
@@ -313,7 +312,7 @@ console.log({ phoneNumber, phone_whatsapp });
           className="property-detail-contact-modal is-open"
           role="dialog"
           aria-modal="true"
-          aria-label="Contacta al anunciante"
+          aria-label="Contactá al anunciante"
         >
           <div
             className="property-detail-contact-modal-backdrop"
@@ -321,7 +320,7 @@ console.log({ phoneNumber, phone_whatsapp });
           />
           <div className="property-detail-contact-modal-panel">
             <div className="property-detail-contact-modal-header">
-              <h2>Contacta al anunciante</h2>
+              <h2>Contactá al anunciante</h2>
               <button
                 type="button"
                 className="property-detail-gallery-modal-close"

@@ -6,7 +6,7 @@ import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, sendPropertyToWhatsApp } from '@/utils/utils';
 import { LeadContactType } from '@/types/propiedad';
 import { useSession } from 'next-auth/react';
 import SuccessModal from '../SuccessModal/SuccessModal';
@@ -151,8 +151,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
 
   const openWhatsApp = () => {
     if (!validateForm()) return;
-    console.log({ formState, phoneNumber });
-    if (!formState.phone || !phoneNumber) {
+    if (!phoneNumber) {
       setShowSuccess(true);
       setTimeout(() => {        
         setShowSuccess(false);
@@ -160,9 +159,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
       }, 3000);
       return;
     };
-    const message = encodeURIComponent(`Hola, estoy interesado en esta propiedad que vi en MetroProp. ¿Podrías darme más información? <a href="https://metroprop.com/property/${propertyId}">Ver propiedad</a>`);
-    console.log("message", message);
-    window.open(`https://wa.me/${phoneNumber.trim()}?text=${message}`, "_blank");
+    propertyId && sendPropertyToWhatsApp(propertyId, phoneNumber ?? '', '');
   };
 
   if (showSuccess) {

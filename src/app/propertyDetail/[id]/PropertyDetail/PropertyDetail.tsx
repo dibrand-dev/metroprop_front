@@ -895,7 +895,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             {(property?.is_development || (!property?.development_id && !property?.is_development)) 
             ? Object.values(dynamicAmenities).some(arr => arr.length > 0) && (
             <section className="property-detail-amenities" id="property-detail-amenities">
-              <h2>Conoce mas sobre esta propiedad</h2>
+              <h2>Conocé más sobre esta propiedad</h2>
               <div className="property-detail-amenities-tabs">
                 {dynamicAmenities[4] && dynamicAmenities[4].length > 0 && (
                   <button

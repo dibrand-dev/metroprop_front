@@ -103,10 +103,14 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, onSuggestion
   return (
     <div className="publish-location-autocomplete">
       <div ref={attrDivRef} style={{ display: 'none' }} aria-hidden="true" />
+      <label htmlFor="address-autocomplete" className="input-label">
+        Calle y número*
+      </label>
       <InputField2
+        id="address-autocomplete"
         ref={inputRef}
         type="text"
-        label="Calle y número*"
+        label="Dirección"
         placeholder="Dirección"
         value={value}
         onChange={handleChangeAddress}
@@ -172,6 +176,7 @@ export default function PublishEmprendimiento({
   const [geo_long, setGeo_long] = useState<number | undefined>(wizardData.geo_long || undefined);
   const [show_exact_location, setShow_exact_location] = useState(wizardData.show_exact_location || false);
   const [hasSelectedAddress, setHasSelectedAddress] = useState(false);
+  const [mapInteractive, setMapInteractive] = useState(false);
   const [pendingStateName, setPendingStateName] = useState('');
   const [pendingCityName, setPendingCityName] = useState('');
 
@@ -275,6 +280,7 @@ export default function PublishEmprendimiento({
 
   const handlePlaceSelect = useCallback((data: PlaceData) => {
     setStreet(data.street);
+    setMapInteractive(false);
     const countryMatch = findBestMatch(countryOptions, data.countryName);
     if (countryMatch) {
       setCountry_id(parseInt(countryMatch));
@@ -535,11 +541,11 @@ export default function PublishEmprendimiento({
               <div className="form-row">
                 <div className="form-field half-width">
                   <Select
-                    label="Localidad"
+                    label="Barrio"
                     options={locationOptions}
                     value={location_id ? location_id.toString() : undefined}
                     onChange={(v) => { setLocation_id(v ? parseInt(v) : undefined); setSub_location_id(undefined); }}
-                    placeholder={loadingLocations ? 'Cargando localidades...' : 'Seleccionar localidad'}
+                    placeholder={loadingLocations ? 'Cargando barrios...' : 'Seleccionar barrio'}
                     disabled={!hasSelectedAddress || !state_id || loadingLocations || locationOptions.length === 0}
                   />
                 </div>
@@ -590,6 +596,8 @@ export default function PublishEmprendimiento({
                     onStreetChange={setStreet}
                     onCoordinatesChange={(lat, lng) => { setGeo_lat(lat); setGeo_long(lng); }}
                     disabled={!hasSelectedAddress}
+                    interactive={mapInteractive}
+                    onActivate={() => setMapInteractive(true)}
                   />
                 </div>
               </div>

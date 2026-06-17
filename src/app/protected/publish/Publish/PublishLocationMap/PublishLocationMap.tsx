@@ -11,9 +11,10 @@ interface MapInteriorProps {
   onStreetChange: (street: string) => void;
   onCoordinatesChange: (lat: number, lng: number) => void;
   disabled?: boolean;
+  interactive?: boolean;
 }
 
-function MapInterior({ fullAddress, onStreetChange, onCoordinatesChange, disabled = false }: MapInteriorProps) {
+function MapInterior({ fullAddress, onStreetChange, onCoordinatesChange, disabled = false, interactive = true }: MapInteriorProps) {
   const map = useMap();
   const geocodingLib = useMapsLibrary('geocoding');
   const geocoder = useRef<google.maps.Geocoder | null>(null);
@@ -37,6 +38,13 @@ function MapInterior({ fullAddress, onStreetChange, onCoordinatesChange, disable
       geocoder.current = new geocodingLib.Geocoder();
     }
   }, [geocodingLib]);
+
+  // When transitioning to interactive, clear isProgrammatic so user drags register immediately
+  useEffect(() => {
+    if (interactive && !disabled) {
+      isProgrammatic.current = false;
+    }
+  }, [interactive, disabled]);
 
   // Forward geocode: when the composite address changes, pan the map to it
   useEffect(() => {
@@ -64,7 +72,7 @@ function MapInterior({ fullAddress, onStreetChange, onCoordinatesChange, disable
 
   // Reverse geocode: when user drags map, extract street from the new center
   useEffect(() => {
-    if (disabled) return;
+    if (disabled || !interactive) return;
     if (!map) return;
     const listener = map.addListener('idle', () => {
       // First idle is the initial load — unlock and skip
@@ -98,7 +106,7 @@ function MapInterior({ fullAddress, onStreetChange, onCoordinatesChange, disable
       );
     });
     return () => google.maps.event.removeListener(listener);
-  }, [map, disabled]);
+  }, [map, disabled, interactive]);
 
   return null;
 }
@@ -108,6 +116,8 @@ interface PublishLocationMapProps {
   onStreetChange: (street: string) => void;
   onCoordinatesChange: (lat: number, lng: number) => void;
   disabled?: boolean;
+  interactive?: boolean;
+  onActivate?: () => void;
 }
 
 export default function PublishLocationMap({
@@ -115,13 +125,15 @@ export default function PublishLocationMap({
   onStreetChange,
   onCoordinatesChange,
   disabled = false,
+  interactive = true,
+  onActivate,
 }: PublishLocationMapProps) {
   return (
     <div className={`publish-location-map-wrapper${disabled ? ' is-disabled' : ''}`}>
       <Map
         defaultCenter={DEFAULT_CENTER}
         defaultZoom={5}
-        gestureHandling={disabled ? 'none' : 'greedy'}
+        gestureHandling={disabled || !interactive ? 'none' : 'greedy'}
         style={{ width: '100%', height: '100%' }}
       >
         <MapInterior
@@ -129,8 +141,20 @@ export default function PublishLocationMap({
           onStreetChange={onStreetChange}
           onCoordinatesChange={onCoordinatesChange}
           disabled={disabled}
+          interactive={interactive}
         />
       </Map>
+      {/* Click overlay — active until user enables interaction */}
+      {!disabled && !interactive && (
+        <div
+          className="publish-location-map-activate-overlay"
+          onClick={onActivate}
+          role="button"
+          tabIndex={0}
+          aria-label="Activar mapa interactivo"
+          onKeyDown={(e) => e.key === 'Enter' && onActivate?.()}
+        />
+      )}
       {/* Fixed center pin — stays in the middle while the map moves beneath it */}
       <div className="publish-location-map-center-pin" aria-hidden="true">
         <svg viewBox="0 0 24 32" width="30" height="40">

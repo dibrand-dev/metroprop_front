@@ -965,6 +965,8 @@ export type AdBanner = {
   id: number;
   image_url: string;
   name: string;
-  placement: BannerPlacement;
+  placements: BannerPlacement;
   status: boolean;
+  link: string;
+  file: string;
 }

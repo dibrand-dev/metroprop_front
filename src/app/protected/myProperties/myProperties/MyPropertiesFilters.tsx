@@ -42,7 +42,7 @@ interface MyPropertiesFiltersProps {
 
 const getDisplayValue = (value: unknown) => {
   if (value === null || value === undefined || value === '') {
-    return 'No especificado';
+    return '';
   }
 
   return String(value);

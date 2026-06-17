@@ -432,6 +432,16 @@
 .publish-location-autocomplete {
   position: relative;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  label {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 18px;
+    color: #1e1e1e;
+  }
 }
 
 .publish-location-suggestions {
