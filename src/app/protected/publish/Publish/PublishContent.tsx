@@ -84,13 +84,14 @@ export default function PublishContent({
     wizardData.videos?.map(buildVideoPreview) || []
   );
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>('');
-  const [multimedia360, setMultimedia360] = useState<string[]>(wizardData.multimedia360 || ['']);
+  const [current360Url, setCurrent360Url] = useState<string>('');
+  const [multimedia360, setMultimedia360] = useState<string[]>(wizardData.multimedia360 || []);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [uploadedPlans, setUploadedPlans] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [draggedType, setDraggedType] = useState<'image' | 'plan' | 'video' | null>(null);
-  const [dragOverGrid, setDragOverGrid] = useState<'image' | 'plan' | 'video' | null>(null);
+  const [draggedType, setDraggedType] = useState<'image' | 'plan' | 'video' | '360' | null>(null);
+  const [dragOverGrid, setDragOverGrid] = useState<'image' | 'plan' | 'video' | '360' | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -190,24 +191,19 @@ export default function PublishContent({
   };
 
   // Video y multimedia URL management functions
-  const addUrl = (index: number, type: "multimedia360") => {
-    const currentUrl = multimedia360[index]?.trim();
-    if (!currentUrl) return; // Don't add if current input is empty
+  const addUrl = (type: "multimedia360") => {
+    const currentUrl = current360Url.trim();
+    if (!currentUrl) return;
     
-    if (type === "multimedia360" && multimedia360.length < 10) { // Max 10 inputs
-      setMultimedia360(prev => [...prev, '']);
+    if (type === "multimedia360" && multimedia360.length < 10) {
+      setMultimedia360(prev => [...prev, currentUrl]);
+      setCurrent360Url(''); // Clear input after adding
     }
   };
 
   const removeUrl = (index: number, type: "multimedia360") => {
-    if (type === "multimedia360" && multimedia360.length > 1) { // Keep at least one input
-      setMultimedia360(prev => prev.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateUrl = (index: number, value: string, type: "multimedia360") => {
     if (type === "multimedia360") {
-      setMultimedia360(prev => prev.map((item, i) => i === index ? value : item));
+      setMultimedia360(prev => prev.filter((_, i) => i !== index));
     }
   };
 
@@ -316,18 +312,18 @@ export default function PublishContent({
     }
   };
 
-  const getShift = (itemIndex: number, type: 'image' | 'plan' | 'video'): string => {
+  const getShift = (itemIndex: number, type: 'image' | 'plan' | 'video' | '360'): string => {
     if (draggedIndex === null || dragOverIndex === null || draggedType !== type || itemIndex === draggedIndex) return '';
     if (draggedIndex < dragOverIndex) {
-      if (itemIndex > draggedIndex && itemIndex <= dragOverIndex) return 'shift-left';
+      return itemIndex > draggedIndex && itemIndex <= dragOverIndex ? 'shift-left' : '';
     } else if (draggedIndex > dragOverIndex) {
-      if (itemIndex >= dragOverIndex && itemIndex < draggedIndex) return 'shift-right';
+      return itemIndex < draggedIndex && itemIndex >= dragOverIndex ? 'shift-right' : '';
     }
     return '';
   };
 
   // Drag and drop functions
-  const handleDragStart = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video') => {
+  const handleDragStart = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video' | '360') => {
     setDraggedIndex(index);
     setDraggedType(type);
     e.dataTransfer.effectAllowed = 'move';
@@ -338,7 +334,7 @@ export default function PublishContent({
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleItemDragOver = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video') => {
+  const handleItemDragOver = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video' | '360') => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     if (draggedType === type) {
@@ -346,7 +342,7 @@ export default function PublishContent({
     }
   };
 
-  const handleGridDragOver = (e: React.DragEvent, type: 'image' | 'plan' | 'video') => {
+  const handleGridDragOver = (e: React.DragEvent, type: 'image' | 'plan' | 'video' | '360') => {
     e.preventDefault();
     if (draggedType === type) {
       setDragOverGrid(type);
@@ -664,33 +660,58 @@ export default function PublishContent({
                         ) : null}
                         {item.id === 'recorrido' ? (
                           <div className="publish-content-videos-container">
-                            {multimedia360.map((multimedia, index) => (
-                              <div key={index} className="publish-content-input-row">
-                                <InputField                              
-                                  placeholder="Copiá y pegá la URL del recorrido acá"
-                                  value={multimedia}
-                                  onChange={(event) => updateUrl(index, event.target.value, "multimedia360")}
-                                />
-                                {index === multimedia360.length - 1 && multimedia360.length < 10 ? (
-                                  <Button
-                                    label="Agregar"
-                                    variant="primary"
-                                    buttonType="1"
-                                    onClick={() => addUrl(index, "multimedia360")}
-                                    disabled={!multimedia.trim()}
-                                  />
-                                ) : (
-                                  <button
-                                    type="button"
-                                    className="publish-content-remove-btn"
-                                    onClick={() => removeUrl(index, "multimedia360")}
-                                    aria-label="Eliminar recorrido"
+                            <div className="publish-content-input-row">
+                              <InputField                              
+                                placeholder="Copiá y pegá la URL del recorrido acá"
+                                value={current360Url}
+                                onChange={(event) => setCurrent360Url(event.target.value)}
+                              />
+                              <Button
+                                label="Agregar"
+                                variant="primary"
+                                buttonType="1"
+                                onClick={() => addUrl("multimedia360")}
+                                disabled={!current360Url.trim() || multimedia360.length >= 10}
+                              />
+                            </div>
+                            {multimedia360.length > 0 && (
+                              <div 
+                                className={`publish-content-upload-grid compact ${dragOverGrid === '360' ? 'drag-over' : ''}`}
+                                onDragOver={(e) => handleGridDragOver(e, '360')}
+                                onDragLeave={handleGridDragLeave}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  setDragOverGrid(null);
+                                }}
+                              >
+                                {multimedia360.map((url, index) => (
+                                  <div
+                                    key={`360-${index}`}
+                                    className={`publish-content-thumb ${draggedIndex === index && draggedType === '360' ? 'dragging' : ''} ${getShift(index, '360')}`}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, index, '360')}
+                                    onDragOver={(e) => handleItemDragOver(e, index, '360')}
+                                    onDrop={(e) => handleDrop(e, index, '360')}
+                                    onDragEnd={handleDragEnd}
                                   >
-                                    <img src={iconTrash} alt="" />
-                                  </button>
-                                )}
+                                    <div className="publish-content-pdf-thumb">
+                                      <span>360°</span>
+                                      <small>{url.length > 30 ? `${url.substring(0, 30)}...` : url}</small>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      className="publish-content-thumb-action"
+                                      onClick={() => removeUrl(index, "multimedia360")}
+                                    >
+                                      <img src={iconTrash} alt="" />
+                                    </button>
+                                    <div className="publish-content-drag-handle">
+                                      <span>⋮⋮</span>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
+                            )}
                             {multimedia360.length >= 10 && (
                               <p className="publish-content-limit-message">Máximo 10 recorridos permitidos</p>
                             )}

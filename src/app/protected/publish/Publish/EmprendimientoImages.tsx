@@ -65,12 +65,13 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
     const [videos, setVideos] = useState<string[]>([]);
     const [videosPreview, setVideosPreview] = useState<VideoPreview[] | undefined>([]);
     const [currentVideoUrl, setCurrentVideoUrl] = useState<string>('');
-    const [multimedia360, setMultimedia360] = useState<string[]>(['']);
+    const [current360Url, setCurrent360Url] = useState<string>('');
+    const [multimedia360, setMultimedia360] = useState<string[]>([]);
     const [uploadedImages, setUploadedImages] = useState<File[]>([]);
     const [uploadedPlans, setUploadedPlans] = useState<File[]>([]);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-    const [draggedType, setDraggedType] = useState<'image' | 'plan' | 'video' | null>(null);
-    const [dragOverGrid, setDragOverGrid] = useState<'image' | 'plan' | 'video' | null>(null);
+    const [draggedType, setDraggedType] = useState<'image' | 'plan' | 'video' | '360' | null>(null);
+    const [dragOverGrid, setDragOverGrid] = useState<'image' | 'plan' | 'video' | '360' | null>(null);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
     const [openAccordions, setOpenAccordions] = useState<string[]>([]);
 
@@ -113,7 +114,7 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
             const routes = payload.multimedia360
               .map((item: any) => (typeof item === 'string' ? item : (item?.url ?? '')))
               .filter((url: string) => Boolean(url));
-            setMultimedia360(routes.length > 0 ? routes : ['']);
+            setMultimedia360(routes);
           }
         })
         .catch((error) => console.error('Error loading multimedia:', error));
@@ -182,16 +183,16 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
       setVideosPreview(prev => prev?.filter((_, i) => i !== index));
     };
 
-    const handleDragStart = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video') => {
+    const handleDragStart = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video' | '360') => {
       setDraggedIndex(index); setDraggedType(type); e.dataTransfer.effectAllowed = 'move';
     };
     const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
-    const handleItemDragOver = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video') => {
+    const handleItemDragOver = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video' | '360') => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       if (draggedType === type) setDragOverIndex(index);
     };
-    const getShift = (itemIndex: number, type: 'image' | 'plan' | 'video'): string => {
+    const getShift = (itemIndex: number, type: 'image' | 'plan' | 'video' | '360'): string => {
       if (draggedIndex === null || dragOverIndex === null || draggedType !== type || itemIndex === draggedIndex) return '';
       if (draggedIndex < dragOverIndex) {
         if (itemIndex > draggedIndex && itemIndex <= dragOverIndex) return 'shift-left';
@@ -200,7 +201,7 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
       }
       return '';
     };
-    const handleGridDragOver = (e: React.DragEvent, type: 'image' | 'plan' | 'video') => {
+    const handleGridDragOver = (e: React.DragEvent, type: 'image' | 'plan' | 'video' | '360') => {
       e.preventDefault();
       if (draggedType === type) { setDragOverGrid(type); e.dataTransfer.dropEffect = 'move'; }
     };
@@ -208,7 +209,7 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
       const r = e.currentTarget.getBoundingClientRect();
       if (e.clientX < r.left || e.clientX >= r.right || e.clientY < r.top || e.clientY >= r.bottom) setDragOverGrid(null);
     };
-    const handleDrop = (e: React.DragEvent, dropIndex: number, type: 'image' | 'plan' | 'video') => {
+    const handleDrop = (e: React.DragEvent, dropIndex: number, type: 'image' | 'plan' | 'video' | '360') => {
       e.preventDefault();
       if (draggedIndex === null || draggedType !== type) return;
       if (type === 'image') {
@@ -222,7 +223,7 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
         setUploadedImages(unified.filter(e => e.kind === 'local').map(e => e.data as File));
       } else if (type === 'plan') {
         const arr = [...uploadedPlans]; const item = arr[draggedIndex]; arr.splice(draggedIndex, 1); arr.splice(dropIndex, 0, item); setUploadedPlans(arr);
-      } else {
+      } else if (type === 'video') {
         const newVideos = [...videos];
         const draggedVideo = newVideos[draggedIndex];
         newVideos.splice(draggedIndex, 1);
@@ -234,20 +235,25 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
         newPreviews.splice(draggedIndex, 1);
         newPreviews.splice(dropIndex, 0, draggedPreview);
         setVideosPreview(newPreviews);
+      } else if (type === '360') {
+        const new360 = [...multimedia360];
+        const dragged360 = new360[draggedIndex];
+        new360.splice(draggedIndex, 1);
+        new360.splice(dropIndex, 0, dragged360);
+        setMultimedia360(new360);
       }
       setDraggedIndex(null); setDraggedType(null); setDragOverGrid(null); setDragOverIndex(null);
     };
     const handleDragEnd = () => { setDraggedIndex(null); setDraggedType(null); setDragOverGrid(null); setDragOverIndex(null); };
 
-    const addUrl = (index: number) => {
-      if (!multimedia360[index]?.trim() || multimedia360.length >= 10) return;
-      setMultimedia360(prev => [...prev, '']);
+    const addUrl = () => {
+      const trimmedUrl = current360Url.trim();
+      if (!trimmedUrl || multimedia360.length >= 10) return;
+      setMultimedia360(prev => [...prev, trimmedUrl]);
+      setCurrent360Url('');
     };
     const removeUrl = (index: number) => {
-      if (multimedia360.length > 1) setMultimedia360(prev => prev.filter((_, i) => i !== index));
-    };
-    const updateUrl = (index: number, value: string) => {
-      setMultimedia360(prev => prev.map((item, i) => i === index ? value : item));
+      setMultimedia360(prev => prev.filter((_, i) => i !== index));
     };
 
     const uploadMultimediaMutation = useMutation({
@@ -484,22 +490,58 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                     )}
                     {item.id === 'recorrido' && (
                       <div className="publish-content-videos-container">
-                        {multimedia360.map((url, index) => (
-                          <div key={index} className="publish-content-input-row">
-                            <InputField
-                              placeholder="Copiá y pegá la URL del recorrido acá"
-                              value={url}
-                              onChange={(e) => updateUrl(index, e.target.value)}
-                            />
-                            {index === multimedia360.length - 1 && multimedia360.length < 10 ? (
-                              <Button label="Agregar" variant="primary" buttonType="1" onClick={() => addUrl(index)} disabled={!url.trim()} />
-                            ) : (
-                              <button type="button" className="publish-content-remove-btn" onClick={() => removeUrl(index)} aria-label="Eliminar">
-                                <img src={iconTrash} alt="" />
-                              </button>
-                            )}
+                        <div className="publish-content-input-row">
+                          <InputField
+                            placeholder="Copiá y pegá la URL del recorrido acá"
+                            value={current360Url}
+                            onChange={(e) => setCurrent360Url(e.target.value)}
+                          />
+                          <Button
+                            label="Agregar"
+                            variant="primary"
+                            buttonType="1"
+                            onClick={addUrl}
+                            disabled={!current360Url.trim() || multimedia360.length >= 10}
+                          />
+                        </div>
+                        {multimedia360.length > 0 && (
+                          <div
+                            className={`publish-content-upload-grid compact ${dragOverGrid === '360' ? 'drag-over' : ''}`}
+                            onDragOver={(e) => handleGridDragOver(e, '360')}
+                            onDragLeave={handleGridDragLeave}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              setDragOverGrid(null);
+                            }}
+                          >
+                            {multimedia360.map((url, index) => (
+                              <div
+                                key={`360-${index}`}
+                                className={`publish-content-thumb ${draggedIndex === index && draggedType === '360' ? 'dragging' : ''} ${getShift(index, '360')}`}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, index, '360')}
+                                onDragOver={(e) => handleItemDragOver(e, index, '360')}
+                                onDrop={(e) => handleDrop(e, index, '360')}
+                                onDragEnd={handleDragEnd}
+                              >
+                                <div className="publish-content-pdf-thumb">
+                                  <span>360°</span>
+                                  <small>{url.length > 30 ? `${url.substring(0, 30)}...` : url}</small>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="publish-content-thumb-action"
+                                  onClick={() => removeUrl(index)}
+                                >
+                                  <img src={iconTrash} alt="" />
+                                </button>
+                                <div className="publish-content-drag-handle">
+                                  <span>⋮⋮</span>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
                         {multimedia360.length >= 10 && <p className="publish-content-limit-message">Máximo 10 recorridos permitidos</p>}
                       </div>
                     )}
