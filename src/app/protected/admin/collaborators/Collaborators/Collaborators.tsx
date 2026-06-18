@@ -234,7 +234,7 @@ export default function Collaborators() {
                 value={newPassword}
                 onChange={(e) => { setNewPassword(e.target.value); setPasswordError(''); }}
               />
-              <p className="form-help-text">Usa de 6 a 10 caracteres</p>
+              <p className="form-help-text">Usa de 6 a 20 caracteres</p>
               <InputField2
                 label="Repetir contraseña"
                 type="password"

@@ -75,9 +75,9 @@ export default function ResetPassword() {
       return;
     }
 
-    if (newPassword.length < 6 || newPassword.length > 10) {
-      setFieldErrors((prev) => ({ ...prev, newPassword: 'La contraseña debe tener entre 6 y 10 caracteres' }));
-      // setError('La contraseña debe tener entre 6 y 10 caracteres');
+    if (newPassword.length < 6 || newPassword.length > 20) {
+      setFieldErrors((prev) => ({ ...prev, newPassword: 'La contraseña debe tener entre 6 y 20 caracteres' }));
+      // setError('La contraseña debe tener entre 6 y 20 caracteres');
       return;
     }
 
@@ -187,7 +187,7 @@ export default function ResetPassword() {
               autoComplete="new-password"
               error={fieldErrors.newPassword}
             />
-            <p className="recuperar-contrasena-hint">Usa de 6 a 10 caracteres</p>
+            <p className="recuperar-contrasena-hint">Usa de 6 a 20 caracteres</p>
           </div>
 
           {/* Confirm Password Field */}
