@@ -119,6 +119,7 @@ export default function Plans() {
                   </p>
                 </div>
                 <div className="partners-card-actions">
+                  <span className="partners-role-chip">{plan.user_type === 'individual' ? 'Individual' : 'Empresa'}</span>
                   <span className="partners-role-chip">{plan.is_active ? 'Habilitado' : 'Deshabilitado'}</span>                  
                   <div className="partners-card-tools">                                  
                     <button

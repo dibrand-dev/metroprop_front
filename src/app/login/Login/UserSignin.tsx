@@ -89,6 +89,29 @@ export default function UserSignin() {
           redirect: false,
         });
         if (!result?.ok || result?.error) {
+          // NextAuth sanitizes errors - make direct API call to get actual error message
+          try {
+            const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: email.toLowerCase(),
+                password,
+              }),
+            });
+            
+            if (!loginResponse.ok) {
+              const errorData = await loginResponse.json().catch(() => null);
+              if (errorData?.message) {
+                setError(errorData.message);
+                return;
+              }
+            }
+          } catch (apiError) {
+            console.error("Error fetching login error details:", apiError);
+          }
+          
+          // Fallback error message
           setError('Email o contraseña incorrectos. Por favor intenta de nuevo.');
           return;
         }

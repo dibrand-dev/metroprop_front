@@ -7,4 +7,10 @@ export interface Plan {
   currency: string,
   visibility: number,
   highlight_limit: number
+  user_type: PlanUserType,
+}
+
+export enum PlanUserType {
+  INDIVIDUAL = 'individual',
+  COMPANY = 'company',
 }
