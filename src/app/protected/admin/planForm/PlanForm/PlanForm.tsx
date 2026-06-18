@@ -106,7 +106,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
     if (!description.trim()) errors.description = 'La descripción es requerida';
     if (!price.trim()) errors.price = 'El precio es requerido';
     if (!currency.trim()) errors.currency = 'La moneda es requerida';
-    if (!propertyLimit.trim()) errors.propertyLimit = 'El límite de propiedades es requerido';
+    if (!propertyLimit.trim()) errors.propertyLimit = 'El nivel de prioridad es requerido';
     if (!highlightLimit.trim()) errors.highlightLimit = 'El límite de destacados es requerido';
 
     if (errors.name || errors.description || errors.price || errors.currency || errors.propertyLimit || errors.highlightLimit) {
@@ -186,11 +186,11 @@ export default function PlanForm({ planId }: PlanFormProps) {
             </div>
           </div>
           <div className="partner-form-section">
-            <label className="partner-form-label">Límite de propiedades</label>
+            <label className="partner-form-label">Nivel de prioridad</label>
             <InputField2
-              label="Límite de propiedades"
+              label="Nivel de prioridad"
               type="text"
-              placeholder="Límite de propiedades"
+              placeholder="Nivel de prioridad"
               value={propertyLimit}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPropertyLimit(event.target.value)}
               required={true}

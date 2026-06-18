@@ -260,7 +260,7 @@ export default function PublishPlans({
                         </li>
                         <li>
                           <img src={iconCheck} alt="" />
-                          Límite de propiedades: {plan.visibility}
+                          Nivel de prioridad: {plan.visibility}
                         </li>
                         <li>
                           <img src={iconCheck} alt="" />
