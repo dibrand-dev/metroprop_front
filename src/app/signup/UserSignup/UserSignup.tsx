@@ -128,9 +128,9 @@ export default function UserSignup() {
       return;
     }
 
-    if (password.length < 6 || password.length > 10) {
-      setFieldErrors({ email: '', password: 'La contraseña debe tener entre 6 y 10 caracteres', confirmPassword: '', agreeTerms: '', agreePrivacy: '' });
-      // setError('La contraseña debe tener entre 6 y 10 caracteres');
+    if (password.length < 6 || password.length > 20) {
+      setFieldErrors({ email: '', password: 'La contraseña debe tener entre 6 y 20 caracteres', confirmPassword: '', agreeTerms: '', agreePrivacy: '' });
+      // setError('La contraseña debe tener entre 6 y 20 caracteres');
       return;
     }
 

@@ -174,9 +174,9 @@ export default function ProfessionalSignup() {
       return;
     }
 
-    if (password.length < 6 || password.length > 10) {
-      setFieldErrors((prev) => ({ ...prev, password: 'La contraseña debe tener entre 6 y 10 caracteres' }));
-      // setError('La contraseña debe tener entre 6 y 10 caracteres');
+    if (password.length < 6 || password.length > 20) {
+      setFieldErrors((prev) => ({ ...prev, password: 'La contraseña debe tener entre 6 y 20 caracteres' }));
+      // setError('La contraseña debe tener entre 6 y 20 caracteres');
       return;
     }
 
@@ -287,7 +287,7 @@ export default function ProfessionalSignup() {
                       autoComplete="new-password"
                       error={fieldErrors.password}
                     />
-                    <p className="form-help-text">Usa de 6 a 10 caracteres</p>
+                    <p className="form-help-text">Usa de 6 a 20 caracteres</p>
                   </div>
 
                   <div className="form-field">
