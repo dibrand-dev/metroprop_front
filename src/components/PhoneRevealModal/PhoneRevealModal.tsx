@@ -152,7 +152,7 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
           onSelect={handleCountrySelect}
         />
         <div className="phone-reveal-modal-header">
-          <h3>Ver telefono</h3>
+          <h3>Ver teléfono</h3>
           <button type="button" onClick={onClose} aria-label="Cerrar">
             <img src={closeIcon} alt="" />
           </button>
@@ -182,9 +182,9 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
           ) : (
             <>
               <h4>
-                Completa tus datos y podras ver el
+                Completa tus datos y podrás ver el
                 <br />
-                telefono del anunciante.
+                teléfono del anunciante.
               </h4>
 
               <div className="phone-reveal-form">
@@ -223,7 +223,7 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
                     </button>
                   </div>
                   <InputField2
-                    label="Telefono"
+                    label="Teléfono"
                     type="tel"
                     placeholder="1526458466"
                     value={formState.phone}
@@ -249,7 +249,7 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
               </div>
 
               <Button
-                label={isSubmitting ? 'Enviando...' : 'Ver telefono'}
+                label={isSubmitting ? 'Enviando...' : 'Ver teléfono'}
                 variant="primary"
                 type="button"
                 fullWidth

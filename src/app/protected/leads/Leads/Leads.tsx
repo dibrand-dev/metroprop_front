@@ -98,7 +98,7 @@ export default function Leads() {
                   className={`leads-tab ${activeTab === "2" ? 'active' : ''}`}
                   onClick={() => setActiveTab("2")}
                 >
-                  Telefono
+                  Teléfono
                 </button>
                 <button
                   type="button"

@@ -110,7 +110,7 @@ export default function PropertyLeads({ propertyId }: { propertyId: number }) {
                   className={`leads-tab ${activeTab === '2' ? 'active' : ''}`}
                   onClick={() => setActiveTab('2')}
                 >
-                  Telefono
+                  Teléfono
                 </button>
                 <button
                   type="button"

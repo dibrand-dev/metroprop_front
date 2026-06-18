@@ -1010,7 +1010,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               </div>
               <div className="property-detail-agent-details">
                 <button type="button" onClick={() => setIsPhoneModalOpen(true)}>
-                  Ver telefono
+                  Ver teléfono
                 </button>
               </div>
             </div>

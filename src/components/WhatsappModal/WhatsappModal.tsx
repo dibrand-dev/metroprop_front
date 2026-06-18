@@ -212,7 +212,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
                 error={fieldErrors.country ? ' ' : ''}
               />
               <InputField2
-                label="Telefono"
+                label="Teléfono"
                 value={formState.phone}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleChange('phone', event.target.value)}
                 error={fieldErrors.phone ? ' ' : ''}

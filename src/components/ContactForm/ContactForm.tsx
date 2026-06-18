@@ -242,7 +242,7 @@ console.log({ phoneNumber, phone_whatsapp });
             error={fieldErrors.country ? ' ' : ''}
           />
           <InputField2
-            label="Telefono"
+            label="Teléfono"
             value={formState.phone}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormState((prev) => ({ ...prev, phone: e.target.value }))}
             error={fieldErrors.phone ? ' ' : ''}
