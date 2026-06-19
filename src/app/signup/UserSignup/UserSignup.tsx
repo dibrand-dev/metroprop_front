@@ -255,6 +255,28 @@ export default function UserSignup() {
           disabled={isFormDisabled}
         />
       </div>
+      {/* Terms Checkboxes */}
+      <div className="merged-signup-terms-section">
+        <Checkbox
+          label="Acepto Términos y condiciones de uso"
+          checked={agreeTerms}
+          onChange={(checked) => setAgreeTerms(checked)}
+          id="agreeTerms"
+          name="agreeTerms"
+          error={fieldErrors.agreeTerms}
+          disabled={isFormDisabled}
+        />
+
+        <Checkbox
+          label="Acepto Política de privacidad"
+          checked={agreePrivacy}
+          onChange={(checked) => setAgreePrivacy(checked)}
+          id="agreePrivacy"
+          name="agreePrivacy"
+          error={fieldErrors.agreePrivacy}
+          disabled={isFormDisabled}
+        />
+      </div>
       <Button
         label={isPending ? 'Registrando...' : 'Crear cuenta'}
         type="submit"
@@ -299,28 +321,7 @@ export default function UserSignup() {
         <span>{isGoogleLoading ? 'Procesando...' : 'Google'}</span>
       </button>
 
-      {/* Terms Checkboxes */}
-      <div className="merged-signup-terms-section">
-        <Checkbox
-          label="Acepto Términos y condiciones de uso"
-          checked={agreeTerms}
-          onChange={(checked) => setAgreeTerms(checked)}
-          id="agreeTerms"
-          name="agreeTerms"
-          error={fieldErrors.agreeTerms}
-          disabled={isFormDisabled}
-        />
-
-        <Checkbox
-          label="Acepto Política de privacidad"
-          checked={agreePrivacy}
-          onChange={(checked) => setAgreePrivacy(checked)}
-          id="agreePrivacy"
-          name="agreePrivacy"
-          error={fieldErrors.agreePrivacy}
-          disabled={isFormDisabled}
-        />
-      </div>
+      
       {(error || googleError) && (
         <div className="merged-signup-error-message">
           {error || googleError}
