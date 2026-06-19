@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import './Users.scss';
 import { useAdminMenu } from '../../AdminLayoutClient';
@@ -10,6 +10,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import Paginator from '@/components/Paginator/Paginator';
 import InputField2 from '@/ui/InputField2/InputField2';
+import { ROLE } from '@/types/propiedad';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconLock = '/icons/lock.svg';
@@ -39,19 +40,39 @@ export default function Users() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { showMenu, setShowMenu } = useAdminMenu();
+  const [totalUsers, setTotalUsers] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState(0);  
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchId, setSearchId] = useState<number | null>(null);
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; userId: number | null; userName: string; is_delete: boolean }>({ open: false, userId: null, userName: '', is_delete: true });
+  const [searchId, setSearchId] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; userId: number | null; userName: string; is_delete: boolean; status: string | null }>({ open: false, userId: null, userName: '', is_delete: true, status: null });
 
   const deleteMutation = useMutation({
     mutationFn: (userId: number) =>
       apiFetch(`${API_BASE_URL}/users/${userId}`, { method: 'DELETE' }),
     onSuccess: () => {
-      setDeleteModal({ open: false, userId: null, userName: '', is_delete: true });
+      setDeleteModal({ open: false, userId: null, userName: '', is_delete: true, status: null });
       queryClient.invalidateQueries({ queryKey: ['all-users'] });
     },
   });
+
+  
+  const enableMutation = useMutation({
+    mutationFn: (userId: number) =>
+      apiFetch(`${API_BASE_URL}/users/${userId}/enable`, { method: 'POST' }),
+    onSuccess: () => {
+      setDeleteModal({ open: false, userId: null, userName: '', is_delete: true, status: null });
+      queryClient.invalidateQueries({ queryKey: ['all-users'] });
+    },
+  });
+
+    const disableMutation = useMutation({
+      mutationFn: (userId: number) =>
+        apiFetch(`${API_BASE_URL}/users/${userId}/disable`, { method: 'POST' }),
+      onSuccess: () => {
+        setDeleteModal({ open: false, userId: null, userName: '', is_delete: true, status: null });
+        queryClient.invalidateQueries({ queryKey: ['all-users'] });
+      },
+    });
   
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -63,10 +84,7 @@ export default function Users() {
 
   const handleSearchById = () => {
     const trimmed = searchQuery.trim();
-    const num = Number(trimmed);
-    if (trimmed && !Number.isNaN(num) && num > 0) {
-      setSearchId(num);
-    }
+    setSearchId(trimmed);
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -77,8 +95,7 @@ export default function Users() {
     queryKey: ['all-users', currentPage, searchId],
     queryFn: async () => {
       if (searchId !== null) {
-        const user: UserItem = await apiFetch<any>(`${API_BASE_URL}/users/${searchId}`);
-        return [user];
+        return apiFetch<any>(`${API_BASE_URL}/users/?searchCriteria=${searchId}`);
       }
       return apiFetch(`${API_BASE_URL}/users`, {
         params: { offset: currentPage, limit: LIMIT },
@@ -99,6 +116,13 @@ export default function Users() {
     role_id: user.role_id ?? null,
     actions: ['delete', 'edit', 'lock'] as UserAction[],
   })) ?? [];
+
+  // Store the total count from the first call (when not searching)
+  useEffect(() => {
+    if (searchId === null && rawData?.total) {
+      setTotalUsers(rawData.total);
+    }
+  }, [searchId, rawData?.total]);
 
   const handleEdit = (id: string) => {
     router.push('/protected/admin/users/' + id);
@@ -128,7 +152,7 @@ export default function Users() {
 
           <div className="collaborators-filter">
             <InputField2
-              placeholder="ID"
+              placeholder="ID / nombre"
               value={searchQuery}
               onChange={handleSearchInputChange}
               onKeyDown={handleSearchKeyDown}
@@ -136,6 +160,10 @@ export default function Users() {
               iconPosition="right"
               onIconClick={handleSearchById}
             />
+          </div>
+
+          <div>
+            {totalUsers > 0 && <span>{totalUsers} Usuarios registrados</span>}
           </div>
 
           <div className="collaborators-list">
@@ -150,7 +178,7 @@ export default function Users() {
                   </p>
                 </div>
                 <div className="collaborators-card-actions">
-                  <span className="collaborators-role-chip">Role {user.role_id ?? '-'}</span>
+                  <span className="collaborators-role-chip">{user.role_id ? ROLE[user.role_id] : '-'}</span>
                   <div className="collaborators-card-tools">
                     {user.actions.map((action) => (
                       <button
@@ -160,8 +188,8 @@ export default function Users() {
                         aria-label={actionIcons[action].label}
                         onClick={() => {
                           if (action === 'edit') handleEdit(String(user.id));
-                          if (action === 'lock')  setDeleteModal({ open: true, userId: user.id, userName: user.name, is_delete: false });
-                          if (action === 'delete') setDeleteModal({ open: true, userId: user.id, userName: user.name, is_delete: true });
+                          if (action === 'lock')  setDeleteModal({ open: true, userId: user.id, userName: user.name, is_delete: false, status: user.status });
+                          if (action === 'delete') setDeleteModal({ open: true, userId: user.id, userName: user.name, is_delete: true, status: null });
                         }}
                       >
                         <img src={actionIcons[action].src} alt="" />
@@ -194,8 +222,21 @@ export default function Users() {
           subTitle={`¿Está seguro que desea ${deleteModal.is_delete ? "eliminar" : "bloquear"} a ${deleteModal.userName}?`}
           text="Todos las publicaciones del vendedor pasaran al administrador."
           icon={deleteModal.is_delete ? "/icons/trash.svg" : "/icons/lock.svg"}
-          onCancel={() => setDeleteModal({ open: false, userId: null, userName: '', is_delete: true })}
-          onAccept={() => { if (deleteModal.userId) deleteMutation.mutate(deleteModal.userId); }}
+          onCancel={() => setDeleteModal({ open: false, userId: null, userName: '', is_delete: true, status: null })}
+          onAccept={() => {
+            if (!deleteModal.userId) {
+              return;
+            }
+            if (deleteModal.is_delete) {
+              deleteMutation.mutate(deleteModal.userId); 
+            } else {
+              if (deleteModal.status) {
+                disableMutation.mutate(deleteModal.userId!);
+              } else {
+                enableMutation.mutate(deleteModal.userId!);
+              }
+            }
+          }}
           acceptText={deleteMutation.isPending ? (deleteModal.is_delete ? 'Eliminando...' : 'Bloqueando...') : 'Aceptar'}
         />
       )}

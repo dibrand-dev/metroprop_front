@@ -129,6 +129,13 @@ export enum UserRole {
   USER_ROL_SUPER_ADMIN = 4,
 }
 
+export const ROLE: Record<number, string> = {
+  [UserRole.USER_ROL_ADMIN]: 'Admin',
+  [UserRole.USER_ROL_SELLER]: 'Vendedor',
+  [UserRole.USER_ROL_COLLABORATOR]: 'Colaborador',
+  [UserRole.USER_ROL_SUPER_ADMIN]: 'Super Admin',
+};
+
 // ==========================================================================
 // INTERFACES PARA RELACIONES
 // ==========================================================================
@@ -356,7 +363,6 @@ export interface CreateProperty {
   surface_front?: number;
   surface_length?: number;
   situation?: string;
-  dispositions?: string;
   orientation?: Orientation;
   floors_amount?: number;
   zonification?: string;
@@ -447,6 +453,10 @@ export interface CreateProperty {
   visibility: number;
   leads_count: number;
   purchased_plan_id?: number;
+  
+  dispositions?: string;
+  disposition: Disposition
+  appartments_per_floor?: number;
 }
 
 // ==========================================================================
@@ -970,3 +980,22 @@ export type AdBanner = {
   link: string;
   file: string;
 }
+
+export enum Disposition {  
+  CONTRAFRENTE = 1,
+  FRENTE = 2,
+  FRENTE_INTERNO = 3,
+  LATERAL = 4,
+}
+
+export const DispositionLabels: Record<Disposition, string> = {
+  [Disposition.CONTRAFRENTE]: 'Contrafrente',
+  [Disposition.FRENTE]: 'Frente',
+  [Disposition.FRENTE_INTERNO]: 'Frente Interno',
+  [Disposition.LATERAL]: 'Lateral',
+};
+
+export const DISPOSITION_OPTIONS = Object.entries(DispositionLabels).map(([key, label]) => ({
+  value: key,
+  label,
+}));

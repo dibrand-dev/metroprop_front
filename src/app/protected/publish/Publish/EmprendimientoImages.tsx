@@ -147,6 +147,36 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
       else setUploadedPlans(prev => prev.filter((_, i) => i !== index));
     };
 
+    // Handle drag and drop from file explorer
+    const handleDragOverFromExplorer = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = 'copy';
+    };
+
+    const handleFileDropFromExplorer = (e: React.DragEvent, type: 'image' | 'plan') => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const files = e.dataTransfer.files;
+      if (!files || files.length === 0) return;
+
+      const validFiles: File[] = [];
+      for (let i = 0; i < files.length; i++) {
+        if (validateFile(files[i], type)) {
+          validFiles.push(files[i]);
+        }
+      }
+
+      if (validFiles.length > 0) {
+        if (type === 'image') {
+          setUploadedImages(prev => [...prev, ...validFiles]);
+        } else {
+          setUploadedPlans(prev => [...prev, ...validFiles]);
+        }
+      }
+    };
+
     const removePlan = (index: number, from: 'api' | 'local') => {
       if (from === 'api') setPlans(prev => prev.filter((_, i) => i !== index));
       else removeUploadedFile(index, 'plan');
@@ -322,18 +352,34 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
             <input ref={imageInputRef} type="file" multiple accept=".jpg,.jpeg,.webp,.png" style={{ display: 'none' }} onChange={(e) => handleFileSelect(e, 'image')} />
             <input ref={imageGridInputRef} type="file" multiple accept=".jpg,.jpeg,.webp,.png" style={{ display: 'none' }} onChange={(e) => handleFileSelect(e, 'image')} />
             {images.length === 0 && uploadedImages.length === 0 ? (
-              <button type="button" className="publish-content-upload-card" onClick={() => imageInputRef.current?.click()}>
+              <button type="button" className="publish-content-upload-card" onClick={() => imageInputRef.current?.click()}
+                onDragOver={handleDragOverFromExplorer}
+                onDrop={(e) => handleFileDropFromExplorer(e, 'image')}
+              >
                 <img src={iconUpload} alt="" />
                 <span>Agregar fotos</span>
               </button>
             ) : (
               <div
                 className={`publish-content-upload-grid ${dragOverGrid === 'image' ? 'drag-over' : ''}`}
-                onDragOver={(e) => handleGridDragOver(e, 'image')}
+                onDragOver={(e) => {
+                  handleGridDragOver(e, 'image');
+                  handleDragOverFromExplorer(e);
+                }}
                 onDragLeave={handleGridDragLeave}
-                onDrop={(e) => { e.preventDefault(); setDragOverGrid(null); }}
+                onDrop={(e) => {
+                  // Check if it's a file drop from explorer (has files) or internal reorder (no files)
+                  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    handleFileDropFromExplorer(e, 'image');
+                  }
+                  e.preventDefault();
+                  setDragOverGrid(null);
+                }}
               >
-                <button type="button" className="publish-content-upload-card" onClick={() => imageGridInputRef.current?.click()}>
+                <button type="button" className="publish-content-upload-card" onClick={() => imageGridInputRef.current?.click()}
+                  onDragOver={handleDragOverFromExplorer}
+                  onDrop={(e) => handleFileDropFromExplorer(e, 'image')}
+                >
                   <img src={iconUpload} alt="" />
                   <span>Agregar fotos</span>
                 </button>
@@ -388,12 +434,25 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                     {item.id === 'planos' && (
                       <div
                         className={`publish-content-upload-grid compact ${dragOverGrid === 'plan' ? 'drag-over' : ''}`}
-                        onDragOver={(e) => handleGridDragOver(e, 'plan')}
+                        onDragOver={(e) => {
+                          handleGridDragOver(e, 'plan');
+                          handleDragOverFromExplorer(e);
+                        }}
                         onDragLeave={handleGridDragLeave}
-                        onDrop={(e) => { e.preventDefault(); setDragOverGrid(null); }}
+                        onDrop={(e) => {
+                          // Check if it's a file drop from explorer (has files) or internal reorder (no files)
+                          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                            handleFileDropFromExplorer(e, 'plan');
+                          }
+                          e.preventDefault();
+                          setDragOverGrid(null);
+                        }}
                       >
                         <input ref={plansInputRef} type="file" multiple accept=".heic,.jfif,.png,.jpg,.jpeg,.webp,.pdf" style={{ display: 'none' }} onChange={(e) => handleFileSelect(e, 'plan')} />
-                        <button type="button" className="publish-content-upload-card" onClick={() => plansInputRef.current?.click()}>
+                        <button type="button" className="publish-content-upload-card" onClick={() => plansInputRef.current?.click()}
+                          onDragOver={handleDragOverFromExplorer}
+                          onDrop={(e) => handleFileDropFromExplorer(e, 'plan')}
+                        >
                           <img src={iconUpload} alt="" />
                           <span>Agregar planos</span>
                         </button>

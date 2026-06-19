@@ -10,6 +10,7 @@ import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL, sendPropertyToWhatsApp } from '@/utils/utils';
 import { LeadContactType } from '@/types/propiedad';
 import { useSession } from 'next-auth/react';
+import InputField from '@/ui/InputField/InputField';
 
 const QUESTION_CHIPS = [
   'Se puede visitar hoy',
@@ -249,8 +250,8 @@ console.log({ phoneNumber, phone_whatsapp });
           />
         </div>
         <div className="property-detail-input-row single">
-          <InputField2
-            label="Consulta"
+          <InputField
+            placeholder="Consulta"
             value={formState.message}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState((prev) => ({ ...prev, message: e.target.value }))}
             multiline={true}

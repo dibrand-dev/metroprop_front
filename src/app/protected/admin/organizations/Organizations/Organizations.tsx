@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Organizations.scss';
 import { useRouter } from 'next/navigation';
 import { useAdminMenu } from '../../AdminLayoutClient';
@@ -14,7 +14,7 @@ import InputField2 from '@/ui/InputField2/InputField2';
 const iconArrowBack = '/icons/arrow.svg';
 const iconLock = '/icons/lock.svg';
 const iconTrash = '/icons/trash.svg';
-const iconEdit = '/icons/pencilhandleEdit.svg';
+const iconEdit = '/icons/pencil.svg';
 
 const organizationsDescription =
   'Aca podes ver la lista de inmobiliarias, activarlas y /o eliminarlas.';
@@ -36,6 +36,7 @@ interface OrganizationItem {
   role_id: number | null;
   cuit: string | null;
   actions: OrganizationAction[];
+  status: boolean;
 }
 const LIMIT = 20;
 export default function Organizations() {
@@ -44,14 +45,33 @@ export default function Organizations() {
   const { showMenu, setShowMenu } = useAdminMenu();
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchId, setSearchId] = useState<number | null>(null);
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; organizationId: number | null; organizationName: string; is_delete: boolean }>({ open: false, organizationId: null, organizationName: '', is_delete: true });
+  const [searchId, setSearchId] = useState<string | null>(null);
+  const [totalOrganizations, setTotalOrganizations] = useState<number>(0);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; organizationId: number | null; organizationName: string; is_delete: boolean, status: boolean | null }>({ open: false, organizationId: null, organizationName: '', is_delete: true, status: null });
 
   const deleteMutation = useMutation({
     mutationFn: (organizationId: number) =>
       apiFetch(`${API_BASE_URL}/organizations/${organizationId}`, { method: 'DELETE' }),
     onSuccess: () => {
-      setDeleteModal({ open: false, organizationId: null, organizationName: '', is_delete: true });
+      setDeleteModal({ open: false, organizationId: null, organizationName: '', is_delete: true, status: null });
+      queryClient.invalidateQueries({ queryKey: ['all-organizations'] });
+    },
+  });
+
+  const enableMutation = useMutation({
+    mutationFn: (organizationId: number) =>
+      apiFetch(`${API_BASE_URL}/organizations/${organizationId}/enable`, { method: 'POST' }),
+    onSuccess: () => {
+      setDeleteModal({ open: false, organizationId: null, organizationName: '', is_delete: true, status: null });
+      queryClient.invalidateQueries({ queryKey: ['all-organizations'] });
+    },
+  });
+
+   const disableMutation = useMutation({
+    mutationFn: (organizationId: number) =>
+      apiFetch(`${API_BASE_URL}/organizations/${organizationId}/disable`, { method: 'POST' }),
+    onSuccess: () => {
+      setDeleteModal({ open: false, organizationId: null, organizationName: '', is_delete: true, status: null });
       queryClient.invalidateQueries({ queryKey: ['all-organizations'] });
     },
   });
@@ -66,10 +86,7 @@ export default function Organizations() {
 
   const handleSearchById = () => {
     const trimmed = searchQuery.trim();
-    const num = Number(trimmed);
-    if (trimmed && !Number.isNaN(num) && num > 0) {
-      setSearchId(num);
-    }
+    setSearchId(trimmed);
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -80,8 +97,7 @@ export default function Organizations() {
     queryKey: ['all-organizations', currentPage, searchId],
     queryFn: async () => {
       if (searchId !== null) {
-        const organization: OrganizationItem = await apiFetch<any>(`${API_BASE_URL}/organizations/${searchId}`);
-        return [organization];
+        return apiFetch<any>(`${API_BASE_URL}/organizations?searchCriteria=${searchId}`);
       }
       return apiFetch(`${API_BASE_URL}/organizations`, {
         params: { offset: currentPage, limit: LIMIT },
@@ -89,7 +105,6 @@ export default function Organizations() {
     },
     staleTime: 5 * 60 * 1000,
   });
-
 
   const rawData: any = organizationsData;
   const rawOrganizations: any[] = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
@@ -103,8 +118,16 @@ export default function Organizations() {
     branchId: String(organization.branch_id ?? organization.branch?.id ?? ''),
     role_id: organization.role_id ?? null,
     cuit: organization.cuit ?? null,
+    status: organization.status ?? true,
     actions: ['delete', 'edit', 'lock'] as OrganizationAction[],
   })) ?? [];
+
+  // Store the total count from the first call (when not searching)
+  useEffect(() => {
+    if (searchId === null && rawData?.total) {
+      setTotalOrganizations(rawData.total);
+    }
+  }, [searchId, rawData?.total]);
 
   const handleEdit = (id: string) => {
     router.push('/protected/admin/organization/' + id);
@@ -134,7 +157,7 @@ export default function Organizations() {
 
           <div className="collaborators-filter">
             <InputField2
-              placeholder="ID"
+              placeholder="ID / Nombre"
               value={searchQuery}
               onChange={handleSearchInputChange}
               onKeyDown={handleSearchKeyDown}
@@ -142,6 +165,10 @@ export default function Organizations() {
               iconPosition="right"
               onIconClick={handleSearchById}
             />
+          </div>
+         
+          <div>
+            {totalOrganizations > 0 && <span>{totalOrganizations} Inmobiliarias registradas</span>}
           </div>
 
           <div className="collaborators-list">
@@ -157,6 +184,7 @@ export default function Organizations() {
                 </div>
                 <div className="collaborators-card-actions">
                   <span className="collaborators-role-chip">CUIT {organization.cuit ?? '-'}</span>
+                  <span className="collaborators-role-chip">{organization.status ? 'Activo' : 'Bloqueado'}</span>
                   <div className="collaborators-card-tools">
                     {organization.actions.map((action) => (
                       <button
@@ -166,8 +194,8 @@ export default function Organizations() {
                         aria-label={actionIcons[action].label}
                         onClick={() => {
                           if (action === 'edit') handleEdit(String(organization.id));
-                          if (action === 'lock') setDeleteModal({ open: true, organizationId: organization.id, organizationName: organization.company_name, is_delete: false }); // Reusing delete modal for lock action as well, adjust as needed
-                          if (action === 'delete') setDeleteModal({ open: true, organizationId: organization.id, organizationName: organization.company_name, is_delete: true });
+                          if (action === 'lock') setDeleteModal({ open: true, organizationId: organization.id, organizationName: organization.company_name, is_delete: false, status: !organization.status }); // Reusing delete modal for lock action as well, adjust as needed
+                          if (action === 'delete') setDeleteModal({ open: true, organizationId: organization.id, organizationName: organization.company_name, is_delete: true, status: null });
                         }}
                       >
                         <img src={actionIcons[action].src} alt="" />
@@ -199,8 +227,22 @@ export default function Organizations() {
           subTitle={`¿Está seguro que desea ${deleteModal.is_delete ? "eliminar" : "bloquear"} a ${deleteModal.organizationName}?`}
           text={deleteModal.is_delete ? "Todos los datos de la organización se eliminarán permanentemente." : "La organización será bloqueada y no podrá acceder a sus datos."}
           icon={deleteModal.is_delete ? "/icons/trash.svg" : "/icons/lock.svg"}
-          onCancel={() => setDeleteModal({ open: false, organizationId: null, organizationName: '', is_delete: true })}
-          onAccept={() => { if (deleteModal.organizationId) deleteMutation.mutate(deleteModal.organizationId); }}
+          onCancel={() => setDeleteModal({ open: false, organizationId: null, organizationName: '', is_delete: true, status: null })}
+          onAccept={() => { 
+            if (!deleteModal.organizationId) {
+              return
+            } 
+            
+            if (deleteModal.is_delete) {
+              deleteMutation.mutate(deleteModal.organizationId); 
+            } else {
+              if (deleteModal.status) {
+                disableMutation.mutate(deleteModal.organizationId!);
+              } else {
+                enableMutation.mutate(deleteModal.organizationId!);
+              }
+            }}
+          }
           acceptText={deleteMutation.isPending ? 'Eliminando...' : 'Aceptar'}
         />
       )}

@@ -98,12 +98,20 @@ export default function Properties() {
         });
         return { data: [property], total: 1 };
       }
-      return apiFetch(`${API_BASE_URL}/properties/filter`, {
-        params: { order_by: 'created_at:desc', page: currentPage, limit: LIMIT/*, ...activeFilters, ...branchFilterParam */},
-      });
     },
+    enabled: searchId !== null,
     staleTime: 5 * 60 * 1000,
   });
+
+  const { data: propertiesCount } = useQuery({
+    queryKey: ['my-properties', currentPage],
+    queryFn: async () => apiFetch(`${API_BASE_URL}/properties/filter`, {
+      params: { order_by: 'created_at:desc', page: currentPage, limit: 0/*, ...activeFilters, ...branchFilterParam */},
+    }),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  console.log("propertiesCount", propertiesCount)
 
   const rawData: any = propertiesData;
   const rawProperties: CreateProperty[] = rawData?.data ?? []; //Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
@@ -208,6 +216,10 @@ export default function Properties() {
             >
               Limpiar filtros
             </button>*/}
+          </div>
+
+          <div>
+            {propertiesCount?.total && <span>{propertiesCount.total} Propiedades</span>}
           </div>
 
           <div className="collaborators-list">

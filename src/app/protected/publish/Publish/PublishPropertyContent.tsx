@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 import './PublishPropertyContent.scss';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
-import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, TEMPORAL_RENT_PERIOD_OPTIONS } from '@/types/propiedad';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, DISPOSITION_OPTIONS, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyType, TEMPORAL_RENT_PERIOD_OPTIONS } from '@/types/propiedad';
 import { API_BASE_URL } from '@/utils/utils';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -46,6 +46,8 @@ export default function PublishPropertyContent({
   const [surface_length, setSurface_length] = useState(wizardData.surface_length || undefined);
   const [semiroofed_surface, setSemiroofed_surface] = useState(wizardData.semiroofed_surface || undefined);
   const [period, setPeriod] = useState(wizardData.period || '');
+  const [disposition, setDisposition] = useState(wizardData.disposition || undefined);
+  const [appartments_per_floor, setAppartments_per_floor] = useState(wizardData.appartments_per_floor || undefined);
 
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
@@ -76,9 +78,11 @@ export default function PublishPropertyContent({
       garage_coverage,
       surface_front,
       surface_length,
-      semiroofed_surface
+      semiroofed_surface,
+      disposition,
+      appartments_per_floor
     });
-  }, [selectedAmenities, brightness, orientation, floors_amount, garage_coverage, surface_front, surface_length, semiroofed_surface, updateWizardData]);
+  }, [selectedAmenities, brightness, orientation, floors_amount, garage_coverage, surface_front, surface_length, semiroofed_surface, disposition, appartments_per_floor, updateWizardData]);
 
   const handleToggleAmenity = useCallback((optionId: number) => {
     setSelectedAmenities((prev) => {
@@ -110,10 +114,14 @@ export default function PublishPropertyContent({
       surface_front,
       surface_length,
       semiroofed_surface,
+      disposition,
+      appartments_per_floor,
       period: wizardData.operation_type === 3 ? period : undefined,
     }
     onNext(propertyContentUpdate);
   };
+
+  console.log("wizardData", wizardData)
 
   return (
     <div className="publish-property-content">
@@ -257,6 +265,38 @@ export default function PublishPropertyContent({
                   />
                 </div>
               </div>
+
+
+              {wizardData.property_type == PropertyType.DEPARTAMENTO && (
+                <div className="publish-property-content-inputs">
+                  <div className="publish-property-content-detail-field">
+                    <Select
+                      label="Orientación"
+                      options={DISPOSITION_OPTIONS}
+                      placeholder="Selecciona una opción"
+                      value={disposition ?? null}
+                      onChange={(value) => setDisposition(value as any)}
+                  />
+                </div>
+                <div className="publish-property-content-detail-field">
+                  <InputField
+                    label="Cantidad de pisos en edificio"
+                    placeholder="Ingresa un numero mayor o igual a 0"
+                    value={floors_amount ?? null}
+                    onChange={(event) => setFloors_amount(parseInt(event.target.value) || undefined)}
+                    type="number"
+                  />
+                </div>
+                <div className="publish-property-content-detail-field">
+                  <InputField
+                    label="Departamentos por piso"
+                    placeholder="Ingresa un numero mayor o igual a 0"
+                    value={appartments_per_floor ?? null}
+                    onChange={(event) => setAppartments_per_floor(parseInt(event.target.value) || undefined)}
+                    type="number"
+                  />
+                </div>
+              </div>)}
             </div>
           </div>
 

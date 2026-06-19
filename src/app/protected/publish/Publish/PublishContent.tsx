@@ -259,6 +259,36 @@ export default function PublishContent({
     }
   };
 
+  // Handle drag and drop from file explorer
+  const handleDragOverFromExplorer = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleFileDropFromExplorer = (e: React.DragEvent, type: 'image' | 'plan') => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    const validFiles: File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      if (validateFile(files[i], type)) {
+        validFiles.push(files[i]);
+      }
+    }
+
+    if (validFiles.length > 0) {
+      if (type === 'image') {
+        setUploadedImages(prev => [...prev, ...validFiles]);
+      } else {
+        setUploadedPlans(prev => [...prev, ...validFiles]);
+      }
+    }
+  };
+
   const uploadMultimediaMutation = useMutation({
     mutationFn: async (formData: FormData) => {
       return apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/save-multimedia`, { method: 'POST', body: formData });
@@ -479,6 +509,8 @@ export default function PublishContent({
                     type="button"
                     className="publish-content-upload-card"
                     onClick={() => imageInputRef.current?.click()}
+                    onDragOver={handleDragOverFromExplorer}
+                    onDrop={(e) => handleFileDropFromExplorer(e, 'image')}
                   >
                     <img src={iconUpload} alt="" />
                     <span>Agregar fotos</span>
@@ -486,9 +518,16 @@ export default function PublishContent({
                 ) : (
                   <div 
                     className={`publish-content-upload-grid ${dragOverGrid === 'image' ? 'drag-over' : ''}`}
-                    onDragOver={(e) => handleGridDragOver(e, 'image')}
+                    onDragOver={(e) => {
+                      handleGridDragOver(e, 'image');
+                      handleDragOverFromExplorer(e);
+                    }}
                     onDragLeave={handleGridDragLeave}
                     onDrop={(e) => {
+                      // Check if it's a file drop from explorer (has files) or internal reorder (no files)
+                      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                        handleFileDropFromExplorer(e, 'image');
+                      }
                       e.preventDefault();
                       setDragOverGrid(null);
                     }}
@@ -497,6 +536,8 @@ export default function PublishContent({
                       type="button"
                       className="publish-content-upload-card"
                       onClick={() => imageGridInputRef.current?.click()}
+                      onDragOver={handleDragOverFromExplorer}
+                      onDrop={(e) => handleFileDropFromExplorer(e, 'image')}
                     >
                       <img src={iconUpload} alt="" />
                       <span>Agregar fotos</span>
@@ -720,9 +761,16 @@ export default function PublishContent({
                         {item.id !== 'videos' && item.id !== 'recorrido' ? (
                           <div 
                             className={`publish-content-upload-grid compact ${dragOverGrid === 'plan' ? 'drag-over' : ''}`}
-                            onDragOver={(e) => handleGridDragOver(e, 'plan')}
+                            onDragOver={(e) => {
+                              handleGridDragOver(e, 'plan');
+                              handleDragOverFromExplorer(e);
+                            }}
                             onDragLeave={handleGridDragLeave}
                             onDrop={(e) => {
+                              // Check if it's a file drop from explorer (has files) or internal reorder (no files)
+                              if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                                handleFileDropFromExplorer(e, 'plan');
+                              }
                               e.preventDefault();
                               setDragOverGrid(null);
                             }}
@@ -739,6 +787,8 @@ export default function PublishContent({
                               type="button"
                               className="publish-content-upload-card"
                               onClick={() => plansInputRef.current?.click()}
+                              onDragOver={handleDragOverFromExplorer}
+                              onDrop={(e) => handleFileDropFromExplorer(e, 'plan')}
                             >
                               <img src={iconUpload} alt="" />
                               <span>Agregar planos</span>

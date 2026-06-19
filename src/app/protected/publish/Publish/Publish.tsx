@@ -126,7 +126,8 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   const [planToBuy, setPlanToBuy] = useState<Plan & { branchId: number, emprendimiento: boolean } | null>(null);
   const [isLoadingProperty, setIsLoadingProperty] = useState(isEditMode);
   const { data: sessionData } = useSession();
-  const [showSuccessModal, setShowSuccessModal] = useState(false);  
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [authorizationError, setAuthorizationError] = useState(false);  
 
   // ── Load existing property into wizard when editing
   useEffect(() => {
@@ -135,6 +136,16 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     apiFetch(`${API_BASE_URL}/properties/${propertyId}`)
       .then(data => {
         const payload = (data as any)?.data ?? data;
+        
+        // Check authorization: user must own the property
+        const loggedInUserId = Number.parseInt((sessionData?.user as any)?.id);
+        const propertyUserId = (payload as any)?.user?.id;
+        if (loggedInUserId && propertyUserId && loggedInUserId != propertyUserId) {
+          setAuthorizationError(true);
+          setIsLoadingProperty(false);
+          return;
+        }
+        
         const normalizedUnits = Array.isArray((payload as any).development_units)
           ? (payload as any).development_units
           : (Array.isArray((payload as any).units) ? (payload as any).units : []);
@@ -157,7 +168,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
       .catch(err => console.error('Error loading property for edit:', err))
       .finally(() => setIsLoadingProperty(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propertyId]);
+  }, [propertyId, sessionData]);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentStep]);
@@ -353,6 +364,18 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
         </div>
       );
     }
+    
+    if (authorizationError) {
+      return (
+        <div className="publish-page">
+          <div className="publish-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 200, flexDirection: 'column', gap: '20px' }}>
+            <h2 style={{ color: '#d32f2f' }}>No tenés permiso para ver esta propiedad</h2>
+            <p>Solo el propietario de la publicación puede editarla.</p>
+          </div>
+        </div>
+      );
+    }
+    
     switch (currentStep) {
       case WizardStep.INITIAL:
         return (
