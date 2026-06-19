@@ -12,6 +12,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import InputField from '@/ui/InputField/InputField';
 import InputField2 from '@/ui/InputField2/InputField2';
+import Button from '@/ui/Button/Button';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconLock = '/icons/lock.svg';
@@ -155,9 +156,7 @@ export default function Collaborators() {
               <h1>Colaboradores</h1>
               <p>{collaboratorsDescription}</p>
             </div>
-            <button className="collaborators-add-button" type="button" onClick={() => router.push('/protected/admin/collaboratorForm')} >
-              Agregar colaborador
-            </button>
+            <Button label="Agregar colaborador" className="collaborators-add-button" type="button" onClick={() => router.push('/protected/admin/collaboratorForm')} />
           </div>
 
           <div className="collaborators-filter">
@@ -207,9 +206,7 @@ export default function Collaborators() {
         </div>
 
         <div className="collaborators-mobile-footer">
-          <button className="collaborators-add-button" type="button" onClick={() => router.push('/protected/admin/collaboratorForm')}>
-            Agregar colaborador
-          </button>
+          <Button label="Agregar colaborador" className="collaborators-add-button w-full" type="button" onClick={() => router.push('/protected/admin/collaboratorForm')} />
         </div>
       </div>
 

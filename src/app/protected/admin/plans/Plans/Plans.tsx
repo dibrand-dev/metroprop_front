@@ -102,9 +102,7 @@ export default function Plans() {
               <h1>Planes</h1>
               <p>Aca podes crear, eliminar, deshabilitar y actualizar los planes</p>
             </div>
-            <button className="partners-add-button" type="button" onClick={() => router.push('/protected/admin/planForm')}>
-              Agregar plan
-            </button>
+            <Button label="Agregar plan" className="partners-add-button" type="button" onClick={() => router.push('/protected/admin/planForm')} />
           </div>
 
           <div className="partners-list">

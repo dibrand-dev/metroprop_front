@@ -256,7 +256,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     return features;
   }, [property]);
   const showFeaturesToggle = dynamicFeatures?.length > 6;
-  const showSummaryToggle = (property?.description?.length ?? 0) > 140;
+  const showSummaryToggle = (property?.description?.length ?? 0) > 300 || (property?.description?.split('\n').length ?? 0) > 2;
 
   // Derived display values
   const priceDisplay = property?.price_square_meter ? `${formatCurrency(property.currency)} ${formatNumbers(property.price_square_meter)}  /m²` : '';
@@ -708,8 +708,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               <div className="property-detail-summary-grid">
                 {property?.is_development && <h4>Sobre el emprendimiento</h4>}
                 {property?.development_id && <h4>Sobre la unidad</h4>}
-                <p className={summaryExpanded ? 'summary-expanded' : 'summary-collapsed'}>
-                  {property?.description ?? ''}
+                <p className={`whitespace-pre-line ${summaryExpanded ? 'summary-expanded' : 'summary-collapsed'}`}>
+                  {property?.description  ?? ''}
                 </p>
               </div>
               {showSummaryToggle && (
@@ -1009,9 +1009,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 </div>
               </div>
               <div className="property-detail-agent-details">
-                <button type="button" onClick={() => setIsPhoneModalOpen(true)}>
-                  Ver teléfono
-                </button>
+                <Button label="Ver teléfono" type="button" onClick={() => setIsPhoneModalOpen(true)} />
               </div>
             </div>
           </aside>

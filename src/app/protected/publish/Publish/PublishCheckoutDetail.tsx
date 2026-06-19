@@ -4,6 +4,7 @@ import { CreatePropertyDraft } from '@/types/propiedad';
 import './PublishCheckoutDetail.scss';
 import { Plan } from '@/types/plan';
 import { formatCurrency } from '@/utils/utils';
+import Button from '@/ui/Button/Button';
 
 interface PublishCheckoutDetailProps {
   onNext: () => void;
@@ -70,9 +71,7 @@ export default function PublishCheckoutDetail({
                 <span>{planToBuy ? `${formatCurrency(planToBuy.currency)} ${planToBuy.price}` : ''}</span>
               </div>
             </div>
-            <button className="publish-checkout-buy" type="button" onClick={handleBuy}>
-              Comprar
-            </button>
+            <Button label="Comprar" className="publish-checkout-buy" type="button" onClick={handleBuy} />
           </div>
         </div>
       </div>

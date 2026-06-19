@@ -122,9 +122,7 @@ export default function Branches() {
         </div>
 
         <div className="branches-mobile-footer">
-          <button className="branches-add-button" type="button" onClick={() => router.push('/protected/admin/branchForm')}>
-            Agregar sucursal
-          </button>
+          <Button label="Agregar sucursal" className="branches-add-button  w-full" type="button" onClick={() => router.push('/protected/admin/branchForm')} />            
         </div>
       </div>
   );

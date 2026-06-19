@@ -9,6 +9,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import InputField from '@/ui/InputField/InputField';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import { apiFetch } from '@/lib/apiFetch';
+import Button from '@/ui/Button/Button';
 
 const iconArrowBack = "/icons/arrow.svg";
 
@@ -89,9 +90,7 @@ export default function DeleteAccount() {
           <div>
             <h1>Dar de baja avisos</h1>
           </div>
-          <button className="professional-profile-save-button-header" onClick={handleSave} disabled={updateUserMutation.isPending || hasErrors || isFormEmpty}>
-            {updateUserMutation.isPending ? 'Eliminando...' : 'Eliminar cuenta'}
-          </button>
+          <Button label={updateUserMutation.isPending ? 'Eliminando...' : 'Eliminar cuenta'} className="professional-profile-save-button-header" onClick={handleSave} disabled={updateUserMutation.isPending || hasErrors || isFormEmpty} />
         </div>
 
         {/* Main Content */}

@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 import { apiFetch } from '@/lib/apiFetch';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import { useLocations } from '@/lib/locations';
+import Button from '@/ui/Button/Button';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -32,7 +33,7 @@ export default function PublishFinalReview({
   const { data: locations = [] } = useLocations();
   const { data: sessionData } = useSession();
   const [activeTab, setActiveTab] = useState<string>('');
-
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
   const formattedStreet = formatStreetAddress(wizardData.street, wizardData.show_exact_location);
   const countryLabel = locations.find(l => l.id === wizardData.country_id)?.name;
   const stateLabel = locations.find(l => l.id === wizardData.state_id)?.name;
@@ -41,7 +42,7 @@ export default function PublishFinalReview({
   const addressParts = [formattedStreet, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
   const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
-
+  const showSummaryToggle = (wizardData.description?.length ?? 0) > 300 || (wizardData.description?.split('\n').length ?? 0) > 2;
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
@@ -285,13 +286,25 @@ export default function PublishFinalReview({
 
                 <div className="publish-review-summary">
                   <h4>{propertyTitle}</h4>
-                  <p>
+                  <p className={`whitespace-pre-line ${summaryExpanded ? 'summary-expanded' : 'summary-collapsed'}`}>
                     {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm2'}.`}
                   </p>
-                  {(wizardData.description && wizardData.description.length > 1200) && (
-                  <button type="button" className="publish-review-summary-toggle">
-                    Leer descripcion completa
-                    <img src="/icons/chevron-up.svg" alt="" />
+                  {showSummaryToggle && (
+                    <button
+                    type="button"
+                    className="property-detail-summary-toggle"
+                    onClick={() => setSummaryExpanded((prev) => !prev)}
+                    aria-expanded={summaryExpanded}
+                  >
+                    {summaryExpanded
+                      ? 'Leer descripcion completa'
+                      : 'Leer descripcion completa'}
+                    <img
+                      src="/icons/chevron-up.svg"
+                      alt=""
+                      aria-hidden="true"
+                      className={summaryExpanded ? 'expanded' : ''}
+                    />
                   </button>)}
                 </div>
 
@@ -397,9 +410,7 @@ export default function PublishFinalReview({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <button className="publish-review-continue" type="button" onClick={handlePublish}>
-              {isEditMode ? 'Guardar cambios' : 'Publicar'}
-            </button>
+            <Button className="publish-review-continue" type="button" onClick={handlePublish} label={isEditMode ? 'Guardar cambios' : 'Publicar'} />
           </div>
         </div>
       </div>

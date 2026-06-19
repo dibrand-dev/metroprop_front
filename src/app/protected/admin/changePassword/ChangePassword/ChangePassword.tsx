@@ -9,6 +9,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import InputField from '@/ui/InputField/InputField';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import { apiFetch } from '@/lib/apiFetch';
+import Button from '@/ui/Button/Button';
 
 const iconEditPencil = "/icons/pencil.svg";
 const iconArrowBack = "/icons/arrow.svg";
@@ -130,9 +131,7 @@ export default function ChangePassword() {
           <div>
             <h1>Cambiar Contraseña</h1>
           </div>
-          <button className="professional-profile-save-button-header" onClick={handleSave} disabled={updateUserMutation.isPending || hasErrors || isFormEmpty}>
-            {updateUserMutation.isPending ? 'Guardando...' : 'Guardar cambios'}
-          </button>
+          <Button label={updateUserMutation.isPending ? 'Guardando...' : 'Guardar cambios'} className="professional-profile-save-button-header" onClick={handleSave} disabled={updateUserMutation.isPending || hasErrors || isFormEmpty} />
         </div>
 
         {/* Main Content */}
@@ -169,10 +168,9 @@ export default function ChangePassword() {
             </div>
           </section>
 
-          {/* Save Button */}          
-          <button className="professional-profile-save-button" onClick={handleSave} disabled={updateUserMutation.isPending || hasErrors || isFormEmpty}>
-            {updateUserMutation.isPending ? 'Guardando...' : 'Guardar cambios'}
-          </button>
+          <div className="professional-profile-save-button-mobile-container">       
+            <Button label={updateUserMutation.isPending ? 'Guardando...' : 'Guardar cambios'} className="w-full" onClick={handleSave} disabled={updateUserMutation.isPending || hasErrors || isFormEmpty} />
+          </div>
 
           {successMessage && (
             <div className="profile-feedback profile-feedback--success">{successMessage}</div>

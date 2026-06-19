@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import './Users.scss';
 import { useAdminMenu } from '../../AdminLayoutClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -16,11 +17,12 @@ const iconTrash = '/icons/trash.svg';
 
 const usersDescription = 'Aca podes ver la lista de usuarios, activarlos y /o eliminarlos.';
 
-type UserAction = 'lock' | 'delete';
+type UserAction = 'lock' | 'delete' | 'edit';
 
 const actionIcons: Record<UserAction, { src: string; label: string }> = {
   lock: { src: iconLock, label: 'Bloquear usuario' },  
   delete: { src: iconTrash, label: 'Eliminar usuario' },
+  edit: { src: '/icons/pencil.svg', label: 'Editar usuario' },
 };
 
 interface UserItem {
@@ -35,17 +37,18 @@ interface UserItem {
 const LIMIT = 20;
 export default function Users() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const { showMenu, setShowMenu } = useAdminMenu();
   const [currentPage, setCurrentPage] = useState(0);  
   const [searchQuery, setSearchQuery] = useState('');
   const [searchId, setSearchId] = useState<number | null>(null);
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; userId: number | null; userName: string }>({ open: false, userId: null, userName: '' });
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; userId: number | null; userName: string; is_delete: boolean }>({ open: false, userId: null, userName: '', is_delete: true });
 
   const deleteMutation = useMutation({
     mutationFn: (userId: number) =>
       apiFetch(`${API_BASE_URL}/users/${userId}`, { method: 'DELETE' }),
     onSuccess: () => {
-      setDeleteModal({ open: false, userId: null, userName: '' });
+      setDeleteModal({ open: false, userId: null, userName: '', is_delete: true });
       queryClient.invalidateQueries({ queryKey: ['all-users'] });
     },
   });
@@ -69,6 +72,7 @@ export default function Users() {
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleSearchById();
   };
+
   const { data: usersData } = useQuery<any>({
     queryKey: ['all-users', currentPage, searchId],
     queryFn: async () => {
@@ -93,8 +97,12 @@ export default function Users() {
     branchName: user.branch?.branch_name ?? user.branch_name ?? '',
     branchId: String(user.branch_id ?? user.branch?.id ?? ''),
     role_id: user.role_id ?? null,
-    actions: [/*'lock', 'edit',*/ 'delete'] as UserAction[],
+    actions: ['delete', 'edit', 'lock'] as UserAction[],
   })) ?? [];
+
+  const handleEdit = (id: string) => {
+    router.push('/protected/admin/users/' + id);
+  };
 
   return (
     <>
@@ -151,9 +159,9 @@ export default function Users() {
                         type="button"
                         aria-label={actionIcons[action].label}
                         onClick={() => {
-                          // if (action === 'edit') handleEdit(String(user.id));
-                          // if (action === 'lock') { setNewPassword(''); setConfirmPassword(''); setPasswordError(''); setLockModal({ open: true, userId: user.id, userName: user.name }); }
-                          if (action === 'delete') setDeleteModal({ open: true, userId: user.id, userName: user.name });
+                          if (action === 'edit') handleEdit(String(user.id));
+                          if (action === 'lock')  setDeleteModal({ open: true, userId: user.id, userName: user.name, is_delete: false });
+                          if (action === 'delete') setDeleteModal({ open: true, userId: user.id, userName: user.name, is_delete: true });
                         }}
                       >
                         <img src={actionIcons[action].src} alt="" />
@@ -182,13 +190,13 @@ export default function Users() {
 
       {deleteModal.open && (
         <AreYouSureModal
-          title="Eliminar Colaborador"
-          subTitle={`¿Está seguro que desea eliminar a ${deleteModal.userName}?`}
+          title={deleteModal.is_delete ? "Eliminar Colaborador" : "Bloquear Colaborador"}
+          subTitle={`¿Está seguro que desea ${deleteModal.is_delete ? "eliminar" : "bloquear"} a ${deleteModal.userName}?`}
           text="Todos las publicaciones del vendedor pasaran al administrador."
-          icon="/icons/trash.svg"
-          onCancel={() => setDeleteModal({ open: false, userId: null, userName: '' })}
+          icon={deleteModal.is_delete ? "/icons/trash.svg" : "/icons/lock.svg"}
+          onCancel={() => setDeleteModal({ open: false, userId: null, userName: '', is_delete: true })}
           onAccept={() => { if (deleteModal.userId) deleteMutation.mutate(deleteModal.userId); }}
-          acceptText={deleteMutation.isPending ? 'Eliminando...' : 'Aceptar'}
+          acceptText={deleteMutation.isPending ? (deleteModal.is_delete ? 'Eliminando...' : 'Bloqueando...') : 'Aceptar'}
         />
       )}
     </>

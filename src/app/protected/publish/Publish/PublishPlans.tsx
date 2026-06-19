@@ -254,7 +254,7 @@ export default function PublishPlans({
                         </div>
                       </div>
                       <ul>                        
-                        <li>
+                        <li className="whitespace-pre-line">
                           <img src={iconCheck} alt="" />
                           {plan.plan_description}
                         </li>
@@ -267,9 +267,7 @@ export default function PublishPlans({
                           Destaques: {plan.highlight_limit}
                         </li>
                       </ul>
-                      <button type="button" className="publish-plans-buy" onClick={() => handleComprar(plan)}>
-                        Comprar
-                      </button>
+                      <Button label="Comprar" type="button" onClick={() => handleComprar(plan)} />
                     </div>
                   ))}
                 </div>

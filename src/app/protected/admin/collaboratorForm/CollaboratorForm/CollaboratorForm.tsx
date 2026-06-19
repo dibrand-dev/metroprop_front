@@ -287,7 +287,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
             label="Cancelar"
             type="button"
             variant="secondary"
-            buttonType="2"
+            buttonType="1"
             fullWidth={true}
             size="medium"
             onClick={() => router.push('/protected/admin/collaborators')}

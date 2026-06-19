@@ -34,6 +34,7 @@ export default function PublishEmprendimientoFinalReview({
   const { data: locations = [] } = useLocations();
   const { data: sessionData } = useSession();
   const [activeTab, setActiveTab] = useState<string>('');
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
   const countryLabel = locations.find(l => l.id === wizardData.country_id)?.name;
   const stateLabel = locations.find(l => l.id === wizardData.state_id)?.name;
   const locationLabel = locations.find(l => l.id === wizardData.location_id)?.name;
@@ -46,7 +47,7 @@ export default function PublishEmprendimientoFinalReview({
   const [galleryInitialTab, setGalleryInitialTab] = useState<GalleryTab>('fotos');
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const [disablePublish, setDisablePublish] = useState(false);
-
+  const showSummaryToggle = (wizardData.description?.length ?? 0) > 300 || (wizardData.description?.split('\n').length ?? 0) > 2;
   const unidadesPorTipo = (wizardData.development_units ?? []).reduce<Record<string, CreateProperty[]>>((acc, unit) => {
     const rooms = unit.room_amount ?? 0;
     const key = rooms === 0 ? 'Monoambiente' : rooms === 1 ? '1 ambiente' : `${rooms} ambientes`;
@@ -371,13 +372,25 @@ export default function PublishEmprendimientoFinalReview({
                 
                 <div className="description-section">
                   <h4>Sobre el emprendimiento</h4>
-                  <p>
+                  <p className={`whitespace-pre-line ${summaryExpanded ? 'summary-expanded' : 'summary-collapsed'}`}>
                     {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm2'}.`}
                   </p>
-                  {(wizardData.description && wizardData.description.length > 1200) && (
-                  <button type="button" className="publish-review-summary-toggle">
-                    Leer descripción completa
-                    <img src="/icons/chevron-up.svg" alt="" />
+                  {showSummaryToggle && (
+                  <button
+                    type="button"
+                    className="property-detail-summary-toggle"
+                    onClick={() => setSummaryExpanded((prev) => !prev)}
+                    aria-expanded={summaryExpanded}
+                  >
+                    {summaryExpanded
+                      ? 'Leer descripcion completa'
+                      : 'Leer descripcion completa'}
+                    <img
+                      src="/icons/chevron-up.svg"
+                      alt=""
+                      aria-hidden="true"
+                      className={summaryExpanded ? 'expanded' : ''}
+                    />
                   </button>)}
                 </div>
                 <div className="publish-review-map">

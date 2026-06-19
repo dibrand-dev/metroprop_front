@@ -259,24 +259,7 @@
   }
 }
 
-.publish-property-description-continue {
-  border: none;
-  border-radius: 8px;
-  padding: 14px 32px;
-  background: #006aff;
-  color: #ffffff;
-  
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 20px;
-  letter-spacing: 0.32px;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
+.publish-property-description-continue { 
   @media (max-width: 768px) {
     width: 100%;
   }

@@ -9,6 +9,7 @@ import Checkbox from '@/ui/Checkbox/Checkbox';
 import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import { apiFetch } from '@/lib/apiFetch';
+import Button from '@/ui/Button/Button';
 
 const iconEditPencil = "/icons/pencil.svg";
 const iconArrowBack = "/icons/arrow.svg";
@@ -17,9 +18,13 @@ interface PropertyData {
   [key: string]: string;
 }
 
+interface ProfileProps {
+  userId?: number;
+}
+
 const formatNumeric = (value: string): string => value.replace(/\D/g, '');
 
-export default function Profile() {
+export default function Profile({ userId: propUserId }: ProfileProps = {}) {
   const { data: sessionData, update: updateSession } = useSession();
   const { showMenu, setShowMenu } = useAdminMenu();  
   const [successMessage, setSuccessMessage] = useState('');
@@ -35,7 +40,7 @@ export default function Profile() {
     phone_whatsapp_available: ''
   });
   useEffect(() => {
-    const userId = (sessionData?.user as any)?.id;
+    const userId = propUserId ?? (sessionData?.user as any)?.id;
     if (!userId) return;
 
     apiFetch<any>(`${API_BASE_URL}/users/${userId}`)
@@ -46,11 +51,11 @@ export default function Profile() {
         });
       })
       .catch(console.error);
-  }, [sessionData]);
+  }, [sessionData, propUserId]);
 
   const updateUserMutation = useMutation({
     mutationFn: async (data: any) => {
-      const userId = (sessionData?.user as any)?.id;
+      const userId = propUserId ?? (sessionData?.user as any)?.id;
       if (!userId) throw new Error('No user id');
       return apiFetch<any>(`${API_BASE_URL}/users/${userId}`, {
         method: 'PATCH',
@@ -64,13 +69,16 @@ export default function Profile() {
       });
     },
     onSuccess: (data) => {
-      updateSession({
-        name: data.name,
-        phone: data.phone,
-        // phone_additional: data.phone_additional,
-        phone_whatsapp: data.phone_whatsapp,
-        document: data.document,
-      });
+      // Only update session if editing own profile
+      if (!propUserId) {
+        updateSession({
+          name: data.name,
+          phone: data.phone,
+          // phone_additional: data.phone_additional,
+          phone_whatsapp: data.phone_whatsapp,
+          document: data.document,
+        });
+      }
       setSuccessMessage('Usuario editado correctamente');
       setErrorMessage('');
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -107,9 +115,7 @@ export default function Profile() {
           <div>
             <h1>Datos</h1>
           </div>
-          <button className="professional-profile-save-button-header" onClick={handleSave} disabled={updateUserMutation.isPending}>
-            {updateUserMutation.isPending ? 'Guardando...' : 'Guardar cambios'}
-          </button>
+          <Button label={updateUserMutation.isPending ? 'Guardando...' : 'Guardar cambios'} className="professional-profile-save-button-header" onClick={handleSave} disabled={updateUserMutation.isPending} />
         </div>
 
         {/* Main Content */}
@@ -196,11 +202,9 @@ export default function Profile() {
               </div>   
             </div>           
           </section>
-          {/* Save Button */}          
-          <button className="professional-profile-save-button" onClick={handleSave} disabled={updateUserMutation.isPending}>
-            {updateUserMutation.isPending ? 'Guardando...' : 'Guardar cambios'}
-          </button>
-
+          <div className="professional-profile-save-button-mobile-container">
+            <Button label={updateUserMutation.isPending ? 'Guardando...' : 'Guardar cambios'} className="w-full" onClick={handleSave} disabled={updateUserMutation.isPending} />
+          </div>
           {successMessage && (
             <div className="profile-feedback profile-feedback--success">{successMessage}</div>
           )}

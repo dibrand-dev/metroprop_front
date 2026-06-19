@@ -108,9 +108,7 @@ export default function Partners() {
               <h1>Partners</h1>
               <p>Aca podes crear, eliminar, deshabilitar y actualizar keys de los partners</p>
             </div>
-            <button className="partners-add-button" type="button" onClick={() => router.push('/protected/partnerForm')}>
-              Agregar partner
-            </button>
+            <Button label="Agregar partner" className="partners-add-button" type="button" onClick={() => router.push('/protected/admin/partnerForm')} />
           </div>
 
           <div className="partners-list">
@@ -139,7 +137,7 @@ export default function Partners() {
                       className="partners-action-button"
                       type="button"
                       aria-label="Editar partner"
-                      onClick={() => router.push(`/protected/partnerForm/${partner.id}`)}
+                      onClick={() => router.push(`/protected/admin/partnerForm/${partner.id}`)}
                     >
                       <img src={iconPencil} alt="Editar partner" />
                     </button>
@@ -175,7 +173,7 @@ export default function Partners() {
         </div>
 
         <div className="partners-mobile-footer">
-          <Button type="button" variant="primary" onClick={() => router.push('/protected/partnerForm')} label="Agregar partner" fullWidth />
+          <Button type="button" variant="primary" onClick={() => router.push('/protected/admin/partnerForm')} label="Agregar partner" fullWidth />
         </div>
       </div>
 

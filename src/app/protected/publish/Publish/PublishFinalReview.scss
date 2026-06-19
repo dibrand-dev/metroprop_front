@@ -309,6 +309,13 @@
     font-weight: 400;
     line-height: 20px; /* 125% */
     letter-spacing: 0.12px;
+
+    &.summary-collapsed {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
   }
 }
 
@@ -544,15 +551,3 @@
   }
 }
 
-.publish-review-continue {
-  border: none;
-  border-radius: 8px;
-  padding: 14px 32px;
-  background: #006aff;
-  color: #ffffff;
-  
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.16px;
-  cursor: pointer;
-}

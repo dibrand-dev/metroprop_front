@@ -14,6 +14,7 @@ import { apiFetch } from '@/lib/apiFetch';
 import Select from '@/ui/Select/Select';
 import { Plan, PlanUserType } from '@/types/plan';
 import { currencySelectOptions } from '@/types/propiedad';
+import InputField from '@/ui/InputField/InputField';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -159,15 +160,15 @@ export default function PlanForm({ planId }: PlanFormProps) {
             />
           </div>
           <div className="partner-form-section">
-            <label className="partner-form-label">Descripción</label>
-            <InputField2
-              label="Descripción"
-              type="text"
-              placeholder="Descripción"
+            <label className="partner-form-label">Descripción</label>           
+            <InputField              
               value={description}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDescription(event.target.value)}
-              required={true}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Descripción"
+              multiline
+              rows={6}
               error={fieldErrors.description}
+              required
             />
           </div>
 

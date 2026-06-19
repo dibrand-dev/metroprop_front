@@ -95,7 +95,7 @@ export default function TopUserMenu() {
   };
 
   const menuItems: MenuItemType[] = [
-    {
+    ...(sessionData?.user?.role_id !== 4 ? [{
       id: 'contactos',
       label: 'Contactados',
       icon: contactosIcon,
@@ -107,19 +107,19 @@ export default function TopUserMenu() {
       icon: favoritosIcon,
       href: '/protected/favorites'
     },
-    ...(sessionData?.user?.role_id !== 4 ? [ {
+    {
       id: 'interesados',
       label: 'Interesados',
       icon: contactosIcon,
       href: '/protected/leads'
-    }] : []),
+    },
     {
       id: 'alertas',
       label: 'Búsquedas y alertas',
       icon: alertasIcon,
       href: '/protected/alerts'
     },
-    ...(sessionData?.user?.role_id !== 4 ? [{
+    {
       id: 'publicaciones',
       label: 'Mis publicaciones',
       icon: publicacionesIcon,
@@ -127,7 +127,7 @@ export default function TopUserMenu() {
     }] : []),
     {
       id: 'cuenta',
-      label: 'Mi cuenta',
+      label: sessionData?.user?.role_id !== 4 ? 'Mi cuenta' : 'Panel de administración',
       icon: cuentaIcon,
       href: '/protected/admin/profile'
     },

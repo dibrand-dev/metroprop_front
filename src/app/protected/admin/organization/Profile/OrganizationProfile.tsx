@@ -10,6 +10,7 @@ import { API_BASE_URL, getIdentificador, setImagePath } from '@/utils/utils';
 import Select from '@/ui/Select/Select';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
+import Button from '@/ui/Button/Button';
 
 const iconEditPencil = "/icons/pencil.svg";
 const iconArrowBack = "/icons/arrow.svg";
@@ -18,9 +19,13 @@ interface PropertyData {
   [key: string]: string;
 }
 
+interface OrganizationProfileProps {
+  organizationId?: number;
+}
+
 const formatNumeric = (value: string): string => value.replace(/\D/g, '');
 
-export default function OrganizationProfile() {
+export default function OrganizationProfile({ organizationId: propOrganizationId }: OrganizationProfileProps = {}) {
   const { data: sessionData } = useSession();
   const [activeSection, setActiveSection] = useState<'generales' | 'ubicacion' | 'descripcion'>('generales');
   const { showMenu, setShowMenu } = useAdminMenu();
@@ -30,7 +35,7 @@ export default function OrganizationProfile() {
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [organizationId, setOrganizationId] = useState<number | null>(null);
+  const [organizationId, setOrganizationId] = useState<number | null>(propOrganizationId ?? null);
   const [country_id, setCountry_id] = useState<number | undefined>(LOCATION_ARGENTINA_ID);
   const [state_id, setState_id] = useState<number | undefined>(undefined);
   const [location_id, setLocation_id] = useState<number | undefined>(undefined);
@@ -73,7 +78,7 @@ export default function OrganizationProfile() {
   const locationOptions = locations.map((l: any) => ({ value: l.id.toString(), label: l.name }));
   const zoneOptions = zones.map((z: any) => ({ value: z.id.toString(), label: z.name }));
 
-  const orgId = (sessionData?.user as any)?.organization?.id ?? null;
+  const orgId = propOrganizationId ?? (sessionData?.user as any)?.organization?.id ?? null;
 
   const { data: organizationData } = useQuery({
     queryKey: ['organization', orgId],
@@ -192,8 +197,13 @@ export default function OrganizationProfile() {
           </button>
           <span className='professional-profile-title'>Datos de inmobiliaria</span>
         </div>
-
-        <h1 className='professional-profile-title'>Datos de inmobiliaria</h1>
+        <div className="profile-header">
+          <div>
+            <h1 className='professional-profile-title'>Datos de inmobiliaria</h1>
+          </div>
+          <Button label={updateOrganizationMutation.isPending ? 'Guardando...' : 'Guardar cambios'} onClick={handleSave} disabled={updateOrganizationMutation.isPending} />
+        </div>
+        
 
         {/* Main Content */}
         <div className={`professional-profile-content ${isEditing ? 'is-editing' : ''}`}>
@@ -393,11 +403,9 @@ export default function OrganizationProfile() {
           </section> */}
 
           {/* Save Button */}
-          {isEditing && (
-            <button className="professional-profile-save-button" onClick={handleSave} disabled={updateOrganizationMutation.isPending}>
-              {updateOrganizationMutation.isPending ? 'Guardando...' : 'Guardar cambios'}
-            </button>
-          )}
+          {isEditing && (<div className="professional-profile-save-button-mobile-container"> 
+            <Button label={updateOrganizationMutation.isPending ? 'Guardando...' : 'Guardar cambios'} className="w-full" onClick={handleSave} disabled={updateOrganizationMutation.isPending} />
+          </div>)}
 
           {successMessage && (
             <div className="profile-feedback profile-feedback--success">{successMessage}</div>

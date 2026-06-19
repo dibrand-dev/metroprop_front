@@ -12,6 +12,7 @@ import {
   roomsConfig,
   unitSelectOptions
 } from '@/types/propiedad';
+import Button from '@/ui/Button/Button';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -250,13 +251,7 @@ export default function PublishMainInfo({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <button
-              className="publish-main-info-continue"
-              type="button"
-              onClick={handleContinue}
-            >
-              Continuar
-            </button>
+            <Button label="Continuar" type="button" onClick={handleContinue} className="publish-main-info-continue" />
           </div>
         </div>
       </div>

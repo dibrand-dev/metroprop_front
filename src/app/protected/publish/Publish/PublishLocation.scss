@@ -411,32 +411,6 @@
   }
 }
 
-.publish-location-continue {
-  height: 48px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  border: 1px solid #006aff;
-  background: #006aff;
-  font-family: Montserrat, sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 20px;
-  letter-spacing: 0.32px;
-  color: #ffffff;
-  cursor: pointer;
-
-  &:hover {
-    background: #0041d9;
-    border-color: #0041d9;
-  }
-
-  &:disabled {
-    background: #a6a6a6;
-    border-color: #a6a6a6;
-    cursor: not-allowed;
-  }
-}
-
 @media (max-width: 768px) {
   .publish-location-card {
     padding: 24px 16px;

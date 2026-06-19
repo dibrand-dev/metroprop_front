@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import './PublishPropertyDescription.scss';
 import InputField from '@/ui/InputField/InputField';
 import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import Button from '@/ui/Button/Button';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -145,14 +146,12 @@ export default function PublishPropertyDescription({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <button
-              className="publish-property-description-continue"
-              type="button"
+            <Button
+              className="publish-price-continue"
               onClick={handleContinue}
+              label="Continuar" // isRole3
               disabled={!title.trim()}
-            >
-              Continuar
-            </button>
+            />
           </div>
         </div>
       </div>

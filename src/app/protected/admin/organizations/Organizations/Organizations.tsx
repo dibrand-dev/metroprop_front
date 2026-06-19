@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import './Organizations.scss';
+import { useRouter } from 'next/navigation';
 import { useAdminMenu } from '../../AdminLayoutClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -13,15 +14,16 @@ import InputField2 from '@/ui/InputField2/InputField2';
 const iconArrowBack = '/icons/arrow.svg';
 const iconLock = '/icons/lock.svg';
 const iconTrash = '/icons/trash.svg';
+const iconEdit = '/icons/pencilhandleEdit.svg';
 
 const organizationsDescription =
-  'Aca podes ver la lista de organizaciones, activarlas y /o eliminarlas.';
+  'Aca podes ver la lista de inmobiliarias, activarlas y /o eliminarlas.';
 
 type OrganizationAction = 'lock' | 'edit' | 'delete';
 
 const actionIcons: Record<OrganizationAction, { src: string; label: string }> = {
   lock: { src: iconLock, label: 'Bloquear organización' },
-  // edit: { src: iconEdit, label: 'Editar organización' },
+  edit: { src: iconEdit, label: 'Editar organización' },
   delete: { src: iconTrash, label: 'Eliminar organización' },
 };
 
@@ -37,18 +39,19 @@ interface OrganizationItem {
 }
 const LIMIT = 20;
 export default function Organizations() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { showMenu, setShowMenu } = useAdminMenu();
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchId, setSearchId] = useState<number | null>(null);
-  const [deleteModal, setDeleteModal] = useState<{ open: boolean; organizationId: number | null; organizationName: string }>({ open: false, organizationId: null, organizationName: '' });
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; organizationId: number | null; organizationName: string; is_delete: boolean }>({ open: false, organizationId: null, organizationName: '', is_delete: true });
 
   const deleteMutation = useMutation({
     mutationFn: (organizationId: number) =>
       apiFetch(`${API_BASE_URL}/organizations/${organizationId}`, { method: 'DELETE' }),
     onSuccess: () => {
-      setDeleteModal({ open: false, organizationId: null, organizationName: '' });
+      setDeleteModal({ open: false, organizationId: null, organizationName: '', is_delete: true });
       queryClient.invalidateQueries({ queryKey: ['all-organizations'] });
     },
   });
@@ -100,8 +103,12 @@ export default function Organizations() {
     branchId: String(organization.branch_id ?? organization.branch?.id ?? ''),
     role_id: organization.role_id ?? null,
     cuit: organization.cuit ?? null,
-    actions: ['delete'] as OrganizationAction[],
+    actions: ['delete', 'edit', 'lock'] as OrganizationAction[],
   })) ?? [];
+
+  const handleEdit = (id: string) => {
+    router.push('/protected/admin/organization/' + id);
+  };
 
   return (
     <>
@@ -113,14 +120,14 @@ export default function Organizations() {
             onClick={() => setShowMenu(true)}
           >
             <img src={iconArrowBack} alt="Back" />
-            <span>Organizaciones</span>
+            <span>Inmobiliarias</span>
           </button>
         </div>
 
         <div className="collaborators-content">
           <div className="collaborators-header">
             <div className="collaborators-header-container">
-              <h1>Organizaciones</h1>
+              <h1>Inmobiliarias</h1>
               <p>{organizationsDescription}</p>
             </div>
           </div>
@@ -158,9 +165,9 @@ export default function Organizations() {
                         type="button"
                         aria-label={actionIcons[action].label}
                         onClick={() => {
-                          // if (action === 'edit') handleEdit(String(organization.id));
-                          // if (action === 'lock') { setNewPassword(''); setConfirmPassword(''); setPasswordError(''); setLockModal({ open: true, userId: organization.id, userName: organization.company_name }); }
-                          if (action === 'delete') setDeleteModal({ open: true, organizationId: organization.id, organizationName: organization.company_name });
+                          if (action === 'edit') handleEdit(String(organization.id));
+                          if (action === 'lock') setDeleteModal({ open: true, organizationId: organization.id, organizationName: organization.company_name, is_delete: false }); // Reusing delete modal for lock action as well, adjust as needed
+                          if (action === 'delete') setDeleteModal({ open: true, organizationId: organization.id, organizationName: organization.company_name, is_delete: true });
                         }}
                       >
                         <img src={actionIcons[action].src} alt="" />
@@ -186,14 +193,13 @@ export default function Organizations() {
         </div>
       </div>
 
-
       {deleteModal.open && (
         <AreYouSureModal
-          title="Eliminar Organización"
-          subTitle={`¿Está seguro que desea eliminar a ${deleteModal.organizationName}?`}
-          text="Todos los datos de la organización se eliminarán permanentemente."
-          icon="/icons/trash.svg"
-          onCancel={() => setDeleteModal({ open: false, organizationId: null, organizationName: '' })}
+          title={deleteModal.is_delete ? "Eliminar Organización" : "Bloquear Organización"}
+          subTitle={`¿Está seguro que desea ${deleteModal.is_delete ? "eliminar" : "bloquear"} a ${deleteModal.organizationName}?`}
+          text={deleteModal.is_delete ? "Todos los datos de la organización se eliminarán permanentemente." : "La organización será bloqueada y no podrá acceder a sus datos."}
+          icon={deleteModal.is_delete ? "/icons/trash.svg" : "/icons/lock.svg"}
+          onCancel={() => setDeleteModal({ open: false, organizationId: null, organizationName: '', is_delete: true })}
           onAccept={() => { if (deleteModal.organizationId) deleteMutation.mutate(deleteModal.organizationId); }}
           acceptText={deleteMutation.isPending ? 'Eliminando...' : 'Aceptar'}
         />

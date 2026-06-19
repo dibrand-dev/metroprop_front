@@ -6,6 +6,7 @@ import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
+import Button from '@/ui/Button/Button';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -134,9 +135,12 @@ export default function PublishPrice({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <button className="publish-price-continue" type="button" onClick={handleContinue} disabled={!price || price <= 0}>
-              Continuar
-            </button>
+            <Button
+              className="publish-price-continue"
+              onClick={handleContinue}
+              label="Continuar" // isRole3
+              disabled={!price || price <= 0}
+            />
           </div>
         </div>
       </div>

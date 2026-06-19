@@ -26,12 +26,19 @@
     }
 }
 
-.hero-title .h1-first {
-  display: inline;
+.hero-title {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800;
+    font-size: 44px;
+    line-height: 52px;
+    letter-spacing: -1%;
+    color: #fff;
+    text-shadow: 1px 1px #00000040;
+    margin-bottom: 16px;
 }
 
 .properties-title, .service-title  {
-    font-family: Montserrat, sans-serif;
+    font-family: "Montserrat", sans-serif;
 }
 
 .search-input-wrapper {
@@ -93,12 +100,10 @@
 }
 
 @media (max-width: 767px) {
-    .hero-title .h1-first {
-        display: block;
-    }
+    
     .hero-section {
-    min-height: 360px;
-    padding-top: 2rem;
+        min-height: 360px;
+        padding-top: 2rem;
     }
 
     .hero-background {
@@ -106,10 +111,10 @@
     }
 
     .hero-title {
-    font-size: 2rem;
-    line-height: 2.25rem;
-    letter-spacing: -0.032px;
-    margin-bottom: 1.5rem;
+        font-size: 2rem;
+        line-height: 2.25rem;
+        letter-spacing: -0.032px;
+        margin-bottom: 1.5rem;
     }
 
     .search-card {
@@ -154,14 +159,6 @@
 
     .hero-background {
     background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/images/hero_home.png');
-    }
-
-    .hero-title {
-    font-size: 2.75rem;
-    line-height: 3.25rem;
-    letter-spacing: -0.44px;
-    margin-bottom: 2rem;
-    max-width: 42rem;
     }
 
     .search-card {

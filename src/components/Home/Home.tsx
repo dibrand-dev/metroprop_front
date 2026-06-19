@@ -134,8 +134,8 @@ export default function Home() {
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4 md:px-6 py-8 md:py-0">
             
             <div>
-              <h1 className="hero-title font-extrabold drop-shadow-lg">
-                <span className="h1-first">Encontrá</span> tu espacio ideal.
+              <h1 className="hero-title drop-shadow-lg">
+                Encontrá tu espacio ideal.
               </h1>
               {/* Search and Filters Card */}
               <div className="search-card bg-white rounded-lg p-4 shadow-lg w-full">

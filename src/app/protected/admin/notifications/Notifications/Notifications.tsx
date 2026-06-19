@@ -7,6 +7,7 @@ import { useAdminMenu } from '../../AdminLayoutClient';
 import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
 import { API_BASE_URL } from '@/utils/utils';
 import { apiFetch } from '@/lib/apiFetch';
+import Button from '@/ui/Button/Button';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -103,9 +104,7 @@ export default function Notifications() {
         </div>
 
         <div className="branches-mobile-footer">
-          <button className="branches-add-button" type="button" disabled>
-            Agregar sucursal
-          </button>
+          <Button label="Agregar sucursal" className="branches-add-button" type="button" disabled />
         </div>
       </div>
   );

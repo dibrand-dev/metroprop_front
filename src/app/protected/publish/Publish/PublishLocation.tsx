@@ -17,6 +17,7 @@ import {
 import PublishLocationMap from './PublishLocationMap/PublishLocationMap';
 import InputField2 from '@/ui/InputField2/InputField2';
 import { apiFetch } from '@/lib/apiFetch';
+import Button from '@/ui/Button/Button';
 
 const iconChevron = '/icons/chevron-up.svg';
 const iconClose = '/icons/close.svg';
@@ -532,9 +533,7 @@ export default function PublishLocation({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <button className="publish-location-continue" type="button" onClick={handleContinue} disabled={!hasSelectedAutocompleteLocation}>
-              Continuar
-            </button>
+            <Button label="Continuar" type="button" onClick={handleContinue} disabled={!hasSelectedAutocompleteLocation} />
           </div>
         </div>
       </div>

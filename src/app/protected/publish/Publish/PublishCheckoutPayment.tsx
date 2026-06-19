@@ -10,6 +10,7 @@ import { formatCurrency } from '@/utils/utils';
 import { apiFetch } from '@/lib/apiFetch';
 import { useSession } from 'next-auth/react';
 import { API_BASE_URL } from '@/utils/utils';
+import Button from '@/ui/Button/Button';
 
 // ─── MercadoPago configuration ────────────────────────────────────────────────
 const MP_PUBLIC_KEY = 'TEST-8a741dc5-dc45-4271-be8b-501f9ef0107c';
@@ -397,14 +398,13 @@ export default function PublishCheckoutPayment({
                 <span>Total</span>
                 <strong>{planToBuy ? `${formatCurrency(planToBuy.currency)} ${planToBuy.price}` : ''}</strong>
               </div>
-              <button
+              <Button 
+                label={isSubmitting ? 'Procesando...' : 'Comprar'}
                 type="button"
                 className="publish-payment-buy"
                 onClick={handleBuy}
                 disabled={isSubmitting || !sdkReady}
-              >
-                {isSubmitting ? 'Procesando...' : 'Comprar'}
-              </button>
+              />
               {!sdkReady && (
                 <p className="publish-payment-sdk-loading">Cargando servicio de pago...</p>
               )}

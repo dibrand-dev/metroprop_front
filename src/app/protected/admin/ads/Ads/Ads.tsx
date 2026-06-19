@@ -100,9 +100,7 @@ export default function Ads() {
               <h1>Ads</h1>
               <p>Aca podes crear, eliminar, deshabilitar y actualizar ads</p>
             </div>
-            <button className="partners-add-button" type="button" onClick={() => router.push('/protected/admin/adsForm')}>
-              Agregar Ad
-            </button>
+            <Button label="Agregar Ad" type="button" onClick={() => router.push('/protected/admin/adsForm')} />
           </div>
 
           <div className="partners-list">
@@ -165,46 +163,7 @@ export default function Ads() {
           onCancel={() => setConfirmAction(null)}
           iconBackgroundColor={confirmMessages[confirmAction.type].iconBackgroundColor}
         />
-      )}
-
-      {viewCredentials && (<AreYouSureModal
-          title="Keys"
-          subTitle="Credenciales del partner"
-          text={<>
-            <div className="modal-credential-row">
-              <div className="modal-message-text">
-                <strong>App Key: </strong> 
-                <button
-                  type="button"
-                  title="Copiar App Key"
-                  style={{ color: copiedField === 'app_key' ? '#2e7d32' : undefined }}
-                  onClick={() => { navigator.clipboard.writeText(viewCredentials.app_key); setCopiedField('app_key'); setTimeout(() => setCopiedField(null), 3000); }}
-                >
-                  {copiedField === 'app_key' ? 'Copiado' : 'Copiar'}
-                </button>
-              </div>
-              <p style={{ fontSize: '0.9em' }}>{viewCredentials.app_key}</p>
-            </div>
-            <div className="modal-credential-row">
-              <div className="modal-message-text">
-                <strong>App Secret: </strong>
-                <button
-                  type="button"
-                  title="Copiar App Secret"
-                  style={{ color: copiedField === 'app_secret' ? '#2e7d32' : undefined }}
-                  onClick={() => { navigator.clipboard.writeText(viewCredentials.app_secret); setCopiedField('app_secret'); setTimeout(() => setCopiedField(null), 3000); }}
-                >
-                  {copiedField === 'app_secret' ? 'Copiado' : 'Copiar'}
-                </button>
-              </div>
-              <p style={{ fontSize: '0.9em' }}>{viewCredentials.app_secret}</p>              
-            </div>
-          </>}
-          icon={iconEye}
-          iconBackgroundColor="#FFD700"
-          onCancel={() => setViewCredentials(null)}
-          cancelText='Cerrar'
-        />)}
+      )}     
     </>
   );
 }
