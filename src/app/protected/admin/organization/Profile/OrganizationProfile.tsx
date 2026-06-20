@@ -281,9 +281,9 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                 placeholder="Seleccionar"
                 value={properties.fiscal_condition}
                 onChange={(value) => handleInputChange('fiscal_condition', value)}
-                options={[
+                options={[                  
                   { value: 'Responsable Inscripto', label: 'Responsable Inscripto' },
-                  { value: 'Monotributista', label: 'Monotributista' },
+                  { value: 'Monotributo', label: 'Monotributista' },
                   { value: 'Exento', label: 'Exento' },
                   { value: 'Consumidor Final', label: 'Consumidor Final' },
                   { value: 'No Responsable', label: 'No Responsable' }
