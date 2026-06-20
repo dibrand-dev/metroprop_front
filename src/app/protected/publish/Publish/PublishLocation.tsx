@@ -394,7 +394,7 @@ export default function PublishLocation({
       <div className="publish-location-inner">
         <div className="publish-location-card">
           <div className="publish-location-top">
-            <p className="publish-location-label">{wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ? PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}</p>
+            <p className="publish-location-label">{wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' +PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}</p>
             <button className="publish-location-link" type="button" onClick={onSaveAndExit}>
               Guardar y salir
             </button>
