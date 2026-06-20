@@ -35,7 +35,7 @@ export default function Contacts() {
   const isLoading = loadingContactados;
   return (
     <div className="contacts-container">
-      <h1>Mis Contactos</h1>      
+      <h1>Mis avisos contactados</h1>      
       {isLoading && <p>Cargando contactos...</p>}
       <div className="contacts-list">
         {leads.map(property => (
@@ -52,7 +52,7 @@ export default function Contacts() {
           />
         ))}
         {!isLoading && leads.length === 0 && (
-          <p>No tenés contactos.</p>
+          <p>Todavía no has contactado ningún aviso. Las propiedades por las que consultes aparecerán aquí.</p>
         )}
       </div>
       {isWhatsappModalOpen && <WhatsappModal
