@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import "./ContactForm.scss";
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
-import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
+// import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL, sendPropertyToWhatsApp } from '@/utils/utils';
@@ -24,7 +24,7 @@ const CONTACT_ACTIONS = [
   { id: 'contact', label: 'Contactar', icon: '/icons/envelope_w.svg', variant: 'primary' },
 ];
 
-const flagIcon = '/icons/flag.svg';
+// const flagIcon = '/icons/flag.svg';
 
 interface ContactFormProps {
   isModal?: boolean;
@@ -49,7 +49,7 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
   const [formState, setFormState] = useState(EMPTY_FORM);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
-  const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
+  // const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [touched, setTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -99,24 +99,26 @@ console.log({ phoneNumber, phone_whatsapp });
     });
   };
 
+  /*
   const handleCountrySelect = (value: string) => {
     setFormState((prev) => ({ ...prev, country: value }));
   };
+  */
 
   const fieldErrors = touched ? {
     name: !formState.name.trim(),
     email: !formState.email.trim() || !isValidEmail(formState.email),
-    country: !formState.country.trim(),
+    // country: !formState.country.trim(),
     phone: !formState.phone.trim(),
     message: !formState.message.trim(),
     terms: !termsAccepted,
     privacy: !privacyAccepted,
-  } : { name: false, email: false, country: false, phone: false, message: false, terms: false, privacy: false };
+  } : { name: false, email: false, /*country: false,*/ phone: false, message: false, terms: false, privacy: false };
 
   const isValid =
     formState.name.trim() &&
     isValidEmail(formState.email) &&
-    formState.country.trim() &&
+    /*formState.country.trim() &&*/
     formState.phone.trim() &&
     formState.message.trim() &&
     termsAccepted &&
@@ -154,7 +156,7 @@ console.log({ phoneNumber, phone_whatsapp });
         body: {
           name: formState.name,
           email: formState.email,
-          country_code: formState.country,
+          // country_code: formState.country,
           phone: formState.phone,
           message: formState.message,
           property_id: propertyId,
@@ -233,7 +235,7 @@ console.log({ phoneNumber, phone_whatsapp });
           />
         </div>
         <div className="property-detail-input-row">
-          <InputField2
+          {/*<InputField2
             label="País"
             value={formState.country}
             onFocus={() => setIsCountryModalOpen(true)}
@@ -241,7 +243,7 @@ console.log({ phoneNumber, phone_whatsapp });
             id="contact_pais"
             icon={<img src={flagIcon} />}
             error={fieldErrors.country ? ' ' : ''}
-          />
+          />*/}
           <InputField2
             label="Teléfono"
             value={formState.phone}
@@ -302,12 +304,12 @@ console.log({ phoneNumber, phone_whatsapp });
 
   return (
     <>
-      <CountryCodeModal
+      {/*<CountryCodeModal
         isOpen={isCountryModalOpen}
         selectedValue={formState.country}
         onClose={() => setIsCountryModalOpen(false)}
         onSelect={handleCountrySelect}
-      />
+      />*/}
       {isModal ? (
         <div
           className="property-detail-contact-modal is-open"

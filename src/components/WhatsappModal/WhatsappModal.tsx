@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import './WhatsappModal.scss';
-import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
+// import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import { apiFetch } from '@/lib/apiFetch';
@@ -25,12 +25,12 @@ const flagIcon = '/icons/flag.svg';
 
 export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId, userId, organizationId }: WhatsappModalProps) {
   const { data: sessionData } = useSession();
-  const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
+  // const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({
     name: false,
     email: false,
-    country: false,
+    // country: false,
     phone: false,
     terms: false,
     privacy: false,
@@ -38,8 +38,8 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
   const [formState, setFormState] = useState({
     name: '',
     email: '',
-    countryCode: '+54',
-    country: 'Argentina',
+    // countryCode: '+54',
+    // country: 'Argentina',
     phone: '',
     termsAccepted: false,
     privacyAccepted: false,
@@ -85,7 +85,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
     const nextErrors = {
       name: !formState.name.trim(),
       email: !formState.email.trim(),
-      country: !formState.country.trim(),
+      // country: !formState.country.trim(),
       phone: !formState.phone.trim(),
       terms: !formState.termsAccepted,
       privacy: !formState.privacyAccepted,
@@ -98,7 +98,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
   const handleChange = (field: keyof typeof formState, value: string | boolean) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
     if (
-      (field === 'name' || field === 'email' || field === 'country' || field === 'phone') &&
+      (field === 'name' || field === 'email' /*|| field === 'country'*/ || field === 'phone') &&
       typeof value === 'string'
     ) {
       setFieldErrors((prev) => ({ ...prev, [field]: !value.trim() }));
@@ -114,18 +114,18 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
       setFieldErrors((prev) => ({ ...prev, privacy: !Boolean(value) }));
     }
   };
-
+/*
   const handleCountrySelect = (value: string) => {
     const parts = value.trim().split(' ');
     const dialCode = parts.shift() || '';
     const name = parts.join(' ').trim();
     setFormState((prev) => ({
       ...prev,
-      countryCode: dialCode || prev.countryCode,
-      country: name || prev.country,
+      // countryCode: dialCode || prev.countryCode,
+      // country: name || prev.country,
     }));
   };
-
+*/
     const handleSubmit = async () => {
       if (!validateForm()) return;
       try {
@@ -134,7 +134,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
           body: {
             name: formState.name,
             email: formState.email,
-            country_code: formState.country,
+            // country_code: formState.country,
             phone: formState.phone,
             message: "Contacto por whatsapp desde la propiedad " + propertyId,
             property_id: propertyId,
@@ -168,12 +168,12 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
   return (
     <div className="whatsapp-modal-overlay" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="whatsapp-modal" onClick={(event) => event.stopPropagation()}>
-        <CountryCodeModal
+        {/*<CountryCodeModal
           isOpen={isCountryModalOpen}
           selectedValue={`${formState.countryCode} ${formState.country}`}
           onClose={() => setIsCountryModalOpen(false)}
           onSelect={handleCountrySelect}
-        />
+        />*/}
         <div className="whatsapp-modal-header">
           <h3>WhatsApp</h3>
           <button type="button" onClick={onClose} aria-label="Cerrar">
@@ -202,7 +202,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
               />
             </div>
             <div className="property-detail-input-row">
-              <InputField2
+              {/*<InputField2
                 label="País"
                 value={formState.country}
                 onFocus={() => setIsCountryModalOpen(true)}
@@ -210,7 +210,7 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
                 id="contact_pais"
                 icon={<img src={flagIcon} />}
                 error={fieldErrors.country ? ' ' : ''}
-              />
+              />*/}
               <InputField2
                 label="Teléfono"
                 value={formState.phone}

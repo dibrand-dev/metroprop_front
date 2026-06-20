@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import './PhoneRevealModal.scss';
-import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
+// import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
@@ -42,14 +42,14 @@ function isValidEmail(email: string) {
 const EMPTY_FORM = {
   name: '',
   email: '',
-  countryCode: '+54',
-  country: 'Argentina',
+  // countryCode: '+54',
+  // country: 'Argentina',
   phone: '',
 };
 
 export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, organizationId, ownerName, ownerEmail, ownerPhone, user }: PhoneRevealModalProps) {
   const { data: sessionData } = useSession();
-  const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
+  // const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [formState, setFormState] = useState(EMPTY_FORM);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
@@ -85,16 +85,18 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
+  /*
   const handleCountrySelect = (value: string) => {
     const parts = value.trim().split(' ');
     const dialCode = parts.shift() || '';
     const name = parts.join(' ').trim();
     setFormState((prev) => ({
       ...prev,
-      countryCode: dialCode || prev.countryCode,
-      country: name || prev.country,
+      // countryCode: dialCode || prev.countryCode,
+      // country: name || prev.country,
     }));
   };
+*/
 
   const fieldErrors = touched ? {
     name: !formState.name.trim(),
@@ -121,7 +123,7 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
         body: {
           name: formState.name,
           email: formState.email,
-          country_code: formState.countryCode,
+          // country_code: formState.countryCode,
           phone: formState.phone,
           message: 'Vio teléfono',
           property_id: propertyId,
@@ -145,12 +147,12 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
   return (
     <div className="phone-reveal-modal-overlay" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="phone-reveal-modal" onClick={(event) => event.stopPropagation()}>
-        <CountryCodeModal
+        {/*<CountryCodeModal
           isOpen={isCountryModalOpen}
           selectedValue={`${formState.countryCode} ${formState.country}`}
           onClose={() => setIsCountryModalOpen(false)}
           onSelect={handleCountrySelect}
-        />
+        />*/}
         <div className="phone-reveal-modal-header">
           <h3>Ver teléfono</h3>
           <button type="button" onClick={onClose} aria-label="Cerrar">
@@ -208,7 +210,7 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
                 </div>
 
                 <div className="phone-reveal-row">
-                  <div className="phone-reveal-field">
+                  {/*<div className="phone-reveal-field">
                     <button
                       type="button"
                       className="phone-reveal-country"
@@ -221,7 +223,7 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
                       <span>{formState.countryCode}</span>
                       <img src={chevronIcon} alt="" className="phone-reveal-chevron" />
                     </button>
-                  </div>
+                  </div>*/}
                   <InputField2
                     label="Teléfono"
                     type="tel"
