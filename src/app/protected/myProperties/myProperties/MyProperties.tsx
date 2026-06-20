@@ -11,7 +11,8 @@ import Select from '@/ui/Select/Select';
 import type { CreateProperty } from '@/types/propiedad';
 import { PROPERTY_STATUS_LABELS, PropertyStatus } from '@/types/propiedad';
 import Paginator from '@/components/Paginator/Paginator';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, formatNumbers, formatCurrency, setImagePath, getPropertyDetailPath } from '@/utils/utils';
+import { useLocations } from '@/lib/locations';
 import './MyProperties.scss';
 import PropertyCardMyProperties from './PropertyCardMyProperties';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
@@ -85,6 +86,7 @@ function calcPropertyCompleteness(prop: CreateProperty): number {
 /* ── Main component ─────────────────────────────────────────────────── */
 const MyProperties = () => {
   const { data: sessionData } = useSession();
+  const { data: locations = [] } = useLocations();
   const router = useRouter();
   const sessionUser: any = sessionData?.user;
   const hasOrganization = sessionUser?.organization ?? false;
@@ -705,10 +707,17 @@ const MyProperties = () => {
                         <img src="/icons/republicar.svg" alt="Republicar" />
                       </button>
                       )}                        
-                      <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.open(`/protected/publish/${prop.development_id ? prop.development_id : prop.id}`, '_blank')}>
+                      <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.open(`/protected/publish/${prop.development_id ? prop.development_id : prop.id}?IgnoreStatus=true`, '_blank')}>
                         <img src="/icons/pencil.svg" alt="Editar" />
                       </button>
-                      <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => window.open(`/propertyDetail/${prop.id}`, '_blank')}>
+                      <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => {
+                        const locationLabels = locations.length > 0 ? {
+                          subLocation: prop.sub_location_id ? locations.find(l => l.id === prop.sub_location_id)?.name : undefined,
+                          location: prop.location_id ? locations.find(l => l.id === prop.location_id)?.name : undefined,
+                          state: prop.state_id ? locations.find(l => l.id === prop.state_id)?.name : undefined,
+                        } : undefined;
+                        window.open(getPropertyDetailPath(prop, locationLabels), '_blank');
+                      }}>
                         <img src="/icons/verDetalle.svg" alt="Ver detalle" />
                       </button>
                       <button type="button" className="myprop-card-action-btn" title="Cambiar estado" onClick={() => {

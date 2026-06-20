@@ -141,3 +141,161 @@ export function HeartIcon({ isFavorite }: { isFavorite?: boolean }): JSX.Element
     
     return street;
   };
+
+  // ─── SEO-Friendly URL Generation ──────────────────────────────────────────
+
+  /**
+   * Converts a string to URL-friendly slug (lowercase, no special chars, hyphens)
+   */
+  function slugify(text: string): string {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .normalize('NFD') // Normalize to decomposed form for accents
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^\w\s-]/g, '') // Remove non-word chars except spaces and hyphens
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+  }
+
+  /**
+   * Generates SEO-friendly URL slug for a property
+   * Format: [property-type]-en-[operation-type]-[location]--[id]
+   * Example: casa-en-venta-caballito-capital-federal--123456
+   * 
+   * @param property - Property object with at least an ID
+   * @param locationLabels - Optional pre-computed location labels (subLocation, location, state)
+   */
+  export function generatePropertySlug(
+    property: Partial<CreateProperty>,
+    locationLabels?: { neighborhood?: string; subLocation?: string; location?: string; state?: string }
+  ): string {
+    if (!property.id) {
+      throw new Error('Property ID is required to generate slug');
+    }
+console.log("locationLabels", locationLabels)
+    // Import types from propiedad.ts
+    const propertyTypeLabels: Record<number, string> = {
+      1: 'casa',
+      2: 'departamento',
+      3: 'terreno',
+      4: 'ph',
+      5: 'galpon-bodega',
+      6: 'boveda-nicho-parcela',
+      7: 'cama-nautica',
+      8: 'campo',
+      9: 'consultorio',
+      10: 'deposito',
+      11: 'edificio',
+      12: 'fondo-de-comercio',
+      13: 'garage',
+      14: 'hotel',
+      15: 'local-comercial',
+      16: 'oficina-comercial',
+      17: 'quinta-vacacional',
+      18: 'emprendimiento',
+    };
+
+    const operationTypeLabels: Record<number, string> = {
+      1: 'venta',
+      2: 'alquiler',
+      3: 'temporal',
+      4: 'emprendimiento',
+    };
+
+    // Get property type slug
+    const propertyType = property.property_type
+      ? propertyTypeLabels[property.property_type] || 'propiedad'
+      : 'propiedad';
+
+    // Get operation type slug
+    const operationType = property.operation_type
+      ? operationTypeLabels[property.operation_type] || 'venta'
+      : 'venta';
+
+    // Build location parts - prioritize provided labels, then fall back to property relationships
+    const locationParts: string[] = [];
+    // Use provided location labels if available
+    if (locationLabels) {
+      if (locationLabels.neighborhood) locationParts.push(locationLabels.neighborhood);
+      if (locationLabels.subLocation) locationParts.push(locationLabels.subLocation);
+      if (locationLabels.location) locationParts.push(locationLabels.location);
+      if (locationLabels.state) locationParts.push(locationLabels.state);
+    } else {
+      // Fall back to property relationship objects
+      // Add neighborhood or sub_location name if available
+      if ((property as any).neighborhood?.name) {
+        locationParts.push((property as any).neighborhood.name);
+      } else if ((property as any).sub_location?.name) {
+        locationParts.push((property as any).sub_location.name);
+      }
+      
+      // Add location (city) name if available
+      if ((property as any).location?.name) {
+        locationParts.push((property as any).location.name);
+      }
+      
+      // Add state (province) name if available
+      if ((property as any).state?.name) {
+        locationParts.push((property as any).state.name);
+      }
+    }
+
+    // If no location data, use a generic location
+    const location = locationParts.length > 0 
+      ? slugify(locationParts.join(' '))
+      : 'argentina';
+
+    // Build final slug: [property-type]-en-[operation]-[location]--[id]
+    return `${propertyType}-en-${operationType}-${location}--${property.id}`;
+  }
+
+  /**
+   * Parses a property slug and extracts the property ID
+   * Handles both old format (/propertyDetail/123) and new format (casa-en-venta-caballito--123)
+   * @returns Property ID or null if invalid
+   */
+  export function parsePropertySlug(slug: string): number | null {
+    // Check if it's just a numeric ID (old format or direct ID)
+    if (/^\d+$/.test(slug)) {
+      return parseInt(slug, 10);
+    }
+
+    // Check if it matches the new slug format (ends with --[id])
+    const match = slug.match(/--(\d+)$/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+
+    return null;
+  }
+
+  /**
+   * Generates the full URL path for a property detail page
+   * @param property - Property object with at least an ID
+   * @param locationLabels - Optional pre-computed location labels
+   * @param useSlug - Whether to use SEO-friendly slug (default: true)
+   * @returns URL path string
+   */
+  export function getPropertyDetailPath(
+    property: Partial<CreateProperty>,
+    locationLabels?: { neighborhood?: string; subLocation?: string; location?: string; state?: string },
+    useSlug: boolean = true
+  ): string {
+    if (!property.id) {
+      return '/propertyDetail/0';
+    }
+
+    if (useSlug) {
+      try {
+        return `/${generatePropertySlug(property, locationLabels)}`;
+      } catch {
+        // Fallback to old format if slug generation fails
+        return `/propertyDetail/${property.id}`;
+      }
+    }
+
+    return `/propertyDetail/${property.id}`;
+  }

@@ -7,7 +7,8 @@ import { useAdminMenu } from '../../AdminLayoutClient';
 // import { useSession } from 'next-auth/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, getPropertyDetailPath } from '@/utils/utils';
+import { useLocations } from '@/lib/locations';
 // import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import Paginator from '@/components/Paginator/Paginator';
 import InputField2 from '@/ui/InputField2/InputField2';
@@ -42,6 +43,7 @@ const LIMIT = 20;
 export default function Leads() {
   // const queryClient = useQueryClient();
   const { showMenu, setShowMenu } = useAdminMenu();
+  const { data: locations = [] } = useLocations();
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchQueryEmail, setSearchQueryEmail] = useState('');
@@ -196,7 +198,14 @@ export default function Leads() {
                           // if (action === 'edit') handleEdit(String(contacto.id));
                           // if (action === 'lock') { setNewPassword(''); setConfirmPassword(''); setPasswordError(''); setLockModal({ open: true, userId: contacto.id, userName: contacto.name }); }
                           // if (action === 'delete') setDeleteModal({ open: true, name: contacto.name, propertyId: contacto.property.id, leadId: contacto.id });
-                          if (action === 'view') window.open(`/propertyDetail/${contacto.property.id}`, '_blank');
+                          if (action === 'view' && contacto.property) {
+                            const locationLabels = locations.length > 0 ? {
+                              subLocation: contacto.property.sub_location_id ? locations.find(l => l.id === contacto.property.sub_location_id)?.name : undefined,
+                              location: contacto.property.location_id ? locations.find(l => l.id === contacto.property.location_id)?.name : undefined,
+                              state: contacto.property.state_id ? locations.find(l => l.id === contacto.property.state_id)?.name : undefined,
+                            } : undefined;
+                            window.open(getPropertyDetailPath(contacto.property, locationLabels), '_blank');
+                          }
                         }}
                       >
                         <img src={actionIcons[action].src} alt="" />

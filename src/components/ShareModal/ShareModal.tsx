@@ -18,6 +18,8 @@ import {
   FacebookMessengerShareButton, FacebookMessengerIcon,
 } from 'next-share';
 import type { CreateProperty } from '@/types/propiedad';
+import { generatePropertySlug } from '@/utils/utils';
+import { useLocations } from '@/lib/locations';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -30,10 +32,38 @@ const ICON_SIZE = 48;
 const ICON_ROUND = true;
 
 export default function ShareModal({ isOpen, onClose, property, propertyId }: ShareModalProps) {
+  const { data: locations = [] } = useLocations();
+  
   if (!isOpen) return null;
 
   const id = property?.id ?? propertyId;
-  const url = `https://metroprop.co/propertyDetail/${id}`;
+  
+  // Build location labels from the locations data if we have IDs but no relationship objects
+  let locationLabels: { subLocation?: string; location?: string; state?: string } | undefined;
+  if (property && locations.length > 0) {
+    const subLocationLabel = property.sub_location_id 
+      ? locations.find(l => l.id === property.sub_location_id)?.name 
+      : undefined;
+    const locationLabel = property.location_id
+      ? locations.find(l => l.id === property.location_id)?.name
+      : undefined;
+    const stateLabel = property.state_id
+      ? locations.find(l => l.id === property.state_id)?.name
+      : undefined;
+    
+    if (subLocationLabel || locationLabel || stateLabel) {
+      locationLabels = {
+        subLocation: subLocationLabel,
+        location: locationLabel,
+        state: stateLabel,
+      };
+    }
+  }
+  
+  // Use SEO-friendly URL if full property object is available, otherwise fallback to old format
+  const url = property 
+    ? `https://metroprop.co/${generatePropertySlug(property, locationLabels)}` 
+    : `https://metroprop.co/propertyDetail/${id}`;
   const title = property?.publication_title ?? 'Mira esta propiedad que encontré en Metroprop';
   const shareText = `Mira esta propiedad que encontré en Metroprop: ${title}`;
   const media = (property as any)?.images?.[0]?.url ?? '';

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreateProperty, CreateAttached, PROPERTY_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, OPERATION_TYPE_LABELS } from '@/types/propiedad';
-import { formatNumbers, HeartIcon, setImagePath, formatCurrency } from '@/utils/utils';
+import { formatNumbers, HeartIcon, setImagePath, formatCurrency, getPropertyDetailPath } from '@/utils/utils';
 import { PROPERTY_NO_IMAGE } from '@/app/constants';
 import GalleryModal, { GalleryVideo } from '@/app/propertyDetail/[id]/PropertyDetail/GalleryModal/GalleryModal';
 import { API_BASE_URL } from '@/utils/utils';
@@ -25,7 +25,7 @@ export interface PropertyCardProps {
   onWhatsapp?: () => void;
 }
 
-function useGallery(property: CreateProperty, fromMap?: boolean) {
+function useGallery(property: CreateProperty, fromMap?: boolean, locationLabels?: { subLocation?: string; location?: string; state?: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [images, setImages] = useState<string[]>([]);
@@ -41,7 +41,7 @@ function useGallery(property: CreateProperty, fromMap?: boolean) {
   const openGallery = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (fromMap || !hasImages) {
-      router.push(`/propertyDetail/${property.id}`);
+      router.push(getPropertyDetailPath(property, locationLabels));
       return;
     }
     setOpen(true);
@@ -67,10 +67,20 @@ function useGallery(property: CreateProperty, fromMap?: boolean) {
 
 export default function PropertyCard({ property, cardType, onFavorite, isLoggedIn = false, fromMap = false, onWhatsapp }: PropertyCardProps) {
   const router = useRouter();
-  const gallery = useGallery(property, fromMap);
+  const { data: locations = [] } = useLocations();
+  
+  // Build location labels for SEO-friendly URLs
+  const locationLabels = locations.length > 0 ? {
+    neighborhood: property.neighborhood_id ? locations.find(l => l.id === property.neighborhood_id)?.name : undefined,
+    subLocation: property.sub_location_id ? locations.find(l => l.id === property.sub_location_id)?.full_location : undefined,
+    location: property.location_id ? locations.find(l => l.id === property.location_id)?.full_location : undefined,
+    state: property.state_id ? locations.find(l => l.id === property.state_id)?.full_location : undefined,
+  } : undefined;
+  
+  const gallery = useGallery(property, fromMap, locationLabels);
   const isFavorite = (property as any).isFavorite as boolean | undefined;
 
-  const goToDetail = () => router.push(`/propertyDetail/${property.id}`);
+  const goToDetail = () => router.push(getPropertyDetailPath(property, locationLabels));
   const handleFavorite = (e: React.MouseEvent) => { e.stopPropagation(); onFavorite?.(property.id ?? 0); };
   const showFavoriteBtn = isLoggedIn;
   const org = (property as any).organization;
@@ -85,8 +95,6 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
       isLoading={gallery.loading}
     />
   );
-
-  const { data: locations = [] } = useLocations();
 
   const propLocationId = (property.sub_location_id ?? property.state_id ?? property.location_id ?? null)
   const devFullLocation = propLocationId

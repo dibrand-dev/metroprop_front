@@ -11,7 +11,7 @@ import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype } from '@/types/propiedad';
-import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath, getInitials, formatStreetAddress } from '@/utils/utils';
+import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath, getInitials, formatStreetAddress, getPropertyDetailPath } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
 import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
@@ -457,6 +457,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   const openUnitDetailInNewTab = (unitId?: number) => {
     if (!unitId) return;
+    // For units, we might not have full property data, so use old format or fetch it
     window.open(`/propertyDetail/${unitId}`, '_blank', 'noopener,noreferrer');
   };
 
@@ -970,10 +971,16 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 )}
               </div>
             </section>
-            ): property?.development && (
+            ): property?.development && (() => {
+              const devLocationLabels = locations.length > 0 ? {
+                subLocation: property.development.sub_location_id ? locations.find(l => l.id === property.development.sub_location_id)?.name : undefined,
+                location: property.development.location_id ? locations.find(l => l.id === property.development.location_id)?.name : undefined,
+                state: property.development.state_id ? locations.find(l => l.id === property.development.state_id)?.name : undefined,
+              } : undefined;
+              return (
             <section className="unit-details-development">
               <h4>Esta unidad pertenece al emprendimiento</h4>
-              <Link prefetch={false}  href={`/propertyDetail/${property?.development?.id}`} target="_blank" rel="noopener noreferrer">
+              <Link prefetch={false}  href={property?.development ? getPropertyDetailPath(property.development, devLocationLabels) : '#'} target="_blank" rel="noopener noreferrer">
                 <div className="unit-details-development-info">
                   {property?.development?.images?.[0] ? <img src={setImagePath(property?.development?.images?.[0]?.url) ?? ''} alt="Imagen del emprendimiento" className="unit-details-development-image" /> : null}
                   <div className="unit-details-development-text">
@@ -983,7 +990,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                   </div>
                 </div>
               </Link>
-            </section>)}
+            </section>
+              );
+            })()}
           </div>
 
           <aside className="property-detail-right">

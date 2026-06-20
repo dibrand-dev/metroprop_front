@@ -7,10 +7,12 @@ import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { CreateProperty } from '@/types/propiedad';
 import type { MapDataItem } from '@/types/property-api';
 import './ResultsMap.scss';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, getPropertyDetailPath } from '@/utils/utils';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import { apiFetch } from '@/lib/apiFetch';
 import Link from 'next/link';
+
+import { useLocations } from '@/lib/locations';
 
 interface Bounds {
   northEastLat: number;
@@ -195,6 +197,7 @@ function ClusteredMarkers({ mapData, selectedId, onMarkerClick }: ClusteredMarke
 }
 
 export default function ResultsMap({ properties, mapData, initialLocationQuery, initialBounds }: ResultsMapProps) {
+  const { data: locations = [] } = useLocations();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -420,9 +423,14 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
               >
                 {isFetchingProperty && !selectedProperty ? (
                   <div style={{ padding: '8px' }}>Cargando...</div>
-                ) : selectedProperty ? (
-                  <Link prefetch={false}  href={`/propertyDetail/${selectedProperty.id}`} className='linkToPropertyInfoWindow'><PropertyCard property={selectedProperty} cardType="gridList" fromMap={true} /></Link>
-                ) : null}
+                ) : selectedProperty ? (() => {
+                  const locationLabels = locations.length > 0 ? {
+                    subLocation: selectedProperty.sub_location_id ? locations.find(l => l.id === selectedProperty.sub_location_id)?.name : undefined,
+                    location: selectedProperty.location_id ? locations.find(l => l.id === selectedProperty.location_id)?.name : undefined,
+                    state: selectedProperty.state_id ? locations.find(l => l.id === selectedProperty.state_id)?.name : undefined,
+                  } : undefined;
+                  return <Link prefetch={false}  href={getPropertyDetailPath(selectedProperty, locationLabels)} className='linkToPropertyInfoWindow'><PropertyCard property={selectedProperty} cardType="gridList" fromMap={true} /></Link>;
+                })() : null}
               </InfoWindow>
             );
           })()}

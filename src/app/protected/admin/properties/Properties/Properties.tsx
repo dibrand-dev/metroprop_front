@@ -5,7 +5,8 @@ import './Properties.scss';
 import { useAdminMenu } from '../../AdminLayoutClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL, setImagePath, formatCurrency } from '@/utils/utils';
+import { API_BASE_URL, setImagePath, formatCurrency, getPropertyDetailPath } from '@/utils/utils';
+import { useLocations } from '@/lib/locations';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import Paginator from '@/components/Paginator/Paginator';
 import InputField2 from '@/ui/InputField2/InputField2';
@@ -270,7 +271,12 @@ export default function Properties() {
                       type="button"
                       aria-label="Ver detalle"
                       onClick={() => {
-                        window.open(`/propertyDetail/${property.id}`, '_blank');
+                        const locationLabels = locations.length > 0 ? {
+                          subLocation: property.sub_location_id ? locations.find(l => l.id === property.sub_location_id)?.name : undefined,
+                          location: property.location_id ? locations.find(l => l.id === property.location_id)?.name : undefined,
+                          state: property.state_id ? locations.find(l => l.id === property.state_id)?.name : undefined,
+                        } : undefined;
+                        window.open(getPropertyDetailPath(property, locationLabels), '_blank');
                       }}
                     >
                       <img src={iconView} alt="" />
