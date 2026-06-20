@@ -49,6 +49,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
     social_reason: '',
     // cuit: '',
     fiscal_condition: '',
+    license_number: '',
     // Ubicación
     address: '',
     // Descripción
@@ -114,6 +115,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
       social_reason: org.social_reason ?? '',
       // cuit: org.cuit ?? '',
       fiscal_condition: org.fiscal_condition ?? '',
+      license_number: org.license_number ?? '',
     });
   }, [organizationData]);
 
@@ -134,6 +136,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
       if (data.social_reason) payload.append('social_reason', data.social_reason);
       // if (data.cuit) payload.append('cuit', data.cuit);
       if (data.fiscal_condition) payload.append('fiscal_condition', data.fiscal_condition);
+      if (data.license_number) payload.append('license_number', data.license_number);
       if (logoFile) {
         payload.append('company_logo', logoFile);
       } else if (logoPreview) {
