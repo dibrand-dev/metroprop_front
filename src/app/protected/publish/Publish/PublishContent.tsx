@@ -93,6 +93,8 @@ export default function PublishContent({
   const [draggedType, setDraggedType] = useState<'image' | 'plan' | 'video' | '360' | null>(null);
   const [dragOverGrid, setDragOverGrid] = useState<'image' | 'plan' | 'video' | '360' | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [fileDropZone, setFileDropZone] = useState<'image' | 'plan' | null>(null);
   
   const imageInputRef = useRef<HTMLInputElement>(null);
   const imageGridInputRef = useRef<HTMLInputElement>(null);
@@ -260,15 +262,19 @@ export default function PublishContent({
   };
 
   // Handle drag and drop from file explorer
-  const handleDragOverFromExplorer = (e: React.DragEvent) => {
+  const handleDragOverFromExplorer = (e: React.DragEvent, type: 'image' | 'plan') => {
     e.preventDefault();
     e.stopPropagation();
     e.dataTransfer.dropEffect = 'copy';
+    setIsDraggingFile(true);
+    setFileDropZone(type);
   };
 
   const handleFileDropFromExplorer = (e: React.DragEvent, type: 'image' | 'plan') => {
     e.preventDefault();
     e.stopPropagation();
+    setIsDraggingFile(false);
+    setFileDropZone(null);
     
     const files = e.dataTransfer.files;
     if (!files || files.length === 0) return;
@@ -507,22 +513,31 @@ export default function PublishContent({
                 {(images?.length === 0 && uploadedImages.length === 0) ? (
                   <button
                     type="button"
-                    className="publish-content-upload-card"
+                    className={`publish-content-upload-card ${isDraggingFile && fileDropZone === 'image' ? 'file-drag-over' : ''}`}
                     onClick={() => imageInputRef.current?.click()}
-                    onDragOver={handleDragOverFromExplorer}
+                    onDragOver={(e) => handleDragOverFromExplorer(e, 'image')}
                     onDrop={(e) => handleFileDropFromExplorer(e, 'image')}
+                    onDragLeave={() => { setIsDraggingFile(false); setFileDropZone(null); }}
                   >
                     <img src={iconUpload} alt="" />
                     <span>Agregar fotos</span>
                   </button>
                 ) : (
                   <div 
-                    className={`publish-content-upload-grid ${dragOverGrid === 'image' ? 'drag-over' : ''}`}
+                    className={`publish-content-upload-grid ${dragOverGrid === 'image' ? 'drag-over' : ''} ${isDraggingFile && fileDropZone === 'image' ? 'file-drag-over' : ''}`}
                     onDragOver={(e) => {
                       handleGridDragOver(e, 'image');
-                      handleDragOverFromExplorer(e);
+                      handleDragOverFromExplorer(e, 'image');
                     }}
-                    onDragLeave={handleGridDragLeave}
+                    onDragLeave={(e) => {
+                      handleGridDragLeave(e);
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      if (e.clientX < rect.left || e.clientX >= rect.right || 
+                          e.clientY < rect.top || e.clientY >= rect.bottom) {
+                        setIsDraggingFile(false);
+                        setFileDropZone(null);
+                      }
+                    }}
                     onDrop={(e) => {
                       // Check if it's a file drop from explorer (has files) or internal reorder (no files)
                       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -534,10 +549,11 @@ export default function PublishContent({
                   >
                     <button
                       type="button"
-                      className="publish-content-upload-card"
+                      className={`publish-content-upload-card ${isDraggingFile && fileDropZone === 'image' ? 'file-drag-over' : ''}`}
                       onClick={() => imageGridInputRef.current?.click()}
-                      onDragOver={handleDragOverFromExplorer}
+                      onDragOver={(e) => handleDragOverFromExplorer(e, 'image')}
                       onDrop={(e) => handleFileDropFromExplorer(e, 'image')}
+                      onDragLeave={() => { setIsDraggingFile(false); setFileDropZone(null); }}
                     >
                       <img src={iconUpload} alt="" />
                       <span>Agregar fotos</span>
@@ -760,12 +776,20 @@ export default function PublishContent({
                         ) : null}
                         {item.id !== 'videos' && item.id !== 'recorrido' ? (
                           <div 
-                            className={`publish-content-upload-grid compact ${dragOverGrid === 'plan' ? 'drag-over' : ''}`}
+                            className={`publish-content-upload-grid compact ${dragOverGrid === 'plan' ? 'drag-over' : ''} ${isDraggingFile && fileDropZone === 'plan' ? 'file-drag-over' : ''}`}
                             onDragOver={(e) => {
                               handleGridDragOver(e, 'plan');
-                              handleDragOverFromExplorer(e);
+                              handleDragOverFromExplorer(e, 'plan');
                             }}
-                            onDragLeave={handleGridDragLeave}
+                            onDragLeave={(e) => {
+                              handleGridDragLeave(e);
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              if (e.clientX < rect.left || e.clientX >= rect.right || 
+                                  e.clientY < rect.top || e.clientY >= rect.bottom) {
+                                setIsDraggingFile(false);
+                                setFileDropZone(null);
+                              }
+                            }}
                             onDrop={(e) => {
                               // Check if it's a file drop from explorer (has files) or internal reorder (no files)
                               if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -785,10 +809,11 @@ export default function PublishContent({
                             />
                             <button
                               type="button"
-                              className="publish-content-upload-card"
+                              className={`publish-content-upload-card ${isDraggingFile && fileDropZone === 'plan' ? 'file-drag-over' : ''}`}
                               onClick={() => plansInputRef.current?.click()}
-                              onDragOver={handleDragOverFromExplorer}
+                              onDragOver={(e) => handleDragOverFromExplorer(e, 'plan')}
                               onDrop={(e) => handleFileDropFromExplorer(e, 'plan')}
+                              onDragLeave={() => { setIsDraggingFile(false); setFileDropZone(null); }}
                             >
                               <img src={iconUpload} alt="" />
                               <span>Agregar planos</span>

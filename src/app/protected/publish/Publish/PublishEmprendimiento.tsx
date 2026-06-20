@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import './PublishContent.scss';
 import EmprendimientoImages, { EmprendimientoImagesRef } from './EmprendimientoImages';
 import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
 import { useQuery } from '@tanstack/react-query';

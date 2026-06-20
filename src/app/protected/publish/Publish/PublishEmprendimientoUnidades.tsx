@@ -5,6 +5,7 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import Select from '@/ui/Select/Select';
 import Button from '@/ui/Button/Button';
 import Checkbox from '@/ui/Checkbox/Checkbox';
+import './PublishContent.scss';
 import './PublishEmprendimientoUnidades.scss';
 import { CreateProperty, CreatePropertyDraft, currencySelectOptions, OperationType, PROPERTY_TYPE_LABELS, PROPERTY_TYPE_SELECT_OPTIONS, PropertyStatus, PropertyType, roomsConfig, unitSelectOptions } from '@/types/propiedad';
 import InputField from '@/ui/InputField/InputField';

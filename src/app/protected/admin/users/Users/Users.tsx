@@ -54,7 +54,6 @@ export default function Users() {
       queryClient.invalidateQueries({ queryKey: ['all-users'] });
     },
   });
-
   
   const enableMutation = useMutation({
     mutationFn: (userId: number) =>
@@ -65,14 +64,14 @@ export default function Users() {
     },
   });
 
-    const disableMutation = useMutation({
-      mutationFn: (userId: number) =>
-        apiFetch(`${API_BASE_URL}/users/${userId}/disable`, { method: 'POST' }),
-      onSuccess: () => {
-        setDeleteModal({ open: false, userId: null, userName: '', is_delete: true, status: null });
-        queryClient.invalidateQueries({ queryKey: ['all-users'] });
-      },
-    });
+  const disableMutation = useMutation({
+    mutationFn: (userId: number) =>
+      apiFetch(`${API_BASE_URL}/users/${userId}/disable`, { method: 'POST' }),
+    onSuccess: () => {
+      setDeleteModal({ open: false, userId: null, userName: '', is_delete: true, status: null });
+      queryClient.invalidateQueries({ queryKey: ['all-users'] });
+    },
+  });
   
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -114,6 +113,7 @@ export default function Users() {
     branchName: user.branch?.branch_name ?? user.branch_name ?? '',
     branchId: String(user.branch_id ?? user.branch?.id ?? ''),
     role_id: user.role_id ?? null,
+    status: user.status ?? false,
     actions: ['delete', 'edit', 'lock'] as UserAction[],
   })) ?? [];
 
@@ -178,6 +178,7 @@ export default function Users() {
                   </p>
                 </div>
                 <div className="collaborators-card-actions">
+                  <span className="collaborators-role-chip">{user.status ? 'Habilitado' : 'Deshabilitado'}</span>
                   <span className="collaborators-role-chip">{user.role_id ? ROLE[user.role_id] : '-'}</span>
                   <div className="collaborators-card-tools">
                     {user.actions.map((action) => (
@@ -218,9 +219,9 @@ export default function Users() {
 
       {deleteModal.open && (
         <AreYouSureModal
-          title={deleteModal.is_delete ? "Eliminar Colaborador" : "Bloquear Colaborador"}
-          subTitle={`¿Está seguro que desea ${deleteModal.is_delete ? "eliminar" : "bloquear"} a ${deleteModal.userName}?`}
-          text="Todos las publicaciones del vendedor pasaran al administrador."
+          title={deleteModal.is_delete ? "Eliminar Colaborador" : `${deleteModal.status ? "Bloquear" : "Desbloquear"} Usuario`}
+          subTitle={`¿Está seguro que desea ${deleteModal.is_delete ? "eliminar" : deleteModal.status ? "bloquear" : "desbloquear"} a ${deleteModal.userName}?`}
+          text={`${deleteModal.status ? "Todos las publicaciones del vendedor serán bloqueadas." : "Todos las publicaciones del vendedor estarán disponibles."}`}
           icon={deleteModal.is_delete ? "/icons/trash.svg" : "/icons/lock.svg"}
           onCancel={() => setDeleteModal({ open: false, userId: null, userName: '', is_delete: true, status: null })}
           onAccept={() => {

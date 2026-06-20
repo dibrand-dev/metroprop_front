@@ -106,7 +106,7 @@ export default function Properties() {
   const { data: propertiesCount } = useQuery({
     queryKey: ['my-properties', currentPage],
     queryFn: async () => apiFetch(`${API_BASE_URL}/properties/filter`, {
-      params: { order_by: 'created_at:desc', page: currentPage, limit: 0/*, ...activeFilters, ...branchFilterParam */},
+      params: { order_by: 'created_at:desc', page: currentPage, limit: 1/*, ...activeFilters, ...branchFilterParam */},
     }),
     staleTime: 5 * 60 * 1000,
   });

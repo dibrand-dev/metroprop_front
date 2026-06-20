@@ -212,7 +212,14 @@
     border: 2px dashed #006aff;
     border-radius: 8px;
     padding: 8px;
-  }}
+  }
+  &.file-drag-over {
+    background-color: rgba(0, 200, 83, 0.1);
+    border: 2px dashed #00c853;
+    border-radius: 8px;
+    padding: 8px;
+  }
+}
 
 .publish-content-upload-card {
   height: 94px;
@@ -228,6 +235,11 @@
   font-size: 14px;
   color: #7a7a7a;
   cursor: pointer;
+
+  &.file-drag-over {
+    background-color: rgba(0, 200, 83, 0.1);
+    border: 2px dashed #00c853;
+  }
 }
 
 .publish-content-upload-icon {

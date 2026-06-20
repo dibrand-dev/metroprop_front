@@ -194,7 +194,7 @@ export default function Organizations() {
                         aria-label={actionIcons[action].label}
                         onClick={() => {
                           if (action === 'edit') handleEdit(String(organization.id));
-                          if (action === 'lock') setDeleteModal({ open: true, organizationId: organization.id, organizationName: organization.company_name, is_delete: false, status: !organization.status }); // Reusing delete modal for lock action as well, adjust as needed
+                          if (action === 'lock') setDeleteModal({ open: true, organizationId: organization.id, organizationName: organization.company_name, is_delete: false, status: organization.status }); // Reusing delete modal for lock action as well, adjust as needed
                           if (action === 'delete') setDeleteModal({ open: true, organizationId: organization.id, organizationName: organization.company_name, is_delete: true, status: null });
                         }}
                       >
@@ -223,9 +223,9 @@ export default function Organizations() {
 
       {deleteModal.open && (
         <AreYouSureModal
-          title={deleteModal.is_delete ? "Eliminar Organización" : "Bloquear Organización"}
-          subTitle={`¿Está seguro que desea ${deleteModal.is_delete ? "eliminar" : "bloquear"} a ${deleteModal.organizationName}?`}
-          text={deleteModal.is_delete ? "Todos los datos de la organización se eliminarán permanentemente." : "La organización será bloqueada y no podrá acceder a sus datos."}
+          title={deleteModal.is_delete ? "Eliminar Organización" : `${deleteModal.status ? "Bloquear" : "Desbloquear"} Organización`}
+          subTitle={`¿Está seguro que desea ${deleteModal.is_delete ? "eliminar" : deleteModal.status ? "bloquear" : "desbloquear"} a ${deleteModal.organizationName}?`}
+          text={deleteModal.is_delete ? "Todos los datos de la organización se eliminarán permanentemente." : deleteModal.status ? "La organización será bloqueada y no podrá acceder a sus datos." : "La organización será desbloqueada y podrá acceder a sus datos."}
           icon={deleteModal.is_delete ? "/icons/trash.svg" : "/icons/lock.svg"}
           onCancel={() => setDeleteModal({ open: false, organizationId: null, organizationName: '', is_delete: true, status: null })}
           onAccept={() => { 

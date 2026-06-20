@@ -137,14 +137,21 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
       .then(data => {
         const payload = (data as any)?.data ?? data;
         
-        // Check authorization: user must own the property
+        // Check authorization: user must own the property OR be the organization admin
         const loggedInUserId = Number.parseInt((sessionData?.user as any)?.id);
         const propertyUserId = (payload as any)?.user?.id;
-        if (loggedInUserId && propertyUserId && loggedInUserId != propertyUserId) {
+        const userOrganizationId = (sessionData?.user as any)?.organization?.id;
+        const userRoleId = (sessionData?.user as any)?.role_id;
+        const propertyOrganizationId = (payload as any)?.organization?.id;
+        
+        const isOwner = loggedInUserId && propertyUserId && loggedInUserId == propertyUserId;
+        const isOrganizationAdmin = userOrganizationId && (userRoleId === 1 || userRoleId === 2) && propertyOrganizationId && userOrganizationId == propertyOrganizationId;
+       
+        if (!isOwner && !isOrganizationAdmin && (!isNaN(loggedInUserId) && userRoleId !== 4)) {
           setAuthorizationError(true);
           setIsLoadingProperty(false);
           return;
-        }
+        } 
         
         const normalizedUnits = Array.isArray((payload as any).development_units)
           ? (payload as any).development_units

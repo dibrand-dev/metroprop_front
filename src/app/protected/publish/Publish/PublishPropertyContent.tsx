@@ -236,6 +236,7 @@ export default function PublishPropertyContent({
                   /> 
                 </div>
               </div> : null}
+              
               <div className="publish-property-content-inputs">
                 <div className="publish-property-content-detail-field">
                   <InputField
