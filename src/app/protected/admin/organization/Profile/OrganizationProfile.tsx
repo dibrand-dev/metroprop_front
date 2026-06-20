@@ -281,7 +281,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
               />          
               <Select
                 disabled={!(isEditing && activeSection === 'generales')}
-                placeholder="Seleccionar"
+                placeholder="Condición fiscal"
                 value={properties.fiscal_condition}
                 onChange={(value) => handleInputChange('fiscal_condition', value)}
                 options={[                  
