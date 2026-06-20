@@ -33,9 +33,9 @@ export default function Profile({ userId: propUserId }: ProfileProps = {}) {
     // Generales
     name: '',
     document: '',
-    phone: '',
+    phone: null,
     // phone_additional: '',
-    phone_whatsapp: '',
+    phone_whatsapp: null,
     email: '',
     phone_whatsapp_available: ''
   });
@@ -61,9 +61,9 @@ export default function Profile({ userId: propUserId }: ProfileProps = {}) {
         method: 'PATCH',
         body: {
           name: data.name,
-          phone: data.phone,
+          phone: data.phone && data.phone.trim() !== '' ? data.phone : null,
+          phone_whatsapp: data.phone_whatsapp && data.phone_whatsapp.trim() !== '' ? data.phone_whatsapp : null,
           // phone_additional: data.phone_additional,
-          phone_whatsapp: data.phone_whatsapp,
           document: data.document,
         },
       });
