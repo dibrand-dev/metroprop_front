@@ -528,26 +528,24 @@ export default function PublishEmprendimiento({
             <div className="form-group">
               <div className="form-row">               
                 <div className="form-field half-width">
-                  {zoneOptions.length > 0 && (
-                    <Select
-                      label="Barrio"
-                      options={zoneOptions}
-                      value={sub_location_id ? sub_location_id.toString() : undefined}
-                      onChange={(v) => setSub_location_id(v ? parseInt(v) : undefined)}
-                      placeholder={loadingZones ? 'Cargando barrios...' : 'Seleccionar barrio'}
-                      disabled={!hasSelectedAddress || !location_id || loadingZones}
-                    />
-                  )}
+                  <Select
+                    label="Barrio"
+                    options={zoneOptions}
+                    value={sub_location_id ? sub_location_id.toString() : undefined}
+                    onChange={(v) => setSub_location_id(v ? parseInt(v) : undefined)}
+                    placeholder={loadingZones ? 'Cargando barrios...' : 'Seleccionar barrio'}
+                    disabled={!hasSelectedAddress || !location_id || loadingZones || zoneOptions.length === 0}
+                  />
                 </div>
                 <div className="form-field half-width">
-                  {neighborhoodOptions.length > 0 && <Select
+                  <Select
                     label="Zona"
                     options={neighborhoodOptions}
                     value={neighborhood_id ? neighborhood_id.toString() : undefined}
                     onChange={(v) => setNeighborhood_id(v ? parseInt(v) : undefined)}
                     placeholder={loadingNeighborhoods ? "Cargando zonas..." : "Seleccionar zona"}
                     disabled={!hasSelectedAddress || !sub_location_id || loadingNeighborhoods || neighborhoodOptions.length === 0}
-                  />}
+                  />
                 </div>
               </div>
             </div>

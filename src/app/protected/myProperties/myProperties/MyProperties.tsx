@@ -576,7 +576,7 @@ const MyProperties = () => {
                 onChange={toggleSelectAll}
               />
             </div>
-            <div className="flex items-center gap-[24px]">
+            <div className="flex items-center gap-[32px]">
               {hasOrganization && (isRole1 || isRole2) && (
                 <button
                   type="button"
@@ -645,9 +645,9 @@ const MyProperties = () => {
           {filteredProperties?.map((prop, idx) => {
             const isSelected = selectedIds.has(idx);
             const completeness = calcPropertyCompleteness(prop);
-            const statusNum = prop.status as PropertyStatus || PropertyStatus.DISPONIBLE;
+            const statusNum = prop.status;//  as PropertyStatus || PropertyStatus.DISPONIBLE;
             const statusInfo = PROPERTY_STATUS_LABELS[statusNum];
-            const planLabel = prop.hired_plan_id & prop.hired_plan_id !== 0
+            const planLabel = prop.hired_plan_id && prop.hired_plan_id !== 0
               ? (hiredPlanNameMap[prop.hired_plan_id] ?? String(prop.hired_plan_id))
               : 'Gratis';
             const startDate = (prop as any).created_at

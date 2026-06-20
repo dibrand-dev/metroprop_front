@@ -270,7 +270,7 @@ export default function Properties() {
                       type="button"
                       aria-label="Ver detalle"
                       onClick={() => {
-                        window.open(`/properties/${property.id}`, '_blank');
+                        window.open(`/propertyDetail/${property.id}`, '_blank');
                       }}
                     >
                       <img src={iconView} alt="" />
