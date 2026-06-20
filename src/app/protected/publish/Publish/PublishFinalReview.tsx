@@ -35,11 +35,15 @@ export default function PublishFinalReview({
   const [activeTab, setActiveTab] = useState<string>('');
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const formattedStreet = formatStreetAddress(wizardData.street, wizardData.show_exact_location);
+  console.log("locations",locations)
   const countryLabel = locations.find(l => l.id === wizardData.country_id)?.name;
   const stateLabel = locations.find(l => l.id === wizardData.state_id)?.name;
   const locationLabel = locations.find(l => l.id === wizardData.location_id)?.name;
   const subLocationLabel = locations.find(l => l.id === wizardData.sub_location_id)?.name;
-  const addressParts = [formattedStreet, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
+  const neighborhoodLabel = locations.find(l => l.id === wizardData.neighborhood_id)?.name;
+  console.log("wizardData", wizardData)
+  console.log(neighborhoodLabel, subLocationLabel, locationLabel, stateLabel, countryLabel)
+  const addressParts = [formattedStreet, neighborhoodLabel, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
   const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
   const showSummaryToggle = (wizardData.description?.length ?? 0) > 300 || (wizardData.description?.split('\n').length ?? 0) > 2;

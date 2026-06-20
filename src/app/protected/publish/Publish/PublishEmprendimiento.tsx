@@ -169,10 +169,11 @@ export default function PublishEmprendimiento({
   // Location state
   const [street, setStreet] = useState(wizardData.street || '');
   const [postal_code, setPostal_code] = useState(wizardData.postal_code || '');
-  const [country_id, setCountry_id] = useState<number | undefined>(wizardData.country_id || undefined);
+  // const [country_id, setCountry_id] = useState<number | undefined>(wizardData.country_id || undefined);
   const [state_id, setState_id] = useState<number | undefined>(wizardData.state_id || undefined);
   const [location_id, setLocation_id] = useState<number | undefined>(wizardData.location_id || undefined);
   const [sub_location_id, setSub_location_id] = useState<number | undefined>(wizardData.sub_location_id || undefined);
+  const [neighborhood_id, setNeighborhood_id] = useState<number | undefined>(wizardData.neighborhood_id || undefined);
   const [geo_lat, setGeo_lat] = useState<number | undefined>(wizardData.geo_lat || undefined);
   const [geo_long, setGeo_long] = useState<number | undefined>(wizardData.geo_long || undefined);
   const [show_exact_location, setShow_exact_location] = useState(wizardData.show_exact_location || false);
@@ -219,10 +220,11 @@ export default function PublishEmprendimiento({
   useEffect(() => {
     updateWizardData({
       street,
-      country_id,
+      country_id: 1,
       state_id,
       location_id,
       sub_location_id,
+      neighborhood_id,
       postal_code,
       show_exact_location,
       geo_lat,
@@ -235,22 +237,21 @@ export default function PublishEmprendimiento({
       property_type: PropertyType.EMPRENDIMIENTO,
       is_development: true
     });
-  }, [street, country_id, state_id, location_id, sub_location_id, postal_code, show_exact_location, geo_lat, geo_long, nombreEmprendimiento, descripcion, tipoEmprendimiento, totalUnidades, entrega]);
+  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, postal_code, show_exact_location, geo_lat, geo_long, nombreEmprendimiento, descripcion, tipoEmprendimiento, totalUnidades, entrega]);
 
 /*  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) setLogoFile(e.target.files[0]);
   };*/
 
   // ── Location queries ──────────────────────────────────────────────────────
-  const { data: countries = [], isLoading: loadingCountries } = useQuery({
+  /*const { data: countries = [], isLoading: loadingCountries } = useQuery({
     queryKey: ['countries'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/countries`),
-  });
+  });*/
 
   const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
-    queryKey: ['provinces', country_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: country_id } }),
-    enabled: !!country_id,
+    queryKey: ['provinces', 1],
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: 1 } }),
   });
 
   const { data: locations = [], isLoading: loadingLocations } = useQuery({
@@ -265,35 +266,43 @@ export default function PublishEmprendimiento({
     enabled: !!location_id,
   });
 
-  const countryOptions = useMemo(() => countries.map((c: any) => ({ value: c.id.toString(), label: c.name })), [countries]);
+  const { data: neighborhoods = [], isLoading: loadingNeighborhoods } = useQuery({
+      queryKey: ['neighborhoods', sub_location_id],
+      queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: sub_location_id } }),
+      enabled: !!sub_location_id,
+    });
+
+  /*const countryOptions = useMemo(() => countries.map((c: any) => ({ value: c.id.toString(), label: c.name })), [countries]);*/
   const provinceOptions = useMemo(() => provinces.map((p: any) => ({ value: p.id.toString(), label: p.name })), [provinces]);
   const locationOptions = useMemo(() => locations.map((l: any) => ({ value: l.id.toString(), label: l.name })), [locations]);
   const zoneOptions = useMemo(() => zones.map((z: any) => ({ value: z.id.toString(), label: z.name })), [zones]);
+  const neighborhoodOptions = useMemo(() => neighborhoods.map((n: any) => ({ value: n.id.toString(), label: n.name })), [neighborhoods]);
 
   const fullMapAddress = useMemo(() => {
     type Opt = { value: string; label: string };
-    const countryName = countryOptions.find((o: Opt) => o.value === country_id?.toString())?.label ?? '';
+    const countryName = "Argentina"; /*countryOptions.find((o: Opt) => o.value === country_id?.toString())?.label ?? ''*/;
     const stateName = provinceOptions.find((o: Opt) => o.value === state_id?.toString())?.label ?? '';
     const locationName = locationOptions.find((o: Opt) => o.value === location_id?.toString())?.label ?? '';
     const zoneName = zoneOptions.find((o: Opt) => o.value === sub_location_id?.toString())?.label ?? '';
-    return [street, zoneName, locationName, stateName, countryName].filter(Boolean).join(', ');
-  }, [street, country_id, state_id, location_id, sub_location_id, countryOptions, provinceOptions, locationOptions, zoneOptions]);
+    const subZoneName = neighborhoodOptions.find((o: Opt) => o.value === neighborhood_id?.toString())?.label ?? '';
+    return [street, subZoneName, zoneName, locationName, stateName, countryName].filter(Boolean).join(', ');
+  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, /*countryOptions,*/ provinceOptions, locationOptions, zoneOptions, neighborhoodOptions]);
 
   const handlePlaceSelect = useCallback((data: PlaceData) => {
     setStreet(data.street);
     setMapInteractive(false);
-    const countryMatch = findBestMatch(countryOptions, data.countryName);
+    /*const countryMatch = findBestMatch(countryOptions, data.countryName);
     if (countryMatch) {
       setCountry_id(parseInt(countryMatch));
       setState_id(undefined);
       setLocation_id(undefined);
       setSub_location_id(undefined);
-    }
+    }*/
     let stateName = data.stateName;
     if (stateName === 'Ciudad Autónoma de Buenos Aires') stateName = 'Capital Federal';
     setPendingStateName(stateName);
     setPendingCityName(data.cityName);
-  }, [countryOptions]);
+  }, [provinceOptions]);
 
   useEffect(() => {
     if (!pendingStateName || provinceOptions.length === 0) return;
@@ -481,7 +490,7 @@ export default function PublishEmprendimiento({
 
             <div className="form-group">
               <div className="form-row">
-                <div className="form-field half-width">
+                {/*<div className="form-field half-width">
                   <Select
                     label="País*"
                     options={countryOptions}
@@ -491,7 +500,7 @@ export default function PublishEmprendimiento({
                     disabled={!hasSelectedAddress || loadingCountries}
                     required
                   />
-                </div>
+                </div>*/}
                 <div className="form-field half-width">
                   <Select
                     label="Provincia*"
@@ -499,36 +508,46 @@ export default function PublishEmprendimiento({
                     value={state_id ? state_id.toString() : undefined}
                     onChange={(v) => { setState_id(v ? parseInt(v) : undefined); setLocation_id(undefined); setSub_location_id(undefined); }}
                     placeholder={loadingProvinces ? 'Cargando provincias...' : 'Seleccionar provincia'}
-                    disabled={!hasSelectedAddress || !country_id || loadingProvinces}
+                    disabled={!hasSelectedAddress || loadingProvinces}
                     required
+                  />
+                </div>
+                <div className="form-field half-width">
+                  <Select
+                    label="Ciudad"
+                    options={locationOptions}
+                    value={location_id ? location_id.toString() : undefined}
+                    onChange={(v) => { setLocation_id(v ? parseInt(v) : undefined); setSub_location_id(undefined); }}
+                    placeholder={loadingLocations ? 'Cargando ciudades...' : 'Seleccionar ciudad'}
+                    disabled={!hasSelectedAddress || !state_id || loadingLocations || locationOptions.length === 0}
                   />
                 </div>
               </div>
             </div>
 
             <div className="form-group">
-              <div className="form-row">
-                <div className="form-field half-width">
-                  <Select
-                    label="Barrio"
-                    options={locationOptions}
-                    value={location_id ? location_id.toString() : undefined}
-                    onChange={(v) => { setLocation_id(v ? parseInt(v) : undefined); setSub_location_id(undefined); }}
-                    placeholder={loadingLocations ? 'Cargando barrios...' : 'Seleccionar barrio'}
-                    disabled={!hasSelectedAddress || !state_id || loadingLocations || locationOptions.length === 0}
-                  />
-                </div>
+              <div className="form-row">               
                 <div className="form-field half-width">
                   {zoneOptions.length > 0 && (
                     <Select
-                      label="Zona"
+                      label="Barrio"
                       options={zoneOptions}
                       value={sub_location_id ? sub_location_id.toString() : undefined}
                       onChange={(v) => setSub_location_id(v ? parseInt(v) : undefined)}
-                      placeholder={loadingZones ? 'Cargando zonas...' : 'Seleccionar zona'}
+                      placeholder={loadingZones ? 'Cargando barrios...' : 'Seleccionar barrio'}
                       disabled={!hasSelectedAddress || !location_id || loadingZones}
                     />
                   )}
+                </div>
+                <div className="form-field half-width">
+                  {neighborhoodOptions.length > 0 && <Select
+                    label="Zona"
+                    options={neighborhoodOptions}
+                    value={neighborhood_id ? neighborhood_id.toString() : undefined}
+                    onChange={(v) => setNeighborhood_id(v ? parseInt(v) : undefined)}
+                    placeholder={loadingNeighborhoods ? "Cargando zonas..." : "Seleccionar zona"}
+                    disabled={!hasSelectedAddress || !sub_location_id || loadingNeighborhoods || neighborhoodOptions.length === 0}
+                  />}
                 </div>
               </div>
             </div>

@@ -39,7 +39,8 @@ export default function PublishEmprendimientoFinalReview({
   const stateLabel = locations.find(l => l.id === wizardData.state_id)?.name;
   const locationLabel = locations.find(l => l.id === wizardData.location_id)?.name;
   const subLocationLabel = locations.find(l => l.id === wizardData.sub_location_id)?.name;
-  const addressParts = [formatStreetAddress(wizardData.street, wizardData.show_exact_location), subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
+  const neighborhoodLabel = locations.find(l => l.id === wizardData.neighborhood_id)?.name;
+  const addressParts = [formatStreetAddress(wizardData.street, wizardData.show_exact_location), neighborhoodLabel, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
   const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');
