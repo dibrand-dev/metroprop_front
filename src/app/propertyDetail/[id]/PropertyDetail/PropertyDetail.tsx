@@ -485,10 +485,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         ownerPhone={property?.owner_phone}
         user={(property as any)?.user}
       />}
-      {isWhatsappModalOpen && <WhatsappModal
+      {isWhatsappModalOpen && property?.user?.phone_whatsapp && <WhatsappModal
         isOpen={isWhatsappModalOpen}
         onClose={() => setIsWhatsappModalOpen(false)}
-        phoneNumber={property?.user?.phone_whatsapp ? property.user.phone_whatsapp : property?.user?.phone ?? ''}
+        phoneNumber={property?.user?.phone_whatsapp ?? property?.user?.phone ?? ''}
         propertyId={property?.id ?? 0}
         userId={property?.user_id}
         organizationId={(property as any)?.user?.organization_id ?? property?.organization_id}

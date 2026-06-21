@@ -19,10 +19,6 @@ const QUESTION_CHIPS = [
   'Tiene baulera',
 ];
 
-const CONTACT_ACTIONS = [
-  { id: 'whatsapp', label: 'Whatsapp', icon: '/icons/whatsapp.svg', variant: 'whatsapp' },
-  { id: 'contact', label: 'Contactar', icon: '/icons/envelope_w.svg', variant: 'primary' },
-];
 
 // const flagIcon = '/icons/flag.svg';
 
@@ -65,10 +61,7 @@ console.log({ phoneNumber, phone_whatsapp });
       phone: u.phone ?? prev.phone,
     }));
   }, [sessionData]);
-
-  const primaryContactAction = CONTACT_ACTIONS.find((action) => action.id === 'contact');
-  const contactActions = isModal && primaryContactAction ? [primaryContactAction] : CONTACT_ACTIONS;
-
+  
   const addQuestionToMessage = (message: string, question: string) => {
     const lines = message
       .split('\n')
@@ -286,19 +279,25 @@ console.log({ phoneNumber, phone_whatsapp });
       <div
         className={`property-detail-contact-actions ${isModal ? 'property-detail-contact-actions-modal' : ''}`}
       >
-        {contactActions.map((action) => (
-          <button
-            key={action.id}
-            type="button"
-            className={`property-detail-contact-action property-detail-contact-action-${action.variant}`}
-            onClick={() => handleSubmit(action.id)}
-            disabled={isSubmitting}
-          >
-            <img src={action.icon} alt="" aria-hidden="true" />
-            <span>{action.label}</span>
-          </button>
-        ))}
-      </div>
+        <button            
+          type="button"
+          className={`property-detail-contact-action property-detail-contact-action-primary`}
+          onClick={() => handleSubmit("contact")}
+          disabled={isSubmitting}
+        >
+          <img src={'/icons/envelope_w.svg'} alt="" aria-hidden="true" />
+          <span>Contactar</span>
+        </button>
+        {phone_whatsapp && <button
+          type="button"
+          className={`property-detail-contact-action property-detail-contact-action-whatsapp`}
+          onClick={() => handleSubmit("whatsapp")}
+          disabled={isSubmitting}
+        >
+          <img src={'/icons/whatsapp.svg'} alt="" aria-hidden="true" />
+          <span>Whatsapp</span>
+        </button>}
+    </div>
     </form>
   );
 

@@ -75,8 +75,9 @@ export default function LeadItem({ lead, checked = false, onCheckedChange }: Lea
       </div>
       {expanded && lead.message && (        
         <div className="lead-message">
-          Nombre: {lead.name}<br />
-          Email: {lead.email}<br />
+          Nombre: {lead.name ?? "-"}<br />
+          Email: {lead.email ?? "-"}<br />
+          Teléfono: {lead.phone ?? "-"}<br />
           <p className="mt-4">{lead.message}</p></div>
         
       )}

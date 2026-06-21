@@ -379,6 +379,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
   }
 
   if (cardType === 'contacts') {
+    console.log("property.user", property.user)
     return (
       <>
         <div className={`property-card-favorites-list ${property.is_development ? 'is-development' : ''}`} onClick={goToDetail}>
@@ -445,7 +446,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                       }
                     }}
                   />}
-                  {onWhatsapp && property?.user?.phone && <Button
+                  {onWhatsapp && property?.user?.phone_whatsapp && <Button
                     label="Whatsapp"
                     variant="primary"
                     buttonType="1"
