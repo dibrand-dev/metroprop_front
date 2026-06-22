@@ -239,11 +239,12 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                   <img src={'/icons/upload.svg'} alt="" />
                   <span>{logoFile ? 'Cambiar logo' : 'Agregar logo'}</span>
                 </button>
-                {logoPreview && (
+                {logoPreview ? (
                   <div className="branch-form-logo-preview">
                     <img src={logoPreview} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </div>
-                )}
+                )
+                : <span style={{ fontSize: '12px', color: '#acacac' }}>Tamaño recomendado 75 x 58 px</span>}
                 {logoPreview && isEditing && activeSection === 'generales' && (
                   <button
                     className="branch-form-logo-remove"

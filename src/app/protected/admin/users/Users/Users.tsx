@@ -155,7 +155,7 @@ export default function Users() {
           </div>
 
           <div>
-            {total > 0 && <span>{total} Usuario{total > 1 ? 's' : ''} registrado{total > 1 ? 's' : ''}</span>}
+            {total > 0 && <span>{total} Usuario{total > 1 ? 's' : ''}</span>}
           </div>
 
           <div className="collaborators-list">

@@ -160,7 +160,7 @@ export default function Organizations() {
           </div>
          
           <div>
-            {total > 0 && <span>{total} Inmobiliaria{total > 1 ? 's' : ''} registrada{total > 1 ? 's' : ''}.</span>}
+            {total > 0 && <span>{total} Inmobiliaria{total > 1 ? 's' : ''}</span>}
           </div>
 
           <div className="collaborators-list">
