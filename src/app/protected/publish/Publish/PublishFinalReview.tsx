@@ -400,7 +400,7 @@ export default function PublishFinalReview({
                       </div>}
                   </div>
                   {sessionData?.user && <div className="publish-review-contact-info">
-                    <div className="publish-review-contact-name">{agentName}</div>
+                    {agentName !== sessionData?.user?.email && <div className="publish-review-contact-name">{agentName}</div>}
                     <div className="publish-review-contact-name">{sessionData?.user?.email ?? ''}</div>
                     <div className="publish-review-contact-phone">{sessionData?.user?.phone ?? ''}</div>
                   </div>}

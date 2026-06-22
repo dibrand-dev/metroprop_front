@@ -13,8 +13,8 @@ const iconChevron = '/icons/chevron-up.svg';
 const currencyOptions = ['ARS', 'USD', 'EUR'];
 
 interface PublishPriceProps {
-  wizardData: CreatePropertyDraft;
-  updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
+  wizardData: CreatePropertyDraft & {withoutExpenses?: boolean};
+  updateWizardData: (data: Partial<CreatePropertyDraft & {withoutExpenses?: boolean}>) => void;
   onNext: (priceData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
   onSaveAndExit: (priceData: Partial<CreatePropertyDraft>) => void;
@@ -31,7 +31,7 @@ export default function PublishPrice({
   const [price, setPrice] = useState<number | undefined>(wizardData.price || undefined);
   const [expenses, setExpenses] = useState<number | undefined>(wizardData.expenses || undefined);
   const [currency_expenses, setCurrency_expenses] = useState(wizardData.currency_expenses || 'ARS');
-  const [withoutExpenses, setWithoutExpenses] = useState(false);
+  const [withoutExpenses, setWithoutExpenses] = useState(wizardData.withoutExpenses || false);
 
   const currencySelectOptions = currencyOptions.map(option => ({
     value: option,
@@ -44,9 +44,10 @@ export default function PublishPrice({
       currency,
       currency_expenses,
       price,
-      expenses: withoutExpenses ? 0 : expenses
+      expenses: withoutExpenses ? 0 : expenses,
+      withoutExpenses
     });
-  }, [currency, price, expenses, currency_expenses, updateWizardData]);
+  }, [currency, price, expenses, currency_expenses, withoutExpenses, updateWizardData]);
 
   const handleBack = () => {
     onBack();
