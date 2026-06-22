@@ -41,7 +41,9 @@ export default function PublishPlansEmprendimiento({
   const { data:plansData , isLoading, isError } = useQuery<Plan[]>({
     queryKey: ['plans'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/plans/`),
-    staleTime: 30_000,
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnMount: 'always',
   });
 
   const orgId = (sessionData?.user as any)?.organization?.id ?? null;
