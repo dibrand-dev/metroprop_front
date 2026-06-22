@@ -360,7 +360,6 @@ export default function PublishContent({
 
   // Drag and drop functions
   const handleDragStart = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video' | '360') => {
-    console.log('🚀 DRAG START - index:', index, 'type:', type);
     setDraggedIndex(index);
     setDraggedType(type);
     e.dataTransfer.effectAllowed = 'move';
@@ -375,7 +374,6 @@ export default function PublishContent({
     e.preventDefault();
     e.stopPropagation(); // Prevent grid from also handling this
     e.dataTransfer.dropEffect = 'move';
-    console.log('🔄 ITEM DRAG OVER - index:', index, 'type:', type, 'draggedIndex:', draggedIndex);
     if (draggedType === type) {
       setDragOverIndex(index);
     }
@@ -401,15 +399,11 @@ export default function PublishContent({
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('🔵 DROP - draggedIndex:', draggedIndex, 'dropIndex:', dropIndex, 'type:', type);
-    
     if (draggedIndex === null || draggedType !== type) {
-      console.log('❌ DROP CANCELLED - wrong type or null index');
       return;
     }
     
     if (draggedIndex === dropIndex) {
-      console.log('⚠️ DROP SAME INDEX - no reorder needed');
       setDraggedIndex(null);
       setDraggedType(null);
       setDragOverGrid(null);
@@ -418,21 +412,17 @@ export default function PublishContent({
     }
     
     if (type === 'image') {
-      console.log('📷 Reordering images...');
       // Unified list: API images first, then local files
       type ImageEntry = { kind: 'api'; data: CreateImage } | { kind: 'local'; data: File };
       const unified: ImageEntry[] = [
         ...(images ?? []).map(d => ({ kind: 'api' as const, data: d })),
         ...uploadedImages.map(d => ({ kind: 'local' as const, data: d })),
       ];
-      console.log('Before reorder:', unified.length, 'items');
       const draggedItem = unified[draggedIndex];
       unified.splice(draggedIndex, 1);
       unified.splice(dropIndex, 0, draggedItem);
-      console.log('After reorder - same length?', unified.length);
       setImages(unified.filter(e => e.kind === 'api').map(e => e.data as CreateImage));
       setUploadedImages(unified.filter(e => e.kind === 'local').map(e => e.data as File));
-      console.log('✅ Images reordered!');
     } else if (type === 'plan') {
       const newPlans = [...uploadedPlans];
       const draggedPlan = newPlans[draggedIndex];
@@ -460,7 +450,6 @@ export default function PublishContent({
   };
 
   const handleDragEnd = () => {
-    console.log('🏁 DRAG END - draggedIndex:', draggedIndex);
     setDraggedIndex(null);
     setDraggedType(null);
     setDragOverGrid(null);
@@ -565,17 +554,14 @@ export default function PublishContent({
                       const hasFiles = e.dataTransfer.files && e.dataTransfer.files.length > 0;
                       const isInternalDrag = draggedType !== null;
                       
-                      console.log('🟢 GRID DROP - hasFiles:', hasFiles, 'isInternalDrag:', isInternalDrag, 'draggedType:', draggedType, 'target:', e.target);
-                      
                       // Only handle file drops from explorer
                       if (hasFiles && !isInternalDrag) {
-                        console.log('📁 Processing file drop');
                         e.preventDefault();
                         e.stopPropagation();
                         handleFileDropFromExplorer(e, 'image');
                         setDragOverGrid(null);
                       } else if (isInternalDrag) {
-                        console.log('⚠️ Internal drag at grid - not handling, items will handle');
+                      
                         // Don't do anything for internal drags - items handle it completely
                         // The items onDrop will fire and handle the reordering
                       }

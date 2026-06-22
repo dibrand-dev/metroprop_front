@@ -48,10 +48,13 @@ $font-family-button: Montserrat, sans-serif;
   justify-content: space-between;
   width: 100%;
   margin: 0 auto;
- 
-  @media (max-width: 768px) {
-    gap: 0;
+  
+  &.with-search {
+    @media (max-width: 1000px) {
+      gap: 16px;
+    }
   }
+  
 }
 
 // Navigation Wrapper (includes hamburger button)
@@ -404,6 +407,12 @@ $font-family-button: Montserrat, sans-serif;
   justify-content: center;
   flex-shrink: 0;
   height: 48px;
+
+  &.with-search {
+    @media (max-width: 999px) {
+      display: none !important;
+    }
+  }
   
   @media (min-width: 768px) {
     width: 33.3%;
@@ -418,7 +427,7 @@ $font-family-button: Montserrat, sans-serif;
     }
   }
 
-   @media (max-width: 990px) {
+  @media (max-width: 990px) {
     flex-grow: 1;
   }
 
@@ -426,7 +435,7 @@ $font-family-button: Montserrat, sans-serif;
     flex-grow: 1;
   }
 
-  @media (max-width: 462px) {
+  @media (max-width: 768px) {
     display: none;
   }
 }
@@ -436,17 +445,16 @@ $font-family-button: Montserrat, sans-serif;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  height: 48px;
-  width: 33.3%;
-  img.metroLogoDesktop {
-    height: 32px;
-    display: block;
-    height: 26px;
+  height: 50px;
+
+  a, img {
+    height: 100%;
   }
+
   &.with-search {
     display: none;
   }
-  @media (min-width: 462px) {
+  @media (min-width: 768px) {
     display: none;
   }
 }
@@ -454,12 +462,15 @@ $font-family-button: Montserrat, sans-serif;
 // Actions Section
 .header-actions {
   display: flex;
-  gap: 16px;
   align-items: center;
   flex-shrink: 0;
   justify-content: flex-end;
   width: 33.3%;
-  &.with-search {   
+  &.with-search {
+    gap: 16px;
+    @media (max-width: 1000px) {
+      width: auto;
+    }
 
     @media (max-width: 769px) {
       width: 100px;
@@ -672,11 +683,14 @@ $font-family-button: Montserrat, sans-serif;
 
 
 .header-search {
-  /*flex: 0 0 360px;*/
   width: 100%;
   @media (min-width: 1000px) {
     display: none;
   }
+  .location-autocomplete {
+    z-index: 2;
+  }
+
   .location-autocomplete-input-wrap .input-field-2-label {
     text-overflow: ellipsis;
     overflow: hidden;
@@ -708,6 +722,11 @@ $font-family-button: Montserrat, sans-serif;
 
   .home-link {
     grid-column: 2;
+    display: flex; 
+    align-items: center;
+    img {
+      height: 25px;
+    }
   }
 
   .close-button {

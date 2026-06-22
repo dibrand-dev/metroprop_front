@@ -161,7 +161,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           }}
         />
       )}
-      <div className="header-content">
+      <div className={`header-content ${showFilter ? 'with-search' : ''}`}>
         <div className="topnavbar-menu-items">        
           {!isRole4 && (<><button className="topnavbar-dropdown">
             <Link prefetch={false}  href="/protected/myProperties">Mis publicaciones</Link>
@@ -185,7 +185,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           {/* Desktop Navigation */}
           <nav className={`header-nav ${mobileMenuOpen ? 'mobile-open' : ''}`}>
             <div className='mobile-header-open-nav'>
-              <Link prefetch={false}  href="/" className='home-link'><img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" /></Link>
+              <Link prefetch={false} href="/" className='home-link'><img src={logoMetroprop} alt="MetroProp" /></Link>
               <button
                 className="close-button"
                 onClick={toggleMobileMenu}
@@ -299,14 +299,14 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
             />
           </div>
         )} 
-        <div className="header-logo">
+        <div className={`${showFilter ? 'with-search' : ''} header-logo`}>
           <Link prefetch={false}  href="/">
             <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
           </Link>
         </div>
         <div className={`${showFilter ? 'with-search' : ''} header-logo-mobile`}>
-          <Link prefetch={false}  href="/">
-            <img src={logoMetroprop} alt="MetroProp" className="metroLogoDesktop" />
+          <Link prefetch={false}  href="/">            
+            <img src="/images/metropropLogo_mobile.svg" alt="MetroProp" className="metroLogoDesktop" />
           </Link>
         </div>        
 

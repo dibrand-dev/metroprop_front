@@ -133,7 +133,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   useEffect(() => {
     if (!propertyId) return;
     setIsLoadingProperty(true);
-    apiFetch(`${API_BASE_URL}/properties/${propertyId}`)
+    apiFetch(`${API_BASE_URL}/properties/${propertyId}?format=edit`)
       .then(data => {
         const payload = (data as any)?.data ?? data;
         
