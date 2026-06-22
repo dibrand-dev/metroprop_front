@@ -40,7 +40,6 @@ export default function Users() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { showMenu, setShowMenu } = useAdminMenu();
-  const [totalUsers, setTotalUsers] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState(0);  
   const [searchQuery, setSearchQuery] = useState('');
   const [searchId, setSearchId] = useState<string | null>(null);
@@ -117,13 +116,6 @@ export default function Users() {
     actions: ['delete', 'edit', 'lock'] as UserAction[],
   })) ?? [];
 
-  // Store the total count from the first call (when not searching)
-  useEffect(() => {
-    if (searchId === null && rawData?.total) {
-      setTotalUsers(rawData.total);
-    }
-  }, [searchId, rawData?.total]);
-
   const handleEdit = (id: string) => {
     router.push('/protected/admin/users/' + id);
   };
@@ -163,7 +155,7 @@ export default function Users() {
           </div>
 
           <div>
-            {totalUsers > 0 && <span>{totalUsers} Usuarios registrados</span>}
+            {total > 0 && <span>{total} Usuario{total > 1 ? 's' : ''} registrado{total > 1 ? 's' : ''}</span>}
           </div>
 
           <div className="collaborators-list">

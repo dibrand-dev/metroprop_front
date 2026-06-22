@@ -973,11 +973,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             </section>
             ): property?.development && (() => {
               const devLocationLabels = locations.length > 0 ? {
+                neighborhood: property.development.neighborhood_id ? locations.find(l => l.id === property.development.neighborhood_id)?.name : undefined,
                 subLocation: property.development.sub_location_id ? locations.find(l => l.id === property.development.sub_location_id)?.name : undefined,
                 location: property.development.location_id ? locations.find(l => l.id === property.development.location_id)?.name : undefined,
                 state: property.development.state_id ? locations.find(l => l.id === property.development.state_id)?.name : undefined,
               } : undefined;
-              return (
+            return (
             <section className="unit-details-development">
               <h4>Esta unidad pertenece al emprendimiento</h4>
               <Link prefetch={false}  href={property?.development ? getPropertyDetailPath(property.development, devLocationLabels) : '#'} target="_blank" rel="noopener noreferrer">

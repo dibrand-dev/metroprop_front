@@ -31,6 +31,7 @@ export default function PublishEmprendimientoFinalReview({
   isEditMode = false,
   goToStep,
 }: PublishFinalReviewProps) {
+  console.log("wizardData", wizardData);
   const { data: locations = [] } = useLocations();
   const { data: sessionData } = useSession();
   const [activeTab, setActiveTab] = useState<string>('');

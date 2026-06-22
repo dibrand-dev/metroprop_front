@@ -32,6 +32,8 @@
       object-fit: cover;
       flex-shrink: 0;
       border: 1px solid transparent;
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
       &:hover {
         border-color: #006aff;
       }

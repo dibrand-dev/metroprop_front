@@ -220,7 +220,7 @@ export default function Properties() {
           </div>
 
           <div>
-            {propertiesCount?.total && <span>{propertiesCount.total} Propiedades</span>}
+            {propertiesCount?.total > 0 && <span>{propertiesCount.total} Propiedad{propertiesCount.total > 1 ? 'es' : ''} registrada{propertiesCount.total > 1 ? 's' : ''}.</span>}
           </div>
 
           <div className="collaborators-list">
@@ -272,6 +272,7 @@ export default function Properties() {
                       aria-label="Ver detalle"
                       onClick={() => {
                         const locationLabels = locations.length > 0 ? {
+                          neighborhood: property.neighborhood_id ? locations.find(l => l.id === property.neighborhood_id)?.name : undefined,
                           subLocation: property.sub_location_id ? locations.find(l => l.id === property.sub_location_id)?.name : undefined,
                           location: property.location_id ? locations.find(l => l.id === property.location_id)?.name : undefined,
                           state: property.state_id ? locations.find(l => l.id === property.state_id)?.name : undefined,

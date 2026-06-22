@@ -425,6 +425,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                   <div style={{ padding: '8px' }}>Cargando...</div>
                 ) : selectedProperty ? (() => {
                   const locationLabels = locations.length > 0 ? {
+                    neighborhood: selectedProperty.neighborhood_id ? locations.find(l => l.id === selectedProperty.neighborhood_id)?.name : undefined,
                     subLocation: selectedProperty.sub_location_id ? locations.find(l => l.id === selectedProperty.sub_location_id)?.name : undefined,
                     location: selectedProperty.location_id ? locations.find(l => l.id === selectedProperty.location_id)?.name : undefined,
                     state: selectedProperty.state_id ? locations.find(l => l.id === selectedProperty.state_id)?.name : undefined,

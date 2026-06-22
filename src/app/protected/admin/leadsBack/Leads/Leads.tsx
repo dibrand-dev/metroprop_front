@@ -200,6 +200,7 @@ export default function Leads() {
                           // if (action === 'delete') setDeleteModal({ open: true, name: contacto.name, propertyId: contacto.property.id, leadId: contacto.id });
                           if (action === 'view' && contacto.property) {
                             const locationLabels = locations.length > 0 ? {
+                              neighborhood: contacto.property.neighborhood_id ? locations.find(l => l.id === contacto.property.neighborhood_id)?.name : undefined,
                               subLocation: contacto.property.sub_location_id ? locations.find(l => l.id === contacto.property.sub_location_id)?.name : undefined,
                               location: contacto.property.location_id ? locations.find(l => l.id === contacto.property.location_id)?.name : undefined,
                               state: contacto.property.state_id ? locations.find(l => l.id === contacto.property.state_id)?.name : undefined,

@@ -72,9 +72,9 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
   // Build location labels for SEO-friendly URLs
   const locationLabels = locations.length > 0 ? {
     neighborhood: property.neighborhood_id ? locations.find(l => l.id === property.neighborhood_id)?.name : undefined,
-    subLocation: property.sub_location_id ? locations.find(l => l.id === property.sub_location_id)?.full_location : undefined,
-    location: property.location_id ? locations.find(l => l.id === property.location_id)?.full_location : undefined,
-    state: property.state_id ? locations.find(l => l.id === property.state_id)?.full_location : undefined,
+    subLocation: property.sub_location_id ? locations.find(l => l.id === property.sub_location_id)?.name : undefined,
+    location: property.location_id ? locations.find(l => l.id === property.location_id)?.name : undefined,
+    state: property.state_id ? locations.find(l => l.id === property.state_id)?.name : undefined,
   } : undefined;
   
   const gallery = useGallery(property, fromMap, locationLabels);

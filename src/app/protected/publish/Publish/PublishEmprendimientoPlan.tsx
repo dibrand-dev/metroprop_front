@@ -242,10 +242,12 @@ export default function PublishPlansEmprendimiento({
                     </div>
                   </div>
                   <ul>                        
-                    <li className="whitespace-pre-line">
-                      <img src={iconCheck} alt="" />
-                      {plan.plan_description}
-                    </li>
+                    {plan.plan_description?.split('\n').map((line, index) => line && line.trim() !== '' && (
+                      <li key={index}>
+                        <img src={iconCheck} alt="" />
+                        {line}
+                      </li>
+                    ))}
                     <li>
                       <img src={iconCheck} alt="" />
                       Nivel de prioridad: {plan.visibility}

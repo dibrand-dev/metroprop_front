@@ -46,7 +46,6 @@ export default function Organizations() {
   const [currentPage, setCurrentPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchId, setSearchId] = useState<string | null>(null);
-  const [totalOrganizations, setTotalOrganizations] = useState<number>(0);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; organizationId: number | null; organizationName: string; is_delete: boolean, status: boolean | null }>({ open: false, organizationId: null, organizationName: '', is_delete: true, status: null });
 
   const deleteMutation = useMutation({
@@ -122,13 +121,6 @@ export default function Organizations() {
     actions: ['delete', 'edit', 'lock'] as OrganizationAction[],
   })) ?? [];
 
-  // Store the total count from the first call (when not searching)
-  useEffect(() => {
-    if (searchId === null && rawData?.total) {
-      setTotalOrganizations(rawData.total);
-    }
-  }, [searchId, rawData?.total]);
-
   const handleEdit = (id: string) => {
     router.push('/protected/admin/organization/' + id);
   };
@@ -168,7 +160,7 @@ export default function Organizations() {
           </div>
          
           <div>
-            {totalOrganizations > 0 && <span>{totalOrganizations} Inmobiliarias registradas</span>}
+            {total > 0 && <span>{total} Inmobiliaria{total > 1 ? 's' : ''} registrada{total > 1 ? 's' : ''}.</span>}
           </div>
 
           <div className="collaborators-list">

@@ -712,6 +712,7 @@ const MyProperties = () => {
                       </button>
                       <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => {
                         const locationLabels = locations.length > 0 ? {
+                          neighborhood: prop.neighborhood_id ? locations.find(l => l.id === prop.neighborhood_id)?.name : undefined,
                           subLocation: prop.sub_location_id ? locations.find(l => l.id === prop.sub_location_id)?.name : undefined,
                           location: prop.location_id ? locations.find(l => l.id === prop.location_id)?.name : undefined,
                           state: prop.state_id ? locations.find(l => l.id === prop.state_id)?.name : undefined,

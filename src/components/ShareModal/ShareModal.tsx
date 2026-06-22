@@ -39,8 +39,11 @@ export default function ShareModal({ isOpen, onClose, property, propertyId }: Sh
   const id = property?.id ?? propertyId;
   
   // Build location labels from the locations data if we have IDs but no relationship objects
-  let locationLabels: { subLocation?: string; location?: string; state?: string } | undefined;
+  let locationLabels: { neighborhood?: string; subLocation?: string; location?: string; state?: string } | undefined;
   if (property && locations.length > 0) {
+    const neighborhoodLabel = property.neighborhood_id 
+      ? locations.find(l => l.id === property.neighborhood_id)?.name 
+      : undefined;
     const subLocationLabel = property.sub_location_id 
       ? locations.find(l => l.id === property.sub_location_id)?.name 
       : undefined;
@@ -51,8 +54,9 @@ export default function ShareModal({ isOpen, onClose, property, propertyId }: Sh
       ? locations.find(l => l.id === property.state_id)?.name
       : undefined;
     
-    if (subLocationLabel || locationLabel || stateLabel) {
+    if (neighborhoodLabel || subLocationLabel || locationLabel || stateLabel) {
       locationLabels = {
+        neighborhood: neighborhoodLabel,
         subLocation: subLocationLabel,
         location: locationLabel,
         state: stateLabel,
