@@ -468,7 +468,7 @@ export default function PublishLocation({
                     options={provinceOptions}
                     value={state_id ? state_id.toString() : undefined}
                     onChange={handleStateChange}
-                    placeholder={loadingProvinces ? "Cargando provincias..." : "Seleccionar provincia"}
+                    placeholder={loadingProvinces ? "Cargando provincias..." : provinceOptions.length > 0 ? "Seleccionar provincia" : "No hay provincias disponibles"}
                     disabled={!hasSelectedAutocompleteLocation /*|| !country_id*/ || loadingProvinces}
                     required
                   />
@@ -479,7 +479,7 @@ export default function PublishLocation({
                     options={locationOptions}
                     value={location_id ? location_id.toString() : undefined}
                     onChange={handleLocationChange}
-                    placeholder={loadingLocations ? "Cargando ciudades..." : "Seleccionar ciudad"}
+                    placeholder={loadingLocations ? "Cargando ciudades..." : locationOptions.length > 0 ? "Seleccionar ciudad" : "No hay ciudades disponibles"}
                     disabled={!hasSelectedAutocompleteLocation || !state_id || loadingLocations || locationOptions.length === 0}
                   />
                 </div>
@@ -492,20 +492,20 @@ export default function PublishLocation({
                     options={zoneOptions}
                     value={sub_location_id ? sub_location_id.toString() : undefined}
                     onChange={handleSubLocationChange}
-                    placeholder={loadingZones ? "Cargando barrios..." : "Seleccionar barrio"}
+                    placeholder={loadingZones ? "Cargando barrios..." : zoneOptions.length > 0 ? "Seleccionar barrio" : "No hay barrios disponibles"}
                     disabled={!hasSelectedAutocompleteLocation || !state_id || loadingZones || zoneOptions.length === 0}
                   />
                 </div>
 
                 <div className="publish-location-field">
-                  {neighborhoodOptions.length > 0 && <Select
+                  <Select
                     label="Zona"
                     options={neighborhoodOptions}
                     value={neighborhood_id ? neighborhood_id.toString() : undefined}
                     onChange={handleNeighborhoodChange}
-                    placeholder={loadingNeighborhoods ? "Cargando zonas..." : "Seleccionar zona"}
+                    placeholder={loadingNeighborhoods ? "Cargando zonas..." : neighborhoodOptions.length > 0 ? "Seleccionar zona" : "No hay zonas disponibles"}
                     disabled={!hasSelectedAutocompleteLocation || !sub_location_id || loadingNeighborhoods || neighborhoodOptions.length === 0}
-                  />}
+                  />
                 </div>
               </div>
 

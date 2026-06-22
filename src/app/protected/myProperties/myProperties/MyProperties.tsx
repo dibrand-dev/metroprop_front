@@ -707,7 +707,7 @@ const MyProperties = () => {
                         <img src="/icons/republicar.svg" alt="Republicar" />
                       </button>
                       )}                        
-                      <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.open(`/protected/publish/${prop.development_id ? prop.development_id : prop.id}?IgnoreStatus=true`, '_blank')}>
+                      <button type="button" className="myprop-card-action-btn" title="Editar" onClick={() => window.open(`/protected/publish/${prop.development_id ? prop.development_id : prop.id}?format=edit`, '_blank')}>
                         <img src="/icons/pencil.svg" alt="Editar" />
                       </button>
                       <button type="button" className="myprop-card-action-btn" title="Ver detalle"  onClick={() => {

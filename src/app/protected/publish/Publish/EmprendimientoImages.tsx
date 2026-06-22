@@ -220,12 +220,15 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
     };
 
     const handleDragStart = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video' | '360') => {
+      console.log('🚀 DRAG START - index:', index, 'type:', type);
       setDraggedIndex(index); setDraggedType(type); e.dataTransfer.effectAllowed = 'move';
     };
     const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
     const handleItemDragOver = (e: React.DragEvent, index: number, type: 'image' | 'plan' | 'video' | '360') => {
       e.preventDefault();
+      e.stopPropagation(); // Prevent grid from also handling this
       e.dataTransfer.dropEffect = 'move';
+      console.log('🔄 ITEM DRAG OVER - index:', index, 'type:', type, 'draggedIndex:', draggedIndex);
       if (draggedType === type) setDragOverIndex(index);
     };
     const getShift = (itemIndex: number, type: 'image' | 'plan' | 'video' | '360'): string => {
@@ -247,6 +250,8 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
     };
     const handleDrop = (e: React.DragEvent, dropIndex: number, type: 'image' | 'plan' | 'video' | '360') => {
       e.preventDefault();
+      e.stopPropagation();
+      console.log('🔵 DROP - draggedIndex:', draggedIndex, 'dropIndex:', dropIndex, 'type:', type);
       if (draggedIndex === null || draggedType !== type) return;
       if (type === 'image') {
         type IE = { kind: 'api'; data: CreateImage } | { kind: 'local'; data: File };
@@ -280,7 +285,10 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
       }
       setDraggedIndex(null); setDraggedType(null); setDragOverGrid(null); setDragOverIndex(null);
     };
-    const handleDragEnd = () => { setDraggedIndex(null); setDraggedType(null); setDragOverGrid(null); setDragOverIndex(null); };
+    const handleDragEnd = () => {
+      console.log('🏁 DRAG END - draggedIndex:', draggedIndex);
+      setDraggedIndex(null); setDraggedType(null); setDragOverGrid(null); setDragOverIndex(null);
+    };
 
     const addUrl = () => {
       const trimmedUrl = current360Url.trim();
@@ -383,12 +391,22 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                   }
                 }}
                 onDrop={(e) => {
-                  // Check if it's a file drop from explorer (has files) or internal reorder (no files)
-                  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                  const hasFiles = e.dataTransfer.files && e.dataTransfer.files.length > 0;
+                  const isInternalDrag = draggedType !== null;
+                  
+                  console.log('🟢 GRID DROP (images) - hasFiles:', hasFiles, 'isInternalDrag:', isInternalDrag, 'draggedType:', draggedType);
+                  
+                  // Only handle file drops from explorer
+                  if (hasFiles && !isInternalDrag) {
+                    console.log('📁 Processing file drop');
+                    e.preventDefault();
+                    e.stopPropagation();
                     handleFileDropFromExplorer(e, 'image');
+                    setDragOverGrid(null);
+                  } else if (isInternalDrag) {
+                    console.log('⚠️ Internal drag at grid - not handling, items will handle');
+                    // Don't do anything for internal drags - items handle it completely
                   }
-                  e.preventDefault();
-                  setDragOverGrid(null);
                 }}
               >
                 <button type="button" className={`publish-content-upload-card ${isDraggingFile && fileDropZone === 'image' ? 'file-drag-over' : ''}`} onClick={() => imageGridInputRef.current?.click()}
@@ -464,12 +482,22 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
                           }
                         }}
                         onDrop={(e) => {
-                          // Check if it's a file drop from explorer (has files) or internal reorder (no files)
-                          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                          const hasFiles = e.dataTransfer.files && e.dataTransfer.files.length > 0;
+                          const isInternalDrag = draggedType !== null;
+                          
+                          console.log('🟢 GRID DROP (plans) - hasFiles:', hasFiles, 'isInternalDrag:', isInternalDrag, 'draggedType:', draggedType);
+                          
+                          // Only handle file drops from explorer
+                          if (hasFiles && !isInternalDrag) {
+                            console.log('📁 Processing file drop');
+                            e.preventDefault();
+                            e.stopPropagation();
                             handleFileDropFromExplorer(e, 'plan');
+                            setDragOverGrid(null);
+                          } else if (isInternalDrag) {
+                            console.log('⚠️ Internal drag at grid - not handling, items will handle');
+                            // Don't do anything for internal drags - items handle it completely
                           }
-                          e.preventDefault();
-                          setDragOverGrid(null);
                         }}
                       >
                         <input ref={plansInputRef} type="file" multiple accept=".heic,.jfif,.png,.jpg,.jpeg,.webp,.pdf" style={{ display: 'none' }} onChange={(e) => handleFileSelect(e, 'plan')} />
