@@ -54,6 +54,9 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 }
 
 .publish-review-top {
@@ -159,6 +162,9 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 }
 
 .publish-review-preview-hero {
@@ -194,7 +200,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  
+  word-break: break-all;
   color: #1e1e1e;
 
   strong {
@@ -463,15 +469,20 @@
   display: flex;
   gap: 8px;
   border-bottom: 1px solid #a6a6a6;
+  overflow-x: auto;
+  
+  @media (max-width: 768px) {
+    gap: 0;
+  }
 }
 
 .publish-review-amenities-tab {
   border: 1.3px solid #a6a6a6;
   border-bottom: none;
-  border-radius: 8px 8px 0 0;
+  border-radius: 0 8px 0 0;
   background: #ffffff;
   padding: 8px 12px;
-  
+  border-left: 0;
   font-size: 14px;
   font-weight: 600;
   color: #1e1e1e;

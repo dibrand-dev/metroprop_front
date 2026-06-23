@@ -14,7 +14,7 @@ export default function Footer() {
         {/* Left Section - Company Info */}
         <div>
           <div className="footer-logo">
-            <img src={logoMetroprop} alt="MetroProp" />
+            <a href="https://www.metroprop.co/"><img src={logoMetroprop} alt="MetroProp" /></a>
           </div>
           <div className="footer-left">
             <p className="footer-description">
@@ -22,10 +22,10 @@ export default function Footer() {
             </p>
 
             <div className="footer-social">
-              <Link prefetch={false}  href="#" className="footer-social-icon" aria-label="Facebook">
+              <Link prefetch={false}  href="https://www.facebook.com/metroprop" className="footer-social-icon" aria-label="Facebook">
                 <img src="/icons/fb.svg" alt="Facebook" />
               </Link>
-              <Link prefetch={false}  href="#" className="footer-social-icon" aria-label="Instagram">
+              <Link prefetch={false}  href="https://www.instagram.com/metroprop.co/" className="footer-social-icon" aria-label="Instagram">
                 <img src="/icons/instagram.svg" alt="Instagram" />
               </Link>
               <Link prefetch={false}  href="#" className="footer-social-icon" aria-label="YouTube">

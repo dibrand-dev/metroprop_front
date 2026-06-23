@@ -115,11 +115,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedSubCategory, setExpandedSubCategory] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<{ [key: string]: string }>({
-    comprar: 'GBA Norte',
-    alquilar: 'Capital Federal',
-    temporal: 'Por días',
-  });
+  const [selectedItem, setSelectedItem] = useState<{ [key: string]: string } | null>(null);
 
   const toggleDropdown = (name: string) => {
     setOpenDropdown(openDropdown === name ? null : name);
@@ -224,7 +220,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
                             <a
                               key={itemIndex}
                               href={item.href}
-                              className={`header-dropdown-item ${selectedItem[key] === item.label ? 'active' : ''}`}
+                              className={`header-dropdown-item ${selectedItem?.[key] === item.label ? 'active' : ''}`}
                               onClick={(e) => {
                                 handleItemClick(key, item.label);
                               }}
@@ -261,7 +257,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
                                 <a
                                   key={itemIndex}
                                   href={item.href}
-                                  className={`accordion-item ${selectedItem[key] === item.label ? 'active' : ''}`}
+                                  className={`accordion-item ${selectedItem?.[key] === item.label ? 'active' : ''}`}
                                   onClick={(e) => {
                                     handleItemClick(key, item.label);
                                   }}
