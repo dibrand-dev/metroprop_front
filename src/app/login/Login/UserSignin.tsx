@@ -262,6 +262,22 @@ export default function UserSignin() {
             />
           </div>
 
+          {(error || googleError) && (
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '12px',
+                backgroundColor: '#fee2e2',
+                border: '1px solid #fca5a5',
+                borderRadius: '4px',
+                color: '#991b1b',
+                fontSize: '14px',
+              }}
+            >
+              {error || googleError}
+            </div>
+          )}
+
           <div className="create-account">
             <span className="create-account-text">¿No tenés cuenta?</span>
             <Link prefetch={false}  href="/signup" className="create-account-link">
@@ -286,22 +302,6 @@ export default function UserSignin() {
               <span>{isGoogleLoading ? 'Procesando...' : 'Google'}</span>
             </button>
           </div>
-
-          {(error || googleError) && (
-            <div
-              style={{
-                marginTop: '16px',
-                padding: '12px',
-                backgroundColor: '#fee2e2',
-                border: '1px solid #fca5a5',
-                borderRadius: '4px',
-                color: '#991b1b',
-                fontSize: '14px',
-              }}
-            >
-              {error || googleError}
-            </div>
-          )}
         </form>
       </div>
       {showEmailVerificatedModal && <SuccessModal title="¡E-mail verificado!" text="Ya podés loguearte con tu e-mail." />}
