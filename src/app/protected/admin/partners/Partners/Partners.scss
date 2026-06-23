@@ -23,6 +23,12 @@
   &.mobile-hidden {
     display: none;
   }
+
+  
+}
+
+.protected-admin-partners .are-you-sure-modal {
+  max-width: 780px;
 }
 
 .partners-mobile-header {
@@ -246,14 +252,7 @@
   margin-bottom: 16px;
   width: 100%;
 
-
-  .modal-message-text {
-    margin: 0;
-    word-break: break-all;
-    width: 100%;
-    text-align: left;
-
-    button {
+  button {
       float: right;
       flex-shrink: 0;
       background: none;
@@ -262,6 +261,20 @@
       cursor: pointer;
       padding: 2px 8px;
       font-size: 12px;
+    }
+
+  .modal-message-text {
+    margin: 0;
+    word-break: break-all;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
     }
     p {
       font-size: 0.9em;

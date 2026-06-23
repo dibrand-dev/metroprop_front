@@ -90,7 +90,7 @@ export default function Partners() {
 
   return (
     <>
-      <div className={`partners-container ${showMenu ? 'mobile-hidden' : ''}`}>
+      <div className={`partners-container partners ${showMenu ? 'mobile-hidden' : ''}`}>
         <div className="partners-mobile-header">
           <button
             className="partners-back-button"
@@ -175,50 +175,49 @@ export default function Partners() {
         <div className="partners-mobile-footer">
           <Button type="button" variant="primary" onClick={() => router.push('/protected/admin/partnerForm')} label="Agregar partner" fullWidth />
         </div>
+
+        {confirmAction && (
+          <AreYouSureModal
+            title={confirmMessages[confirmAction.type].title}
+            subTitle={confirmMessages[confirmAction.type].subTitle}
+            icon={confirmMessages[confirmAction.type].icon}
+            onAccept={handleConfirm}
+            onCancel={() => setConfirmAction(null)}
+            iconBackgroundColor={confirmMessages[confirmAction.type].iconBackgroundColor}
+          />
+        )}
       </div>
-
-      {confirmAction && (
-        <AreYouSureModal
-          title={confirmMessages[confirmAction.type].title}
-          subTitle={confirmMessages[confirmAction.type].subTitle}
-          icon={confirmMessages[confirmAction.type].icon}
-          onAccept={handleConfirm}
-          onCancel={() => setConfirmAction(null)}
-          iconBackgroundColor={confirmMessages[confirmAction.type].iconBackgroundColor}
-        />
-      )}
-
       {viewCredentials && (<AreYouSureModal
           title="Keys"
           subTitle="Credenciales del partner"
           text={<>
             <div className="modal-credential-row">
               <div className="modal-message-text">
-                <strong>App Key: </strong> 
-                <button
-                  type="button"
-                  title="Copiar App Key"
-                  style={{ color: copiedField === 'app_key' ? '#2e7d32' : undefined }}
-                  onClick={() => { navigator.clipboard.writeText(viewCredentials.app_key); setCopiedField('app_key'); setTimeout(() => setCopiedField(null), 3000); }}
-                >
-                  {copiedField === 'app_key' ? 'Copiado' : 'Copiar'}
-                </button>
+                <strong>App Key: </strong>
+                <p style={{ fontSize: '0.9em' }}>{viewCredentials.app_key}</p>
               </div>
-              <p style={{ fontSize: '0.9em' }}>{viewCredentials.app_key}</p>
+              <button
+                type="button"
+                title="Copiar App Key"
+                style={{ color: copiedField === 'app_key' ? '#2e7d32' : undefined }}
+                onClick={() => { navigator.clipboard.writeText(viewCredentials.app_key); setCopiedField('app_key'); setTimeout(() => setCopiedField(null), 3000); }}
+              >
+                {copiedField === 'app_key' ? 'Copiado' : 'Copiar'}
+              </button>
             </div>
             <div className="modal-credential-row">
               <div className="modal-message-text">
                 <strong>App Secret: </strong>
-                <button
-                  type="button"
-                  title="Copiar App Secret"
-                  style={{ color: copiedField === 'app_secret' ? '#2e7d32' : undefined }}
-                  onClick={() => { navigator.clipboard.writeText(viewCredentials.app_secret); setCopiedField('app_secret'); setTimeout(() => setCopiedField(null), 3000); }}
-                >
-                  {copiedField === 'app_secret' ? 'Copiado' : 'Copiar'}
-                </button>
+                <p style={{ fontSize: '0.9em' }}>{viewCredentials.app_secret}</p>
               </div>
-              <p style={{ fontSize: '0.9em' }}>{viewCredentials.app_secret}</p>              
+              <button
+                type="button"
+                title="Copiar App Secret"
+                style={{ color: copiedField === 'app_secret' ? '#2e7d32' : undefined }}
+                onClick={() => { navigator.clipboard.writeText(viewCredentials.app_secret); setCopiedField('app_secret'); setTimeout(() => setCopiedField(null), 3000); }}
+              >
+                {copiedField === 'app_secret' ? 'Copiado' : 'Copiar'}
+              </button>
             </div>
           </>}
           icon={iconEye}
