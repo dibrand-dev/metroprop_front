@@ -376,7 +376,7 @@ export default function PublishCheckoutPayment({
                 </div>
 
                 <Checkbox
-                  label="Acepto Términos y condiciones de uso"
+                  label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/terms">Términos y condiciones de uso</a></>}
                   checked={acceptTerms}
                   onChange={(checked) => setAcceptTerms(checked)}
                   error={errors.acceptTerms}

@@ -258,7 +258,7 @@ export default function UserSignup() {
       {/* Terms Checkboxes */}
       <div className="merged-signup-terms-section">
         <Checkbox
-          label="Acepto Términos y condiciones de uso"
+          label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/terms">Términos y condiciones de uso</a></>}
           checked={agreeTerms}
           onChange={(checked) => setAgreeTerms(checked)}
           id="agreeTerms"
@@ -268,7 +268,7 @@ export default function UserSignup() {
         />
 
         <Checkbox
-          label="Acepto Política de privacidad"
+          label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/policy">Política de privacidad</a></>}
           checked={agreePrivacy}
           onChange={(checked) => setAgreePrivacy(checked)}
           id="agreePrivacy"

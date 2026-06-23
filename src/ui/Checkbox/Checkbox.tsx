@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import './Checkbox.scss';
 
 const checkIcon = "https://www.figma.com/api/mcp/asset/e40a38dd-43d8-40d0-b9c9-610150a3f23f";
 
 interface CheckboxProps {
-  label: string;
+  label: ReactNode;
   checked?: boolean;
   onChange?: (checked: boolean) => void;
   linkText?: string;
@@ -50,7 +50,7 @@ export default function Checkbox({
         className={`checkbox-wrapper ${isChecked ? 'checked' : ''}`}
         onClick={handleChange}
         disabled={disabled}
-        aria-label={`${label} checkbox`}
+        aria-label={typeof label === 'string' ? `${label} checkbox` : 'checkbox'}
         aria-checked={isChecked}
         role="checkbox"
       >

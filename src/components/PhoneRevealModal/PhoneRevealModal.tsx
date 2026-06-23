@@ -237,13 +237,13 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
 
               <div className="phone-reveal-terms">
                 <Checkbox
-                  label="Acepto los Terminos y condiciones de Uso"
+                  label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/terms">Términos y condiciones de uso</a></>}
                   checked={termsAccepted}
                   onChange={(checked) => setTermsAccepted(checked)}
                   error={fieldErrors.terms ? ' ' : undefined}
                 />
                 <Checkbox
-                  label="Acepto la Politica de Privacidad"
+                  label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/policy">Política de privacidad</a></>}
                   checked={privacyAccepted}
                   onChange={(checked) => setPrivacyAccepted(checked)}
                   error={fieldErrors.privacy ? ' ' : undefined}

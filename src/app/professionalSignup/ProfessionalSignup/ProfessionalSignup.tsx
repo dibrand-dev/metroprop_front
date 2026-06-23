@@ -390,7 +390,7 @@ export default function ProfessionalSignup() {
               {/* Terms and Conditions */}
               <div className="form-section merged-signup-terms-section">
                 <Checkbox
-                  label="Acepto Términos y condiciones de uso"
+                  label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/terms">Términos y condiciones de uso</a></>}
                   checked={termsAccepted}
                   onChange={(checked) => setTermsAccepted(checked)}
                   id="termsAccepted"
@@ -399,7 +399,7 @@ export default function ProfessionalSignup() {
                 />
 
                 <Checkbox
-                  label="Acepto Política de privacidad"
+                  label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/policy">Política de privacidad</a></>}
                   checked={privacyAccepted}
                   onChange={(checked) => setPrivacyAccepted(checked)}
                   id="privacyAccepted"

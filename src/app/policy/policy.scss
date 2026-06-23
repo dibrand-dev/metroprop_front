@@ -1,0 +1,46 @@
+.policy-container {
+    padding: 24px;
+
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: 0.75%;
+    text-decoration-style: solid;
+    text-decoration-thickness: 0%;
+    text-decoration-skip-ink: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    a {
+        text-decoration: underline;
+    }
+    h1 {    
+        font-weight: 700;
+        font-size: 26px;
+        line-height: 34px;
+        letter-spacing: 0%;
+        margin-bottom: 24px;
+    }
+
+    h2 {
+        font-weight: 600;
+        font-size: 22px;
+        letter-spacing: 0%;
+    }
+
+    ul, ol {
+        padding-left: 32px;
+        li {
+            margin-bottom: 8px;
+            list-style-type: disc;
+        }
+    }
+
+    ol {
+        li {
+            list-style-type: auto;
+        }
+    }
+}
+

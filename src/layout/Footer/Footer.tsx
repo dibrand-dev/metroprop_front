@@ -104,8 +104,8 @@ export default function Footer() {
           <div className="footer-terms">
             <h3 className="footer-terms-title">Términos y condiciones</h3>
             <ul className="footer-terms-list">
-              <li><Link prefetch={false}  href="#">Normas de confidencialidad y privacidad</Link></li>
-              <li><Link prefetch={false}  href="#">Normativa alquiler temporario turístico</Link></li>
+              <li><Link prefetch={false} href="/terms" rel="noopener noreferrer" target="_blank">Términos y  Condiciones</Link></li>
+              <li><Link prefetch={false} href="/policy" rel="noopener noreferrer" target="_blank">Políticas de privacidad</Link></li>
             </ul>
           </div>
 

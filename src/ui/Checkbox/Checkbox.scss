@@ -133,6 +133,9 @@ $transition-time: 0.2s;
   align-items: center;
   justify-content: center;
   text-align: left;
+  &:hover a {
+    color: #006aff;
+  }
 }
 
 // Checkbox Link (optional)

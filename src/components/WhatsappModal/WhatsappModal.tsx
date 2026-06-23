@@ -221,13 +221,13 @@ export default function WhatsappModal({ isOpen, onClose, phoneNumber, propertyId
           </div>
           <div className="whatsapp-modal-terms">
             <Checkbox
-              label="Acepto terminos y condiciones"
+              label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/terms">Términos y condiciones de uso</a></>}
               checked={formState.termsAccepted}
               onChange={(checked) => handleChange('termsAccepted', checked)}
               error={fieldErrors.terms ? ' ' : undefined}
             />
             <Checkbox
-              label="Acepto politica de privacidad"
+              label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/policy">Política de privacidad</a></>}
               checked={formState.privacyAccepted}
               onChange={(checked) => handleChange('privacyAccepted', checked)}
               error={fieldErrors.privacy ? ' ' : undefined}

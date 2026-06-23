@@ -259,13 +259,13 @@ console.log({ phoneNumber, phone_whatsapp });
 
       <div className="property-detail-contact-terms">
         <Checkbox
-          label="Acepto términos y condiciones"
+          label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/terms">Términos y condiciones de uso</a></>}
           checked={termsAccepted}
           onChange={setTermsAccepted}
           error={fieldErrors.terms ? ' ' : undefined}
         />
         <Checkbox
-          label="Acepto política de privacidad"
+          label={<>Acepto&nbsp;<a rel="noopener noreferrer" target="_blank" href="/policy">Política de privacidad</a></>}
           checked={privacyAccepted}
           onChange={setPrivacyAccepted}
           error={fieldErrors.privacy ? ' ' : undefined}
