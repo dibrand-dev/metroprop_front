@@ -397,7 +397,7 @@ export default function PublishLocation({
     onBack();
   };
 
-  const handleContinue = () => {
+  const handleContinue = (continueFlag = true) => {
     const locationUpdate = { 
       postal_code,
       street,
@@ -410,8 +410,14 @@ export default function PublishLocation({
       geo_lat,
       geo_long
     }
-    onNext(locationUpdate);
+
+    if (!continueFlag) {
+      onSaveAndExit(locationUpdate);
+    } else {
+      onNext(locationUpdate);
+    }
   };
+
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
     <div className="publish-location">
@@ -419,7 +425,7 @@ export default function PublishLocation({
         <div className="publish-location-card">
           <div className="publish-location-top">
             <p className="publish-location-label">{wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' +PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}</p>
-            <button className="publish-location-link" type="button" onClick={onSaveAndExit}>
+            <button className="publish-location-link" type="button" onClick={() => handleContinue(false)}>
               Guardar y salir
             </button>
           </div>
@@ -567,7 +573,7 @@ export default function PublishLocation({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <Button label="Continuar" type="button" onClick={handleContinue} disabled={!hasSelectedAutocompleteLocation} />
+            <Button label="Continuar" type="button" onClick={() => handleContinue(true)} disabled={!hasSelectedAutocompleteLocation} />
           </div>
         </div>
       </div>

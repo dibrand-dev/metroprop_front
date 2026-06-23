@@ -36,7 +36,7 @@ const items: SubmenuItem[] = [
   { id: 'cambiar_contraseña', label: 'Cambiar contraseña', href: "/protected/admin/changePassword", roles: [1, 2, 3, 4] },
   { id: 'cambiar_email', label: 'Cambiar email', href: "/protected/admin/changeEmail", roles: [1, 2, 3, 4] },
   { id: 'notificaciones', label: 'Notificaciones', href: "/protected/admin/notifications", roles: [1, 2, 3] },
-  { id: 'eliminar_cuenta', label: 'Dar de baja avisos', href: "/protected/admin/deleteAccount", roles: [1, 2, 3] }
+  { id: 'eliminar_cuenta', label: 'Eliminar cuenta', href: "/protected/admin/deleteAccount", roles: [1, 2, 3] }
 ];
 
 function getUserRoleId(user: any): number | null {

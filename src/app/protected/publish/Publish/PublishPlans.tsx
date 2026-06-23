@@ -135,14 +135,24 @@ export default function PublishPlans({
     onBack();
   };
 
-  const handleContinue = () => {
-    onNext({
-      user_id,
-      hired_plan_id,
-      visibility,
-      purchased_plan_id,
-      branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
-    });
+  const handleContinue = (continueFlag = true) => {
+    if (!continueFlag) {
+      onSaveAndExit({
+        user_id,
+        hired_plan_id,
+        visibility,
+        purchased_plan_id,
+        branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
+      });
+    } else {
+      onNext({
+        user_id,
+        hired_plan_id,
+        visibility,
+        purchased_plan_id,
+        branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
+      });
+    }
   };
 
   const handleComprar = (plan: any) => {
@@ -157,7 +167,7 @@ export default function PublishPlans({
             <div className="publish-plans-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' +PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-plans-link" type="button" onClick={onSaveAndExit}>
+            <button className="publish-plans-link" type="button" onClick={() => handleContinue(false)}>
               Guardar y salir
             </button>
           </div>
@@ -287,7 +297,7 @@ export default function PublishPlans({
             <Button
               className="publish-plans-save"
               variant="primary"
-              onClick={handleContinue}
+              onClick={() => handleContinue(true)}
               label="Continuar" // isRole3
               disabled={hired_plan_id === undefined || (orgId && !isRole3 && (branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)))} />
           </div>

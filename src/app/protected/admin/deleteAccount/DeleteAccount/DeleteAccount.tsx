@@ -84,11 +84,11 @@ export default function DeleteAccount() {
           <button className="professional-profile-back-button" onClick={() => setShowMenu(true)}>
             <img src={iconArrowBack} alt="Back"  />
           </button>
-          <span className='professional-profile-title'>Dar de baja avisos</span>
+          <span className='professional-profile-title'>Eliminar cuenta</span>
         </div>
         <div className="profile-header">
           <div>
-            <h1>Dar de baja avisos</h1>
+            <h1>Eliminar cuenta</h1>
           </div>
           <Button label={updateUserMutation.isPending ? 'Eliminando...' : 'Eliminar cuenta'} className="professional-profile-save-button-header" onClick={handleSave} disabled={updateUserMutation.isPending || hasErrors || isFormEmpty} />
         </div>
@@ -98,7 +98,7 @@ export default function DeleteAccount() {
           <section className='section-warning'>
             <h2>Esta acción eliminará tus datos de forma permanente</h2>
             <ul>
-              <li>Para dar de baja tus avisos, deshabilitá la publicación con Metroprop desde tu CRM</li>
+              {sessionData?.user?.organization && <li>Para dar de baja tus avisos, deshabilitá la publicación con Metroprop desde tu CRM</li>}
               <li>Se perderán publicaciones activas</li>
               <li>Se eliminarán datos guardados (favoritos, borradores, historial)</li>
             </ul>

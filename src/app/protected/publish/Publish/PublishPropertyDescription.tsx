@@ -52,11 +52,18 @@ export default function PublishPropertyDescription({
     onBack();
   };
 
-  const handleContinue = () => {
-    onNext({
-      publication_title: title,
-      description: description,
-    });
+  const handleContinue = (continueFlag = true) => {
+    if (!continueFlag) {
+      onSaveAndExit({
+        publication_title: title,
+        description: description,
+      });
+    } else {
+      onNext({
+        publication_title: title,
+        description: description,
+      });
+    }
   };
 
   return (
@@ -67,7 +74,7 @@ export default function PublishPropertyDescription({
             <div className="publish-property-description-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-property-description-link" type="button" onClick={onSaveAndExit}>
+            <button className="publish-property-description-link" type="button" onClick={() => handleContinue(false)}>
               Guardar y salir
             </button>
           </div>
@@ -148,7 +155,7 @@ export default function PublishPropertyDescription({
             </button>
             <Button
               className="publish-price-continue"
-              onClick={handleContinue}
+              onClick={() => handleContinue(true)}
               label="Continuar" // isRole3
               disabled={!title.trim()}
             />

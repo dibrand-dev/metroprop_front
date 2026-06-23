@@ -34,6 +34,7 @@ import Image from 'next/image';
 
 
 const toCreatePropertyPatch = (data: Partial<CreatePropertyDraft>): Partial<CreateProperty> => {
+  console.log('toCreatePropertyPatch - input data:', data);
   const patch: Partial<CreateProperty> = {};
 
   for (const key of CREATE_PROPERTY_PATCH_KEYS) {
@@ -259,7 +260,6 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
       goToNextStep();
       return;
     }
-
     // Edit mode: property already exists, just PATCH and advance
     if (wizardData.draft_id) {
       try {
@@ -324,12 +324,13 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   });
 
   const saveCurrentStep = async (wizardDataUpdate: Partial<CreatePropertyDraft>, nextStep: boolean) => {
+    console.log("wizardDataUpdate", wizardDataUpdate);
     const _wizardDataUpdate = toCreatePropertyPatch(wizardDataUpdate);
     if (!wizardData.draft_id) {
       const draftData = await createDraftMutation.mutateAsync(wizardData);
       updateWizardData({ draft_id: draftData.id });
     }
-    
+    console.log("_wizardDataUpdate", _wizardDataUpdate);
     try {
       await updatePropertyMutation.mutateAsync(_wizardDataUpdate);
     } catch (error: any) {
@@ -358,6 +359,13 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     }
     if (nextStep) {
       goToNextStep();
+    } else {
+      // If not going to next step, show success modal for 2 seconds before hiding it (used for "Save and Exit" flow)
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        window.location.href = '/protected/myProperties';
+      }, 2000);
     }
   }
 

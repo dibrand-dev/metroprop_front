@@ -82,7 +82,7 @@ export default function PublishMainInfo({
     onBack();
   };
 
-  const handleContinue = () => {
+  const handleContinue = (continueFlag = true) => {
     const mainInfoUpdate = { 
       surface_measurement,
       roofed_surface_measurement,
@@ -95,7 +95,11 @@ export default function PublishMainInfo({
       toilet_amount: rooms.toilet_amount,
       parking_lot_amount: rooms.parking_lot_amount,
     }
-    onNext(mainInfoUpdate);
+    if (!continueFlag) {
+      onSaveAndExit(mainInfoUpdate);
+    } else {
+      onNext(mainInfoUpdate);
+    }
   };
 
   return (
@@ -106,7 +110,7 @@ export default function PublishMainInfo({
             <div className="publish-main-info-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-main-info-link" type="button" onClick={onSaveAndExit}>
+            <button className="publish-main-info-link" type="button" onClick={() => handleContinue(false)}>
               Guardar y salir
             </button>
           </div>
@@ -251,7 +255,7 @@ export default function PublishMainInfo({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <Button label="Continuar" type="button" onClick={handleContinue} className="publish-main-info-continue" />
+            <Button label="Continuar" type="button" onClick={() => handleContinue(true)} className="publish-main-info-continue" />
           </div>
         </div>
       </div>

@@ -104,7 +104,7 @@ export default function PublishPropertyContent({
     onBack();
   };
 
-  const handleContinue = () => {
+  const handleContinue = (continueFlag = true) => {
     const propertyContentUpdate = { 
       tags: selectedAmenities,
       brightness,
@@ -118,7 +118,11 @@ export default function PublishPropertyContent({
       appartments_per_floor,
       period: wizardData.operation_type === 3 ? period : undefined,
     }
-    onNext(propertyContentUpdate);
+    if (!continueFlag) {
+      onSaveAndExit(propertyContentUpdate);
+    } else {
+      onNext(propertyContentUpdate);
+    }
   };
 
   console.log("wizardData", wizardData)
@@ -131,7 +135,7 @@ export default function PublishPropertyContent({
             <div className="publish-property-content-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-property-content-link" type="button" onClick={onSaveAndExit}>
+            <button className="publish-property-content-link" type="button" onClick={() => handleContinue(false)}>
               Guardar y salir
             </button>
           </div>
@@ -306,7 +310,7 @@ export default function PublishPropertyContent({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <Button label="Continuar" variant="primary" onClick={handleContinue} disabled={period === '' && wizardData.operation_type === 3}/>
+            <Button label="Continuar" variant="primary" onClick={() => handleContinue(true)} disabled={period === '' && wizardData.operation_type === 3}/>
           </div>
         </div>
       </div>

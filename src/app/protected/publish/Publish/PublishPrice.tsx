@@ -53,13 +53,22 @@ export default function PublishPrice({
     onBack();
   };
 
-  const handleContinue = () => {
-    onNext({
-      currency,
-      price,
-      currency_expenses,
-      expenses: withoutExpenses ? 0 : expenses
-    });
+  const handleContinue = (continueFlag = true) => {
+    if (!continueFlag) {
+      onSaveAndExit({
+        currency,
+        price,
+        currency_expenses,
+        expenses: withoutExpenses ? 0 : expenses
+      });
+    } else {
+      onNext({
+        currency,
+        price,
+        currency_expenses,
+        expenses: withoutExpenses ? 0 : expenses
+      });
+    }
   };
 
   return (
@@ -70,7 +79,7 @@ export default function PublishPrice({
             <div className="publish-price-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-price-link" type="button" onClick={onSaveAndExit}>
+            <button className="publish-price-link" type="button" onClick={() => handleContinue(false)}>
               Guardar y salir
             </button>
           </div>
@@ -138,7 +147,7 @@ export default function PublishPrice({
             </button>
             <Button
               className="publish-price-continue"
-              onClick={handleContinue}
+              onClick={() => handleContinue(true)}
               label="Continuar" // isRole3
               disabled={!price || price <= 0}
             />
