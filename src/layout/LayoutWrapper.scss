@@ -31,7 +31,7 @@
 }
 
 .bodyContainer[class*="protected-admin-"] {
-    .header-nav-wrapper:not(.user-comun) { /* not user-comun class */
+    .header-nav-wrapper {
         display: none !important;
     }
 
@@ -52,6 +52,23 @@
         padding: 0;
         &.activeMenuMobile {
             background-color: white;
+        }
+    }
+}
+
+.header-container:not(.user-comun) {
+    .header-nav-wrapper {
+        display: none !important;
+    }
+    .topnavbar-menu-items {
+        display: flex !important;
+    }
+}
+
+.bodyContainer[class*="protected-admin-"] {
+    .header-container.user-comun {
+        .header-nav-wrapper {
+            display: flex !important;
         }
     }
 }

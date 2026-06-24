@@ -145,7 +145,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
   };
 
   return (
-    <header className="header-container">
+    <header className={`header-container ${!sessionData ? 'user-comun' : ''} ${sessionData?.user?.organization === null ? 'user-comun' : ''}`}>
       {(openDropdown !== null || mobileMenuOpen) && (
         <button
           type="button"
@@ -164,7 +164,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           </button>
         </div>}
         {/* Left Section - Navigation Dropdowns / Hamburger Menu */}
-        <div className={`header-nav-wrapper ${sessionData?.user?.organization === null ? 'user-comun' : ''} ${showFilter ? 'with-search' : ''}`}>
+        <div className={`header-nav-wrapper ${showFilter ? 'with-search' : ''}`}>
           {/* Hamburger Button for Mobile */}
           <button 
             className={`header-hamburger-button ${mobileMenuOpen ? 'active' : ''}`}
