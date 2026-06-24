@@ -146,9 +146,9 @@ export default function PublishContent({
   };
 
   const handleContinue = async (nextStep: boolean) => {
-    if (uploadedImages.length > 0 || uploadedPlans.length > 0) {
-      await handleFormSubmit(nextStep);
-    }
+    //if (uploadedImages.length > 0 || uploadedPlans.length > 0) {
+    await handleFormSubmit(nextStep);
+    //}
   };
 
   const removePlan = (index: number, type: 'api' | 'local') => {
