@@ -26,7 +26,7 @@ interface OrganizationProfileProps {
 const formatNumeric = (value: string): string => value.replace(/\D/g, '');
 
 export default function OrganizationProfile({ organizationId: propOrganizationId }: OrganizationProfileProps = {}) {
-  const { data: sessionData } = useSession();
+  const { data: sessionData, update: updateSession } = useSession();
   const [activeSection, setActiveSection] = useState<'generales' | 'ubicacion' | 'descripcion'>('generales');
   const { showMenu, setShowMenu } = useAdminMenu();
   const [isEditing, setIsEditing] = useState(false);
@@ -148,11 +148,23 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
       });
       return res;
     },
-    onSuccess: () => {
+    onSuccess: async (response) => {
       setSuccessMessage('Organización editada correctamente');
       setErrorMessage('');
       setIsEditing(false);
       setTimeout(() => setSuccessMessage(''), 3000);
+      
+      // Fetch updated organization data and update session
+      try {
+        const updatedOrgData = await apiFetch(`${API_BASE_URL}/organizations/${organizationId}`);
+        if (updatedOrgData) {
+          await updateSession({ 
+            organization: updatedOrgData 
+          });
+        }
+      } catch (error) {
+        console.error('Error updating session with organization data:', error);
+      }
     },
     onError: () => {
       setErrorMessage('Error al guardar los cambios. Por favor intenta de nuevo.');

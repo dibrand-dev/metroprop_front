@@ -23,6 +23,17 @@ $font-family-body: var(--font-inter), sans-serif;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+
+  // Content Container
+  .modal-content-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    align-items: center;
+    width: 100%;
+    padding: 16px 16px 0 16px;
+  }
+
 }
 
 // Main Modal Container
@@ -125,16 +136,6 @@ $font-family-body: var(--font-inter), sans-serif;
     height: 24px;
     display: block;
   }
-}
-
-// Content Container
-.modal-content-container {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  align-items: center;
-  width: 100%;
-  padding: 16px 16px 0 16px;
 }
 
 // Alert Notification

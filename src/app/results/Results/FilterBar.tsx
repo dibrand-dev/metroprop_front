@@ -560,12 +560,15 @@ function PrecioSection({ tempPrecio, setTempPrecio, histPrecio, histPrecioM2, ma
         />
       </div>
       <div className="superficie-row">
-        <Select
-          options={UNIDAD_OPTIONS}
-          value={tempPrecio.superficie.unidad}
-          onChange={(v) => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, unidad: v } }))}
-          placeholder="m²"
-        />
+        <div className="superficie-unidad-select">
+          <Select
+            options={UNIDAD_OPTIONS}
+            value={tempPrecio.superficie.unidad}
+            onChange={(v) => setTempPrecio((prev) => ({ ...prev, superficie: { ...prev.superficie, unidad: v } }))}
+            placeholder="m²"
+            
+          />
+        </div>
         <Select
           options={SUPERFICIE_OPTIONS}
           value={tempPrecio.superficie.desde}

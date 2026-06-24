@@ -203,6 +203,7 @@ export default function PublishLocation({
   const [location_id, setLocation_id] = useState<number | undefined>(wizardData.location_id || undefined);
   const [sub_location_id, setSub_location_id] = useState<number | undefined>(wizardData.sub_location_id || undefined);
   const [neighborhood_id, setNeighborhood_id] = useState<number | undefined>(wizardData.neighborhood_id || undefined);
+  const [sub_neighborhood_id, setSub_neighborhood_id] = useState<number | undefined>(wizardData.sub_neighborhood_id || undefined);
   const [postal_code, setPostal_code] = useState(wizardData.postal_code || '');
   const [show_exact_location, setShow_exact_location] = useState(
     wizardData.show_exact_location !== undefined ? wizardData.show_exact_location : true
@@ -257,6 +258,12 @@ export default function PublishLocation({
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: sub_location_id } }),
     enabled: !!sub_location_id,
   });
+
+  const { data: sub_neighborhoods = [], isLoading: loadingSubNeighborhoods } = useQuery({
+    queryKey: ['sub_neighborhoods', neighborhood_id],
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: neighborhood_id } }),
+    enabled: !!neighborhood_id,
+  });
   
   const hasAddress = useMemo(() => street.trim().length > 0, [street]);
   const showMapPreview = hasAddress;
@@ -287,6 +294,11 @@ export default function PublishLocation({
     label: neighborhood.name,
   }));
 
+  const subNeighborhoodOptions = sub_neighborhoods.map((subNeighborhood: any) => ({
+    value: subNeighborhood.id.toString(),
+    label: subNeighborhood.name,
+  }));
+
   // Build full address string for geocoding (country + state + location + zone + street)
   const fullMapAddress = useMemo(() => {
     type Opt = { value: string; label: string };
@@ -295,8 +307,9 @@ export default function PublishLocation({
     const locationName = locationOptions.find((o: Opt) => o.value === location_id?.toString())?.label ?? '';
     const zoneName = zoneOptions.find((o: Opt) => o.value === sub_location_id?.toString())?.label ?? '';
     const subZoneName = neighborhoodOptions.find((o: Opt) => o.value === neighborhood_id?.toString())?.label ?? '';
-    return [street, subZoneName, zoneName, locationName, stateName, countryName].filter(Boolean).join(', ');
-  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id /*, countryOptions*/, provinceOptions, locationOptions, zoneOptions, neighborhoodOptions]);
+    const subNeighborhoodName = subNeighborhoodOptions.find((o: Opt) => o.value === sub_neighborhood_id?.toString())?.label ?? '';
+    return [street, subNeighborhoodName, subZoneName, zoneName, locationName, stateName, countryName].filter(Boolean).join(', ');
+  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id /*, countryOptions*/, provinceOptions, locationOptions, zoneOptions, neighborhoodOptions, subNeighborhoodOptions]);
 
   const handlePlaceSelect = useCallback((data: PlaceData) => {
     setStreet(data.street);
@@ -332,6 +345,7 @@ export default function PublishLocation({
     setLocation_id(undefined); // Reset location
     setSub_location_id(undefined); // Reset sub-location
     setNeighborhood_id(undefined); // Reset neighborhood
+    setSub_neighborhood_id(undefined); // Reset sub-neighborhood
   };
 
   const handleLocationChange = (value: string | null) => {
@@ -339,17 +353,25 @@ export default function PublishLocation({
     setLocation_id(selectedLocationId);
     setSub_location_id(undefined); // Reset sub-location
     setNeighborhood_id(undefined); // Reset neighborhood
+    setSub_neighborhood_id(undefined); // Reset sub-neighborhood
   };
 
   const handleSubLocationChange = (value: string | null) => {
     const selectedSubLocationId = value ? parseInt(value) : undefined;
     setSub_location_id(selectedSubLocationId);
     setNeighborhood_id(undefined); // Reset neighborhood
+    setSub_neighborhood_id(undefined); // Reset sub-neighborhood
   };
 
   const handleNeighborhoodChange = (value: string | null) => {
     const selectedNeighborhoodId = value ? parseInt(value) : undefined;
     setNeighborhood_id(selectedNeighborhoodId);
+    setSub_neighborhood_id(undefined); // Reset sub-neighborhood
+  };
+
+  const handleSubNeighborhoodChange = (value: string | null) => {
+    const selectedSubNeighborhoodId = value ? parseInt(value) : undefined;
+    setSub_neighborhood_id(selectedSubNeighborhoodId);
   };
 
   // When provinces load, apply the pending state name from autocomplete selection
@@ -362,6 +384,7 @@ export default function PublishLocation({
       setLocation_id(undefined);
       setSub_location_id(undefined);
       setNeighborhood_id(undefined);
+      setSub_neighborhood_id(undefined);
     }
   }, [provinceOptions, pendingStateName]);
 
@@ -374,6 +397,7 @@ export default function PublishLocation({
       setPendingCityName('');
       setSub_location_id(undefined);
       setNeighborhood_id(undefined);
+      setSub_neighborhood_id(undefined);
     }
   }, [locationOptions, pendingCityName]);
 
@@ -386,12 +410,13 @@ export default function PublishLocation({
       location_id,
       sub_location_id,
       neighborhood_id,
+      sub_neighborhood_id,
       postal_code,
       show_exact_location,
       geo_lat,
       geo_long,
     });
-  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, postal_code, show_exact_location, geo_lat, geo_long]);
+  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id, postal_code, show_exact_location, geo_lat, geo_long]);
 
   const handleBack = () => {
     onBack();
@@ -406,6 +431,7 @@ export default function PublishLocation({
       location_id,
       sub_location_id,
       neighborhood_id,
+      sub_neighborhood_id,
       show_exact_location,
       geo_lat,
       geo_long
@@ -511,6 +537,18 @@ export default function PublishLocation({
                     onChange={handleNeighborhoodChange}
                     placeholder={loadingNeighborhoods ? "Cargando zonas..." : neighborhoodOptions.length > 0 ? "Seleccionar zona" : "No hay zonas disponibles"}
                     disabled={!hasSelectedAutocompleteLocation || !sub_location_id || loadingNeighborhoods || neighborhoodOptions.length === 0}
+                  />
+                </div>
+              </div>
+              <div className="publish-location-row">
+                <div className="publish-location-field">
+                  <Select
+                    label="Sub-zona"
+                    options={subNeighborhoodOptions}
+                    value={sub_neighborhood_id ? sub_neighborhood_id.toString() : undefined}
+                    onChange={handleSubNeighborhoodChange}
+                    placeholder={loadingSubNeighborhoods ? "Cargando sub-zonas..." : subNeighborhoodOptions.length > 0 ? "Seleccionar sub-zona" : "No hay sub-zonas disponibles"}
+                    disabled={!hasSelectedAutocompleteLocation || !neighborhood_id || loadingSubNeighborhoods || subNeighborhoodOptions.length === 0}
                   />
                 </div>
               </div>

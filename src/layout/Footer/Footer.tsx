@@ -22,15 +22,18 @@ export default function Footer() {
             </p>
 
             <div className="footer-social">
-              <Link prefetch={false}  href="https://www.facebook.com/metroprop" className="footer-social-icon" aria-label="Facebook">
-                <img src="/icons/fb.svg" alt="Facebook" />
+              <Link prefetch={false}  href="https://www.tiktok.com/@metroprop" className="footer-social-icon" aria-label="TikTok">
+                <img src="/icons/youtube.svg" alt="TikTok" />
               </Link>
               <Link prefetch={false}  href="https://www.instagram.com/metroprop.co/" className="footer-social-icon" aria-label="Instagram">
                 <img src="/icons/instagram.svg" alt="Instagram" />
               </Link>
-              <Link prefetch={false}  href="#" className="footer-social-icon" aria-label="YouTube">
-                <img src="/icons/youtube.svg" alt="YouTube" />
+              <Link prefetch={false}  href="https://x.com/metropropco" className="footer-social-icon" aria-label="X">
+                <img src="/icons/youtube.svg" alt="X" />
               </Link>
+              <Link prefetch={false}  href="https://www.facebook.com/metroprop" className="footer-social-icon" aria-label="Facebook">
+                <img src="/icons/fb.svg" alt="Facebook" />
+              </Link>              
             </div>
 
             <div className="footer-contact">

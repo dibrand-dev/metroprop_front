@@ -293,6 +293,13 @@ const MyProperties = () => {
   }, [isRole1, loggedUserId, rawUsers]);
 
   useEffect(() => {
+    // Auto-select branch if there's only one (besides "Todas")
+    if (hasOrganization && hasBranches && fetchedBranches.length === 1 && isRole1) {
+      setSelectedBranchId(String(fetchedBranches[0].id));
+    }
+  }, [hasOrganization, hasBranches, fetchedBranches, isRole1]);
+
+  useEffect(() => {
     if (onLoadUserAvailability !== undefined) {
       console.log('[MyProperties] onload user availability (userId:', loggedUserId, '):', onLoadUserAvailability);
     }
@@ -582,8 +589,8 @@ const MyProperties = () => {
                 <button
                   type="button"
                   className="myprop-toolbar-btn"
-                  title={(selectedCount === 0 || !isBranchSelected) ? "Seleccionar sucursal" : "Asignar responsable"}
-                  disabled={selectedCount === 0 || !isBranchSelected}
+                  title={(selectedCount === 0 || !isBranchSelected) ? "Seleccionar sucursal" : (rawUsers.length === 1 && fetchedBranches.length === 1) ? "No hay otros colaboradores disponibles" : "Asignar responsable"}
+                  disabled={selectedCount === 0 || !isBranchSelected || (rawUsers.length === 1 && fetchedBranches.length === 1)}
                   onClick={() => { setAssignSelectedUserId(null); setPendingAction({ ids: getSelectedPropertyIds(), label: 'Reasignar Colaborador', action: 'assign' }); }}
                 >
                   <img src="/icons/AsignarUser.svg" alt="Asignar" />
@@ -616,7 +623,7 @@ const MyProperties = () => {
                       setRepublishError(null);
                     }}
                     options={republishBranchOptions}
-                    disabled={isRole2 || isRole3}
+                    disabled={isRole2 || isRole3 || fetchedBranches.length === 1}
                   />
                 ) : (
                   <p className="myprop-republish-info">No hay sucursales en la organización. Se mostrarán planes del usuario logueado.</p>

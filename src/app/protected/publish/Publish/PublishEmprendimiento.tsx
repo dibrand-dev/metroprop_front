@@ -174,6 +174,7 @@ export default function PublishEmprendimiento({
   const [location_id, setLocation_id] = useState<number | undefined>(wizardData.location_id || undefined);
   const [sub_location_id, setSub_location_id] = useState<number | undefined>(wizardData.sub_location_id || undefined);
   const [neighborhood_id, setNeighborhood_id] = useState<number | undefined>(wizardData.neighborhood_id || undefined);
+  const [sub_neighborhood_id, setSub_neighborhood_id] = useState<number | undefined>(wizardData.sub_neighborhood_id || undefined);
   const [geo_lat, setGeo_lat] = useState<number | undefined>(wizardData.geo_lat || undefined);
   const [geo_long, setGeo_long] = useState<number | undefined>(wizardData.geo_long || undefined);
   const [show_exact_location, setShow_exact_location] = useState(wizardData.show_exact_location || false);
@@ -225,6 +226,7 @@ export default function PublishEmprendimiento({
       location_id,
       sub_location_id,
       neighborhood_id,
+      sub_neighborhood_id,
       postal_code,
       show_exact_location,
       geo_lat,
@@ -237,7 +239,7 @@ export default function PublishEmprendimiento({
       property_type: PropertyType.EMPRENDIMIENTO,
       is_development: true
     });
-  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, postal_code, show_exact_location, geo_lat, geo_long, nombreEmprendimiento, descripcion, tipoEmprendimiento, totalUnidades, entrega]);
+  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id, postal_code, show_exact_location, geo_lat, geo_long, nombreEmprendimiento, descripcion, tipoEmprendimiento, totalUnidades, entrega]);
 
 /*  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) setLogoFile(e.target.files[0]);
@@ -267,17 +269,24 @@ export default function PublishEmprendimiento({
   });
 
   const { data: neighborhoods = [], isLoading: loadingNeighborhoods } = useQuery({
-      queryKey: ['neighborhoods', sub_location_id],
-      queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: sub_location_id } }),
-      enabled: !!sub_location_id,
-    });
+    queryKey: ['neighborhoods', sub_location_id],
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: sub_location_id } }),
+    enabled: !!sub_location_id,
+  });
+
+  const { data: sub_neighborhoods = [], isLoading: loadingSubNeighborhoods } = useQuery({
+    queryKey: ['sub_neighborhoods', neighborhood_id],
+    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: neighborhood_id } }),
+    enabled: !!neighborhood_id,
+  });
 
   /*const countryOptions = useMemo(() => countries.map((c: any) => ({ value: c.id.toString(), label: c.name })), [countries]);*/
   const provinceOptions = useMemo(() => provinces.map((p: any) => ({ value: p.id.toString(), label: p.name })), [provinces]);
   const locationOptions = useMemo(() => locations.map((l: any) => ({ value: l.id.toString(), label: l.name })), [locations]);
   const zoneOptions = useMemo(() => zones.map((z: any) => ({ value: z.id.toString(), label: z.name })), [zones]);
   const neighborhoodOptions = useMemo(() => neighborhoods.map((n: any) => ({ value: n.id.toString(), label: n.name })), [neighborhoods]);
-
+  const subNeighborhoodOptions = useMemo(() => sub_neighborhoods.map((sn: any) => ({ value: sn.id.toString(), label: sn.name })), [sub_neighborhoods]);
+  
   const fullMapAddress = useMemo(() => {
     type Opt = { value: string; label: string };
     const countryName = "Argentina"; /*countryOptions.find((o: Opt) => o.value === country_id?.toString())?.label ?? ''*/;
@@ -285,8 +294,9 @@ export default function PublishEmprendimiento({
     const locationName = locationOptions.find((o: Opt) => o.value === location_id?.toString())?.label ?? '';
     const zoneName = zoneOptions.find((o: Opt) => o.value === sub_location_id?.toString())?.label ?? '';
     const subZoneName = neighborhoodOptions.find((o: Opt) => o.value === neighborhood_id?.toString())?.label ?? '';
-    return [street, subZoneName, zoneName, locationName, stateName, countryName].filter(Boolean).join(', ');
-  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, /*countryOptions,*/ provinceOptions, locationOptions, zoneOptions, neighborhoodOptions]);
+    const subNeighborhoodName = subNeighborhoodOptions.find((o: Opt) => o.value === sub_neighborhood_id?.toString())?.label ?? '';
+    return [street, subNeighborhoodName, subZoneName, zoneName, locationName, stateName, countryName].filter(Boolean).join(', ');
+  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id, /*countryOptions,*/ provinceOptions, locationOptions, zoneOptions, neighborhoodOptions, subNeighborhoodOptions]);
 
   const handlePlaceSelect = useCallback((data: PlaceData) => {
     setStreet(data.street);
@@ -507,7 +517,7 @@ export default function PublishEmprendimiento({
                     options={provinceOptions}
                     value={state_id ? state_id.toString() : undefined}
                     onChange={(v) => { setState_id(v ? parseInt(v) : undefined); setLocation_id(undefined); setSub_location_id(undefined); }}
-                    placeholder={loadingProvinces ? 'Cargando provincias...' : 'Seleccionar provincia'}
+                    placeholder={loadingProvinces ? 'Cargando provincias...' : provinceOptions.length > 0 ? "Seleccionar provincia" : "No hay provincias disponibles"}
                     disabled={!hasSelectedAddress || loadingProvinces}
                     required
                   />
@@ -518,7 +528,7 @@ export default function PublishEmprendimiento({
                     options={locationOptions}
                     value={location_id ? location_id.toString() : undefined}
                     onChange={(v) => { setLocation_id(v ? parseInt(v) : undefined); setSub_location_id(undefined); }}
-                    placeholder={loadingLocations ? 'Cargando ciudades...' : 'Seleccionar ciudad'}
+                    placeholder={loadingLocations ? 'Cargando ciudades...' : locationOptions.length > 0 ? "Seleccionar ciudad" : "No hay ciudades disponibles"}
                     disabled={!hasSelectedAddress || !state_id || loadingLocations || locationOptions.length === 0}
                   />
                 </div>
@@ -533,7 +543,7 @@ export default function PublishEmprendimiento({
                     options={zoneOptions}
                     value={sub_location_id ? sub_location_id.toString() : undefined}
                     onChange={(v) => setSub_location_id(v ? parseInt(v) : undefined)}
-                    placeholder={loadingZones ? 'Cargando barrios...' : 'Seleccionar barrio'}
+                    placeholder={loadingZones ? 'Cargando barrios...' : zoneOptions.length > 0 ? "Seleccionar barrio" : "No hay barrios disponibles"}
                     disabled={!hasSelectedAddress || !location_id || loadingZones || zoneOptions.length === 0}
                   />
                 </div>
@@ -543,10 +553,22 @@ export default function PublishEmprendimiento({
                     options={neighborhoodOptions}
                     value={neighborhood_id ? neighborhood_id.toString() : undefined}
                     onChange={(v) => setNeighborhood_id(v ? parseInt(v) : undefined)}
-                    placeholder={loadingNeighborhoods ? "Cargando zonas..." : "Seleccionar zona"}
+                    placeholder={loadingNeighborhoods ? "Cargando zonas..." : neighborhoodOptions.length > 0 ? "Seleccionar zona" : "No hay zonas disponibles"}
                     disabled={!hasSelectedAddress || !sub_location_id || loadingNeighborhoods || neighborhoodOptions.length === 0}
                   />
                 </div>
+              </div>
+            </div>
+            <div className="publish-location-row">
+              <div className="publish-location-field">
+                <Select
+                  label="Sub-zona"
+                  options={subNeighborhoodOptions}
+                  value={sub_neighborhood_id ? sub_neighborhood_id.toString() : undefined}
+                  onChange={(v) => setSub_neighborhood_id(v ? parseInt(v) : undefined)}
+                  placeholder={loadingSubNeighborhoods ? "Cargando sub-zonas..." : subNeighborhoodOptions.length > 0 ? "Seleccionar sub-zona" : "No hay sub-zonas disponibles"}
+                  disabled={!hasSelectedAddress || !neighborhood_id || loadingSubNeighborhoods || subNeighborhoodOptions.length === 0}
+                />
               </div>
             </div>
 

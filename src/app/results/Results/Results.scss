@@ -528,7 +528,7 @@
     box-shadow: 1px 4px 8px 0px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: auto;
     max-height: calc(100vh - 160px);
   }
 
@@ -1095,6 +1095,13 @@
     .select-container {
       flex: 1;
       min-width: 0;
+    }
+
+    .superficie-unidad-select {
+      width: 94px;
+      .select-trigger {
+        gap: 8px;
+      }
     }
   }
 }

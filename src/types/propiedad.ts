@@ -336,6 +336,7 @@ export interface CreateProperty {
     location_id?: number;
     sub_location_id?: number;
     neighborhood_id?: number;
+    sub_neighborhood_id?: number;
   // Coordenadas geográficas
   geo_lat?: number; // Entre -90 y 90
   geo_long?: number; // Entre -180 y 180
@@ -836,6 +837,7 @@ export const CREATE_PROPERTY_PATCH_KEYS: (keyof CreateProperty)[] = [
   'location_id',
   'sub_location_id',
   'neighborhood_id',
+  'sub_neighborhood_id',
   'geo_lat',
   'geo_long',
   'suite_amount',
