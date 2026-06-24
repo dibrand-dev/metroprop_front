@@ -57,7 +57,7 @@ const dropdownItems: DropdownSection = {
     {
       title: 'Otros',
       items: [
-        { label: 'Emprendimientos', href: '#' },
+        { label: 'Emprendimientos', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=18&page=1&limit=20' },
       ],
     },
   ],
@@ -143,7 +143,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
   const handleItemClick = (dropdownKey: string, itemLabel: string) => {
     setSelectedItem(prev => ({ ...prev, [dropdownKey]: itemLabel }));
   };
-console.log("sessionData?.user", sessionData?.user?.organization === null)
+
   return (
     <header className="header-container">
       {(openDropdown !== null || mobileMenuOpen) && (
