@@ -460,7 +460,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
-    <div className="property-detail-page">
+    <div className={`property-detail-page ${isGalleryOpen ? 'gallery-open' : ''}`}>
       <PropertyDetailSubmenu
         className={isSubmenuVisible ? 'is-visible' : ''}
         style={{ top: submenuOffset }}

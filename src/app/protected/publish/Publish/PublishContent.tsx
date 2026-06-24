@@ -145,11 +145,9 @@ export default function PublishContent({
     onBack();
   };
 
-  const handleContinue = async () => {
+  const handleContinue = async (nextStep: boolean) => {
     if (uploadedImages.length > 0 || uploadedPlans.length > 0) {
-      await handleFormSubmit();
-    } else {
-      onNext();
+      await handleFormSubmit(nextStep);
     }
   };
 
@@ -301,7 +299,7 @@ export default function PublishContent({
     },
   });
 
-  const handleFormSubmit = async () => {
+  const handleFormSubmit = async (nextStep: boolean) => {
     setIsUploading(true);
     try {
       const formData = new FormData();
@@ -339,7 +337,11 @@ export default function PublishContent({
         const urlsFromFiles = result.multimedia360.map((item: any) => item.url);
         setMultimedia360(prev => [urlsFromFiles[0], ...urlsFromFiles.slice(1)]);
       }
-      onNext();
+      if (nextStep) {
+        onNext();
+      } else {
+        onSaveAndExit();
+      }
     } catch (error) {
       console.error('Error uploading files:', error);
       alert('Error al subir los archivos. Por favor, intenta nuevamente.');
@@ -464,7 +466,7 @@ export default function PublishContent({
             <div className="publish-content-route">
              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ? '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-             <button className="publish-location-link" type="button" onClick={() => onSaveAndExit()}>
+             <button className="publish-location-link" type="button" onClick={() => handleContinue(false)}>
               Guardar y salir
             </button>
           </div>
@@ -931,7 +933,7 @@ export default function PublishContent({
             <Button
               label={isUploading ? "Subiendo..." : "Continuar"}
               variant="primary"
-              onClick={handleContinue}
+              onClick={() => handleContinue(true)}
               disabled={isUploading || ((images?.length ?? 0) + uploadedImages.length) === 0}
               className="publish-content-continue"
             />

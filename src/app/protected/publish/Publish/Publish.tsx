@@ -452,7 +452,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             updateWizardData={updateWizardData}
             onNext={() => goToNextStep()}
             onBack={goToPreviousStep}
-            onSaveAndExit={() => window.location.href = '/'}
+            onSaveAndExit={() => window.location.href = '/protected/myProperties'}
           />
         );
 

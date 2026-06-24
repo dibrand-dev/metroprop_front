@@ -146,6 +146,7 @@ export default function GalleryModal({
           onIndexChange={setGalleryActiveIndex}
           thumbsRef={galleryThumbsRef}
           ariaLabel={idx => `Ver foto ${idx + 1}`}
+          onClose={onClose}
           renderMain={(src, idx) => (
             <img src={src} alt={`Foto ${idx + 1}`} className="property-gallery-lightbox-image" />
           )}
@@ -163,6 +164,7 @@ export default function GalleryModal({
           activeIndex={videoActiveIndex}
           onIndexChange={setVideoActiveIndex}
           ariaLabel={idx => `Ver video ${idx + 1}`}
+          onClose={onClose}
           renderMain={(vid, idx) => {
             const videoId = extractYouTubeId(vid.url);
             return videoId ? (
@@ -194,6 +196,7 @@ export default function GalleryModal({
           activeIndex={planActiveIndex}
           onIndexChange={setPlanActiveIndex}
           ariaLabel={idx => `Ver plano ${idx + 1}`}
+          onClose={onClose}
           renderMain={(plan, idx) => {
             const isPdf = plan?.file_url?.toLowerCase().endsWith('.pdf');
             const src = setImagePath(plan?.file_url);
@@ -247,6 +250,7 @@ export default function GalleryModal({
           activeIndex={gallery360ActiveIndex}
           onIndexChange={setGallery360ActiveIndex}
           ariaLabel={idx => `Ver video ${idx + 1}`}
+          onClose={onClose}
           renderMain={(vid, idx) => <iframe
             key={vid.url}
             src={vid.url}

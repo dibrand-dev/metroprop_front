@@ -8,6 +8,7 @@ interface GalleryLightboxSectionProps<T> {
   renderThumb: (item: T, index: number) => ReactNode;
   thumbsRef?: RefObject<HTMLDivElement>;
   ariaLabel?: (index: number) => string;
+  onClose?: () => void;
 }
 
 export default function GalleryLightboxSection<T>({
@@ -18,6 +19,7 @@ export default function GalleryLightboxSection<T>({
   renderThumb,
   thumbsRef,
   ariaLabel,
+  onClose,
 }: GalleryLightboxSectionProps<T>) {
   const internalRef = useRef<HTMLDivElement>(null);
   const resolvedRef = thumbsRef ?? internalRef;
@@ -39,9 +41,16 @@ export default function GalleryLightboxSection<T>({
     touchStartX.current = null;
   }, [activeIndex, items.length, onIndexChange]);
 
+  const handleBackgroundClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    // Only close if clicking directly on the background, not on child elements
+    if (e.target === e.currentTarget && onClose) {
+      onClose();
+    }
+  }, [onClose]);
+
   return (
     <>
-      <div className="property-gallery-lightbox-main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <div className="property-gallery-lightbox-main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onClick={handleBackgroundClick}>
         <button
           type="button"
           className="property-detail-gallery-arrow property-detail-gallery-arrow-left"

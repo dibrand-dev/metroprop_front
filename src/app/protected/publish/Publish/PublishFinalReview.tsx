@@ -177,12 +177,12 @@ export default function PublishFinalReview({
     });
 
     result[4] = [];
-    if (wizardData?.expenses)  result[4].push(`Expensas: ${formatNumbers(wizardData.expenses)} ${formatCurrency(wizardData.currency_expenses ?? '')}`);
-    if (wizardData?.floors_amount)  result[4].push(`Pisos: ${wizardData.floors_amount}`);
-    if (wizardData?.garage_coverage)  result[4].push(`Cobertura cochera: ${wizardData.garage_coverage}`);
+    if (wizardData?.expenses && wizardData.expenses > 0)  result[4].push(`Expensas: ${formatNumbers(wizardData.expenses)} ${formatCurrency(wizardData.currency_expenses ?? '')}`);
+    if (wizardData?.floors_amount && wizardData.floors_amount > 0)  result[4].push(`Pisos: ${wizardData.floors_amount}`);
+    if (wizardData?.garage_coverage && wizardData.garage_coverage > 0)  result[4].push(`Cobertura cochera: ${wizardData.garage_coverage}`);
     if (wizardData?.postal_code)  result[4].push(`Código postal: ${wizardData.postal_code}`);
-    if (wizardData?.semiroofed_surface)  result[4].push(`Superficie semicubierta: ${formatNumbers(wizardData.semiroofed_surface)} ${wizardData.surface_measurement ?? ''}`);
-    if (wizardData?.surface_front)  result[4].push(`Frente: ${formatNumbers(wizardData.surface_front)} ${wizardData.surface_measurement ?? ''}`);
+    if (wizardData?.semiroofed_surface && wizardData.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(wizardData.semiroofed_surface)} ${wizardData.surface_measurement ?? ''}`);
+    if (wizardData?.surface_front && wizardData.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(wizardData.surface_front)} ${wizardData.surface_measurement ?? ''}`);
     if (wizardData?.surface_length)  result[4].push(`Fondo: ${formatNumbers(wizardData.surface_length)} ${wizardData.surface_measurement ?? ''}`);
     if (result[4].length === 0) delete result[4];
     
@@ -258,7 +258,7 @@ export default function PublishFinalReview({
                     <strong>
                       {formatPrice(wizardData?.price?.toString() ?? '', wizardData.currency || '$')}
                     </strong>
-                    {!wizardData.expenses && (
+                    {wizardData.expenses! > 0 && (
                       <span>
                         {formatPrice(wizardData?.expenses?.toString() ?? '', wizardData.currency_expenses || '$')} expensas
                       </span>

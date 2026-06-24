@@ -31,7 +31,7 @@
 }
 
 .bodyContainer[class*="protected-admin-"] {
-    .header-nav-wrapper {
+    .header-nav-wrapper:not(.user-comun) { /* not user-comun class */
         display: none !important;
     }
 

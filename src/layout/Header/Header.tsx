@@ -143,7 +143,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
   const handleItemClick = (dropdownKey: string, itemLabel: string) => {
     setSelectedItem(prev => ({ ...prev, [dropdownKey]: itemLabel }));
   };
-
+console.log("sessionData?.user", sessionData?.user?.organization === null)
   return (
     <header className="header-container">
       {(openDropdown !== null || mobileMenuOpen) && (
@@ -158,16 +158,13 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
         />
       )}
       <div className={`header-content ${showFilter ? 'with-search' : ''}`}>
-        <div className="topnavbar-menu-items">        
-          {!isRole4 && (<><button className="topnavbar-dropdown">
+        {!isRole4 && sessionData?.user?.organization && <div className="topnavbar-menu-items">        
+          <button className="topnavbar-dropdown">
             <Link prefetch={false}  href="/protected/myProperties">Mis publicaciones</Link>
           </button>
-            <button className="topnavbar-dropdown">
-            <Link prefetch={false}  href="/protected/leads">Interesados</Link>
-          </button></>)}
-        </div>
+        </div>}
         {/* Left Section - Navigation Dropdowns / Hamburger Menu */}
-        <div className={`header-nav-wrapper ${showFilter ? 'with-search' : ''}`}>
+        <div className={`header-nav-wrapper ${sessionData?.user?.organization === null ? 'user-comun' : ''} ${showFilter ? 'with-search' : ''}`}>
           {/* Hamburger Button for Mobile */}
           <button 
             className={`header-hamburger-button ${mobileMenuOpen ? 'active' : ''}`}
