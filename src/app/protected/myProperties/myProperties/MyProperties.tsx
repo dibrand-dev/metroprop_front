@@ -585,28 +585,28 @@ const MyProperties = () => {
               />
             </div>
             <div className="flex items-center gap-[32px]">
-              {hasOrganization && (isRole1 || isRole2) && (
+              {hasOrganization && (isRole1 || isRole2) && selectedCount > 0 && isBranchSelected && (rawUsers.length > 1 && fetchedBranches.length > 1) && (
                 <button
                   type="button"
                   className="myprop-toolbar-btn"
                   title={(selectedCount === 0 || !isBranchSelected) ? "Seleccionar sucursal" : (rawUsers.length === 1 && fetchedBranches.length === 1) ? "No hay otros colaboradores disponibles" : "Asignar responsable"}
-                  disabled={selectedCount === 0 || !isBranchSelected || (rawUsers.length === 1 && fetchedBranches.length === 1)}
+                  // disabled={selectedCount === 0 || !isBranchSelected || (rawUsers.length === 1 && fetchedBranches.length === 1)}
                   onClick={() => { setAssignSelectedUserId(null); setPendingAction({ ids: getSelectedPropertyIds(), label: 'Reasignar Colaborador', action: 'assign' }); }}
                 >
                   <img src="/icons/AsignarUser.svg" alt="Asignar" />
                 </button>
               )}
-              {!isRole3 && (
+              {!isRole3 && (selectedCount > 0 && (hasOrganization && isBranchSelected)) && (
               <button type="button" className="myprop-toolbar-btn" title={(selectedCount === 0 || (hasOrganization && !isBranchSelected)) ? "Seleccionar sucursal" : "Republicar"} disabled={selectedCount === 0 || (hasOrganization && !isBranchSelected)} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
                 <img src="/icons/republicar.svg" alt="Republicar" />
               </button>
               )}
-              <button type="button" className="myprop-toolbar-btn" title="Archivar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
+              {selectedCount > 0  && <button type="button" className="myprop-toolbar-btn" title="Archivar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
                 <img src="/icons/archivar.svg" alt="Archivar" />
-              </button>
-              <button type="button" className="myprop-toolbar-btn" title="Dar de baja" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DRAFT, 'Dar de baja')}>
+              </button>}
+              {selectedCount > 0  && <button type="button" className="myprop-toolbar-btn" title="Dar de baja" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DRAFT, 'Dar de baja')}>
                 <img src="/icons/power.svg" alt="Dar de baja" />
-              </button>
+              </button>}
             </div>
           </div>
 
