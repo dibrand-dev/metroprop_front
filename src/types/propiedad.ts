@@ -658,11 +658,11 @@ export function formatPrice(price: number, currency: string = 'ARS'): string {
 }
 
 export const roomsConfig = [
-  { key: 'room_amount', label: 'Ambientes*' },
-  { key: 'suite_amount', label: 'Dormitorios*' },
-  { key: 'bathroom_amount', label: 'Baños*' },
-  { key: 'toilet_amount', label: 'Toilets*' },
-  { key: 'parking_lot_amount', label: 'Cocheras*' },
+  { key: 'room_amount', label: 'Ambientes' },
+  { key: 'suite_amount', label: 'Dormitorios' },
+  { key: 'bathroom_amount', label: 'Baños' },
+  { key: 'toilet_amount', label: 'Toilets' },
+  { key: 'parking_lot_amount', label: 'Cocheras' },
 ] as const;
 
 export const unitSelectOptions = [{label: 'm2', value: "M2"}, {label: 'ha', value:"HA"}];

@@ -17,7 +17,6 @@ import './MyProperties.scss';
 import PropertyCardMyProperties from './PropertyCardMyProperties';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import MyPropertiesFilters from './MyPropertiesFilters';
-import Button from '@/ui/Button/Button';
 
 type ToastState = { type: 'success' | 'error'; message: string } | null;
 

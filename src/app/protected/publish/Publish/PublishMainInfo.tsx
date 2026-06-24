@@ -212,7 +212,7 @@ export default function PublishMainInfo({
 
             {showRooms ? (
               <div className="publish-main-info-block">
-                <h2>Ambientes principales*</h2>
+                <h2>Ambientes principales</h2>
                 <div className="publish-main-info-rooms">
                   {roomsConfig.map((room) => (
                     <div key={room.key} className="publish-main-info-room">
@@ -251,11 +251,11 @@ export default function PublishMainInfo({
           </div>
 
           <div className="publish-main-info-footer">
-            <button className="publish-main-info-back" type="button" onClick={handleBack}>
+            <button className="publish-main-info-back" type="button" onClick={handleBack} >
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <Button label="Continuar" type="button" onClick={() => handleContinue(true)} className="publish-main-info-continue" />
+            <Button label="Continuar" type="button" onClick={() => handleContinue(true)} className="publish-main-info-continue" disabled={total_surface === undefined || total_surface <= 0 || roofed_surface === undefined || roofed_surface <= 0 || property_condition === undefined || (property_condition === 'years' && age === undefined)} />
           </div>
         </div>
       </div>
