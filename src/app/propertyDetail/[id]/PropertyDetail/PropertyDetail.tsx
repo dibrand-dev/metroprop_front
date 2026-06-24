@@ -36,11 +36,6 @@ const SIMILAR_SECTIONS = [
   { title: 'Propiedades similares por m2', count: 5 },
 ];
 
-const CONTACT_ACTIONS = [
-  { id: 'whatsapp', label: 'Whatsapp', icon: '/icons/whatsapp.svg', variant: 'whatsapp' },
-  { id: 'contact', label: 'Contactar', icon: '/icons/envelope_w.svg', variant: 'primary' },
-];
-
 export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const { data: sessionData } = useSession();
   const isLoggedIn = !!sessionData?.user;
@@ -1091,23 +1086,22 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           onClose={() => setIsContactModalOpen(false)}
       />)}
       <div className="property-detail-mobile-actions">
-        {CONTACT_ACTIONS.map((action) => (
-          <Button
-            key={`mobile-${action.id}`}
-            label={action.label}
-            variant={action.variant === 'primary' ? 'primary' : 'secondary'}
-            className={`property-detail-mobile-action property-detail-contact-action-${action.variant}`}
-            icon={<img src={action.icon} alt="" aria-hidden="true" />}
-            iconPosition="left"
-            onClick={() => {
-              if (action.id === 'whatsapp') {
-                setIsWhatsappModalOpen(true);
-                return;
-              }
-              setIsContactModalOpen(true);
-            }}
-          />
-        ))}
+        {property?.user?.phone_whatsapp && <Button
+          label="Whatsapp"
+          variant='secondary'
+          className={`property-detail-mobile-action property-detail-contact-action-whatsapp`}
+          icon={<img src="/icons/whatsapp.svg" alt="" aria-hidden="true" />}
+          iconPosition="left"
+          onClick={() => setIsWhatsappModalOpen(true)}
+        />}
+        <Button
+          label="Contactar"
+          variant='primary'
+          className={`property-detail-mobile-action property-detail-contact-action-primary`}
+          icon={<img src="/icons/envelope_w.svg" alt="" aria-hidden="true" />}
+          iconPosition="left"
+          onClick={() => setIsContactModalOpen(true)}
+        />
       </div>
     </div>
     </APIProvider>

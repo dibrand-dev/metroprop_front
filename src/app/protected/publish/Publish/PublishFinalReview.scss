@@ -472,6 +472,7 @@
 }
 
 .publish-review-contact-card {
+  width: 560px;
   max-width:100%;
   border: 1.3px solid #a6a6a6;
   border-radius: 8px;
@@ -492,15 +493,15 @@
   align-items: center;
   justify-content: center;
   padding: 8px;
-
+  width: 256px;
   img {
     width: 100%;
-    max-width: 96px;
     object-fit: contain;
   }
 }
 
 .publish-review-contact-info {
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -518,6 +519,7 @@
   background: #f5f5f5;
   padding: 8px;
   border-radius: 6px;
+  width: 100%;
 }
 
 .publish-review-footer {

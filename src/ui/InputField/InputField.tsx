@@ -24,6 +24,10 @@ interface InputFieldProps {
   rows?: number;
   cols?: number;
   maxLength?: number;
+  onCopy?: (e: React.ClipboardEvent) => void;
+  onPaste?: (e: React.ClipboardEvent) => void;
+  onCut?: (e: React.ClipboardEvent) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
 export default function InputField({
@@ -47,9 +51,35 @@ export default function InputField({
   rows,
   cols,
   maxLength,
+  onCopy,
+  onPaste,
+  onCut,
+  onBlur,
 }: InputFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
   const isPasswordField = type === 'password';
+
+  // Automatically prevent copy/paste/cut on password fields
+  const handleCopy = (e: React.ClipboardEvent) => {
+    if (isPasswordField) {
+      e.preventDefault();
+    }
+    onCopy?.(e);
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (isPasswordField) {
+      e.preventDefault();
+    }
+    onPaste?.(e);
+  };
+
+  const handleCut = (e: React.ClipboardEvent) => {
+    if (isPasswordField) {
+      e.preventDefault();
+    }
+    onCut?.(e);
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -94,6 +124,10 @@ export default function InputField({
             rows={rows}
             cols={cols}
             maxLength={maxLength}
+            onCopy={handleCopy}
+            onPaste={handlePaste}
+            onCut={handleCut}
+            onBlur={onBlur}
           />
         ) : (
           <input
@@ -111,6 +145,10 @@ export default function InputField({
             max={max}
             step={step}
             maxLength={maxLength}
+            onCopy={handleCopy}
+            onPaste={handlePaste}
+            onCut={handleCut}
+            onBlur={onBlur}
           />
         )}
         {displayIcon && (

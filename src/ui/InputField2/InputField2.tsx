@@ -12,6 +12,9 @@ type InputField2Props = Omit<
   onChange?: any; // (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | ChangeEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onCopy?: (e: React.ClipboardEvent) => void;
+  onPaste?: (e: React.ClipboardEvent) => void;
+  onCut?: (e: React.ClipboardEvent) => void;
   error?: string;
   label?: string;
   onIconClick?: () => void;
@@ -28,6 +31,9 @@ const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function Inpu
   onChange,
   onFocus,
   onBlur,
+  onCopy,
+  onPaste,
+  onCut,
   disabled = false,
   required = false,
   error = '',
@@ -84,6 +90,28 @@ const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function Inpu
 	const isPasswordField = type === 'password' && !multiline;
   const inputType = isPasswordField && showPassword ? 'text' : type;
 
+  // Automatically prevent copy/paste/cut on password fields
+  const handleCopy = (e: React.ClipboardEvent) => {
+    if (isPasswordField) {
+      e.preventDefault();
+    }
+    onCopy?.(e);
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (isPasswordField) {
+      e.preventDefault();
+    }
+    onPaste?.(e);
+  };
+
+  const handleCut = (e: React.ClipboardEvent) => {
+    if (isPasswordField) {
+      e.preventDefault();
+    }
+    onCut?.(e);
+  };
+
   // Default eye icon for password fields
   const displayIcon = icon || (isPasswordField && (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -110,6 +138,9 @@ const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function Inpu
               onChange={onChange}
               onFocus={handleFocus}
               onBlur={handleBlur}
+              onCopy={handleCopy}
+              onPaste={handlePaste}
+              onCut={handleCut}
               disabled={disabled}
               required={required}
               rows={rows}
@@ -126,6 +157,9 @@ const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function Inpu
               onChange={onChange}
               onFocus={handleFocus}
               onBlur={handleBlur}
+              onCopy={handleCopy}
+              onPaste={handlePaste}
+              onCut={handleCut}
               disabled={disabled}
               required={required}
               autoComplete={autoComplete}

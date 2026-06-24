@@ -102,6 +102,9 @@ export default function PublishMainInfo({
     }
   };
 
+  console.log("roofed_surface",roofed_surface)
+  console.log("total_surface",total_surface)
+
   return (
     <div className="publish-main-info">
       <div className="publish-main-info-inner">
@@ -255,7 +258,7 @@ export default function PublishMainInfo({
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <Button label="Continuar" type="button" onClick={() => handleContinue(true)} className="publish-main-info-continue" disabled={total_surface === undefined || total_surface <= 0 || roofed_surface === undefined || roofed_surface <= 0 || property_condition === undefined || (property_condition === 'years' && age === undefined)} />
+            <Button label="Continuar" type="button" onClick={() => handleContinue(true)} className="publish-main-info-continue" disabled={total_surface === undefined || total_surface <= 0 || isNaN(total_surface) || total_surface === '' || roofed_surface === undefined || roofed_surface <= 0 || roofed_surface === '' || isNaN(roofed_surface) || property_condition === undefined || (property_condition === 'years' && (age === undefined || age <= 0 || age === '' || isNaN(age)))} />
           </div>
         </div>
       </div>

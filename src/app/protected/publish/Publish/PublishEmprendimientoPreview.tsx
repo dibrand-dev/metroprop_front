@@ -571,8 +571,8 @@ export default function PublishEmprendimientoFinalReview({
                   </div>
                   {sessionData?.user && <div className="publish-review-contact-info">
                     {agentName !== sessionData?.user?.email && <div className="publish-review-contact-name">{agentName}</div>}
-                    <div className="publish-review-contact-name">{sessionData?.user?.email ?? ''}</div>
-                    <div className="publish-review-contact-phone">{sessionData?.user?.phone ?? sessionData?.user?.phone_whatsapp ?? ''}</div>
+                    <div>{sessionData?.user?.email ?? ''}</div>
+                    <div>{sessionData?.user?.phone ?? sessionData?.user?.phone_whatsapp ?? ''}</div>
                   </div>}
                 </div>
               </div>

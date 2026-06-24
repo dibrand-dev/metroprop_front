@@ -401,8 +401,8 @@ export default function PublishFinalReview({
                   </div>
                   {sessionData?.user && <div className="publish-review-contact-info">
                     {agentName !== sessionData?.user?.email && <div className="publish-review-contact-name">{agentName}</div>}
-                    <div className="publish-review-contact-name">{sessionData?.user?.email ?? ''}</div>
-                    <div className="publish-review-contact-phone">{sessionData?.user?.phone ?? ''}</div>
+                    <div>{sessionData?.user?.email ?? ''}</div>
+                    <div>{sessionData?.user?.phone ?? ''}</div>
                   </div>}
                 </div>
               </div>

@@ -379,7 +379,6 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
   }
 
   if (cardType === 'contacts') {
-    console.log("property.user", property.user)
     return (
       <>
         <div className={`property-card-favorites-list ${property.is_development ? 'is-development' : ''}`} onClick={goToDetail}>

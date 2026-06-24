@@ -102,7 +102,7 @@ export default function Footer() {
        
         <div>
           <div className="footer-terms">
-            <h3 className="footer-terms-title">Términos y condiciones</h3>
+            <h3 className="footer-terms-title">Legales</h3>
             <ul className="footer-terms-list">
               <li><Link prefetch={false} href="/terms" rel="noopener noreferrer" target="_blank">Términos y  Condiciones</Link></li>
               <li><Link prefetch={false} href="/policy" rel="noopener noreferrer" target="_blank">Políticas de privacidad</Link></li>
