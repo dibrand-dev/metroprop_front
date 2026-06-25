@@ -178,7 +178,7 @@ export default function PublishEmprendimiento({
   const [geo_lat, setGeo_lat] = useState<number | undefined>(wizardData.geo_lat || undefined);
   const [geo_long, setGeo_long] = useState<number | undefined>(wizardData.geo_long || undefined);
   const [show_exact_location, setShow_exact_location] = useState(wizardData.show_exact_location || false);
-  const [hasSelectedAddress, setHasSelectedAddress] = useState(false);
+  const [hasSelectedAddress, setHasSelectedAddress] = useState(!!wizardData.street);
   const [mapInteractive, setMapInteractive] = useState(false);
   const [pendingStateName, setPendingStateName] = useState('');
   const [pendingCityName, setPendingCityName] = useState('');
