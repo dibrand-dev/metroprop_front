@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import InputField2 from '@/ui/InputField2/InputField2';
 import Select from '@/ui/Select/Select';
 import Button from '@/ui/Button/Button';
 import Checkbox from '@/ui/Checkbox/Checkbox';
@@ -394,7 +393,7 @@ export default function PublishEmprendimientoUnidades({
                 <p className="field-description">
                   Incluye el tipo de propiedad y su característica principal
                 </p>
-                <InputField2
+                <InputField
                   placeholder="Ej: Departamento 2 ambientes con balcón"
                   value={publication_title}
                   onChange={(e) => setPublicationTitle(e.target.value)}
@@ -445,7 +444,7 @@ export default function PublishEmprendimientoUnidades({
                     value={currency}
                     onChange={(value) => setCurrency(value)}
                   />
-                  <InputField2
+                  <InputField
                     value={price ?? ''}
                     onChange={(event) => setPrice(Number(event.target.value) || undefined)}
                     placeholder={'Ej. 700000'}
@@ -464,7 +463,7 @@ export default function PublishEmprendimientoUnidades({
                     onChange={(value) => setCurrency_expenses(value)}
                     disabled={withoutExpenses}
                   />
-                  <InputField2
+                  <InputField
                     value={expenses ?? ''}
                     onChange={(event) => setExpenses(Number(event.target.value) || undefined)}
                     placeholder="Ej. 100000"
@@ -536,7 +535,7 @@ export default function PublishEmprendimientoUnidades({
                       onChange={(value) => setSurface_measurement(value)}
                       placeholder=""
                     />
-                    <InputField2
+                    <InputField
                       placeholder="Ingresar superficie"
                       type="number"
                       value={total_surface ? String(total_surface) : ''}
@@ -555,7 +554,7 @@ export default function PublishEmprendimientoUnidades({
                       onChange={(value) => setRoofed_surface_measurement(value)}
                       placeholder=""
                     />
-                    <InputField2
+                    <InputField
                       placeholder="Ingresar superficie"
                       type="number"
                       value={roofed_surface ? String(roofed_surface) : ''}
