@@ -91,7 +91,7 @@ export async function apiFetch<TResponse = unknown, TBody = unknown>(
 
   // ── Fetch options ─────────────────────────────────────────────────────────
   const fetchOptions: RequestInit = { method, headers };
-  if (body !== undefined && ['POST', 'PATCH', 'PUT'].includes(method)) {
+  if (body !== undefined && ['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)) {
     fetchOptions.body = isFormData ? (body as FormData) : JSON.stringify(body);
   }
 

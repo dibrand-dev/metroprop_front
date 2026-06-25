@@ -207,8 +207,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
                 placeholder="Seleccionar"
                 value={formData.role_id}
                 onChange={(value) => { handleInputChange('role_id', value); }}
-                options={[{ value: '1', label: 'Administrador' },
-                          { value: '2', label: 'Supervisor' },
+                options={[{ value: '2', label: 'Supervisor' },
                           { value: '3', label: 'Vendedor' }]}
               />
             </div>

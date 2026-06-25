@@ -13,6 +13,7 @@ interface SubmenuItem {
   label: string;
   href: string;
   roles?: number[];
+  condition?: (user: any) => boolean;
 }
 
 interface SubmenuProps {
@@ -36,7 +37,7 @@ const items: SubmenuItem[] = [
   { id: 'cambiar_contraseña', label: 'Cambiar contraseña', href: "/protected/admin/changePassword", roles: [1, 2, 3, 4] },
   { id: 'cambiar_email', label: 'Cambiar email', href: "/protected/admin/changeEmail", roles: [1, 2, 3, 4] },
   { id: 'notificaciones', label: 'Notificaciones', href: "/protected/admin/notifications", roles: [1, 2, 3] },
-  { id: 'eliminar_cuenta', label: 'Eliminar cuenta', href: "/protected/admin/deleteAccount", roles: [1, 2, 3] }
+  { id: 'eliminar_cuenta', label: 'Eliminar cuenta', href: "/protected/admin/deleteAccount", condition: (user) => user?.role_id === 1 || (user?.role_id === 3 && !user?.organization) }
 ];
 
 function getUserRoleId(user: any): number | null {
@@ -50,11 +51,12 @@ export default function Submenu({ active, onHide }: SubmenuProps) {
   const roleId = useMemo(() => getUserRoleId((session as any)?.user), [session]);
   const visibleItems = useMemo(
     () => items.filter((item) => {
+      if (item.condition) return item.condition((session as any)?.user);
       if (!item.roles) return true;                        // no roles field → always visible
       if (item.roles.length === 0) return roleId === null; // empty array → only for roleless users
       return roleId !== null && item.roles.includes(roleId); // non-empty array → role must match
     }),
-    [roleId]
+    [roleId, session]
   );
 
   const activeItemId = useMemo(() => {
