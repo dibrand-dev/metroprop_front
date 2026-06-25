@@ -487,7 +487,7 @@ export default function PublishEmprendimientoUnidades({
             <h2 className="section-title">Ambientes</h2>
 
             <div className="publish-main-info-block">
-              <h2>Ambientes principales*</h2>
+              <h2>Ambientes principales</h2>
               <div className="publish-main-info-rooms">
                 {roomsConfig.map((room) => (
                   <div key={room.key} className="publish-main-info-room">

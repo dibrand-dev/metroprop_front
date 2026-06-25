@@ -25,7 +25,7 @@ interface InputFieldProps {
   cols?: number;
   maxLength?: number;
   onCopy?: (e: React.ClipboardEvent) => void;
-  onPaste?: (e: React.ClipboardEvent) => void;
+  // onPaste?: (e: React.ClipboardEvent) => void;
   onCut?: (e: React.ClipboardEvent) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
@@ -52,7 +52,7 @@ export default function InputField({
   cols,
   maxLength,
   onCopy,
-  onPaste,
+  // onPaste,
   onCut,
   onBlur,
 }: InputFieldProps) {
@@ -66,14 +66,14 @@ export default function InputField({
     }
     onCopy?.(e);
   };
-
+/*
   const handlePaste = (e: React.ClipboardEvent) => {
     if (isPasswordField) {
       e.preventDefault();
     }
-    onPaste?.(e);
+    // onPaste?.(e);
   };
-
+*/
   const handleCut = (e: React.ClipboardEvent) => {
     if (isPasswordField) {
       e.preventDefault();
@@ -125,7 +125,7 @@ export default function InputField({
             cols={cols}
             maxLength={maxLength}
             onCopy={handleCopy}
-            onPaste={handlePaste}
+            // onPaste={handlePaste}
             onCut={handleCut}
             onBlur={onBlur}
           />
@@ -146,7 +146,7 @@ export default function InputField({
             step={step}
             maxLength={maxLength}
             onCopy={handleCopy}
-            onPaste={handlePaste}
+            // onPaste={handlePaste}
             onCut={handleCut}
             onBlur={onBlur}
           />

@@ -13,7 +13,7 @@ type InputField2Props = Omit<
   onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onCopy?: (e: React.ClipboardEvent) => void;
-  onPaste?: (e: React.ClipboardEvent) => void;
+  // onPaste?: (e: React.ClipboardEvent) => void;
   onCut?: (e: React.ClipboardEvent) => void;
   error?: string;
   label?: string;
@@ -32,7 +32,7 @@ const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function Inpu
   onFocus,
   onBlur,
   onCopy,
-  onPaste,
+  // onPaste,
   onCut,
   disabled = false,
   required = false,
@@ -97,14 +97,14 @@ const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function Inpu
     }
     onCopy?.(e);
   };
-
+/*
   const handlePaste = (e: React.ClipboardEvent) => {
     if (isPasswordField) {
       e.preventDefault();
     }
     onPaste?.(e);
   };
-
+*/
   const handleCut = (e: React.ClipboardEvent) => {
     if (isPasswordField) {
       e.preventDefault();
@@ -139,7 +139,7 @@ const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function Inpu
               onFocus={handleFocus}
               onBlur={handleBlur}
               onCopy={handleCopy}
-              onPaste={handlePaste}
+              // onPaste={handlePaste}
               onCut={handleCut}
               disabled={disabled}
               required={required}
@@ -158,7 +158,7 @@ const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function Inpu
               onFocus={handleFocus}
               onBlur={handleBlur}
               onCopy={handleCopy}
-              onPaste={handlePaste}
+              // onPaste={handlePaste}
               onCut={handleCut}
               disabled={disabled}
               required={required}
@@ -169,7 +169,7 @@ const InputField2 = forwardRef<HTMLInputElement, InputField2Props>(function Inpu
 					{displayIcon && (
 						<button
 							type="button"
-							className="input-field-2-icon input-field-2-icon-${iconPosition}"
+							className={`input-field-2-icon input-field-2-icon-${iconPosition}`}
 							onClick={handleIconClick}
 							aria-label={isPasswordField ? (showPassword ? 'Hide password' : 'Show password') : 'Toggle'}
 							disabled={disabled}
