@@ -65,7 +65,7 @@ export default function ShareModal({ isOpen, onClose, property, propertyId }: Sh
   }
   
   // Use SEO-friendly URL if full property object is available, otherwise fallback to old format
-  const url = property 
+  const url = property  
     ? `https://metroprop.co/${generatePropertySlug(property, locationLabels)}` 
     : `https://metroprop.co/propertyDetail/${id}`;
   const title = property?.publication_title ?? 'Mira esta propiedad que encontré en Metroprop';
