@@ -144,8 +144,10 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
     setSelectedItem(prev => ({ ...prev, [dropdownKey]: itemLabel }));
   };
 
+  console.log("sessionData", sessionData?.user?.organization === null ? 'user-comun' : '')
+
   return (
-    <header className={`header-container ${!sessionData ? 'user-comun' : ''} ${sessionData?.user?.organization === null ? 'user-comun' : ''}`}>
+    <header className={`header-container ${!sessionData ? 'user-comun' : ''} ${sessionData?.user?.organization === null || sessionData?.user?.organization === undefined ? 'user-comun' : ''}`}>
       {(openDropdown !== null || mobileMenuOpen) && (
         <button
           type="button"

@@ -56,12 +56,27 @@
     }
 }
 
-.header-container:not(.user-comun) {
-    .header-nav-wrapper {
-        display: none !important;
+.bodyContainer {
+    .header-container:not(.user-comun) {
+        
+        .header-nav-wrapper {
+            display: flex !important;
+        }
+
+        .topnavbar-menu-items {
+            display: none !important;
+        }      
     }
-    .topnavbar-menu-items {
-        display: flex !important;
+
+    &.protected-myProperties, &.protected-contacts, &.protected-favorites, &.protected-leads, &.protected-alerts {
+        .header-container:not(.user-comun) {
+            .header-nav-wrapper {
+                display: none !important;
+            }
+            .topnavbar-menu-items {
+                display: flex !important;
+            }
+        }
     }
 }
 
