@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import './Publish.scss';
 import { API_BASE_URL } from '@/utils/utils';
@@ -128,11 +128,14 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   const [isLoadingProperty, setIsLoadingProperty] = useState(isEditMode);
   const { data: sessionData } = useSession();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [authorizationError, setAuthorizationError] = useState(false);  
+  const [authorizationError, setAuthorizationError] = useState(false);
+  const hasLoadedProperty = useRef(false);
 
   // ── Load existing property into wizard when editing
   useEffect(() => {
-    if (!propertyId) return;
+    if (!propertyId || hasLoadedProperty.current) return;
+    if (!sessionData) return; // Wait for session before loading
+    hasLoadedProperty.current = true;
     setIsLoadingProperty(true);
     apiFetch(`${API_BASE_URL}/properties/${propertyId}?format=edit`)
       .then(data => {
@@ -176,7 +179,8 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
       .catch(err => console.error('Error loading property for edit:', err))
       .finally(() => setIsLoadingProperty(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propertyId, sessionData]);
+  }, [propertyId, sessionData]);  
+  
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentStep]);

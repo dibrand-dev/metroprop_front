@@ -117,6 +117,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       state_id: property?.state_id ? property.state_id : undefined,
       limit: 20,
       page: 1,
+      total_surface_min: property?.total_surface ? property.total_surface - 10 : undefined,
+      total_surface_max: property?.total_surface ? property.total_surface + 10 : undefined,
     }),
     enabled: !!property && !!property.total_surface,
     staleTime: 60_000,
