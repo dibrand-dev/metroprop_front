@@ -13,6 +13,7 @@ import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import InputField from '@/ui/InputField/InputField';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Button from '@/ui/Button/Button';
+import { ROLE } from '@/types/propiedad';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconLock = '/icons/lock.svg';
@@ -181,9 +182,9 @@ export default function Collaborators() {
                   </p>
                 </div>
                 <div className="collaborators-card-actions">
-                  <span className="collaborators-role-chip">Role {collaborator.role_id ?? '-'}</span>
+                  <span className="collaborators-role-chip">{ROLE[collaborator.role_id] ?? '-'}</span>
                   <div className="collaborators-card-tools">
-                    {collaborator.actions.map((action) => (
+                    {String(collaborator.id) !== String((sessionData?.user as any)?.id) && collaborator.actions.map((action) => (
                       <button
                         key={action}
                         className="collaborators-action-button"

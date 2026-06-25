@@ -254,11 +254,20 @@ export default function PublishMainInfo({
           </div>
 
           <div className="publish-main-info-footer">
-            <button className="publish-main-info-back" type="button" onClick={handleBack} >
-              <img src={iconChevron} alt="" />
-              Volver
-            </button>
-            <Button label="Continuar" type="button" onClick={() => handleContinue(true)} className="publish-main-info-continue" disabled={total_surface === undefined || total_surface <= 0 || isNaN(total_surface) || total_surface === '' || roofed_surface === undefined || roofed_surface <= 0 || roofed_surface === '' || isNaN(roofed_surface) || property_condition === undefined || (property_condition === 'years' && (age === undefined || age <= 0 || age === '' || isNaN(age)))} />
+            <Button
+              label="Volver"
+              variant="back"
+              onClick={handleBack}
+              icon={<img src={iconChevron} alt="" />}
+              iconPosition="left"
+              className="publish-content-back"
+            />
+            <Button
+              label="Continuar"
+              type="button" 
+              onClick={() => handleContinue(true)}
+              disabled={total_surface === undefined || total_surface <= 0 || isNaN(total_surface) || total_surface === '' || roofed_surface === undefined || roofed_surface <= 0 || roofed_surface === '' || isNaN(roofed_surface) || property_condition === undefined || (property_condition === 'years' && (age === undefined || age <= 0 || age === '' || isNaN(age)))} 
+            />
           </div>
         </div>
       </div>

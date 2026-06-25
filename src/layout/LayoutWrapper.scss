@@ -86,4 +86,13 @@
             display: flex !important;
         }
     }
+
+    .header-container:not(.user-comun) {
+        .header-nav-wrapper {
+            display: none !important;
+        }
+        .topnavbar-menu-items {
+            display: flex !important;
+        }
+    }
 }

@@ -191,7 +191,7 @@ export default function PublishFinalReview({
 
   const dynamicFeatures = buildFeatures();
   const dynamicAmenities = getAmenitiesByTab();
-  const statusDisplay = `${wizardData?.property_type ? `${PROPERTY_TYPE_LABELS[wizardData.property_type as PropertyType]} ` : ''}${wizardData?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype as PropertySubtype]} ` : ''}${wizardData?.operation_type ? `En ${OPERATION_TYPE_LABELS[wizardData.operation_type as OperationType]}` : ''}`;
+  const statusDisplay = <><span className="property-type">{`${wizardData?.property_type ? `${PROPERTY_TYPE_LABELS[wizardData.property_type as PropertyType]} ` : ''}${wizardData?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype as PropertySubtype]} ` : ''}`}</span>{wizardData?.operation_type ? `En ${OPERATION_TYPE_LABELS[wizardData.operation_type as OperationType]}` : ''}</>;
   
   const handleBack = () => {
     onBack();
@@ -410,11 +410,15 @@ export default function PublishFinalReview({
           </div>
 
           <div className="publish-review-footer">
-            <button className="publish-review-back" type="button" onClick={handleBack}>
-              <img src={iconChevron} alt="" />
-              Volver
-            </button>
-            <Button className="publish-review-continue" type="button" onClick={handlePublish} label={isEditMode ? 'Guardar cambios' : 'Publicar'} />
+            <Button
+              label="Volver"
+              variant="back"
+              onClick={handleBack}
+              icon={<img src={iconChevron} alt="" />}
+              iconPosition="left"
+              className="publish-review-back"
+            />
+            <Button type="button" onClick={handlePublish} label={isEditMode ? 'Guardar cambios' : 'Publicar'} />
           </div>
         </div>
       </div>

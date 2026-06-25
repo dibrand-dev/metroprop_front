@@ -257,7 +257,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   // Derived display values
   const priceDisplay = property?.price_square_meter ? `${formatCurrency(property.currency)} ${formatNumbers(property.price_square_meter)}  /m²` : '';
-  const statusDisplay = `${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `- ${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}${property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}`;
+  const statusDisplay = <><span className="property-type">{`${property?.property_type ? `${PROPERTY_TYPE_LABELS[property.property_type as PropertyType]} ` : ''}${property?.property_subtype ? `- ${PROPERTY_SUBTYPE_LABELS[property.property_subtype as PropertySubtype]} ` : ''}`}</span>{property?.operation_type ? `En ${OPERATION_TYPE_LABELS[property.operation_type as OperationType]}` : ''}</>;
 
   const devMinPrice = (() => {
     const prices = (property?.units ?? []).map(u => u.price ?? 0).filter(p => p > 0);

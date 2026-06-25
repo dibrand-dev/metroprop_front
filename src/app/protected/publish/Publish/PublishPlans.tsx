@@ -289,13 +289,16 @@ export default function PublishPlans({
             </div>
           </div>
 
-          <div className="publish-plans-footer">
-            <button className="publish-plans-back" type="button" onClick={handleBack}>
-              <img src={iconChevron} alt="" />
-              Volver
-            </button>
+          <div className="publish-plans-footer">           
             <Button
-              className="publish-plans-save"
+              label="Volver"
+              variant="back"
+              onClick={handleBack}
+              icon={<img src={iconChevron} alt="" />}
+              iconPosition="left"
+              className="publish-plans-back"
+            />
+            <Button
               variant="primary"
               onClick={() => handleContinue(true)}
               label="Continuar" // isRole3

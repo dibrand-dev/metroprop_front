@@ -1102,8 +1102,8 @@
   }
 
   .property-detail-hero-row {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: stretch;
   }
 
   .property-detail-gallery-grid {
@@ -1426,7 +1426,7 @@
   align-items: flex-start;
   margin-bottom: 8px;
   @media (max-width: 768px) {
-    flex-direction: column;
+    flex-direction: row;
     align-items: stretch;
   }
 
@@ -1874,10 +1874,6 @@
     gap: 24px;
   }
 
-  .property-detail-hero-row {
-    align-items: flex-start;
-  }
-
   .property-detail-status {
     display: inline-flex;
     align-items: center;
@@ -1888,11 +1884,14 @@
     font-size: 20px;
     font-weight: 800;
     letter-spacing: 0.2px;
+
+    span.property-type {
+      display: none;
+    }
   }
 
   .property-detail-price {
-    width: 100%;
-    justify-content: space-between;
+    justify-content: flex-end;
     font-size: 14px;
     font-weight: 500;
   }

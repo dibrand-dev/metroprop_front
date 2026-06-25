@@ -145,16 +145,15 @@ export default function PublishPropertyDescription({
           </div>
 
           <div className="publish-property-description-footer">
-            <button
-              className="publish-property-description-back"
-              type="button"
-              onClick={handleBack}
-            >
-              <img src={iconChevron} alt="" />
-              Volver
-            </button>
             <Button
-              className="publish-price-continue"
+              label="Volver"
+              variant="back"
+              onClick={handleBack}
+              icon={<img src={iconChevron} alt="" />}
+              iconPosition="left"
+              className="publish-property-description-back"
+            />
+            <Button
               onClick={() => handleContinue(true)}
               label="Continuar" // isRole3
               disabled={!title.trim()}

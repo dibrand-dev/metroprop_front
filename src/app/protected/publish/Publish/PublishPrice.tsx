@@ -140,13 +140,16 @@ export default function PublishPrice({
             </div>
           </div>
 
-          <div className="publish-price-footer">
-            <button className="publish-price-back" type="button" onClick={handleBack}>
-              <img src={iconChevron} alt="" />
-              Volver
-            </button>
+          <div className="publish-price-footer">           
             <Button
-              className="publish-price-continue"
+              label="Volver"
+              variant="back"
+              onClick={handleBack}
+              icon={<img src={iconChevron} alt="" />}
+              iconPosition="left"
+              className="publish-price-back"
+            />
+            <Button
               onClick={() => handleContinue(true)}
               label="Continuar" // isRole3
               disabled={!price || price <= 0}

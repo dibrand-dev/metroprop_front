@@ -173,7 +173,7 @@
   align-items: flex-start;
   margin-bottom: 8px;
   @media (max-width: 768px) {
-    flex-direction: column;
+    flex-direction: row;
     align-items: stretch;
   }
 
@@ -586,11 +586,6 @@
   gap: 16px;
   border-top: 1.3px solid #a6a6a6;
   padding-top: 24px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
 }
 
 .publish-review-back {

@@ -305,11 +305,15 @@ export default function PublishPropertyContent({
             </div>
           </div>
 
-          <div className="publish-property-content-footer">
-            <button className="publish-property-content-back" type="button" onClick={handleBack}>
-              <img src={iconChevron} alt="" />
-              Volver
-            </button>
+          <div className="publish-property-content-footer">            
+            <Button
+              label="Volver"
+              variant="back"
+              onClick={handleBack}
+              icon={<img src={iconChevron} alt="" />}
+              iconPosition="left"
+              className="publish-property-content-back"
+            />
             <Button label="Continuar" variant="primary" onClick={() => handleContinue(true)} disabled={period === '' && wizardData.operation_type === 3}/>
           </div>
         </div>
