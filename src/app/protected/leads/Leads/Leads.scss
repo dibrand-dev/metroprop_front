@@ -61,6 +61,7 @@
   display: flex;
   align-items: flex-start;
   gap: 24px;
+  overflow: visible;
 
   @media (max-width: 768px) {
     padding: 0;
@@ -79,6 +80,7 @@
   gap: 24px;
   min-width: 0;
   width: 100%;
+  overflow: visible;
 
   &.mobile-hidden {
     display: none;
@@ -133,6 +135,7 @@
   border-radius: 8px;
   width:100%;
   min-width: 0;
+  overflow: visible;
 }
 
 .leads-header {
@@ -193,6 +196,7 @@
   border: 1px solid #A6A6A6;
   border-radius: 8px;
   overflow-x: auto;
+  overflow-y: visible;
   max-width: 100%;
 
   .leads-header {
@@ -271,8 +275,10 @@
     background-color: #fff;
     border-radius: 8px;
     min-width: 1000px;
+    overflow: visible;
     .lead-item-wrapper {
       border-bottom: 1px solid #A6A6A6;
+      overflow: visible;
 
       &:last-child {
         border-bottom: none;
@@ -299,6 +305,7 @@
       padding: 16px;
       min-height: 52px;
       font-weight: 400;
+      overflow: visible;
 
       .lead-dot {
         width: 8px;
@@ -352,10 +359,12 @@
       .lead-status {
         width: 200px;
         flex-shrink: 0;
+        overflow: visible;
 
         &-badge {
           display: inline-flex;
           align-items: center;
+          overflow: visible;
           
           .select-trigger {          
             padding: 8px;
@@ -376,6 +385,10 @@
           img {
             width: 24px;
             height: 24px;
+          }
+
+          .select-container {
+            overflow: visible;
           }
         }
       }

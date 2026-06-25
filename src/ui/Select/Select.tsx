@@ -35,10 +35,37 @@ export default function Select({
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(value);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
   const selectRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === selectedValue);
   const displayLabel = selectedOption?.label || placeholder;
+
+  // Update menu position when opened
+  useEffect(() => {
+    const updatePosition = () => {
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        setMenuStyle({
+          position: 'fixed',
+          top: `${rect.bottom}px`,
+          left: `${rect.left}px`,
+          width: `${rect.width}px`,
+        });
+      }
+    };
+
+    if (isOpen) {
+      updatePosition();
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+      return () => {
+        window.removeEventListener('scroll', updatePosition, true);
+        window.removeEventListener('resize', updatePosition);
+      };
+    }
+  }, [isOpen]);
 
   // Close select when clicking outside
   useEffect(() => {
@@ -50,7 +77,9 @@ export default function Select({
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
     }
   }, [isOpen]);
 
@@ -72,6 +101,7 @@ export default function Select({
     >
       {label && <label htmlFor={id}>{label}</label>}
       <button
+        ref={triggerRef}
         id={id}
         className={`select-trigger ${isOpen ? 'open' : ''} ${selectedValue ? 'selected' : ''}`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
@@ -87,7 +117,7 @@ export default function Select({
       </button>
 
       {isOpen && (
-        <div className="select-menu">
+        <div className="select-menu" style={menuStyle}>
           {options.map((option) => (
             <button
               key={option.value}

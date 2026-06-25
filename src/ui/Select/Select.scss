@@ -124,10 +124,6 @@
 
 // Select Menu (Dropdown List)
 .select-menu {
-  position: absolute;
-  top: calc(100% + 0px);
-  left: 0;
-  right: 0;
   background-color: $bg-secondary;
   border: 1px solid $border-color;
   border-radius: $border-radius-md;

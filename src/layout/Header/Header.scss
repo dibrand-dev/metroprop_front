@@ -769,13 +769,6 @@ $font-family-button: Montserrat, sans-serif;
   border-radius: 4px;
   transition: all 0.3s ease;
 
-  &:hover {
-    background-color: #f5f5f5;
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
 }
 
 .topnavbar-dropdown-icon {
