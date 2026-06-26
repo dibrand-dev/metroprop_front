@@ -183,8 +183,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     if (property?.garage_coverage)  result[4].push(`Cobertura cochera: ${property.garage_coverage}`);
     if (property?.postal_code)  result[4].push(`Código postal: ${property.postal_code}`);
     if (property?.semiroofed_surface && property?.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(property.semiroofed_surface)} ${property.surface_measurement ?? ''}`);
-    if (property?.surface_front && property?.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(property.surface_front)} ${property.surface_measurement ?? ''}`);
-    if (property?.surface_length && property?.surface_length > 0)  result[4].push(`Fondo: ${formatNumbers(property.surface_length)} ${property.surface_measurement ?? ''}`);
+    if (property?.surface_front && property?.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(property.surface_front)} M`);
+    if (property?.surface_length && property?.surface_length > 0)  result[4].push(`Fondo: ${formatNumbers(property.surface_length)} M`);
     if (result[4].length === 0) delete result[4];
     return result;
   };
