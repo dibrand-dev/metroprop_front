@@ -611,14 +611,14 @@ export default function PublishEmprendimientoUnidades({
                 variant="secondary"
                 buttonType="1"
                 onClick={() => handleAgregarUnidad(false)}
-                disabled={isUploading}
+                disabled={isUploading || !isFormValid}
               />
               <Button
                 label={isUploading ? 'Subiendo...' : "Guardar y finalizar"}
                 variant="primary"
                 buttonType="1"
                 onClick={() => handleAgregarUnidad(true)}
-                disabled={isUploading}
+                disabled={isUploading || !isFormValid}
               />
             </>
           )}

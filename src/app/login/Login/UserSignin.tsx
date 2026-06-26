@@ -145,7 +145,7 @@ export default function UserSignin() {
     });
   };
 
-  const isFormDisabled = isPending || isGoogleLoading;
+  const isFormDisabled = isPending || isGoogleLoading || searchParams.get('googleLogin') === '1';
 
   useEffect(() => {
     if (searchParams.get('sessionExpired') === 'true') {

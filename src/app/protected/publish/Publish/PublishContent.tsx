@@ -603,7 +603,7 @@ export default function PublishContent({
                               <span>Subiendo...</span>
                             </div>
                           ) : isCompleted ? (
-                            <img src={ setImagePath(image.url) } alt="Foto" />
+                            <img src={ setImagePath(image.url) } alt="Foto" draggable={false} />
                           ) : hasError ? (
                             <div className="publish-content-upload-error">
                               <span className="error-icon">!</span>
@@ -636,7 +636,7 @@ export default function PublishContent({
                           onDragEnd={handleDragEnd}
                         >
                           {unifiedIndex === 0 && <div className="publish-content-thumb-main-label"><img src="/icons/star.svg" alt="Star" />Foto principal</div>}
-                          <img src={URL.createObjectURL(file)} alt="Foto" />
+                          <img src={URL.createObjectURL(file)} alt="Foto" draggable={false} />
                           <button
                             type="button"
                             className="publish-content-thumb-action"
