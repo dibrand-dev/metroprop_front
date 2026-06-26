@@ -33,6 +33,7 @@ export interface EmprendimientoImagesRef {
 interface EmprendimientoImagesProps {
   draftId?: number | undefined;
   onUploadStatusChange?: (status: { hasImages: boolean; hasPlans: boolean }) => void;
+  units?: boolean;
 }
 
 // YouTube utility functions
@@ -59,7 +60,7 @@ const buildVideoPreview = (v: any): VideoPreview => {
 };
 
 const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoImagesProps>(
-  ({ draftId, onUploadStatusChange }, ref) => {
+  ({ draftId, onUploadStatusChange, units }, ref) => {
     const [images, setImages] = useState<CreateImage[]>([]);
     const [plans, setPlans] = useState<CreateImagePlans[]>([]);
     const [videos, setVideos] = useState<string[]>([]);
@@ -356,7 +357,7 @@ const EmprendimientoImages = forwardRef<EmprendimientoImagesRef, EmprendimientoI
 
     return (
       <section className="section">
-        <h2 className="section-title">Agregar imágenes del emprendimiento</h2>
+        <h2 className="section-title">Agregar imágenes {units ? 'de la unidad' : 'del emprendimiento'}</h2>
 
         {/* Fotos */}
         <div className="form-group">

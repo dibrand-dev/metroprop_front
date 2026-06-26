@@ -190,8 +190,7 @@ export default function PublishEmprendimiento({
   const [hasPlans, setHasPlans] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const isFormValid = nombreEmprendimiento.trim() !== '' || entrega.trim() !== '' || tipoEmprendimiento !== null || totalUnidades !== null;
-
+  const isFormValid = nombreEmprendimiento.trim() !== '' && entrega.trim() !== '' && tipoEmprendimiento !== null && totalUnidades !== null && hasImages && hasSelectedAddress;
   useEffect(() => {
     setTipoEmprendimiento(wizardData.development_type || null);
   }, [wizardData.development_type]);
@@ -370,7 +369,7 @@ export default function PublishEmprendimiento({
         </div>
 
         {/* Secondary Menu / Tabs */}
-        <EmprendimientoTabs currentStep="emprendimiento" goToStep={goToStep} />
+        <EmprendimientoTabs currentStep="emprendimiento" goToStep={async (step) => { await handleContinuar(false); goToStep(step); }} disabled={isUploading || !isFormValid} />
 
         {/* Main Content */}
         <div className="main-content">
@@ -628,6 +627,7 @@ export default function PublishEmprendimiento({
             buttonType="2"
             onClick={() => handleContinuar(false)}
             fullWidth={false}
+            disabled={isUploading || !isFormValid}
           />
           <Button
             label={isUploading ? 'Subiendo...' : 'Continuar'}
@@ -635,7 +635,7 @@ export default function PublishEmprendimiento({
             buttonType="2"
             onClick={() => handleContinuar(true)}
             fullWidth={false}
-            disabled={isUploading || !hasSelectedAddress || (entrega?.trim() === '') || totalUnidades === null || tipoEmprendimiento === null || nombreEmprendimiento.trim() === ''}
+            disabled={isUploading || !isFormValid}
           />
         </div>
       </div>

@@ -2,8 +2,6 @@
 
 import { useMemo, useState, useEffect, useRef } from 'react';
 import './PropertyDetail.scss';
-import Header from '@/layout/Header/Header';
-import Footer from '@/layout/Footer/Footer';
 import Button from '@/ui/Button/Button';
 import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import PropertyDetailSubmenu from './PropertyDetailSubmenu/PropertyDetailSubmenu';
@@ -281,7 +279,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const stateLabel = locations.find(l => l.id === property?.state_id)?.name;
   const locationLabel = locations.find(l => l.id === property?.location_id)?.name;
   const subLocationLabel = locations.find(l => l.id === property?.sub_location_id)?.name;
-  const addressParts = [formattedStreet, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
+  const neighborhoodLabel = locations.find(l => l.id === property?.neighborhood_id)?.name;
+  const subNeighborhoodLabel = locations.find(l => l.id === property?.sub_neighborhood_id)?.name;
+  const addressParts = [formattedStreet, subNeighborhoodLabel, neighborhoodLabel, subLocationLabel, locationLabel, stateLabel, countryLabel].filter(Boolean);
   const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
 
   const updateSimilarScrollState = (index: number) => {

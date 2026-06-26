@@ -20,9 +20,10 @@ const tabs: { step: EmprendimientoStep; label: string }[] = [
 interface EmprendimientoTabsProps {
   currentStep: EmprendimientoStep;
   goToStep: (step: EmprendimientoStep) => void;
+  disabled?: boolean;
 }
 
-export default function EmprendimientoTabs({ currentStep, goToStep }: EmprendimientoTabsProps) {
+export default function EmprendimientoTabs({ currentStep, goToStep, disabled }: EmprendimientoTabsProps) {
   return (
     <div className="emprendimiento-tabs">
       {tabs.map((tab) => (
@@ -30,7 +31,7 @@ export default function EmprendimientoTabs({ currentStep, goToStep }: Emprendimi
           key={tab.step}
           className={`emprendimiento-tabs__tab ${tab.step === currentStep ? 'active' : ''}`}
           onClick={tab.step === currentStep ? undefined : () => goToStep(tab.step)}
-          disabled={tab.step === currentStep}
+          disabled={disabled || tab.step === currentStep}
         >
           {tab.label}
         </button>

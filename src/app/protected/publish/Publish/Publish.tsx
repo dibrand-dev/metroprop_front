@@ -376,14 +376,12 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   const renderCurrentStep = () => {
     if (isLoadingProperty) {
       return (
-        <div className="publish-page">
-          <div className="publish-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 200 }}>
-            <p>Cargando propiedad...</p>
-          </div>
+        <div className="publish-page loading">
+          <img src="/images/spinner.png" alt="Cargando..." className="publish-spinner" style={{ width: 50, height: 50 }} />
         </div>
       );
     }
-    
+
     if (authorizationError) {
       return (
         <div className="publish-page">
