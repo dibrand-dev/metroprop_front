@@ -49,6 +49,45 @@ export default function PublishPropertyContent({
   const [disposition, setDisposition] = useState(wizardData.disposition || undefined);
   const [appartments_per_floor, setAppartments_per_floor] = useState(wizardData.appartments_per_floor || undefined);
 
+
+
+  
+  /*
+  export enum PropertyType {
+    CASA = 1,                   // Casa
+    DEPARTAMENTO = 2,           // Departamento
+    TERRENO = 3,                // Terreno
+    PH = 4,                     // PH
+    GALPON_BODEGA = 5,          // Galpón / Bodega
+    BOVEDA_NICHO_PARCELA = 6,   // Bóveda / Nicho / Parcela
+    CAMA_NAUTICA = 7,           // Cama náutica
+    CAMPO = 8,                  // Campo
+    CONSULTORIO = 9,            // Consultorio
+    DEPOSITO = 10,              // Depósito
+    EDIFICIO = 11,              // Edificio
+    FONDO_DE_COMERCIO = 12,     // Fondo de comercio
+    GARAGE = 13,                // Garage
+    HOTEL = 14,                 // Hotel
+    LOCAL_COMERCIAL = 15,       // Local comercial
+    OFICINA_COMERCIAL = 16,     // Oficina comercial
+    QUINTA_VACACIONAL = 17,     // Quinta vacacional
+    EMPRENDIMIENTO = 18,          // Emprendimiento
+  }
+  */
+  console.log("wizardData.property_type",wizardData.property_type)
+  const _pt = Number(wizardData.property_type);
+  const showLuminoso = _pt !== PropertyType.GALPON_BODEGA && _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.DEPOSITO &&  _pt !== PropertyType.TERRENO && _pt !== PropertyType.GARAGE && _pt !== PropertyType.HOTEL && _pt !== PropertyType.FONDO_DE_COMERCIO  ;
+  const showOrientacion = _pt !== PropertyType.GALPON_BODEGA && _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.CONSULTORIO && _pt !== PropertyType.DEPOSITO  && _pt !== PropertyType.FONDO_DE_COMERCIO && _pt !== PropertyType.GARAGE && _pt !== PropertyType.HOTEL  && _pt !== PropertyType.LOCAL_COMERCIAL && _pt !== PropertyType.OFICINA_COMERCIAL && _pt !== PropertyType.TERRENO;
+  const showCantidadDePlantas = _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.CONSULTORIO && _pt !== PropertyType.DEPOSITO  && _pt !== PropertyType.EDIFICIO && _pt !== PropertyType.GARAGE && _pt !== PropertyType.HOTEL && _pt !== PropertyType.TERRENO;
+
+
+
+
+
+
+
+
+
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
@@ -193,7 +232,7 @@ export default function PublishPropertyContent({
             <div className="publish-property-content-details">
               <h2>Detalles de la propiedad</h2>
               <div className="publish-property-content-detail-grid">                
-                <div className="publish-property-content-detail-field">
+                {showLuminoso &&<div className="publish-property-content-detail-field">
                   <Select
                     label="Luminoso"
                     options={BRIGHTNESS_SELECT_OPTIONS}
@@ -201,8 +240,8 @@ export default function PublishPropertyContent({
                     onChange={(value) => setBrightness(value as any)}
                     placeholder="Seleccionar"
                   />
-                </div>
-                <div className="publish-property-content-detail-field">
+                </div>}
+                {showOrientacion && <div className="publish-property-content-detail-field">
                   <Select
                     label="Orientación"
                     options={ORIENTATION_SELECT_OPTIONS}
@@ -210,8 +249,8 @@ export default function PublishPropertyContent({
                     onChange={(value) => setOrientation(value as any)}
                     placeholder="Seleccionar"
                   />
-                </div>
-                <div className="publish-property-content-detail-field">
+                </div>}
+                {showCantidadDePlantas && <div className="publish-property-content-detail-field">
                   <Select
                     label="Cantidad de plantas"
                     options={[{ label: '1', value: '1' }, { label: '2', value: '2' }, { label: '3', value: '3' }, { label: '4+', value: '4+' }]}
@@ -219,7 +258,7 @@ export default function PublishPropertyContent({
                     onChange={(value) => setFloors_amount(value ? parseInt(value) : undefined)}
                     placeholder="Seleccionar"
                   />
-                </div>
+                </div>}
                 <div className="publish-property-content-detail-field">
                   <Select
                     label="Cobertura cochera"

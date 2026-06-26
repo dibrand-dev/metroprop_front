@@ -10,7 +10,8 @@ import {
   PROPERTY_TYPE_LABELS, 
   PROPERTY_SUBTYPE_LABELS, 
   roomsConfig,
-  unitSelectOptions
+  unitSelectOptions,
+  PropertyType
 } from '@/types/propiedad';
 import Button from '@/ui/Button/Button';
 
@@ -48,8 +49,9 @@ export default function PublishMainInfo({
     toilet_amount: wizardData.toilet_amount || 0,
     parking_lot_amount: wizardData.parking_lot_amount || 0,    
   });
-
-  const showRooms = wizardData.property_type?.toString().toLowerCase() !== 'terreno';
+  const _pt = Number(wizardData.property_type);
+  const showRooms = _pt !== PropertyType.TERRENO && _pt !== PropertyType.CAMPO && _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.GARAGE && _pt !== PropertyType.HOTEL && _pt !== PropertyType.QUINTA_VACACIONAL && _pt !== PropertyType.EDIFICIO;
+  const showRoofedSurface = _pt !== PropertyType.TERRENO && _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA;
 
   // Update wizard data when main info changes
   useEffect(() => {
@@ -152,7 +154,7 @@ export default function PublishMainInfo({
                   </div>
                 </div>
 
-                <div className="publish-main-info-surface-item">
+                {showRoofedSurface && <div className="publish-main-info-surface-item">
                   <div className="publish-main-info-input-row">
                     <Select
                       label="Cubierta"
@@ -168,7 +170,7 @@ export default function PublishMainInfo({
                       onChange={(event) => setRoofed_surface(parseInt(event.target.value))}
                     />
                   </div>
-                </div>
+                </div>}
               </div>
             </div>
 

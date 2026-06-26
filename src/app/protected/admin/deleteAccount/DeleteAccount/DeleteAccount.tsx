@@ -28,7 +28,7 @@ export default function DeleteAccount() {
     mutationFn: async () => {
       const userId = (sessionData?.user as any)?.id;
       if (!userId) throw new Error('No user id');
-      await apiFetch(`${API_BASE_URL}/users/${userId}`, { method: 'DELETE', body: { password: properties.password } });
+      await apiFetch(`${API_BASE_URL}/users/close-account`, { method: 'POST', body: { password: properties.password, id: Number.parseInt(userId) } });
       return null;
     },
     onSuccess: () => {
