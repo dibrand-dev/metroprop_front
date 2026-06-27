@@ -22,7 +22,7 @@ export const formatNumbers = (price: number) => Math.ceil(price).toLocaleString(
 export const formatCurrency = (currency: string | null | undefined): string => {
   if (!currency) return '';
   if (currency === 'ARS') return '$';
-  if (currency === 'USD') return 'U$D';
+  if (currency === 'USD') return 'USD';
   return currency;
 };
 

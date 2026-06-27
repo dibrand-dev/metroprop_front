@@ -13,10 +13,10 @@ import { useSession } from 'next-auth/react';
 import InputField from '@/ui/InputField/InputField';
 
 const QUESTION_CHIPS = [
-  'Se puede visitar hoy',
-  'Aceptan permuta',
-  'El edificio tiene amenities',
-  'Tiene baulera',
+  '¿Se puede visitar hoy?',
+  '¿Aceptan permuta?',
+  '¿El edificio tiene amenities?',
+  '¿Tiene baulera?',
 ];
 
 
