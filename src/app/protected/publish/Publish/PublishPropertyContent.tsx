@@ -78,7 +78,8 @@ export default function PublishPropertyContent({
   const _pt = Number(wizardData.property_type);
   const showLuminoso = _pt !== PropertyType.GALPON_BODEGA && _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.DEPOSITO &&  _pt !== PropertyType.TERRENO && _pt !== PropertyType.GARAGE && _pt !== PropertyType.HOTEL && _pt !== PropertyType.FONDO_DE_COMERCIO  ;
   const showOrientacion = _pt !== PropertyType.GALPON_BODEGA && _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.CONSULTORIO && _pt !== PropertyType.DEPOSITO  && _pt !== PropertyType.FONDO_DE_COMERCIO && _pt !== PropertyType.GARAGE && _pt !== PropertyType.HOTEL  && _pt !== PropertyType.LOCAL_COMERCIAL && _pt !== PropertyType.OFICINA_COMERCIAL && _pt !== PropertyType.TERRENO;
-  const showCantidadDePlantas = _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.CONSULTORIO && _pt !== PropertyType.DEPOSITO  && _pt !== PropertyType.EDIFICIO && _pt !== PropertyType.GARAGE && _pt !== PropertyType.HOTEL && _pt !== PropertyType.TERRENO;
+  const showCantidadDePlantas = _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.CONSULTORIO && _pt !== PropertyType.DEPOSITO  && _pt !== PropertyType.EDIFICIO && _pt !== PropertyType.GARAGE && _pt !== PropertyType.HOTEL && _pt !== PropertyType.LOCAL_COMERCIAL && _pt !== PropertyType.OFICINA_COMERCIAL && _pt !== PropertyType.TERRENO && _pt !== PropertyType.TERRENO;
+  const showCoverturaCochera = _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.DEPOSITO && _pt !== PropertyType.FONDO_DE_COMERCIO && _pt !== PropertyType.LOCAL_COMERCIAL && _pt !== PropertyType.OFICINA_COMERCIAL  && _pt !== PropertyType.PH && _pt !== PropertyType.QUINTA_VACACIONAL && _pt !== PropertyType.TERRENO;
 
 
 
@@ -259,7 +260,7 @@ export default function PublishPropertyContent({
                     placeholder="Seleccionar"
                   />
                 </div>}
-                <div className="publish-property-content-detail-field">
+                {showCoverturaCochera && <div className="publish-property-content-detail-field">
                   <Select
                     label="Cobertura cochera"
                     options={GARAGE_SELECT_OPTIONS}
@@ -267,7 +268,7 @@ export default function PublishPropertyContent({
                     onChange={(value) => setGarage_coverage(value as any)}
                     placeholder="Seleccionar"
                   />
-                </div>
+                </div>}
               </div>
               {wizardData.operation_type === 3 ? <div className="publish-property-content-detail-grid">                
                 <div className="publish-property-content-detail-field">
@@ -299,7 +300,7 @@ export default function PublishPropertyContent({
                     type="number"
                   />
                 </div>
-                <div className="publish-property-content-detail-field">
+                {(wizardData.property_type == PropertyType.CASA || wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.PH) && (<div className="publish-property-content-detail-field">
                   <InputField
                     label="Superficie semicubierta (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
@@ -307,12 +308,13 @@ export default function PublishPropertyContent({
                     onChange={(event) => setSemiroofed_surface(parseInt(event.target.value) || undefined)}
                     type="number"
                   />
-                </div>
+                </div>)}
               </div>
 
 
-              {wizardData.property_type == PropertyType.DEPARTAMENTO && (
+              
                 <div className="publish-property-content-inputs">
+                  {(wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.PH) && (
                   <div className="publish-property-content-detail-field">
                     <Select
                       label="Orientación"
@@ -320,9 +322,9 @@ export default function PublishPropertyContent({
                       placeholder="Selecciona una opción"
                       value={disposition ?? null}
                       onChange={(value) => setDisposition(value as any)}
-                  />
-                </div>
-                <div className="publish-property-content-detail-field">
+                    />
+                  </div>)}
+                {(wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.EDIFICIO) && (<div className="publish-property-content-detail-field">
                   <InputField
                     label="Cantidad de pisos en edificio"
                     placeholder="Ingresa un numero mayor o igual a 0"
@@ -330,8 +332,8 @@ export default function PublishPropertyContent({
                     onChange={(event) => setFloors_amount(parseInt(event.target.value) || undefined)}
                     type="number"
                   />
-                </div>
-                <div className="publish-property-content-detail-field">
+                </div>)}
+                {(wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.EDIFICIO) && (<div className="publish-property-content-detail-field">
                   <InputField
                     label="Departamentos por piso"
                     placeholder="Ingresa un numero mayor o igual a 0"
@@ -339,8 +341,8 @@ export default function PublishPropertyContent({
                     onChange={(event) => setAppartments_per_floor(parseInt(event.target.value) || undefined)}
                     type="number"
                   />
-                </div>
-              </div>)}
+                </div>)}
+              </div>
             </div>
           </div>
 

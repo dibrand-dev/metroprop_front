@@ -5,15 +5,15 @@ import { useRouter } from 'next/navigation';
 import './BranchForm.scss';
 import { useAdminMenu } from '../../AdminLayoutClient';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
-import Select from '@/ui/Select/Select';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
 import { useSession } from 'next-auth/react';
 import InputField from '@/ui/InputField/InputField';
-import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
+import { useMutation, QueryClient } from '@tanstack/react-query';
 import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
+import LocationCascadeSelects, { LocationCascadeValue } from '@/components/LocationCascadeSelects/LocationCascadeSelects';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -38,35 +38,12 @@ export default function BranchForm({ branchId }: BranchFormProps) {
     alternative_phone: '',
     sameForRent: false,
     address: '',
-    province: '',
-    city: '',
-    neighborhood: '',
   });
+  const [locationData, setLocationData] = useState<LocationCascadeValue>({ state_id: undefined, location_id: undefined, sub_location_id: undefined, neighborhood_id: undefined, sub_neighborhood_id: undefined });
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
   };
-
-  const { data: provinces = [] } = useQuery({
-    queryKey: ['provinces', LOCATION_ARGENTINA_ID],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: LOCATION_ARGENTINA_ID } }),
-  });
-
-  const { data: cities = [] } = useQuery({
-    queryKey: ['locations', formData.province],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: formData.province } }),
-    enabled: !!formData.province,
-  });
-
-  const { data: neighborhoods = [] } = useQuery({
-    queryKey: ['zones', formData.city],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: formData.city } }),
-    enabled: !!formData.city,
-  });
-
-  const provinceOptions = provinces.map((p: any) => ({ value: String(p.id), label: p.name }));
-  const cityOptions = cities.map((c: any) => ({ value: String(c.id), label: c.name }));
-  const neighborhoodOptions = neighborhoods.map((n: any) => ({ value: String(n.id), label: n.name }));
 
   const isEditing = Boolean(branchId);
   const pageTitle = isEditing ? 'Modificar sucursal' : 'Agregar sucursal';
@@ -88,9 +65,13 @@ export default function BranchForm({ branchId }: BranchFormProps) {
           alternative_phone: formatPhone(branch.alternative_phone ?? ''),
           sameForRent: false,
           address: branch.address ?? '',
-          province: branch.state_id != null ? String(branch.state_id) : '',
-          city: branch.location_id != null ? String(branch.location_id) : undefined,
-          neighborhood: branch.sub_location_id != null ? String(branch.sub_location_id) : undefined,
+        });
+        setLocationData({
+          state_id: branch.state_id != null ? branch.state_id : undefined,
+          location_id: branch.location_id != null ? branch.location_id : undefined,
+          sub_location_id: branch.sub_location_id != null ? branch.sub_location_id : undefined,
+          neighborhood_id: branch.neighborhood_id != null ? branch.neighborhood_id : undefined,
+          sub_neighborhood_id: branch.sub_neighborhood_id != null ? branch.sub_neighborhood_id : undefined,
         });
         if (branch.branch_logo) setLogoPreview(setImagePath(branch.branch_logo));
       })
@@ -108,10 +89,12 @@ export default function BranchForm({ branchId }: BranchFormProps) {
       payload.append('country_id', String(LOCATION_ARGENTINA_ID));
       payload.append('email', formData.email || '');
       payload.append('external_reference', 'false');
-      formData.city ? payload.append('location_id', String(parseInt(formData.city))) : null;
+      if (locationData.location_id) payload.append('location_id', String(locationData.location_id));
       payload.append('phone', formData.phone || '');
-      formData.province ? payload.append('state_id', String(parseInt(formData.province))) : null;
-      formData.sub_location_id ? payload.append('sub_location_id', String(parseInt(formData.sub_location_id))) : null;
+      if (locationData.state_id) payload.append('state_id', String(locationData.state_id));
+      if (locationData.sub_location_id) payload.append('sub_location_id', String(locationData.sub_location_id));
+      if (locationData.neighborhood_id) payload.append('neighborhood_id', String(locationData.neighborhood_id));
+      if (locationData.sub_neighborhood_id) payload.append('sub_neighborhood_id', String(locationData.sub_neighborhood_id));
       if (logoFile) {
         payload.append('branch_logo', logoFile);
       } else if (logoPreview) {
@@ -151,10 +134,8 @@ export default function BranchForm({ branchId }: BranchFormProps) {
           alternative_phone: '',
           sameForRent: false,
           address: '',
-          province: '',
-          city: '',
-          neighborhood: '',
         });
+        setLocationData({ state_id: undefined, location_id: undefined, sub_location_id: undefined, neighborhood_id: undefined, sub_neighborhood_id: undefined });
         setLogoFile(null);
         setLogoPreview('');
       }
@@ -315,36 +296,13 @@ export default function BranchForm({ branchId }: BranchFormProps) {
                   onChange={(event) => handleInputChange('address', event.target.value)}
                 />
               </div>
-              <div className="branch-form-field">
-                <Select
-                  label="Provincia (opcional)"
-                  placeholder="Seleccionar"
-                  value={formData.province}
-                  onChange={(value) => { handleInputChange('province', value); handleInputChange('city', ''); handleInputChange('neighborhood', ''); }}
-                  options={provinceOptions}
-                />
-              </div>
-              <div className="branch-form-field">
-                <Select
-                  label="Ciudad (opcional)"
-                  placeholder="Seleccionar"
-                  value={formData.city}
-                  onChange={(value) => { handleInputChange('city', value); handleInputChange('neighborhood', ''); }}
-                  options={cityOptions}
-                  disabled={!formData.province}
-                />
-              </div>
-              <div className="branch-form-field">
-                <Select
-                  label="Barrio (opcional)"
-                  placeholder="Seleccionar"
-                  value={formData.neighborhood}
-                  onChange={(value) => handleInputChange('neighborhood', value)}
-                  options={neighborhoodOptions}
-                  disabled={!formData.city}
-                />
-              </div>
             </div>
+          </div>
+          <div>
+            <LocationCascadeSelects
+              value={locationData}
+              onChange={setLocationData}
+            />
           </div>
         </form>
 

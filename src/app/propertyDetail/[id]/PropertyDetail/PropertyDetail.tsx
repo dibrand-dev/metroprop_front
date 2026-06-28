@@ -268,6 +268,16 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     const currency = (property?.units ?? [])[0]?.currency ?? property?.currency ?? '';
     return `Venta desde ${formatCurrency(currency)} ${formatNumbers(min)}`;
   })();
+
+  // obtain min expenses from dev
+  const devMinExpenses = (() => {
+    const expenses = (property?.units ?? []).map(u => u.expenses ?? 0).filter(e => e > 0);
+    if (expenses.length === 0) return null;
+    const min = Math.min(...expenses);
+    const currency = (property?.units ?? [])[0]?.currency ?? property?.currency ?? '';
+    return `Expensas desde: ${formatCurrency(currency)} ${formatNumbers(min)}`;
+  })();
+
   const uniqueRoomAmounts = [...new Set((property?.units ?? []).map(u => u.room_amount ?? 0))].sort((a, b) => a - b);
   const showUnitFilters = uniqueRoomAmounts.length > 1;
 
@@ -609,9 +619,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
           <h1 className="property-detail-title">{property 
             ? property.is_development 
-              ? (devMinPrice ?? 'Venta desde -')
+              ? <>{devMinPrice ?? 'Venta desde -'} <span className="property-detail-price">{devMinExpenses ?? ''}</span></>
               : `${ property.development_id !== null ? 'Venta desde ' : ''}${formatCurrency(property.currency)} ${formatNumbers(property.price)}`
-            : ''}</h1>
+            : ''}
+          </h1>          
         </section>
 
         <section className="property-detail-gallery">
