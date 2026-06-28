@@ -361,7 +361,7 @@ export default function PublishEmprendimientoUnidades({
                   <button
                     className="collaborators-action-button"
                     type="button"
-                    aria-label="Editar unidad"
+                    aria-label="Guardar y finalizar"
                     onClick={() => handleEdit(unitData.id!)}
                   >
                     <img src={iconEdit} alt="" />

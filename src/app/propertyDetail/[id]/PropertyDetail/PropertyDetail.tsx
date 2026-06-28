@@ -562,7 +562,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               </span>
             </div>
           </div>
-          : !property?.development_id && <div className="property-detail-hero-row">
+          : <div className="property-detail-hero-row">
             <p className="property-detail-status"><span className='status-icon'></span>{statusDisplay}</p>
             <div className="property-detail-price">
               <span>{priceDisplay}</span>
