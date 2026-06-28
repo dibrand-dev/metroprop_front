@@ -404,7 +404,7 @@ $font-family-body: var(--font-inter), sans-serif;
 .footer-bottom {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   gap: 8px;
   padding-top: 24px;
   border-top: 1px solid $color-border;

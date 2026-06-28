@@ -22,13 +22,12 @@ const PropertyCardMyProperties: React.FC<PropertyCardMyPropertiesProps> = ({ pro
           className="property-image"
         />
         <div className="property-info">
-          <div className='property-type'>{PROPERTY_TYPE_LABELS[property.property_type]}</div>
+          <div className='property-type'>{PROPERTY_TYPE_LABELS[property.property_type]} {property.development_id ? ` - UF emprendimiento ${property.development_id}` : ""}</div>
           <div className='property-title'>{property.publication_title}</div>
           <div className='property-street'>{property.street}</div>
           <div className='property-type-price'>
             <span className='publication-type'>{OPERATION_TYPE_LABELS[property.operation_type]}</span>
             <span>{formatCurrency(property.currency)} {formatNumbers(property.price)}</span>
-            
           </div>
         </div>
       </div>

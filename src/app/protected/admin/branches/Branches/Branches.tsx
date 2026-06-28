@@ -90,12 +90,17 @@ export default function Branches() {
             {branches.map((branch) => (
               <div key={branch.id} className="branches-card">
                 <div className="branches-card-info">
-                  <p className="branches-card-title">
-                    {branch.branch_name} - Sucursal: {branch.id} - Tel: {branch.phone}
-                  </p>
-                  <div className="branches-card-meta">
-                    <span>{branch.listings}</span>
-                    {branch.users && <span>Colaboradores: {branch.users.map((user: any) => user.name).join(', ')}</span>}                    
+                  <div>
+                    <p className="branches-card-title">
+                      {branch.branch_name} - Sucursal: {branch.id} - Tel: {branch.phone}
+                    </p>
+                    <div className="branches-card-meta">
+                      <span>{branch.listings}</span>
+                      {branch.users && <span>Colaboradores: {branch.users.map((user: any) => user.name).join(', ')}</span>}                    
+                    </div>
+                  </div>
+                  <div>
+                    <p className="branches-users-avisos">{branch.properties_count} aviso{branch.properties_count != 1 ? 's' : ''} | {branch.users_count} Colaborador{branch.users_count != 1 ? 'es' : ''}</p>
                   </div>
                 </div>
                 <div className="branches-card-actions">
