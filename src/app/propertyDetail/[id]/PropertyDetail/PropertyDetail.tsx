@@ -178,11 +178,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         .map((option: AmenityTag) => option.name);
     });
     result[4] = [];
-<<<<<<< HEAD
     if (property?.expenses)  result[4].push(`Expensas: ${formatCurrency(property.currency_expenses ?? '')}${formatNumbers(property.expenses)}`);
-=======
-    // if (property?.expenses)  result[4].push(`Expensas: ${formatNumbers(property.expenses)} ${formatCurrency(property.currency_expenses ?? '')}`);
->>>>>>> ca76d01803c6a42eb4d48d63e24f457ba34b931e
     if (property?.floors_amount)  result[4].push(`Pisos: ${property.floors_amount}`);
     if (property?.garage_coverage)  result[4].push(`Cobertura cochera: ${GARAGE_COVERAGE_LABELS[property.garage_coverage]}`);
     if (property?.postal_code)  result[4].push(`Código postal: ${property.postal_code}`);
