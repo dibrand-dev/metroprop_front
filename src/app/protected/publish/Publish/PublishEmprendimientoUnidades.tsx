@@ -10,7 +10,7 @@ import { CreateProperty, CreatePropertyDraft, currencySelectOptions, OperationTy
 import InputField from '@/ui/InputField/InputField';
 import EmprendimientoImages, { EmprendimientoImagesRef } from './EmprendimientoImages';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL, setImagePath, formatCurrency } from '@/utils/utils';
+import { API_BASE_URL, setImagePath, formatCurrency, formatNumbers } from '@/utils/utils';
 import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
@@ -354,9 +354,9 @@ export default function PublishEmprendimientoUnidades({
                 )}
                 <div className="unit-list-title" title={unitData.publication_title}>{unitData.publication_title}</div>
                 <div className="unit-list-type">{PROPERTY_TYPE_LABELS[unitData.property_type as PropertyType] ?? unitData.property_type}</div>
-                <div className="unit-list-price">{formatCurrency(unitData.currency)} {unitData.price?.toLocaleString()}</div>
+                <div className="unit-list-price">{formatCurrency(unitData.currency)} {formatNumbers(unitData.price)}</div>
                 <div className="unit-list-rooms">{unitData.room_amount ?? 0} amb.</div>
-                <div className="unit-list-surface">{unitData.total_surface} {unitData.surface_measurement}</div>
+                <div className="unit-list-surface">{formatNumbers(unitData.total_surface)} {unitData.surface_measurement}</div>
                 <div className="unit-list-actions">
                   <button
                     className="collaborators-action-button"

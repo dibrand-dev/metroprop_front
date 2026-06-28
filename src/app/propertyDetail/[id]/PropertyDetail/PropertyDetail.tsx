@@ -343,7 +343,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     if (totalSurfLabel) {
       const tMin = Math.min(...totalSurfaces.filter(v => v > 0));
       const tMax = Math.max(...totalSurfaces.filter(v => v > 0));
-      const label = tMin === tMax ? `${tMin} ${meas} tot.` : `${tMin} a ${tMax} ${meas} tot.`;
+      const label = tMin === tMax ? `${formatNumbers(tMin)} ${meas} tot.` : `${formatNumbers(tMin)} a ${formatNumbers(tMax)} ${meas} tot.`;
       features.push({ label, icon: '/icons/regla.svg' });
     }
 
@@ -353,7 +353,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     if (roofedFiltered.length > 0) {
       const rMin = Math.min(...roofedFiltered);
       const rMax = Math.max(...roofedFiltered);
-      const label = rMin === rMax ? `${rMin} ${meas} cub.` : `${rMin} a ${rMax} ${meas} cub.`;
+      const label = rMin === rMax ? `${formatNumbers(rMin)} ${meas} cub.` : `${formatNumbers(rMin)} a ${formatNumbers(rMax)} ${meas} cub.`;
       features.push({ label, icon: '/icons/mcubiertos.svg' });
     }
 
@@ -395,7 +395,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     const sups = units.map(u => Number(u.total_surface)).filter(s => s > 0);
     if (sups.length === 0) return '-';
     const meas = units[0]?.surface_measurement ?? 'm²';
-    return `${Math.min(...sups)} ${meas}`;
+    return `${formatNumbers(Math.min(...sups) )} ${meas}`;
   };
 
   const getRoomsRange = (units: CreateProperty[]) => {
@@ -832,10 +832,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                         </div>
                         {unidades.map((unit, index) => {
                           const pricePerM2 = unit.price && Number(unit.total_surface) > 0
-                            ? `${formatCurrency(unit.currency ?? '')} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
+                            ? `${formatCurrency(unit.currency ?? '')} ${formatNumbers(Math.round(unit.price / Number(unit.total_surface)))}`
                             : '-';
                           const priceTotal = unit.price
-                            ? `${formatCurrency(unit.currency ?? '')} ${unit.price.toLocaleString('es-AR')}`
+                            ? `${formatCurrency(unit.currency ?? '')} ${formatNumbers(unit.price)}`
                             : '-';
                           const canOpenUnit = !!unit.id;
                           return (
@@ -854,8 +854,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                               style={{ cursor: canOpenUnit ? 'pointer' : 'default' }}
                             >
                               <div className="table-cell">{unit.publication_title ?? '-'}</div>
-                              <div className="table-cell">{unit.total_surface ? `${unit.total_surface} ${unit.surface_measurement ?? ''}` : '-'}</div>
-                              <div className="table-cell">{unit.roofed_surface ? `${unit.roofed_surface} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
+                              <div className="table-cell">{unit.total_surface ? `${formatNumbers(unit.total_surface)} ${unit.surface_measurement ?? ''}` : '-'}</div>
+                              <div className="table-cell">{unit.roofed_surface ? `${formatNumbers(unit.roofed_surface)} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
                               <div className="table-cell">{unit.bathroom_amount ?? '-'}</div>
                               <div className="table-cell">{pricePerM2}</div>
                               <div className="table-cell">{priceTotal}</div>
@@ -868,10 +868,10 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                       <div className="units-list units-list-mobile">
                         {unidades.map((unit, index) => {
                           const pricePerM2 = unit.price && Number(unit.total_surface) > 0
-                            ? `${formatCurrency(unit.currency ?? '')} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
+                            ? `${formatCurrency(unit.currency ?? '')} ${formatNumbers(Math.round(unit.price / Number(unit.total_surface)))}`
                             : '-';
                           const priceTotal = unit.price
-                            ? `${formatCurrency(unit.currency ?? '')} ${unit.price.toLocaleString('es-AR')}`
+                            ? `${formatCurrency(unit.currency ?? '')} ${formatNumbers(unit.price)}`
                             : '-';
                           const canOpenUnit = !!unit.id;
                           return (
@@ -895,11 +895,11 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                               </div>
                               <div className="unit-field">
                                 <span className="unit-label">Sup. Total:</span>
-                                <span className="unit-value">{unit.total_surface ? `${unit.total_surface} ${unit.surface_measurement ?? ''}` : '-'}</span>
+                                <span className="unit-value">{unit.total_surface ? `${formatNumbers(unit.total_surface)} ${unit.surface_measurement ?? ''}` : '-'}</span>
                               </div>
                               <div className="unit-field">
                                 <span className="unit-label">Sup. Cubierta:</span>
-                                <span className="unit-value">{unit.roofed_surface ? `${unit.roofed_surface} ${unit.roofed_surface_measurement ?? ''}` : '-'}</span>
+                                <span className="unit-value">{unit.roofed_surface ? `${formatNumbers(unit.roofed_surface)} ${unit.roofed_surface_measurement ?? ''}` : '-'}</span>
                               </div>
                               <div className="unit-field">
                                 <span className="unit-label">Baños:</span>

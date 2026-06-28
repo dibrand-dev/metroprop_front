@@ -83,12 +83,6 @@ export default function PublishFinalReview({
     }
   }, []) 
 
-  // Format price display
-  const formatPrice = (amount: string, currency: string) => {
-    if (!amount) return '';
-    return `${formatCurrency(currency)} ${amount}`;
-  };
-
   // Build amenity tabs from amenityGroups
   const amenityTabs = amenityGroups.map(group => ({
     key: group.type.toString(),
@@ -130,11 +124,11 @@ export default function PublishFinalReview({
     }
     
     if (wizardData.total_surface && wizardData.surface_measurement) {
-      features.push({ label: `${wizardData.total_surface} ${wizardData.surface_measurement} tot.`, icon: '/icons/regla.svg' });
+      features.push({ label: `${formatNumbers(wizardData.total_surface)} ${wizardData.surface_measurement} tot.`, icon: '/icons/regla.svg' });
     }
     
     if (wizardData.roofed_surface && wizardData.roofed_surface_measurement) {
-      features.push({ label: `${wizardData.roofed_surface} ${wizardData.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
+      features.push({ label: `${formatNumbers(wizardData.roofed_surface)} ${wizardData.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
     }
     
     if (wizardData.room_amount) {
@@ -256,11 +250,11 @@ export default function PublishFinalReview({
                   </div>
                   <div className="publish-review-preview-price">
                     <strong>
-                      {formatPrice(wizardData?.price?.toString() ?? '', wizardData.currency || '$')}
+                      {formatCurrency(wizardData.currency)} {formatNumbers(wizardData?.price?.toString() ?? '')}
                     </strong>
                     {wizardData.expenses! > 0 && (
                       <span>
-                        {formatPrice(wizardData?.expenses?.toString() ?? '', wizardData.currency_expenses || '$')} expensas
+                        {formatCurrency(wizardData.currency_expenses)} {formatNumbers(wizardData.expenses?.toString() ?? '')} expensas
                       </span>
                     )}
                   </div>

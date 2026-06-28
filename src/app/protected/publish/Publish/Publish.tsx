@@ -336,7 +336,10 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     }
     console.log("_wizardDataUpdate", _wizardDataUpdate);
     try {
-      await updatePropertyMutation.mutateAsync(_wizardDataUpdate);
+      const result = await updatePropertyMutation.mutateAsync(_wizardDataUpdate);
+      if (result?.data?.price_square_meter) {
+        updateWizardData({...wizardData, ...{ price_square_meter: result?.data?.price_square_meter }});
+      }
     } catch (error: any) {
       console.error('Error updating property:', error?.message || error);
     }
