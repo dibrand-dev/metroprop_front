@@ -7,7 +7,7 @@ import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PR
 import { useSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL, formatCurrency } from '@/utils/utils';
+import { API_BASE_URL, formatCurrency, formatNumbers } from '@/utils/utils';
 import { Plan } from '@/types/plan';
 import Button from '@/ui/Button/Button';
 
@@ -261,7 +261,7 @@ export default function PublishPlans({
                       <div className="publish-plans-card-header">
                         <span className="publish-plans-card-label">{plan.plan_name}</span>
                         <div className="publish-plans-card-price">
-                          <strong>{formatCurrency(plan.currency)} {plan.price}</strong>
+                          <strong>{formatCurrency(plan.currency)} {formatNumbers(plan.price)}</strong>
                           <span>/mes</span>
                         </div>
                       </div>

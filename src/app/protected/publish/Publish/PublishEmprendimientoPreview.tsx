@@ -62,7 +62,7 @@ export default function PublishEmprendimientoFinalReview({
     const prices = units.map(u => u.price ?? 0).filter(p => p > 0);
     if (prices.length === 0) return '-';
     const currency = units[0]?.currency ?? '';
-    return `${formatCurrency(currency)} ${Math.min(...prices).toLocaleString('es-AR')}`;
+    return `${formatCurrency(currency)} ${formatNumbers(Math.min(...prices))}`;
   };
 
    const devMinPrice = (() => {
@@ -77,7 +77,7 @@ export default function PublishEmprendimientoFinalReview({
     const sups = units.map(u => Number(u.total_surface)).filter(s => s > 0);
     if (sups.length === 0) return '-';
     const meas = units[0]?.surface_measurement ?? 'm²';
-    return `${Math.min(...sups)} ${meas}`;
+    return `${formatNumbers(Math.min(...sups))} ${meas}`;
   };
 
   const { data: tagsData = [] } = useQuery({
@@ -197,7 +197,7 @@ export default function PublishEmprendimientoFinalReview({
     if (totalSurfLabel) {
       const tMin = Math.min(...totalSurfaces.filter(v => v > 0));
       const tMax = Math.max(...totalSurfaces.filter(v => v > 0));
-      const label = tMin === tMax ? `${tMin} ${meas} tot.` : `${tMin} a ${tMax} ${meas} tot.`;
+      const label = tMin === tMax ? `${formatNumbers(tMin)} ${meas} tot.` : `${formatNumbers(tMin)} a ${formatNumbers(tMax)} ${meas} tot.`;
       features.push({ label, icon: '/icons/regla.svg' });
     }
 
@@ -207,7 +207,7 @@ export default function PublishEmprendimientoFinalReview({
     if (roofedFiltered.length > 0) {
       const rMin = Math.min(...roofedFiltered);
       const rMax = Math.max(...roofedFiltered);
-      const label = rMin === rMax ? `${rMin} ${meas} cub.` : `${rMin} a ${rMax} ${meas} cub.`;
+      const label = rMin === rMax ? `${formatNumbers(rMin)} ${meas} cub.` : `${formatNumbers(rMin)} a ${formatNumbers(rMax)} ${meas} cub.`;
       features.push({ label, icon: '/icons/mcubiertos.svg' });
     }
 
@@ -501,13 +501,13 @@ export default function PublishEmprendimientoFinalReview({
                           ? `${formatCurrency(unit.currency ?? '')} ${Math.round(unit.price / Number(unit.total_surface)).toLocaleString('es-AR')}`
                           : '-';
                         const priceTotal = unit.price
-                          ? `${formatCurrency(unit.currency ?? '')} ${unit.price.toLocaleString('es-AR')}`
+                          ? `${formatCurrency(unit.currency ?? '')} ${formatNumbers(unit.price)}`
                           : '-';
                         return (
                           <div key={unit.id ?? index} className="table-row">
                             <div className="table-cell">{unit.publication_title ?? '-'}</div>
-                            <div className="table-cell">{unit.total_surface ? `${unit.total_surface} ${unit.surface_measurement ?? ''}` : '-'}</div>
-                            <div className="table-cell">{unit.roofed_surface ? `${unit.roofed_surface} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
+                            <div className="table-cell">{unit.total_surface ? `${formatNumbers(unit.total_surface)} ${unit.surface_measurement ?? ''}` : '-'}</div>
+                            <div className="table-cell">{unit.roofed_surface ? `${formatNumbers(unit.roofed_surface)} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
                             <div className="table-cell">{unit.bathroom_amount ?? '-'}</div>
                             <div className="table-cell">{pricePerM2}</div>
                             <div className="table-cell">{priceTotal}</div>
