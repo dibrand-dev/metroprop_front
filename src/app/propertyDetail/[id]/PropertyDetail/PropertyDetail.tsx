@@ -116,13 +116,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
       property_type: String(property!.property_type),
       ...(property!.property_subtype ? { property_subtype: String(property!.property_subtype) } : {}),
       operation_type: String(property!.operation_type),    
-      price_m2_min:  property?.total_surface ? property.total_surface - 10 : undefined,
-      price_m2_max:  property?.total_surface ? property.total_surface + 10 : undefined,
+      price_m2_min:  property?.price_square_meter ? property.price_square_meter * 0.8  : undefined,
+      price_m2_max:  property?.price_square_meter ? property.price_square_meter * 1.2 : undefined,
       order_by: 'price_square_meter:desc',
       limit: 20,
       page: 1,
     }),
-    enabled: !!property && !!property.total_surface,
+    enabled: !!property && !!property.price_square_meter,
     staleTime: 60_000,
   });
 
