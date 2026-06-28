@@ -564,8 +564,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           </div>
           : <div className="property-detail-hero-row">
             <p className="property-detail-status"><span className='status-icon'></span>{statusDisplay}</p>
-            <div className="property-detail-price">
-              <div>
+            <div>
+              <div className="property-detail-price">
                 <span>{priceDisplay}</span>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                   <button
@@ -603,7 +603,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                   )}
                 </div>
               </div>
-              <div>{property?.expenses && `Expensas: ${formatNumbers(property.expenses)} ${formatCurrency(property.currency_expenses ?? '')}`}</div>
+              <div className="property-detail-price">{property?.expenses && `Expensas: ${formatCurrency(property.currency_expenses ?? '')} ${formatNumbers(property.expenses)}`}</div>
             </div>
           </div>}
 
