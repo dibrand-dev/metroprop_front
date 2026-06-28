@@ -87,12 +87,12 @@ export default function Branches() {
           </div>
 
           <div className="branches-list">
-            {branches.map((branch) => (
+            {branches.map((branch, index) => (
               <div key={branch.id} className="branches-card">
                 <div className="branches-card-info">
                   <div>
                     <p className="branches-card-title">
-                      {branch.branch_name} - Sucursal: {branch.id} - Tel: {branch.phone}
+                      {branch.branch_name} - {index === 0 ? "Principal" : "Sucursal"}: {branch.id} - Tel: {branch.phone}
                     </p>
                     <div className="branches-card-meta">
                       <span>{branch.listings}</span>

@@ -10,7 +10,7 @@ import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
 import { useSession } from 'next-auth/react';
 import InputField from '@/ui/InputField/InputField';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, QueryClient } from '@tanstack/react-query';
 import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
@@ -127,7 +127,11 @@ export default function BranchForm({ branchId }: BranchFormProps) {
         method: isEditing ? 'PATCH' : 'POST',
         body: payload,
       });
+      const queryClient = new QueryClient();
+      queryClient.invalidateQueries({ queryKey: ['branches', organizationId] });  
       return { status: isEditing ? 200 : 201, data };
+      //invalidate query "branches"
+      
     },
     onSuccess: (result) => {
       setErrorMessage('');
