@@ -7,7 +7,7 @@ import { useState } from 'react';
 interface LeadsFilterProps {
   allChecked: boolean;
   onCheckAll: (val: boolean) => void;
-  onDeleteClick: (delete: boolean) => void;
+  onDeleteClick: () => void;
   setSearch: (val: string | null) => void;
   isDelete?: boolean;
 }

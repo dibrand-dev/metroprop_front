@@ -24,15 +24,15 @@ export default function Leads() {
   const [activeSubmenu, setActiveSubmenu] = useState<'entrada' | 'destacados' | 'eliminados' | 'bloqueados'>('entrada');
   const [selectedLeadIds, setSelectedLeadIds] = useState<number[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteMode, setDeleteMode] = useState(false);
-
+  const [deleteMode, setDeleteMode] = useState(true);
+  console.log("deleteMode", deleteMode);
   const deleteMutation = useMutation({
     mutationFn: (ids: number[]) =>
       Promise.all(ids.map(id => apiFetch(`${API_BASE_URL}/leads/${id}`, { method: 'PATCH', body: { deleted: deleteMode, highlighted: false } }))),
     onSuccess: () => {
       setSelectedLeadIds([]);
       setDeleteModalOpen(false);
-      setDeleteMode(false);
+      setDeleteMode(true);
       queryClient.invalidateQueries({ queryKey: ['leads'] });
     },
   });
@@ -72,7 +72,16 @@ export default function Leads() {
 
   return (
     <div className={`professionalContainer ${!showMenu ? 'activeMenuMobile' : ''}`}>
-      <SubmenuLeads active={showMenu} onItemChange={(id) => { setActiveSubmenu(id); setCurrentPage(0); }} />
+      <SubmenuLeads
+        active={showMenu}
+        onItemChange={(id) => {
+          setActiveSubmenu(id);
+          setCurrentPage(0);
+          setSelectedLeadIds([]);
+          if (id === 'eliminados') setDeleteMode(false);
+          else setDeleteMode(true);
+        }}
+      />
       <div className={`leads-container ${showMenu ? 'mobile-hidden' : ''}`}>
         <div className="leads-content">
           <LeadsFilter
@@ -81,9 +90,15 @@ export default function Leads() {
               if (val) setSelectedLeadIds(contactos.map(l => l.id!));
               else setSelectedLeadIds([]);
             }}
-            onDeleteClick={(deleteFlag) => { if (selectedLeadIds.length > 0) setDeleteModalOpen(true); setDeleteMode(deleteFlag); }}
+            onDeleteClick={() => {
+              if (selectedLeadIds.length > 0) {
+                setDeleteModalOpen(true);
+                if (activeSubmenu === 'eliminados') setDeleteMode(false);
+                else setDeleteMode(true);
+              } 
+            }}
             setSearch={setSearch}
-            isDelete={activeSubmenu === 'eliminados'}
+            isDelete={activeSubmenu !== 'eliminados'}
           />
 
           <div className="leads-list-container">
