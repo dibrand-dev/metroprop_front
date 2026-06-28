@@ -8,7 +8,7 @@ import PropertyDetailSubmenu from './PropertyDetailSubmenu/PropertyDetailSubmenu
 import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype } from '@/types/propiedad';
+import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype, GARAGE_COVERAGE_LABELS } from '@/types/propiedad';
 import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath, getInitials, formatStreetAddress, getPropertyDetailPath } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
@@ -178,9 +178,9 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         .map((option: AmenityTag) => option.name);
     });
     result[4] = [];
-    if (property?.expenses)  result[4].push(`Expensas: ${formatNumbers(property.expenses)} ${formatCurrency(property.currency_expenses ?? '')}`);
+    if (property?.expenses)  result[4].push(`Expensas: ${formatCurrency(property.currency_expenses ?? '')}${formatNumbers(property.expenses)}`);
     if (property?.floors_amount)  result[4].push(`Pisos: ${property.floors_amount}`);
-    if (property?.garage_coverage)  result[4].push(`Cobertura cochera: ${property.garage_coverage}`);
+    if (property?.garage_coverage)  result[4].push(`Cobertura cochera: ${GARAGE_COVERAGE_LABELS[property.garage_coverage]}`);
     if (property?.postal_code)  result[4].push(`Código postal: ${property.postal_code}`);
     if (property?.semiroofed_surface && property?.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(property.semiroofed_surface)} ${property.surface_measurement ?? ''}`);
     if (property?.surface_front && property?.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(property.surface_front)} M`);
