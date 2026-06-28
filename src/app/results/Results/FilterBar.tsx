@@ -319,7 +319,6 @@ function parseUrlToState(sp: { get: (k: string) => string | null }): ParsedFilte
 }
 
 // ─── PriceRangeSlider ─────────────────────────────────────────────────────────
-
 function formatSliderTooltip(val: number, max: number): string {
   if (val >= max) return `+${max.toLocaleString('es-AR')}`;
   return `$${val.toLocaleString('es-AR')}`;
@@ -1036,7 +1035,7 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [], propert
     : Object.entries(PROPERTY_TYPE_LABELS).slice(0, OPERACION_COLLAPSED);
   const typeRows: (typeof visibleTypes)[] = [];
   for (let i = 0; i < visibleTypes.length; i += 2) typeRows.push(visibleTypes.slice(i, i + 2));
-
+console.log("currentFilters", currentFilters)
   // ── Render
   return (
     <div className="filter-bar">

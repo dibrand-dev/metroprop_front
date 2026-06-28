@@ -7,8 +7,9 @@ import { useState } from 'react';
 interface LeadsFilterProps {
   allChecked: boolean;
   onCheckAll: (val: boolean) => void;
-  onDeleteClick: () => void;
+  onDeleteClick: (delete: boolean) => void;
   setSearch: (val: string | null) => void;
+  isDelete?: boolean;
 }
 
 export default function LeadsFilter({
@@ -16,6 +17,7 @@ export default function LeadsFilter({
   onCheckAll,
   onDeleteClick,
   setSearch,
+  isDelete = false
 }: LeadsFilterProps) {
     
     const [searchQuery, setSearchQuery] = useState('');
@@ -27,7 +29,6 @@ export default function LeadsFilter({
             setSearch(null);
         }
     };
-
        
     const handleSearch = () => {
         const trimmed = searchQuery.trim();
@@ -47,14 +48,24 @@ export default function LeadsFilter({
         checked={allChecked}
         onChange={onCheckAll}
       />
+      {isDelete ? (
+        <button
+          className=""
+          type="button"
+          aria-label="Eliminar contacto"
+          onClick={() => onDeleteClick(true)}
+        >
+          <img src="/icons/trash.svg" alt="" />
+      </button>
+      ): 
       <button
         className=""
         type="button"
-        aria-label="Eliminar contacto"
-        onClick={onDeleteClick}
+        aria-label="Restaurar contacto"
+        onClick={() => onDeleteClick(false)}
       >
-        <img src="/icons/trash.svg" alt="" />
-      </button>
+        <img src="/icons/check.svg" alt="" />
+      </button>}
       <InputField2
         placeholder="Email / Teléfono / Nombre"
         value={searchQuery}

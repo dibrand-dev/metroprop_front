@@ -24,13 +24,15 @@ export default function Leads() {
   const [activeSubmenu, setActiveSubmenu] = useState<'entrada' | 'destacados' | 'eliminados' | 'bloqueados'>('entrada');
   const [selectedLeadIds, setSelectedLeadIds] = useState<number[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteMode, setDeleteMode] = useState(false);
 
   const deleteMutation = useMutation({
     mutationFn: (ids: number[]) =>
-      Promise.all(ids.map(id => apiFetch(`${API_BASE_URL}/leads/${id}`, { method: 'PATCH', body: { deleted: true, highlighted: false } }))),
+      Promise.all(ids.map(id => apiFetch(`${API_BASE_URL}/leads/${id}`, { method: 'PATCH', body: { deleted: deleteMode, highlighted: false } }))),
     onSuccess: () => {
       setSelectedLeadIds([]);
       setDeleteModalOpen(false);
+      setDeleteMode(false);
       queryClient.invalidateQueries({ queryKey: ['leads'] });
     },
   });
@@ -79,8 +81,9 @@ export default function Leads() {
               if (val) setSelectedLeadIds(contactos.map(l => l.id!));
               else setSelectedLeadIds([]);
             }}
-            onDeleteClick={() => { if (selectedLeadIds.length > 0) setDeleteModalOpen(true); }}
+            onDeleteClick={(deleteFlag) => { if (selectedLeadIds.length > 0) setDeleteModalOpen(true); setDeleteMode(deleteFlag); }}
             setSearch={setSearch}
+            isDelete={activeSubmenu === 'eliminados'}
           />
 
           <div className="leads-list-container">
@@ -158,13 +161,15 @@ export default function Leads() {
 
       {deleteModalOpen && (
         <AreYouSureModal
-          title="Eliminar"
-          subTitle={`Vas a eliminar ${selectedLeadIds.length} contacto${selectedLeadIds.length !== 1 ? 's' : ''}`}
+          title={deleteMode ? "Eliminar" : "Restaurar"}
+          subTitle={`Vas a ${deleteMode ? 'eliminar' : 'restaurar'} ${selectedLeadIds.length} contacto${selectedLeadIds.length !== 1 ? 's' : ''}`}
           text="¿Estás seguro?"
-          icon="/icons/trash.svg"
+          icon={deleteMode ? "/icons/trash.svg" : "/icons/check.svg"}
           onCancel={() => setDeleteModalOpen(false)}
-          onAccept={() => deleteMutation.mutate(selectedLeadIds)}
-          acceptText={deleteMutation.isPending ? 'Eliminando...' : 'Aceptar'}
+          onAccept={() => {
+            deleteMutation.mutate(selectedLeadIds);
+          }}
+          acceptText={deleteMutation.isPending ? (deleteMode ? 'Eliminando...' : 'Restaurando...') : 'Aceptar'}
         />
       )}
     </div>
