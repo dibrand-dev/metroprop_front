@@ -4,10 +4,10 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import './PublishContent.scss';
 import EmprendimientoImages, { EmprendimientoImagesRef } from './EmprendimientoImages';
 import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
-import { useQuery } from '@tanstack/react-query';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import InputField2 from '@/ui/InputField2/InputField2';
 import Select from '@/ui/Select/Select';
+import LocationCascadeSelects, { LocationCascadeValue, LocationCascadeNames } from '@/components/LocationCascadeSelects/LocationCascadeSelects';
 import Button from '@/ui/Button/Button';
 import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
 import './PublishEmprendimiento.scss';
@@ -169,12 +169,16 @@ export default function PublishEmprendimiento({
   // Location state
   const [street, setStreet] = useState(wizardData.street || '');
   const [postal_code, setPostal_code] = useState(wizardData.postal_code || '');
-  // const [country_id, setCountry_id] = useState<number | undefined>(wizardData.country_id || undefined);
-  const [state_id, setState_id] = useState<number | undefined>(wizardData.state_id || undefined);
-  const [location_id, setLocation_id] = useState<number | undefined>(wizardData.location_id || undefined);
-  const [sub_location_id, setSub_location_id] = useState<number | undefined>(wizardData.sub_location_id || undefined);
-  const [neighborhood_id, setNeighborhood_id] = useState<number | undefined>(wizardData.neighborhood_id || undefined);
-  const [sub_neighborhood_id, setSub_neighborhood_id] = useState<number | undefined>(wizardData.sub_neighborhood_id || undefined);
+  const [locationData, setLocationData] = useState<LocationCascadeValue>({
+    state_id: wizardData.state_id || undefined,
+    location_id: wizardData.location_id || undefined,
+    sub_location_id: wizardData.sub_location_id || undefined,
+    neighborhood_id: wizardData.neighborhood_id || undefined,
+    sub_neighborhood_id: wizardData.sub_neighborhood_id || undefined,
+  });
+  const [locationNames, setLocationNames] = useState<LocationCascadeNames>({
+    stateName: '', locationName: '', subLocationName: '', neighborhoodName: '', subNeighborhoodName: '',
+  });
   const [geo_lat, setGeo_lat] = useState<number | undefined>(wizardData.geo_lat || undefined);
   const [geo_long, setGeo_long] = useState<number | undefined>(wizardData.geo_long || undefined);
   const [show_exact_location, setShow_exact_location] = useState(wizardData.show_exact_location || false);
@@ -221,11 +225,11 @@ export default function PublishEmprendimiento({
     updateWizardData({
       street,
       country_id: 1,
-      state_id,
-      location_id,
-      sub_location_id,
-      neighborhood_id,
-      sub_neighborhood_id,
+      state_id: locationData.state_id,
+      location_id: locationData.location_id,
+      sub_location_id: locationData.sub_location_id,
+      neighborhood_id: locationData.neighborhood_id,
+      sub_neighborhood_id: locationData.sub_neighborhood_id,
       postal_code,
       show_exact_location,
       geo_lat,
@@ -238,92 +242,25 @@ export default function PublishEmprendimiento({
       property_type: PropertyType.EMPRENDIMIENTO,
       is_development: true
     });
-  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id, postal_code, show_exact_location, geo_lat, geo_long, nombreEmprendimiento, descripcion, tipoEmprendimiento, totalUnidades, entrega]);
+  }, [street, locationData, postal_code, show_exact_location, geo_lat, geo_long, nombreEmprendimiento, descripcion, tipoEmprendimiento, totalUnidades, entrega]);
 
 /*  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) setLogoFile(e.target.files[0]);
   };*/
 
-  // ── Location queries ──────────────────────────────────────────────────────
-  /*const { data: countries = [], isLoading: loadingCountries } = useQuery({
-    queryKey: ['countries'],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/countries`),
-  });*/
-
-  const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
-    queryKey: ['provinces', 1],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: 1 } }),
-  });
-
-  const { data: locations = [], isLoading: loadingLocations } = useQuery({
-    queryKey: ['locations', state_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: state_id } }),
-    enabled: !!state_id,
-  });
-
-  const { data: zones = [], isLoading: loadingZones } = useQuery({
-    queryKey: ['zones', location_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: location_id } }),
-    enabled: !!location_id,
-  });
-
-  const { data: neighborhoods = [], isLoading: loadingNeighborhoods } = useQuery({
-    queryKey: ['neighborhoods', sub_location_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: sub_location_id } }),
-    enabled: !!sub_location_id,
-  });
-
-  const { data: sub_neighborhoods = [], isLoading: loadingSubNeighborhoods } = useQuery({
-    queryKey: ['sub_neighborhoods', neighborhood_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: neighborhood_id } }),
-    enabled: !!neighborhood_id,
-  });
-
-  /*const countryOptions = useMemo(() => countries.map((c: any) => ({ value: c.id.toString(), label: c.name })), [countries]);*/
-  const provinceOptions = useMemo(() => provinces.map((p: any) => ({ value: p.id.toString(), label: p.name })), [provinces]);
-  const locationOptions = useMemo(() => locations.map((l: any) => ({ value: l.id.toString(), label: l.name })), [locations]);
-  const zoneOptions = useMemo(() => zones.map((z: any) => ({ value: z.id.toString(), label: z.name })), [zones]);
-  const neighborhoodOptions = useMemo(() => neighborhoods.map((n: any) => ({ value: n.id.toString(), label: n.name })), [neighborhoods]);
-  const subNeighborhoodOptions = useMemo(() => sub_neighborhoods.map((sn: any) => ({ value: sn.id.toString(), label: sn.name })), [sub_neighborhoods]);
-  
   const fullMapAddress = useMemo(() => {
-    type Opt = { value: string; label: string };
-    const countryName = "Argentina"; /*countryOptions.find((o: Opt) => o.value === country_id?.toString())?.label ?? ''*/;
-    const stateName = provinceOptions.find((o: Opt) => o.value === state_id?.toString())?.label ?? '';
-    const locationName = locationOptions.find((o: Opt) => o.value === location_id?.toString())?.label ?? '';
-    const zoneName = zoneOptions.find((o: Opt) => o.value === sub_location_id?.toString())?.label ?? '';
-    const subZoneName = neighborhoodOptions.find((o: Opt) => o.value === neighborhood_id?.toString())?.label ?? '';
-    const subNeighborhoodName = subNeighborhoodOptions.find((o: Opt) => o.value === sub_neighborhood_id?.toString())?.label ?? '';
-    return [street, subNeighborhoodName, subZoneName, zoneName, locationName, stateName, countryName].filter(Boolean).join(', ');
-  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id, /*countryOptions,*/ provinceOptions, locationOptions, zoneOptions, neighborhoodOptions, subNeighborhoodOptions]);
+    return [street, locationNames.subNeighborhoodName, locationNames.neighborhoodName, locationNames.subLocationName, locationNames.locationName, locationNames.stateName, 'Argentina'].filter(Boolean).join(', ');
+  }, [street, locationNames]);
 
   const handlePlaceSelect = useCallback((data: PlaceData) => {
     setStreet(data.street);
     setMapInteractive(false);
-    /*const countryMatch = findBestMatch(countryOptions, data.countryName);
-    if (countryMatch) {
-      setCountry_id(parseInt(countryMatch));
-      setState_id(undefined);
-      setLocation_id(undefined);
-      setSub_location_id(undefined);
-    }*/
+    setLocationData({ state_id: undefined, location_id: undefined, sub_location_id: undefined, neighborhood_id: undefined, sub_neighborhood_id: undefined });
     let stateName = data.stateName;
     if (stateName === 'Ciudad Autónoma de Buenos Aires') stateName = 'Capital Federal';
     setPendingStateName(stateName);
     setPendingCityName(data.cityName);
-  }, [provinceOptions]);
-
-  useEffect(() => {
-    if (!pendingStateName || provinceOptions.length === 0) return;
-    const match = findBestMatch(provinceOptions, pendingStateName);
-    if (match) { setState_id(parseInt(match)); setPendingStateName(''); setLocation_id(undefined); setSub_location_id(undefined); }
-  }, [provinceOptions, pendingStateName]);
-
-  useEffect(() => {
-    if (!pendingCityName || locationOptions.length === 0) return;
-    const match = findBestMatch(locationOptions, pendingCityName);
-    if (match) { setLocation_id(parseInt(match)); setPendingCityName(''); setSub_location_id(undefined); }
-  }, [locationOptions, pendingCityName]);
+  }, []);
 
   const handleContinuar = async (nextStep: boolean) => {
     setSubmitted(true);
@@ -498,77 +435,19 @@ export default function PublishEmprendimiento({
             </div>
 
             <div className="form-group">
-              <div className="form-row">
-                {/*<div className="form-field half-width">
-                  <Select
-                    label="País*"
-                    options={countryOptions}
-                    value={country_id ? country_id.toString() : undefined}
-                    onChange={(v) => { setCountry_id(v ? parseInt(v) : undefined); setState_id(undefined); setLocation_id(undefined); setSub_location_id(undefined); }}
-                    placeholder={loadingCountries ? 'Cargando países...' : 'Seleccionar país'}
-                    disabled={!hasSelectedAddress || loadingCountries}
-                    required
-                  />
-                </div>*/}
-                <div className="form-field half-width">
-                  <Select
-                    label="Provincia*"
-                    options={provinceOptions}
-                    value={state_id ? state_id.toString() : undefined}
-                    onChange={(v) => { setState_id(v ? parseInt(v) : undefined); setLocation_id(undefined); setSub_location_id(undefined); }}
-                    placeholder={loadingProvinces ? 'Cargando provincias...' : provinceOptions.length > 0 ? "Seleccionar provincia" : "No hay provincias disponibles"}
-                    disabled={!hasSelectedAddress || loadingProvinces}
-                    required
-                  />
-                </div>
-                <div className="form-field half-width">
-                  <Select
-                    label="Ciudad"
-                    options={locationOptions}
-                    value={location_id ? location_id.toString() : undefined}
-                    onChange={(v) => { setLocation_id(v ? parseInt(v) : undefined); setSub_location_id(undefined); }}
-                    placeholder={loadingLocations ? 'Cargando ciudades...' : locationOptions.length > 0 ? "Seleccionar ciudad" : "No hay ciudades disponibles"}
-                    disabled={!hasSelectedAddress || !state_id || loadingLocations || locationOptions.length === 0}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <div className="form-row">               
-                <div className="form-field half-width">
-                  <Select
-                    label="Barrio"
-                    options={zoneOptions}
-                    value={sub_location_id ? sub_location_id.toString() : undefined}
-                    onChange={(v) => setSub_location_id(v ? parseInt(v) : undefined)}
-                    placeholder={loadingZones ? 'Cargando barrios...' : zoneOptions.length > 0 ? "Seleccionar barrio" : "No hay barrios disponibles"}
-                    disabled={!hasSelectedAddress || !location_id || loadingZones || zoneOptions.length === 0}
-                  />
-                </div>
-                <div className="form-field half-width">
-                  <Select
-                    label="Zona"
-                    options={neighborhoodOptions}
-                    value={neighborhood_id ? neighborhood_id.toString() : undefined}
-                    onChange={(v) => setNeighborhood_id(v ? parseInt(v) : undefined)}
-                    placeholder={loadingNeighborhoods ? "Cargando zonas..." : neighborhoodOptions.length > 0 ? "Seleccionar zona" : "No hay zonas disponibles"}
-                    disabled={!hasSelectedAddress || !sub_location_id || loadingNeighborhoods || neighborhoodOptions.length === 0}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="publish-location-row">
-              <div className="publish-location-field">
-                <Select
-                  label="Sub-zona"
-                  options={subNeighborhoodOptions}
-                  value={sub_neighborhood_id ? sub_neighborhood_id.toString() : undefined}
-                  onChange={(v) => setSub_neighborhood_id(v ? parseInt(v) : undefined)}
-                  placeholder={loadingSubNeighborhoods ? "Cargando sub-zonas..." : subNeighborhoodOptions.length > 0 ? "Seleccionar sub-zona" : "No hay sub-zonas disponibles"}
-                  disabled={!hasSelectedAddress || !neighborhood_id || loadingSubNeighborhoods || subNeighborhoodOptions.length === 0}
-                />
-              </div>
+              <LocationCascadeSelects
+                value={locationData}
+                onChange={setLocationData}
+                onNamesChange={setLocationNames}
+                disabled={!hasSelectedAddress}
+                provinceRequired
+                pendingStateName={pendingStateName}
+                pendingCityName={pendingCityName}
+                onPendingResolved={(field) => {
+                  if (field === 'state') setPendingStateName('');
+                  else setPendingCityName('');
+                }}
+              />
             </div>
 
             <div className="form-group">

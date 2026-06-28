@@ -1,0 +1,35 @@
+.location-cascade-selects {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.location-cascade-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+
+  > * {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &--single {
+    > * {
+      flex: 0 0 calc(50% - 8px);
+      max-width: calc(50% - 8px);
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .location-cascade-row {
+    flex-direction: column;
+  }
+
+  .location-cascade-row--single > * {
+    flex: 1;
+    max-width: 100%;
+  }
+}

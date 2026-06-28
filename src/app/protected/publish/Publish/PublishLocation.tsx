@@ -1,13 +1,12 @@
 'use client';
 
 import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import './PublishLocation.scss';
 import SwitchToggle from '@/ui/SwitchToggle/SwitchToggle';
-import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
 import { API_BASE_URL } from '@/utils/utils';
+import LocationCascadeSelects, { LocationCascadeValue, LocationCascadeNames } from '@/components/LocationCascadeSelects/LocationCascadeSelects';
 import { 
   OPERATION_TYPE_LABELS, 
   PROPERTY_TYPE_LABELS, 
@@ -198,12 +197,16 @@ export default function PublishLocation({
   isEditMode,
 }: PublishLocationProps) {
   const [street, setStreet] = useState(wizardData.street || '');
-  // const [country_id, setCountry_id] = useState<number | undefined>(wizardData.country_id || undefined);
-  const [state_id, setState_id] = useState<number | undefined>(wizardData.state_id || undefined);
-  const [location_id, setLocation_id] = useState<number | undefined>(wizardData.location_id || undefined);
-  const [sub_location_id, setSub_location_id] = useState<number | undefined>(wizardData.sub_location_id || undefined);
-  const [neighborhood_id, setNeighborhood_id] = useState<number | undefined>(wizardData.neighborhood_id || undefined);
-  const [sub_neighborhood_id, setSub_neighborhood_id] = useState<number | undefined>(wizardData.sub_neighborhood_id || undefined);
+  const [locationData, setLocationData] = useState<LocationCascadeValue>({
+    state_id: wizardData.state_id || undefined,
+    location_id: wizardData.location_id || undefined,
+    sub_location_id: wizardData.sub_location_id || undefined,
+    neighborhood_id: wizardData.neighborhood_id || undefined,
+    sub_neighborhood_id: wizardData.sub_neighborhood_id || undefined,
+  });
+  const [locationNames, setLocationNames] = useState<LocationCascadeNames>({
+    stateName: '', locationName: '', subLocationName: '', neighborhoodName: '', subNeighborhoodName: '',
+  });
   const [postal_code, setPostal_code] = useState(wizardData.postal_code || '');
   const [show_exact_location, setShow_exact_location] = useState(
     wizardData.show_exact_location !== undefined ? wizardData.show_exact_location : true
@@ -214,224 +217,64 @@ export default function PublishLocation({
   const [pendingStateName, setPendingStateName] = useState('');
   const [pendingCityName, setPendingCityName] = useState('');
   const [hasSelectedAutocompleteLocation, setHasSelectedAutocompleteLocation] = useState(
-    Boolean(wizardData.location_id || wizardData.state_id /*|| wizardData.country_id*/  || wizardData.geo_lat || wizardData.geo_long)
+    Boolean(wizardData.location_id || wizardData.state_id || wizardData.geo_lat || wizardData.geo_long)
   );
   const [mapInteractive, setMapInteractive] = useState(false);
+
+  const hasAddress = useMemo(() => street.trim().length > 0, [street]);
+  const showMapPreview = hasAddress;
+
+  const fullMapAddress = useMemo(() => {
+    return [street, locationNames.subNeighborhoodName, locationNames.neighborhoodName, locationNames.subLocationName, locationNames.locationName, locationNames.stateName, 'Argentina'].filter(Boolean).join(', ');
+  }, [street, locationNames]);
 
   const handleCoordinatesChange = (lat: number, lng: number) => {
     setGeo_lat(lat);
     setGeo_long(lng);
     setHasSelectedAutocompleteLocation(true);
   };
-/*
-  // Query for countries (loads on component mount)
-  const { data: countries = [], isLoading: loadingCountries } = useQuery({
-    queryKey: ['countries'],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/countries`),
-  });
-*/
-  // Query for states/provinces (loads when country is selected)
-  const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
-    queryKey: ['provinces'],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: 1 } }),    
-  });
-
-  // Query for locations (loads when province is selected)
-  const { data: locations = [], isLoading: loadingLocations } = useQuery({
-    queryKey: ['locations', state_id],
-    queryFn: async () => {
-      const locations = await apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: state_id } });
-      return locations;
-    },
-    enabled: !!state_id,
-  });
-
-  // Query for zones (loads when location is selected)
-  const { data: zones = [], isLoading: loadingZones } = useQuery({
-    queryKey: ['zones', location_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: location_id } }),
-    enabled: !!location_id,
-  });
-
-  const { data: neighborhoods = [], isLoading: loadingNeighborhoods } = useQuery({
-    queryKey: ['neighborhoods', sub_location_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: sub_location_id } }),
-    enabled: !!sub_location_id,
-  });
-
-  const { data: sub_neighborhoods = [], isLoading: loadingSubNeighborhoods } = useQuery({
-    queryKey: ['sub_neighborhoods', neighborhood_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: neighborhood_id } }),
-    enabled: !!neighborhood_id,
-  });
-  
-  const hasAddress = useMemo(() => street.trim().length > 0, [street]);
-  const showMapPreview = hasAddress;
-
-  // Transform data for Select components
-  /*const countryOptions = countries.map((country: any) => ({
-    value: country.id.toString(),
-    label: country.name,
-  }));*/
-
-  const provinceOptions = provinces.map((province: any) => ({
-    value: province.id.toString(),
-    label: province.name,
-  }));
-
-  const locationOptions = locations.map((location: any) => ({
-    value: location.id.toString(),
-    label: location.name,
-  }));
-
-  const zoneOptions = zones.map((zone: any) => ({
-    value: zone.id.toString(),
-    label: zone.name,
-  }));
-
-  const neighborhoodOptions = neighborhoods.map((neighborhood: any) => ({
-    value: neighborhood.id.toString(),
-    label: neighborhood.name,
-  }));
-
-  const subNeighborhoodOptions = sub_neighborhoods.map((subNeighborhood: any) => ({
-    value: subNeighborhood.id.toString(),
-    label: subNeighborhood.name,
-  }));
-
-  // Build full address string for geocoding (country + state + location + zone + street)
-  const fullMapAddress = useMemo(() => {
-    type Opt = { value: string; label: string };
-    const countryName = "Argentina"; //countryOptions.find((o: Opt) => o.value === country_id?.toString())?.label ?? '';
-    const stateName = provinceOptions.find((o: Opt) => o.value === state_id?.toString())?.label ?? '';
-    const locationName = locationOptions.find((o: Opt) => o.value === location_id?.toString())?.label ?? '';
-    const zoneName = zoneOptions.find((o: Opt) => o.value === sub_location_id?.toString())?.label ?? '';
-    const subZoneName = neighborhoodOptions.find((o: Opt) => o.value === neighborhood_id?.toString())?.label ?? '';
-    const subNeighborhoodName = subNeighborhoodOptions.find((o: Opt) => o.value === sub_neighborhood_id?.toString())?.label ?? '';
-    return [street, subNeighborhoodName, subZoneName, zoneName, locationName, stateName, countryName].filter(Boolean).join(', ');
-  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id /*, countryOptions*/, provinceOptions, locationOptions, zoneOptions, neighborhoodOptions, subNeighborhoodOptions]);
 
   const handlePlaceSelect = useCallback((data: PlaceData) => {
     setStreet(data.street);
     setMapInteractive(false);
-    // Immediately try to match country; if found cascade state/city via pending
-    // const countryMatch = findBestMatch(countryOptions, data.countryName);
-    /*if (countryMatch) {
-      const newId = parseInt(countryMatch);
-      // setCountry_id(newId);
-      setState_id(undefined);
-      setLocation_id(undefined);
-      setSub_location_id(undefined);
-    }*/
-    // Store pending names regardless — effects will apply them when options load
-    let stateName = data.stateName
-    if (data.stateName === "Ciudad Autónoma de Buenos Aires") stateName = "Capital Federal"
+    setLocationData({ state_id: undefined, location_id: undefined, sub_location_id: undefined, neighborhood_id: undefined, sub_neighborhood_id: undefined });
+    let stateName = data.stateName;
+    if (data.stateName === 'Ciudad Autónoma de Buenos Aires') stateName = 'Capital Federal';
     setPendingStateName(stateName);
     setPendingCityName(data.cityName);
-  }, [provinceOptions]);
-
-  // Handle selection changes and reset dependent selects
-  /*const handleCountryChange = (value: string | null) => {
-    const selectedCountryId = value ? parseInt(value) : undefined;
-    setCountry_id(selectedCountryId);
-    setState_id(undefined); // Reset state
-    setLocation_id(undefined); // Reset location
-    setSub_location_id(undefined); // Reset sub-location
-  };*/
-
-  const handleStateChange = (value: string | null) => {
-    const selectedStateId = value ? parseInt(value) : undefined;
-    setState_id(selectedStateId);
-    setLocation_id(undefined); // Reset location
-    setSub_location_id(undefined); // Reset sub-location
-    setNeighborhood_id(undefined); // Reset neighborhood
-    setSub_neighborhood_id(undefined); // Reset sub-neighborhood
-  };
-
-  const handleLocationChange = (value: string | null) => {
-    const selectedLocationId = value ? parseInt(value) : undefined;
-    setLocation_id(selectedLocationId);
-    setSub_location_id(undefined); // Reset sub-location
-    setNeighborhood_id(undefined); // Reset neighborhood
-    setSub_neighborhood_id(undefined); // Reset sub-neighborhood
-  };
-
-  const handleSubLocationChange = (value: string | null) => {
-    const selectedSubLocationId = value ? parseInt(value) : undefined;
-    setSub_location_id(selectedSubLocationId);
-    setNeighborhood_id(undefined); // Reset neighborhood
-    setSub_neighborhood_id(undefined); // Reset sub-neighborhood
-  };
-
-  const handleNeighborhoodChange = (value: string | null) => {
-    const selectedNeighborhoodId = value ? parseInt(value) : undefined;
-    setNeighborhood_id(selectedNeighborhoodId);
-    setSub_neighborhood_id(undefined); // Reset sub-neighborhood
-  };
-
-  const handleSubNeighborhoodChange = (value: string | null) => {
-    const selectedSubNeighborhoodId = value ? parseInt(value) : undefined;
-    setSub_neighborhood_id(selectedSubNeighborhoodId);
-  };
-
-  // When provinces load, apply the pending state name from autocomplete selection
-  useEffect(() => {
-    if (!pendingStateName || provinceOptions.length === 0) return;
-    const match = findBestMatch(provinceOptions, pendingStateName);
-    if (match) {
-      setState_id(parseInt(match));
-      setPendingStateName('');
-      setLocation_id(undefined);
-      setSub_location_id(undefined);
-      setNeighborhood_id(undefined);
-      setSub_neighborhood_id(undefined);
-    }
-  }, [provinceOptions, pendingStateName]);
-
-  // When locations load, apply the pending city name from autocomplete selection
-  useEffect(() => {
-    if (!pendingCityName || locationOptions.length === 0) return;
-    const match = findBestMatch(locationOptions, pendingCityName);
-    if (match) {
-      setLocation_id(parseInt(match));
-      setPendingCityName('');
-      setSub_location_id(undefined);
-      setNeighborhood_id(undefined);
-      setSub_neighborhood_id(undefined);
-    }
-  }, [locationOptions, pendingCityName]);
+  }, []);
 
   // Update wizard data when location data changes
   useEffect(() => {
     updateWizardData({
       street,
       country_id: 1,
-      state_id,
-      location_id,
-      sub_location_id,
-      neighborhood_id,
-      sub_neighborhood_id,
+      state_id: locationData.state_id,
+      location_id: locationData.location_id,
+      sub_location_id: locationData.sub_location_id,
+      neighborhood_id: locationData.neighborhood_id,
+      sub_neighborhood_id: locationData.sub_neighborhood_id,
       postal_code,
       show_exact_location,
       geo_lat,
       geo_long,
     });
-  }, [street, /*country_id,*/ state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id, postal_code, show_exact_location, geo_lat, geo_long]);
+  }, [street, locationData, postal_code, show_exact_location, geo_lat, geo_long]);
 
   const handleBack = () => {
     onBack();
   };
 
   const handleContinue = (continueFlag = true) => {
-    const locationUpdate = { 
+    const locationUpdate = {
       postal_code,
       street,
       country_id: 1,
-      state_id,
-      location_id,
-      sub_location_id,
-      neighborhood_id,
-      sub_neighborhood_id,
+      state_id: locationData.state_id,
+      location_id: locationData.location_id,
+      sub_location_id: locationData.sub_location_id,
+      neighborhood_id: locationData.neighborhood_id,
+      sub_neighborhood_id: locationData.sub_neighborhood_id,
       show_exact_location,
       geo_lat,
       geo_long
@@ -481,77 +324,19 @@ export default function PublishLocation({
                 />
               </div>
 
-              <div className="publish-location-row">
-                {/*<div className="publish-location-field">
-                  <Select
-                    label="País*"
-                    options={countryOptions}
-                    value={country_id ? country_id.toString() : undefined}
-                    onChange={handleCountryChange}
-                    placeholder={loadingCountries ? "Cargando países..." : "Seleccionar país"}
-                    disabled={!hasSelectedAutocompleteLocation || loadingCountries}
-                    required
-                  />
-                </div>*/}
-
-                <div className="publish-location-field">
-                  <Select
-                    label="Provincia*"
-                    options={provinceOptions}
-                    value={state_id ? state_id.toString() : undefined}
-                    onChange={handleStateChange}
-                    placeholder={loadingProvinces ? "Cargando provincias..." : provinceOptions.length > 0 ? "Seleccionar provincia" : "No hay provincias disponibles"}
-                    disabled={!hasSelectedAutocompleteLocation /*|| !country_id*/ || loadingProvinces}
-                    required
-                  />
-                </div>
-                <div className="publish-location-field">
-                  <Select
-                    label="Ciudad"
-                    options={locationOptions}
-                    value={location_id ? location_id.toString() : undefined}
-                    onChange={handleLocationChange}
-                    placeholder={loadingLocations ? "Cargando ciudades..." : locationOptions.length > 0 ? "Seleccionar ciudad" : "No hay ciudades disponibles"}
-                    disabled={!hasSelectedAutocompleteLocation || !state_id || loadingLocations || locationOptions.length === 0}
-                  />
-                </div>
-              </div>
-
-              <div className="publish-location-row">
-                <div className="publish-location-field">
-                  <Select
-                    label="Barrio"
-                    options={zoneOptions}
-                    value={sub_location_id ? sub_location_id.toString() : undefined}
-                    onChange={handleSubLocationChange}
-                    placeholder={loadingZones ? "Cargando barrios..." : zoneOptions.length > 0 ? "Seleccionar barrio" : "No hay barrios disponibles"}
-                    disabled={!hasSelectedAutocompleteLocation || !state_id || loadingZones || zoneOptions.length === 0}
-                  />
-                </div>
-
-                <div className="publish-location-field">
-                  <Select
-                    label="Zona"
-                    options={neighborhoodOptions}
-                    value={neighborhood_id ? neighborhood_id.toString() : undefined}
-                    onChange={handleNeighborhoodChange}
-                    placeholder={loadingNeighborhoods ? "Cargando zonas..." : neighborhoodOptions.length > 0 ? "Seleccionar zona" : "No hay zonas disponibles"}
-                    disabled={!hasSelectedAutocompleteLocation || !sub_location_id || loadingNeighborhoods || neighborhoodOptions.length === 0}
-                  />
-                </div>
-              </div>
-              <div className="publish-location-row">
-                <div className="publish-location-field">
-                  <Select
-                    label="Sub-zona"
-                    options={subNeighborhoodOptions}
-                    value={sub_neighborhood_id ? sub_neighborhood_id.toString() : undefined}
-                    onChange={handleSubNeighborhoodChange}
-                    placeholder={loadingSubNeighborhoods ? "Cargando sub-zonas..." : subNeighborhoodOptions.length > 0 ? "Seleccionar sub-zona" : "No hay sub-zonas disponibles"}
-                    disabled={!hasSelectedAutocompleteLocation || !neighborhood_id || loadingSubNeighborhoods || subNeighborhoodOptions.length === 0}
-                  />
-                </div>
-              </div>
+              <LocationCascadeSelects
+                value={locationData}
+                onChange={setLocationData}
+                onNamesChange={setLocationNames}
+                disabled={!hasSelectedAutocompleteLocation}
+                provinceRequired
+                pendingStateName={pendingStateName}
+                pendingCityName={pendingCityName}
+                onPendingResolved={(field) => {
+                  if (field === 'state') setPendingStateName('');
+                  else setPendingCityName('');
+                }}
+              />
 
           {showMapPreview ? (
             <div className="publish-location-row">                  

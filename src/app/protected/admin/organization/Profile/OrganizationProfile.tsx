@@ -7,10 +7,11 @@ import { useAdminMenu } from '../../AdminLayoutClient';
 import { useSession } from 'next-auth/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { API_BASE_URL, getIdentificador, setImagePath } from '@/utils/utils';
-import Select from '@/ui/Select/Select';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
 import Button from '@/ui/Button/Button';
+import LocationCascadeSelects, { LocationCascadeValue } from '@/components/LocationCascadeSelects/LocationCascadeSelects';
+import Select from '@/ui/Select/Select';
 
 const iconEditPencil = "/icons/pencil.svg";
 const iconArrowBack = "/icons/arrow.svg";
@@ -36,10 +37,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [organizationId, setOrganizationId] = useState<number | null>(propOrganizationId ?? null);
-  const [country_id, setCountry_id] = useState<number | undefined>(LOCATION_ARGENTINA_ID);
-  const [state_id, setState_id] = useState<number | undefined>(undefined);
-  const [location_id, setLocation_id] = useState<number | undefined>(undefined);
-  const [sub_location_id, setSub_location_id] = useState<number | undefined>(undefined);
+  const [locationData, setLocationData] = useState<LocationCascadeValue>({ state_id: undefined, location_id: undefined, sub_location_id: undefined, neighborhood_id: undefined, sub_neighborhood_id: undefined });
   const [properties, setProperties] = useState<any>({
     // Generales
     email: '',
@@ -56,28 +54,6 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
     description: '',
   });
 
-
-  const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
-    queryKey: ['provinces', country_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: country_id } }),
-    enabled: !!country_id,
-  });
-
-  const { data: locations = [], isLoading: loadingLocations } = useQuery({
-    queryKey: ['locations', state_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: state_id } }),
-    enabled: !!state_id,
-  });
-
-  const { data: zones = [], isLoading: loadingZones } = useQuery({
-    queryKey: ['zones', location_id],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: location_id } }),
-    enabled: !!location_id,
-  });
-
-  const provinceOptions = provinces.map((p: any) => ({ value: p.id.toString(), label: p.name }));
-  const locationOptions = locations.map((l: any) => ({ value: l.id.toString(), label: l.name }));
-  const zoneOptions = zones.map((z: any) => ({ value: z.id.toString(), label: z.name }));
 
   const orgId = propOrganizationId ?? (sessionData?.user as any)?.organization?.id ?? null;
 
@@ -100,10 +76,13 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
   useEffect(() => {
     if (!organizationData) return;
     const org = organizationData;
-    if (org.country_id) setCountry_id(org.country_id);
-    if (org.state_id) setState_id(org.state_id);
-    if (org.location_id) setLocation_id(org.location_id);
-    if (org.sub_location_id) setSub_location_id(org.sub_location_id);
+    setLocationData({
+      state_id: org.state_id ?? undefined,
+      location_id: org.location_id ?? undefined,
+      sub_location_id: org.sub_location_id ?? undefined,
+      neighborhood_id: org.neighborhood_id ?? undefined,
+      sub_neighborhood_id: org.sub_neighborhood_id ?? undefined,
+    });
     if (org.company_logo) setLogoPreview(setImagePath(org.company_logo));
     setProperties({
       email: org.email ?? '',
@@ -127,10 +106,12 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
       if (data.company_name) payload.append('company_name', data.company_name);
       if (data.phone) payload.append('phone', data.phone);
       if (data.alternative_phone) payload.append('alternative_phone', data.alternative_phone);
-      if (country_id) payload.append('country_id', String(country_id));
-      if (state_id) payload.append('state_id', String(state_id));
-      if (location_id) payload.append('location_id', String(location_id));
-      if (sub_location_id) payload.append('sub_location_id', String(sub_location_id));
+      payload.append('country_id', String(LOCATION_ARGENTINA_ID));
+      if (locationData.state_id) payload.append('state_id', String(locationData.state_id));
+      if (locationData.location_id) payload.append('location_id', String(locationData.location_id));
+      if (locationData.sub_location_id) payload.append('sub_location_id', String(locationData.sub_location_id));
+      if (locationData.neighborhood_id) payload.append('neighborhood_id', String(locationData.neighborhood_id));
+      if (locationData.sub_neighborhood_id) payload.append('sub_neighborhood_id', String(locationData.sub_neighborhood_id));
       if (data.address) payload.append('address', data.address);
       if (data.description) payload.append('description', data.description);
       if (data.social_reason) payload.append('social_reason', data.social_reason);
@@ -353,8 +334,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                 <img src={iconEditPencil} alt="Edit" />
               </button>
             </div>
-
-            <div className="professional-profile-fields">
+            <div>
               <InputField2
                 type="text"
                 placeholder="Dirección"
@@ -362,34 +342,14 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 disabled={!(isEditing && activeSection === 'ubicacion')}
                 label="Dirección"
-              />              
-              <Select
-                label=""
-                options={provinceOptions}
-                value={state_id ? state_id.toString() : undefined}
-                onChange={(v) => { setState_id(v ? parseInt(v) : undefined); setLocation_id(undefined); setSub_location_id(undefined); }}
-                placeholder={loadingProvinces ? 'Cargando provincias...' : 'Seleccionar provincia'}
-                disabled={!(isEditing && activeSection === 'ubicacion') || loadingProvinces}
               />
-              <Select
-                label=""
-                options={locationOptions}
-                value={location_id ? location_id.toString() : undefined}
-                onChange={(v) => { setLocation_id(v ? parseInt(v) : undefined); setSub_location_id(undefined); }}
-                placeholder={loadingLocations ? 'Cargando barrios...' : 'Seleccionar barrio'}
-                disabled={!(isEditing && activeSection === 'ubicacion') || !state_id || loadingLocations}
+            </div>
+            <div>
+             <LocationCascadeSelects
+                value={locationData}
+                onChange={setLocationData}
+                disabled={!(isEditing && activeSection === 'ubicacion')}
               />
-              {zoneOptions.length > 0 && (
-                <Select
-                  label=""
-                  options={zoneOptions}
-                  value={sub_location_id ? sub_location_id.toString() : undefined}
-                  onChange={(v) => setSub_location_id(v ? parseInt(v) : undefined)}
-                  placeholder={loadingZones ? 'Cargando zonas...' : 'Seleccionar zona'}
-                  disabled={!(isEditing && activeSection === 'ubicacion') || !location_id || loadingZones}
-                />
-              )}
-              
             </div>
           </section>
 

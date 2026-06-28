@@ -102,6 +102,7 @@ export default function CreateAlertModal({ onClose, onSuccess, alertId, initialN
             </div>
           ) : (
             <div className="create-alert-form">
+              Se creará una alerta tomando tus filtros actuales.
               <div className="create-alert-field">                
                 <InputField
                   id="alert-name"

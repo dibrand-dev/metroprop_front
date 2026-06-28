@@ -17,6 +17,7 @@ import {
   ORIENTATION_LABELS, Orientation,
   AmenityTag,
   AlertFrequency,
+  Currency,
 } from '@/types/propiedad';
 import { useLocations } from '@/lib/locations';
 
@@ -57,13 +58,17 @@ function parseFilters(
         continue;
       }
       if (key === 'property_type') {
-        const label = PROPERTY_TYPE_LABELS[Number(str) as PropertyType];
-        if (label) entries.push(['property_type', label]);
+        str.split(',').forEach(v => {
+          const label = PROPERTY_TYPE_LABELS[Number(v) as PropertyType];
+          if (label) entries.push(['property_type', label]);
+        });
         continue;
       }
       if (key === 'property_subtype') {
-        const label = PROPERTY_SUBTYPE_LABELS[Number(str) as PropertySubtype];
-        if (label) entries.push(['property_subtype', label]);
+        str.split(',').forEach(v => {
+          const label = PROPERTY_SUBTYPE_LABELS[Number(v) as PropertySubtype];
+          if (label) entries.push(['property_subtype', label]);
+        });
         continue;
       }
       if (key === 'room_amount') {
@@ -72,6 +77,14 @@ function parseFilters(
       }
       if (key === 'parking_lot_amount') {
         entries.push(['parking_lot_amount', `Cocheras: ${str}`]);
+        continue;
+      }
+      if (key === 'bathroom_amount') {
+        entries.push(['bathroom_amount', `Baños: ${str}`]);
+        continue;
+      }
+      if (key === 'suite_amount') {
+        entries.push(['suite_amount', `Suites: ${str}`]);
         continue;
       }
       if (key === 'age') {
@@ -92,6 +105,34 @@ function parseFilters(
           const label = tagsMap.get(Number(v.trim()));
           if (label) entries.push(['tag', label]);
         });
+        continue;
+      }
+      if (key === 'currency') {
+        entries.push(['currency', `Moneda: ${str}`]);
+        continue;
+      }
+      if (key === 'price_min') {
+        entries.push(['price_min', `Precio mínimo: ${str}`]);
+        continue;
+      }
+      if (key === 'price_max') {
+        entries.push(['price_max', `Precio máximo: ${str}`]);
+        continue;
+      }
+      if (key === 'total_surface_min') {
+        entries.push(['total_surface_min', `Superficie total mínima: ${str}`]);
+        continue;
+      }
+      if (key === 'total_surface_max') {
+        entries.push(['total_surface_max', `Superficie total máxima: ${str}`]);
+        continue;
+      }
+      if (key === 'direct_owner') {
+        entries.push(['direct_owner', `Propietario directo`]);
+        continue;
+      }
+      if (key === 'inmobiliaria') {
+        entries.push(['inmobiliaria', `Inmobiliaria`]);
         continue;
       }
     }
