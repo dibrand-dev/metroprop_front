@@ -178,7 +178,11 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         .map((option: AmenityTag) => option.name);
     });
     result[4] = [];
+<<<<<<< HEAD
     if (property?.expenses)  result[4].push(`Expensas: ${formatCurrency(property.currency_expenses ?? '')}${formatNumbers(property.expenses)}`);
+=======
+    // if (property?.expenses)  result[4].push(`Expensas: ${formatNumbers(property.expenses)} ${formatCurrency(property.currency_expenses ?? '')}`);
+>>>>>>> ca76d01803c6a42eb4d48d63e24f457ba34b931e
     if (property?.floors_amount)  result[4].push(`Pisos: ${property.floors_amount}`);
     if (property?.garage_coverage)  result[4].push(`Cobertura cochera: ${GARAGE_COVERAGE_LABELS[property.garage_coverage]}`);
     if (property?.postal_code)  result[4].push(`Código postal: ${property.postal_code}`);
@@ -564,43 +568,46 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           </div>
           : <div className="property-detail-hero-row">
             <p className="property-detail-status"><span className='status-icon'></span>{statusDisplay}</p>
-            <div className="property-detail-price">
-              <span>{priceDisplay}</span>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <button
-                  type="button"
-                  className="property-detail-info"
-                  aria-label="Mas informacion"
-                  onClick={() => setIsPriceInfoPopoverOpen(!isPriceInfoPopoverOpen)}
-                >
-                  <img src="/icons/infoPrice.svg" alt="Info Icon" />
-                </button>
-                {isPriceInfoPopoverOpen && (
-                  <div className="price-info-popover">
-                    <button 
-                      className="price-info-popover-close" 
-                      onClick={() => setIsPriceInfoPopoverOpen(false)}
-                      aria-label="Cerrar"
-                    >
-                      ×
-                    </button>
-                    <div className="price-info-popover-content">
-                      <div className="price-info-item">
-                        <span className="price-info-label">Cubierto</span>
-                        <span className="price-info-value">100% / m²</span>
-                      </div>
-                      <div className="price-info-item">
-                        <span className="price-info-label">Semi Cubierto</span>
-                        <span className="price-info-value">50% / m²</span>
-                      </div>
-                      <div className="price-info-item">
-                        <span className="price-info-label">Descubierto</span>
-                        <span className="price-info-value">0%</span>
+            <div>
+              <div className="property-detail-price">
+                <span>{priceDisplay}</span>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    className="property-detail-info"
+                    aria-label="Mas informacion"
+                    onClick={() => setIsPriceInfoPopoverOpen(!isPriceInfoPopoverOpen)}
+                  >
+                    <img src="/icons/infoPrice.svg" alt="Info Icon" />
+                  </button>
+                  {isPriceInfoPopoverOpen && (
+                    <div className="price-info-popover">
+                      <button 
+                        className="price-info-popover-close" 
+                        onClick={() => setIsPriceInfoPopoverOpen(false)}
+                        aria-label="Cerrar"
+                      >
+                        ×
+                      </button>
+                      <div className="price-info-popover-content">
+                        <div className="price-info-item">
+                          <span className="price-info-label">Cubierto</span>
+                          <span className="price-info-value">100% / m²</span>
+                        </div>
+                        <div className="price-info-item">
+                          <span className="price-info-label">Semi Cubierto</span>
+                          <span className="price-info-value">50% / m²</span>
+                        </div>
+                        <div className="price-info-item">
+                          <span className="price-info-label">Descubierto</span>
+                          <span className="price-info-value">0%</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
+              <div className="property-detail-price">{property?.expenses && `Expensas: ${formatCurrency(property.currency_expenses ?? '')} ${formatNumbers(property.expenses)}`}</div>
             </div>
           </div>}
 
