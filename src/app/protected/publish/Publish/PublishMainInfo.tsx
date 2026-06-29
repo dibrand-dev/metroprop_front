@@ -14,6 +14,7 @@ import {
   PropertyType
 } from '@/types/propiedad';
 import Button from '@/ui/Button/Button';
+import { formatNumbers } from '@/utils/utils';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -104,6 +105,27 @@ export default function PublishMainInfo({
     }
   };
 
+  const handleChangeSurfaceInput = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    // limpiar todo lo que no sea número
+    const raw = event.target.value.replace(/\D/g, "");
+
+    if (raw === "") {
+      if('roofed_surface' === field) {
+        setRoofed_surface("");
+      } else if('total_surface' === field) {
+        setTotal_surface("");
+      }
+
+      return;
+    }
+    const parsed = parseInt(raw, 10);
+    if('roofed_surface' === field) {
+      setRoofed_surface(isNaN(parsed) ? "" : parsed);
+    } else if('total_surface' === field) {
+      setTotal_surface(isNaN(parsed) ? "" : parsed);
+    }
+  }
+
   console.log("roofed_surface",roofed_surface)
   console.log("total_surface",total_surface)
 
@@ -145,11 +167,18 @@ export default function PublishMainInfo({
                       onChange={(value) => setSurface_measurement(value)}
                       placeholder=""
                     />
+                    { /*
                     <InputField
                       placeholder="Ingresar superficie"
                       type="number"
                       value={total_surface ?? undefined}
                       onChange={(event) => setTotal_surface(parseInt(event.target.value))}
+                    /> */ }
+                    <InputField
+                      placeholder="Ingresar superficie"
+                      type="text"
+                      value={total_surface !== undefined ? formatNumbers(Number(total_surface)) : ""}
+                      onChange={(event) => handleChangeSurfaceInput(event, 'total_surface')}
                     />
                   </div>
                 </div>
@@ -163,11 +192,18 @@ export default function PublishMainInfo({
                       onChange={(value) => setRoofed_surface_measurement(value)}
                       placeholder=""
                     />
+                    { /*
                     <InputField
                       placeholder="Ingresar superficie"
                       type="number"
                       value={roofed_surface ?? undefined}
                       onChange={(event) => setRoofed_surface(parseInt(event.target.value))}
+                    /> */ }
+                    <InputField
+                      placeholder="Ingresar superficie"
+                      type="text"
+                      value={roofed_surface !== undefined ? formatNumbers(Number(roofed_surface)) : ""}
+                      onChange={(event) => handleChangeSurfaceInput(event, 'roofed_surface')}
                     />
                   </div>
                 </div>}
