@@ -7,6 +7,7 @@ import InputField from '@/ui/InputField/InputField';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 import Button from '@/ui/Button/Button';
+import { formatNumbers } from '@/utils/utils';
 
 const iconChevron = '/icons/chevron-up.svg';
 
@@ -71,6 +72,31 @@ export default function PublishPrice({
     }
   };
 
+  const handleChangeNumbersInput = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    // limpiar todo lo que no sea número
+    const raw = event.target.value.replace(/\D/g, "");
+
+    if (raw === "") {
+      if('price' === field) {
+        setPrice(undefined);
+      } else if('expenses' === field) {
+        setExpenses(undefined);
+      }
+
+      return;
+    }
+    const parsed = parseInt(raw, 10);
+    console.log("parsed", parsed)
+    console.log("field", field)
+    if('price' === field) {
+      setPrice(isNaN(parsed) ? undefined : parsed);
+    } else if('expenses' === field) {
+      setExpenses(isNaN(parsed) ? undefined : parsed);
+    }
+
+      return;
+  }
+
   return (
     <div className="publish-price">
       <div className="publish-price-inner">
@@ -105,11 +131,18 @@ export default function PublishPrice({
                     value={currency}
                     onChange={(value) => setCurrency(value)}
                   />
+                  { /*
                   <InputField
                     value={price ?? null}
                     onChange={(event) => setPrice(Number(event.target.value) || undefined)}
                     placeholder={'Ej. 700000'}
                     type="number"
+                  /> */}
+                  <InputField
+                    value={price !== undefined ? formatNumbers(Number(price)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, 'price')}
+                    placeholder={'Ej. 700000'}
+                    type="text"
                   />
                 </div>
               </div>
@@ -123,11 +156,19 @@ export default function PublishPrice({
                     onChange={(value) => setCurrency_expenses(value)}
                     disabled={withoutExpenses}
                   />
+                  { /*
                   <InputField
                     value={expenses ?? null}
                     onChange={(event) => setExpenses(Number(event.target.value) || undefined)}
                     placeholder="Ej. 100000"
                     type="number"
+                    disabled={withoutExpenses}
+                  /> */}
+                  <InputField
+                    value={expenses !== undefined ? formatNumbers(Number(expenses)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, 'expenses')}
+                    placeholder="Ej. 100000"
+                    type="text"
                     disabled={withoutExpenses}
                   />
                 </div>

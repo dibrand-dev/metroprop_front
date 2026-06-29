@@ -196,6 +196,36 @@ export default function PublishEmprendimientoUnidades({
     imagesRef.current?.resetFiles();
   }
 
+   const handleChangeNumbersInput = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
+      // limpiar todo lo que no sea número
+      const raw = event.target.value.replace(/\D/g, "");
+      if (raw === "") {
+        if('price' === field) {
+          setPrice(undefined);
+        } else if('expenses' === field) {
+          setExpenses(undefined);
+        } else if ("total_surface" === field) {
+          setTotal_surface('');
+        } else if ("roofed_surface" === field) {
+          setRoofed_surface('');
+        }
+
+        return;
+      }
+      const parsed = parseInt(raw, 10);
+      if('price' === field) {
+        setPrice(isNaN(parsed) ? undefined : parsed);
+      } else if('expenses' === field) {
+        setExpenses(isNaN(parsed) ? undefined : parsed);
+      } else if ("total_surface" === field) {
+        setTotal_surface(isNaN(parsed) ? '' : parsed.toString());
+      } else if ("roofed_surface" === field) {
+        setRoofed_surface(isNaN(parsed) ? '' : parsed.toString());
+      }
+
+        return;
+    }
+
   const handleCounterChange = (key: RoomKey, delta: number) => {
     setRooms((prev) => {
       const nextValue = Math.max(0, prev[key] + delta);
@@ -447,11 +477,19 @@ export default function PublishEmprendimientoUnidades({
                     value={currency}
                     onChange={(value) => setCurrency(value)}
                   />
+                  { /*
                   <InputField
                     value={price ?? ''}
                     onChange={(event) => setPrice(Number(event.target.value) || undefined)}
                     placeholder={'Ej. 700000'}
                     type="number"
+                    error={submitted && !price ? ' ' : ''}
+                  /> */}
+                  <InputField
+                    value={price !== undefined ? formatNumbers(Number(price)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, 'price')}
+                    placeholder={'Ej. 700000'}
+                    type="text"
                     error={submitted && !price ? ' ' : ''}
                   />
                 </div>
@@ -466,11 +504,20 @@ export default function PublishEmprendimientoUnidades({
                     onChange={(value) => setCurrency_expenses(value)}
                     disabled={withoutExpenses}
                   />
+                  { /*
                   <InputField
                     value={expenses ?? ''}
                     onChange={(event) => setExpenses(Number(event.target.value) || undefined)}
                     placeholder="Ej. 100000"
                     type="number"
+                    disabled={withoutExpenses}
+                    error={submitted && !expenses ? ' ' : ''}
+                  /> */  }
+                  <InputField
+                    value={expenses !== undefined ? formatNumbers(Number(expenses)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, 'expenses')}
+                    placeholder="Ej. 100000"
+                    type="text"
                     disabled={withoutExpenses}
                     error={submitted && !expenses ? ' ' : ''}
                   />
@@ -538,11 +585,19 @@ export default function PublishEmprendimientoUnidades({
                       onChange={(value) => setSurface_measurement(value)}
                       placeholder=""
                     />
+                    { /*
                     <InputField
                       placeholder="Ingresar superficie"
                       type="number"
                       value={total_surface ? String(total_surface) : ''}
                       onChange={(event) => setTotal_surface(parseInt(event.target.value))}
+                      error={submitted && !total_surface ? ' ' : ''}
+                    /> */}
+                    <InputField
+                      placeholder="Ingresar superficie"
+                      type="text"
+                      value={total_surface}
+                      onChange={(event) => handleChangeNumbersInput(event, 'total_surface')}
                       error={submitted && !total_surface ? ' ' : ''}
                     />
                   </div>
@@ -557,11 +612,20 @@ export default function PublishEmprendimientoUnidades({
                       onChange={(value) => setRoofed_surface_measurement(value)}
                       placeholder=""
                     />
+                    { /* 
                     <InputField
                       placeholder="Ingresar superficie"
                       type="number"
                       value={roofed_surface ? String(roofed_surface) : ''}
                       onChange={(event) => setRoofed_surface(parseInt(event.target.value))}
+                      error={submitted && !roofed_surface ? ' ' : ''}
+                    /> */ }
+
+                    <InputField
+                      placeholder="Ingresar superficie"
+                      type="text"
+                      value={roofed_surface}
+                      onChange={(event) => handleChangeNumbersInput(event, 'roofed_surface')}
                       error={submitted && !roofed_surface ? ' ' : ''}
                     />
                   </div>
