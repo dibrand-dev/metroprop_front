@@ -6,7 +6,7 @@ import './PublishPropertyContent.scss';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, DISPOSITION_OPTIONS, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyType, TEMPORAL_RENT_PERIOD_OPTIONS } from '@/types/propiedad';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, formatNumbers } from '@/utils/utils';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 import Button from '@/ui/Button/Button';
@@ -50,7 +50,32 @@ export default function PublishPropertyContent({
   const [appartments_per_floor, setAppartments_per_floor] = useState(wizardData.appartments_per_floor || undefined);
 
 
+  const handleChangeNumbersInput = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    // limpiar todo lo que no sea número
+    const raw = event.target.value.replace(/\D/g, "");
 
+    if (raw === "") {
+      if('surface_length' === field) {
+        setSurface_length(undefined);
+      } else if('surface_front' === field) {
+        setSurface_front(undefined);
+      } else if ( 'semiroofed_surface' === field) {
+        setSemiroofed_surface(undefined);
+      }
+
+      return;
+    }
+    const parsed = parseInt(raw, 10);
+    console.log("parsed", parsed)
+    console.log("field", field)
+    if('surface_length' === field) {
+      setSurface_length(isNaN(parsed) ? undefined : parsed);
+    } else if('surface_front' === field) {
+      setSurface_front(isNaN(parsed) ? undefined : parsed);
+    } else if ( 'semiroofed_surface' === field) {
+      setSemiroofed_surface(isNaN(parsed) ? undefined : parsed);
+    }
+  }
   
   /*
   export enum PropertyType {
@@ -283,30 +308,54 @@ export default function PublishPropertyContent({
               
               <div className="publish-property-content-inputs">
                 <div className="publish-property-content-detail-field">
+                  { /*
                   <InputField
                     label="Frente del terreno (mts)"
                     placeholder="Ingresa un numero mayor o igual a 0"
                     value={surface_front ?? null}
                     onChange={(event) => setSurface_front(parseInt(event.target.value) || undefined)}
                     type="number"
+                  /> */ }
+                  <InputField
+                    label="Frente del terreno (mts)"
+                    placeholder="Ingresa un numero mayor o igual a 0"
+                    type="text"
+                    value={surface_front !== undefined ? formatNumbers(Number(surface_front)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, 'surface_front')}
                   />
                 </div>
                 <div className="publish-property-content-detail-field">
+                  { /*
                   <InputField
                     label="Largo del terreno (mts)"
                     placeholder="Ingresa un numero mayor o igual a 0"
                     value={surface_length ?? null}
                     onChange={(event) => setSurface_length(parseInt(event.target.value) || undefined)}
                     type="number"
+                  /> */ }
+                  <InputField
+                    label="Largo del terreno (mts)"
+                    placeholder="Ingresa un numero mayor o igual a 0"
+                    type="text"
+                    value={surface_length !== undefined ? formatNumbers(Number(surface_length)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, 'surface_length')}
                   />
                 </div>
                 {(wizardData.property_type == PropertyType.CASA || wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.PH) && (<div className="publish-property-content-detail-field">
+                  { /*
                   <InputField
                     label="Superficie semicubierta (m2)"
                     placeholder="Ingresa un numero mayor o igual a 0"
                     value={semiroofed_surface ?? null}
                     onChange={(event) => setSemiroofed_surface(parseInt(event.target.value) || undefined)}
                     type="number"
+                  /> */ }
+                  <InputField
+                    label="Superficie semicubierta (m2)"
+                    placeholder="Ingresa un numero mayor o igual a 0"
+                    type="text"
+                    value={semiroofed_surface !== undefined ? formatNumbers(Number(semiroofed_surface)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, 'semiroofed_surface')}
                   />
                 </div>)}
               </div>

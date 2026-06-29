@@ -126,9 +126,6 @@ export default function PublishMainInfo({
     }
   }
 
-  console.log("roofed_surface",roofed_surface)
-  console.log("total_surface",total_surface)
-
   return (
     <div className="publish-main-info">
       <div className="publish-main-info-inner">
