@@ -185,6 +185,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     if (property?.semiroofed_surface && property?.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(property.semiroofed_surface)} ${property.surface_measurement ?? ''}`);
     if (property?.surface_front && property?.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(property.surface_front)} M`);
     if (property?.surface_length && property?.surface_length > 0)  result[4].push(`Fondo: ${formatNumbers(property.surface_length)} M`);
+    if (property?.disposition)  result[4].push(`Orientación: ${property.disposition}`);
+    if (property?.floors_in_building)  result[4].push(`Cantidad de pisos: ${property.floors_in_building}`);
+    if (property?.business_type)  result[4].push(`Tipo de rubro: ${property.business_type}`);
+    if (property?.number_of_guests)  result[4].push(`Cantidad de huéspedes: ${property.number_of_guests}`);
+    if (property?.fot)  result[4].push(`F.O.T: ${property.fot}`);
+    if (property?.apartments_per_floor)  result[4].push(`Cantidad de departamentos por piso: ${property.apartments_per_floor}`);
+
     if (result[4].length === 0) delete result[4];
     return result;
   };

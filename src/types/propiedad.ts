@@ -458,7 +458,12 @@ export interface CreateProperty {
   
   dispositions?: string;
   disposition: Disposition
-  appartments_per_floor?: number;
+  apartments_per_floor?: number;
+  floors_in_building?: number;
+  business_type?: string;
+  warehouse_units?: number;
+  number_of_guests?: number;
+  fot?: number;
 }
 
 // ==========================================================================
@@ -907,8 +912,13 @@ export const CREATE_PROPERTY_PATCH_KEYS: (keyof CreateProperty)[] = [
   'hired_plan_id',
   'purchased_plan_id',
   'visibility',
+  'disposition',
+  'floors_in_building',
+  'business_type',
+  'number_of_guests',
+  'fot',
+  'apartments_per_floor'
 ];
-
 
 // Define wizard steps
 export enum WizardStep {

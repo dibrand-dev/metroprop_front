@@ -665,7 +665,7 @@ export default function PublishEmprendimientoUnidades({
                 disabled={isUploading}
               />
               <Button
-                label={isUploading ? 'Guardando...' : 'Editar unidad'}
+                label={isUploading ? 'Guardando...' : 'Guardar y finalizar'}
                 variant="primary"
                 buttonType="1"
                 onClick={handleEditarUnidad}

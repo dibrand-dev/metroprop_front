@@ -60,7 +60,7 @@ export default function PublishMainInfo({
         surface_measurement,
         roofed_surface_measurement,
         total_surface,
-        roofed_surface,
+        roofed_surface: showRoofedSurface ? roofed_surface : 1,
         property_condition,
         age,
         room_amount: rooms.room_amount,
@@ -301,7 +301,7 @@ export default function PublishMainInfo({
               label="Continuar"
               type="button" 
               onClick={() => handleContinue(true)}
-              disabled={total_surface === undefined || total_surface <= 0 || isNaN(total_surface) || total_surface === '' || roofed_surface === undefined || roofed_surface <= 0 || roofed_surface === '' || isNaN(roofed_surface) || property_condition === undefined || (property_condition === 'years' && (age === undefined || age <= 0 || age === '' || isNaN(age)))} 
+              disabled={total_surface === undefined || total_surface <= 0 || isNaN(total_surface) || total_surface === '' || (showRoofedSurface && (roofed_surface === undefined || roofed_surface <= 0 || roofed_surface === '' || isNaN(roofed_surface))) || property_condition === undefined || (property_condition === 'years' && (age === undefined || age <= 0 || age === '' || isNaN(age)))} 
             />
           </div>
         </div>

@@ -169,7 +169,7 @@ export default function PublishFinalReview({
       
       result[groupKey] = selectedTags;
     });
-
+    console.log("wizardDataAA", wizardData)
     result[4] = [];
     if (wizardData?.expenses && wizardData.expenses > 0)  result[4].push(`Expensas: ${formatNumbers(wizardData.expenses)} ${formatCurrency(wizardData.currency_expenses ?? '')}`);
     if (wizardData?.floors_amount && wizardData.floors_amount > 0)  result[4].push(`Pisos: ${wizardData.floors_amount}`);
@@ -178,6 +178,13 @@ export default function PublishFinalReview({
     if (wizardData?.semiroofed_surface && wizardData.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(wizardData.semiroofed_surface)} ${wizardData.surface_measurement ?? ''}`);
     if (wizardData?.surface_front && wizardData.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(wizardData.surface_front)} ${wizardData.surface_measurement ?? ''}`);
     if (wizardData?.surface_length)  result[4].push(`Fondo: ${formatNumbers(wizardData.surface_length)} ${wizardData.surface_measurement ?? ''}`);
+    if (wizardData?.disposition)  result[4].push(`Orientación: ${wizardData.disposition}`);
+    if (wizardData?.floors_in_building)  result[4].push(`Cantidad de pisos en edificio: ${wizardData.floors_in_building}`);
+    if (wizardData?.business_type)  result[4].push(`Tipo de rubro: ${wizardData.business_type}`);
+    if (wizardData?.number_of_guests)  result[4].push(`Cantidad de huéspedes: ${wizardData.number_of_guests}`);
+    if (wizardData?.fot)  result[4].push(`F.O.T: ${wizardData.fot}`);
+    if (wizardData?.apartments_per_floor)  result[4].push(`Cantidad de departamentos por piso: ${wizardData.apartments_per_floor}`);
+    console.log("RESULT 4", result[4]);
     if (result[4].length === 0) delete result[4];
     
     return result;
@@ -185,6 +192,7 @@ export default function PublishFinalReview({
 
   const dynamicFeatures = buildFeatures();
   const dynamicAmenities = getAmenitiesByTab();
+  console.log("dynamicAmenities", dynamicAmenities)
   const statusDisplay = <><span className="property-type">{`${wizardData?.property_type ? `${PROPERTY_TYPE_LABELS[wizardData.property_type as PropertyType]} ` : ''}${wizardData?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype as PropertySubtype]} ` : ''}`}</span>{wizardData?.operation_type ? `En ${OPERATION_TYPE_LABELS[wizardData.operation_type as OperationType]}` : ''}</>;
   
   const handleBack = () => {
