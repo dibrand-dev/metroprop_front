@@ -48,6 +48,8 @@ export default function PublishEmprendimientoFinalReview({
   const [galleryInitialTab, setGalleryInitialTab] = useState<GalleryTab>('fotos');
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const [disablePublish, setDisablePublish] = useState(false);
+  const [isPriceInfoPopoverOpen, setIsPriceInfoPopoverOpen] = useState(false);
+
   const showSummaryToggle = (wizardData.description?.length ?? 0) > 300 || (wizardData.description?.split('\n').length ?? 0) > 2;
   const unidadesPorTipo = (wizardData.development_units ?? []).reduce<Record<string, CreateProperty[]>>((acc, unit) => {
     const rooms = unit.room_amount ?? 0;
@@ -87,6 +89,21 @@ export default function PublishEmprendimientoFinalReview({
 
   const uniqueRoomAmounts = [...new Set((wizardData.development_units ?? []).map(u => u.room_amount ?? 0))].sort((a, b) => a - b);
   const showUnitFilters = uniqueRoomAmounts.length > 1;
+
+  // Close popover when clicking outside
+  useEffect(() => {
+    if (!isPriceInfoPopoverOpen) return;
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.price-info-popover') && !target.closest('.property-detail-info')) {
+        setIsPriceInfoPopoverOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isPriceInfoPopoverOpen]);
 
   useEffect(() => {
     if (tagsData.length > 0) {
@@ -323,6 +340,47 @@ export default function PublishEmprendimientoFinalReview({
                       <img src={iconCrane} alt="Crane Icon" />
                       En pozo - Entrega {wizardData.development_delivery_date}
                     </span>
+                    <div className="publish-review-preview-meta">
+                      {wizardData.price && wizardData.total_surface && (
+                      <span>{formatCurrency(wizardData.currency)}/m2 {formatNumbers((wizardData.price / wizardData.total_surface))}</span>
+                      )}
+                      
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <button
+                          type="button"
+                          className="property-detail-info"
+                          aria-label="Mas informacion"
+                          onClick={() => setIsPriceInfoPopoverOpen(!isPriceInfoPopoverOpen)}
+                        >
+                          <img src="/icons/infoPrice.svg" alt="Info Icon" />
+                        </button>
+                        {isPriceInfoPopoverOpen && (
+                          <div className="price-info-popover">
+                            <button 
+                              className="price-info-popover-close" 
+                              onClick={() => setIsPriceInfoPopoverOpen(false)}
+                              aria-label="Cerrar"
+                            >
+                              ×
+                            </button>
+                            <div className="price-info-popover-content">
+                              <div className="price-info-item">
+                                <span className="price-info-label">Cubierto</span>
+                                <span className="price-info-value">100% / m²</span>
+                              </div>
+                              <div className="price-info-item">
+                                <span className="price-info-label">Semi Cubierto</span>
+                                <span className="price-info-value">50% / m²</span>
+                              </div>
+                              <div className="price-info-item">
+                                <span className="price-info-label">Descubierto</span>
+                                <span className="price-info-value">0%</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   <p className="previewTitle">{devMinPrice}</p>
                 </div>

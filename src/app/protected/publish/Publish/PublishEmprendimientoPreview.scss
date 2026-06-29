@@ -210,6 +210,14 @@
     font-weight: 800;
     line-height: 52px; /* 118.182% */
     letter-spacing: -0.44px;
+
+    @media (max-width: 768px) {
+      font-family: Montserrat;
+      font-weight: 800;
+      font-size: 32px;
+      line-height: 36px;
+      letter-spacing: -1%;
+    }
   }
 
   span {
@@ -228,14 +236,6 @@
   font-size: 44px;
   line-height: 52px;
   letter-spacing: -1%;
-}
-
-.publish-review-preview-meta {
-  color: #1E1E1E;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 22px; /* 122.222% */
 }
 
 .publish-review-info {

@@ -47,6 +47,8 @@ export default function PublishFinalReview({
   const address = addressParts.length > 0 ? addressParts.join(', ') : 'Dirección no especificada';
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
   const showSummaryToggle = (wizardData.description?.length ?? 0) > 300 || (wizardData.description?.split('\n').length ?? 0) > 2;
+  const [isPriceInfoPopoverOpen, setIsPriceInfoPopoverOpen] = useState(false);
+  
   const { data: tagsData = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
@@ -69,6 +71,21 @@ export default function PublishFinalReview({
       }
     }
   }, [tagsData]);
+
+  // Close popover when clicking outside
+  useEffect(() => {
+    if (!isPriceInfoPopoverOpen) return;
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.price-info-popover') && !target.closest('.property-detail-info')) {
+        setIsPriceInfoPopoverOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isPriceInfoPopoverOpen]);
   
   useEffect(() => {
     if (wizardData.draft_id) {
@@ -243,18 +260,44 @@ export default function PublishFinalReview({
                       <span className="publish-review-status-dot" />
                       <span className='operacion'>{statusDisplay}</span>
                     </div>
-                    <div className="publish-review-preview-meta">
-                      {wizardData.price && wizardData.total_surface && (
-                      <span>{formatCurrency(wizardData.currency)}/m2 {formatNumbers((wizardData.price / wizardData.total_surface))}</span>
-                      )}
-                      <span className="publish-review-info" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
-                          <path d="M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                          <path d="M11 11h2v6h-2z" fill="currentColor" />
-                        </svg>
-                      </span>
-                    </div>
+                    {wizardData.price_square_meter! > 0 && (<div className="publish-review-preview-meta">                      
+                      <span>{formatCurrency(wizardData.currency)}/m2 {formatNumbers((wizardData.price_square_meter))}</span>                      
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <button
+                          type="button"
+                          className="property-detail-info"
+                          aria-label="Mas informacion"
+                          onClick={() => setIsPriceInfoPopoverOpen(!isPriceInfoPopoverOpen)}
+                        >
+                          <img src="/icons/infoPrice.svg" alt="Info Icon" />
+                        </button>
+                        {isPriceInfoPopoverOpen && (
+                          <div className="price-info-popover">
+                            <button 
+                              className="price-info-popover-close" 
+                              onClick={() => setIsPriceInfoPopoverOpen(false)}
+                              aria-label="Cerrar"
+                            >
+                              ×
+                            </button>
+                            <div className="price-info-popover-content">
+                              <div className="price-info-item">
+                                <span className="price-info-label">Cubierto</span>
+                                <span className="price-info-value">100% / m²</span>
+                              </div>
+                              <div className="price-info-item">
+                                <span className="price-info-label">Semi Cubierto</span>
+                                <span className="price-info-value">50% / m²</span>
+                              </div>
+                              <div className="price-info-item">
+                                <span className="price-info-label">Descubierto</span>
+                                <span className="price-info-value">0%</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>)}
                   </div>
                   <div className="publish-review-preview-price">
                     <strong>

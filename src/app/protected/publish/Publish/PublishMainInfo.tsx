@@ -164,17 +164,10 @@ export default function PublishMainInfo({
                       onChange={(value) => setSurface_measurement(value)}
                       placeholder=""
                     />
-                    { /*
-                    <InputField
-                      placeholder="Ingresar superficie"
-                      type="number"
-                      value={total_surface ?? undefined}
-                      onChange={(event) => setTotal_surface(parseInt(event.target.value))}
-                    /> */ }
                     <InputField
                       placeholder="Ingresar superficie"
                       type="text"
-                      value={total_surface !== undefined ? formatNumbers(Number(total_surface)) : ""}
+                      value={total_surface !== undefined && total_surface !== null && total_surface !== '' ? formatNumbers(Number(total_surface)) : ""}
                       onChange={(event) => handleChangeSurfaceInput(event, 'total_surface')}
                     />
                   </div>
@@ -189,17 +182,10 @@ export default function PublishMainInfo({
                       onChange={(value) => setRoofed_surface_measurement(value)}
                       placeholder=""
                     />
-                    { /*
-                    <InputField
-                      placeholder="Ingresar superficie"
-                      type="number"
-                      value={roofed_surface ?? undefined}
-                      onChange={(event) => setRoofed_surface(parseInt(event.target.value))}
-                    /> */ }
                     <InputField
                       placeholder="Ingresar superficie"
                       type="text"
-                      value={roofed_surface !== undefined ? formatNumbers(Number(roofed_surface)) : ""}
+                      value={roofed_surface !== undefined && roofed_surface !== null && roofed_surface !== '' ? formatNumbers(Number(roofed_surface)) : ""}
                       onChange={(event) => handleChangeSurfaceInput(event, 'roofed_surface')}
                     />
                   </div>
