@@ -328,13 +328,11 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   });
 
   const saveCurrentStep = async (wizardDataUpdate: Partial<CreatePropertyDraft>, nextStep: boolean) => {
-    console.log("wizardDataUpdate", wizardDataUpdate);
     const _wizardDataUpdate = toCreatePropertyPatch(wizardDataUpdate);
     if (!wizardData.draft_id) {
       const draftData = await createDraftMutation.mutateAsync(wizardData);
       updateWizardData({ draft_id: draftData.id });
     }
-    console.log("_wizardDataUpdate", _wizardDataUpdate);
     try {
       const result = await updatePropertyMutation.mutateAsync(_wizardDataUpdate);
       if (result?.data?.price_square_meter) {
@@ -345,12 +343,10 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     }
     if (nextStep) {
       goToNextStep();
-    } else {
-      // If not going to next step, show success modal for 2 seconds before hiding it (used for "Save and Exit" flow)
+    } else {     
       setShowSuccessModal(true);
       setTimeout(() => {
-        setShowSuccessModal(false);
-        window.location.href = '/protected/myProperties';
+        window.location.href = '/protected/myProperties?showSuccess=true';
       }, 2000);
     }
   }
@@ -369,9 +365,8 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     } else {
       // If not going to next step, show success modal for 2 seconds before hiding it (used for "Save and Exit" flow)
       setShowSuccessModal(true);
-      setTimeout(() => {
-        setShowSuccessModal(false);
-        window.location.href = '/protected/myProperties';
+      setTimeout(() => {        
+        window.location.href = '/protected/myProperties?showSuccess=true';
       }, 2000);
     }
   }
@@ -457,7 +452,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             updateWizardData={updateWizardData}
             onNext={() => goToNextStep()}
             onBack={goToPreviousStep}
-            onSaveAndExit={() => window.location.href = '/protected/myProperties'}
+            onSaveAndExit={() => window.location.href = '/protected/myProperties?showSuccess=true'}
           />
         );
 
@@ -507,7 +502,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
 
       case WizardStep.FINAL_REVIEW:
         return (
-          <>
+          <div className="publish-review-page">
             <PublishFinalReview
               wizardData={wizardData}
               updateWizardData={updateWizardData}
@@ -515,16 +510,20 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
                 // show message under button "Propiedad publicada con éxito" for 3 seconds before redirecting to myProperties page
                 setShowSuccessModal(true);
                 setTimeout(() => {
-                  window.location.href = '/protected/myProperties';
+                  window.location.href = '/protected/myProperties?showSuccess=true';
                 }, 3000);
               })}
               onBack={goToPreviousStep}
               onSaveAndExit={(wizardData) => saveCurrentStep(wizardData, false)}
               isEditMode={isEditMode}
             />
-            {showSuccessModal && <SuccessModal title="¡Propiedad publicada con éxito!" text="Tu propiedad ya está disponible en el sitio. Serás redirigido a Mis Propiedades en unos segundos." />}
-          
-          </>
+            {showSuccessModal && <>
+              <SuccessModal title="¡Propiedad publicada con éxito!" text="Tu propiedad ya está disponible en el sitio. Serás redirigido a Mis Propiedades en unos segundos." />
+              <div className="publish-page loading">
+                <img src="/images/spinner.png" alt="Cargando..." className="publish-spinner" style={{ width: 50, height: 50 }} />
+              </div>
+            </>}
+          </div>
         );
 
       case WizardStep.PLANS:
@@ -620,7 +619,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
               onNext={(wizardData) => saveCurrentStep(wizardData, false).then(() => {
                 setShowSuccessModal(true);
                 setTimeout(() => {
-                  window.location.href = '/protected/myProperties';
+                  window.location.href = '/protected/myProperties?showSuccess=true';
                 }, 3000);
               })}
               isEditMode={isEditMode}

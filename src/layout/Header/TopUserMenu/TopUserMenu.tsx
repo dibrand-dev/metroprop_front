@@ -90,7 +90,8 @@ export default function TopUserMenu() {
     router.refresh();
   };
 
-  const handlePublish = () => {
+  const handlePublish = () => {    
+    setShowUserDropdown(false);
     router.push('/protected/publish');
   };
 

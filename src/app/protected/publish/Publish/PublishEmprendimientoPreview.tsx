@@ -628,16 +628,16 @@ export default function PublishEmprendimientoFinalReview({
                   </div>
                   {sessionData?.user && <div className="publish-review-contact-info">
                     {agentName !== sessionData?.user?.email && <div className="publish-review-contact-name">{agentName}</div>}
-                    <div>{sessionData?.user?.email ?? ''}</div>
-                    <div>{sessionData?.user?.phone ?? sessionData?.user?.phone_whatsapp ?? ''}</div>
+                    <div style={{ padding: '0 8px' }}>{sessionData?.user?.email ?? ''}</div>
+                    <div style={{ padding: '0 8px' }}>{sessionData?.user?.phone ?? sessionData?.user?.phone_whatsapp ?? ''}</div>
                   </div>}
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="publish-review-footer">
-            <Button variant="primary" label={isEditMode ? 'Guardar cambios' : 'Publicar'} onClick={handlePublish} disabled={disablePublish || (wizardData.development_delivery_date?.trim() === '') || wizardData.development_units_total === null || wizardData.development_type === null || wizardData.publication_title?.trim() === '' || wizardData.development_units?.length === 0 || wizardData.hired_plan_id === null} />
+          <div className="publish-review-footer" style={{ justifyContent: 'flex-end'}} >
+            <Button variant="primary" label="Publicar" onClick={handlePublish} disabled={disablePublish || (wizardData.development_delivery_date?.trim() === '') || wizardData.development_units_total === null || wizardData.development_type === null || wizardData.publication_title?.trim() === '' || wizardData.development_units?.length === 0 || wizardData.hired_plan_id === null} />
           </div>
         </div>
       </div>

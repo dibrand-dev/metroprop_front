@@ -38,6 +38,8 @@ interface LocationCascadeSelectsProps {
   className?: string;
 }
 
+const EMPTY_ARRAY: any[] = [];
+
 function findBestMatch(options: { value: string; label: string }[], name: string): string | undefined {
   if (!name) return undefined;
   const norm = name.toLowerCase().trim();
@@ -63,30 +65,30 @@ export default function LocationCascadeSelects({
 }: LocationCascadeSelectsProps) {
   const { state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id } = value;
 
-  const { data: provinces = [], isLoading: loadingProvinces } = useQuery({
+  const { data: provinces = EMPTY_ARRAY, isLoading: loadingProvinces } = useQuery({
     queryKey: ['provinces', 1],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: 1 } }),
   });
 
-  const { data: locations = [], isLoading: loadingLocations } = useQuery({
+  const { data: locations = EMPTY_ARRAY, isLoading: loadingLocations } = useQuery({
     queryKey: ['locations', state_id],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: state_id } }),
     enabled: !!state_id,
   });
 
-  const { data: zones = [], isLoading: loadingZones } = useQuery({
+  const { data: zones = EMPTY_ARRAY, isLoading: loadingZones } = useQuery({
     queryKey: ['zones', location_id],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: location_id } }),
     enabled: !!location_id,
   });
 
-  const { data: neighborhoods = [], isLoading: loadingNeighborhoods } = useQuery({
+  const { data: neighborhoods = EMPTY_ARRAY, isLoading: loadingNeighborhoods } = useQuery({
     queryKey: ['neighborhoods', sub_location_id],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: sub_location_id } }),
     enabled: !!sub_location_id,
   });
 
-  const { data: sub_neighborhoods = [], isLoading: loadingSubNeighborhoods } = useQuery({
+  const { data: sub_neighborhoods = EMPTY_ARRAY, isLoading: loadingSubNeighborhoods } = useQuery({
     queryKey: ['sub_neighborhoods', neighborhood_id],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: neighborhood_id } }),
     enabled: !!neighborhood_id,

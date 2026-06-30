@@ -645,3 +645,27 @@
     font-weight: 400;
   }
 }
+
+
+.publish-review-page {
+  .email-verification-modal-container {
+    @media (max-width: 768px) {
+      display: none;
+    }
+    @media (min-width: 768px) {
+      display: flex;
+    }
+  }
+
+  .publish-page.loading {
+    @media (max-width: 768px) {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+    @media (min-width: 768px) {
+      display: none;
+    }
+  }
+}
