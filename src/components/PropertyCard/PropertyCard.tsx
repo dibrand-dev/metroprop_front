@@ -131,7 +131,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
               style={{ cursor: gallery.hasImages ? 'pointer' : 'default' }}
             />     
             <div className="favorite-highlighted-container">
-              {isHighlighted && <img src="/icons/starIsFavorite.svg" alt="Icono de favorito" />}
+              {isHighlighted && <img src="/icons/starIsFavorite.svg" alt="Icono de destacado" />}
               {showFavoriteBtn && (
                 <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
                   <HeartIcon isFavorite={isFavorite} />
@@ -264,7 +264,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
       <>
         <div className="property-card-map-list" onClick={goToDetail}>
           <div className="favorite-highlighted-container">
-            {isHighlighted ? <img src="/icons/starIsFavorite.svg" alt="Icono de favorito" />
+            {isHighlighted ? <img src="/icons/starIsFavorite.svg" alt="Icono de destacado" />
             : property.is_development && <div style={{ height: 24 }} />}
             {showFavoriteBtn && (
               <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
