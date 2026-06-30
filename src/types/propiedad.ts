@@ -671,7 +671,7 @@ export const roomsConfig = [
   { key: 'parking_lot_amount', label: 'Cocheras' },
 ] as const;
 
-export const unitSelectOptions = [{label: 'm2', value: "M2"}, {label: 'ha', value:"HA"}];
+export const unitSelectOptions = [{label: 'm²', value: "M2"}, {label: 'ha', value:"HA"}];
 
 
 export const currencyOptions = ['ARS', 'USD', 'EUR'];

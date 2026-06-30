@@ -104,170 +104,154 @@ export default function GalleryModal({
           <div className="property-gallery-lightbox-spinner" />
         </div>
       )}
-      <div className="property-detail-gallery-modal-close-container">
-        <button
-          type="button"
-          className="property-detail-gallery-modal-close"
-          aria-label="Cerrar"
-          onClick={onClose}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-                d="M6 6l12 12M18 6l-12 12"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-            />
-          </svg>
-        </button>
-      </div>
-
-      {/* Tabs — hidden when only one tab exists */}
-      {!isLoading && [images.length > 0, videos.length > 0, plans.length > 0, gallery360.length > 0].filter(Boolean).length > 1 && (
-      <div className="property-gallery-lightbox-tabs">
-        <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'fotos' ? 'active' : ''}`} onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); }}>Fotos</button>
-        {videos.length > 0 && (
-          <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'videos' ? 'active' : ''}`} onClick={() => { setGalleryTab('videos'); setVideoActiveIndex(0); }}>Videos</button>
-        )}
-        {plans.length > 0 && (
-          <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'planos' ? 'active' : ''}`} onClick={() => { setGalleryTab('planos'); setPlanActiveIndex(0); }}>Planos</button>
-        )}
-        {gallery360.length > 0 && (
-          <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === '360' ? 'active' : ''}`} onClick={() => { setGalleryTab('360'); setGallery360ActiveIndex(0); }}>360</button>
-        )}
-      </div>
-      )}
-
-      {/* ── FOTOS ── */}
-      {!isLoading && galleryTab === 'fotos' && (
-        <GalleryLightboxSection
-          items={images}
-          activeIndex={galleryActiveIndex}
-          onIndexChange={setGalleryActiveIndex}
-          thumbsRef={galleryThumbsRef}
-          ariaLabel={idx => `Ver foto ${idx + 1}`}
-          onClose={onClose}
-          renderMain={(src, idx) => (
-            <img src={src} alt={`Foto ${idx + 1}`} className="property-gallery-lightbox-image" />
+      <div style={{ zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', alignItems: 'stretch', justifyContent: 'stretch', width: '100%' }}>
+        {/* Tabs — hidden when only one tab exists */}
+        {!isLoading && [images.length > 0, videos.length > 0, plans.length > 0, gallery360.length > 0].filter(Boolean).length > 1 && (
+        <div className="property-gallery-lightbox-tabs">
+          <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'fotos' ? 'active' : ''}`} onClick={() => { setGalleryTab('fotos'); setGalleryActiveIndex(0); }}>Fotos</button>
+          {videos.length > 0 && (
+            <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'videos' ? 'active' : ''}`} onClick={() => { setGalleryTab('videos'); setVideoActiveIndex(0); }}>Videos</button>
           )}
-          renderThumb={(src, idx) => {
-            const lastSlash = src.lastIndexOf('/');
-            return <img src={src.slice(0, lastSlash + 1) + 'thumb_' + src.slice(lastSlash + 1)} alt={`Miniatura ${idx + 1}`} />;
-          }}
-        />
-      )}
+          {plans.length > 0 && (
+            <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === 'planos' ? 'active' : ''}`} onClick={() => { setGalleryTab('planos'); setPlanActiveIndex(0); }}>Planos</button>
+          )}
+          {gallery360.length > 0 && (
+            <button type="button" className={`property-gallery-lightbox-tab ${galleryTab === '360' ? 'active' : ''}`} onClick={() => { setGalleryTab('360'); setGallery360ActiveIndex(0); }}>360</button>
+          )}
+        </div>
+        )}
 
-      {/* ── VIDEOS ── */}
-      {!isLoading && galleryTab === 'videos' && (
-        <GalleryLightboxSection
-          items={videos}
-          activeIndex={videoActiveIndex}
-          onIndexChange={setVideoActiveIndex}
-          ariaLabel={idx => `Ver video ${idx + 1}`}
-          onClose={onClose}
-          renderMain={(vid, idx) => {
-            const videoId = extractYouTubeId(vid.url);
-            return videoId ? (
-              <iframe
-                key={videoId}
-                src={getYouTubeEmbed(videoId)}
-                className="property-gallery-lightbox-video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title={`Video ${idx + 1}`}
-              />
-            ) : (
-              <div className="property-gallery-lightbox-placeholder">Video no disponible</div>
-            );
-          }}
-          renderThumb={(v, idx) => {
-            const vId = extractYouTubeId(v.url);
-            return vId
-              ? <img src={getYouTubeThumbnail(vId)} alt={`Video ${idx + 1}`} />
-              : <div className="property-gallery-lightbox-thumb-placeholder">▶</div>;
-          }}
-        />
-      )}
-
-      {/* ── PLANOS ── */}
-      {!isLoading && galleryTab === 'planos' && (
-        <GalleryLightboxSection
-          items={plans}
-          activeIndex={planActiveIndex}
-          onIndexChange={setPlanActiveIndex}
-          ariaLabel={idx => `Ver plano ${idx + 1}`}
-          onClose={onClose}
-          renderMain={(plan, idx) => {
-            const isPdf = plan?.file_url?.toLowerCase().endsWith('.pdf');
-            const src = setImagePath(plan?.file_url);
-            return isPdf ? (
-              <div className="property-gallery-lightbox-pdf">
-                <iframe
-                  src={src}
-                  title={`Plano PDF ${idx + 1}`}
-                  className="property-gallery-lightbox-pdf-embed"
-                />
-                <a
-                  href={src}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="property-gallery-lightbox-pdf-link"
-                >
-                  Abrir en nueva pestaña
-                </a>
-              </div>
-            ) : (
-              <img
-                src={src}
-                alt={`Plano ${idx + 1}`}
-                className="property-gallery-lightbox-image"
-              />
-            );
-          }}
-          renderThumb={(p, idx) => {
-            const isPdfThumb = p.file_url?.toLowerCase().endsWith('.pdf');
-            return isPdfThumb
-              ? (
-                <div className="property-gallery-lightbox-thumb-pdf">
-                  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="9" y1="13" x2="15" y2="13" />
-                    <line x1="9" y1="17" x2="15" y2="17" />
-                  </svg>
-                  <span className="property-gallery-lightbox-thumb-pdf-badge">PDF</span>
-                </div>
-              )
-              : <img src={setImagePath(p.file_url)} alt={`Plano ${idx + 1}`} />;
-          }}
-        />
-      )}
-
-      {/* ── 360 ── */}
-      {!isLoading && galleryTab === '360' && (
-        <GalleryLightboxSection
-          items={gallery360 || []}
-          activeIndex={gallery360ActiveIndex}
-          onIndexChange={setGallery360ActiveIndex}
-          ariaLabel={idx => `Ver video ${idx + 1}`}
-          onClose={onClose}
-          renderMain={(vid, idx) => <iframe
-            key={vid.url}
-            src={vid.url}
-            className="property-gallery-lightbox-video"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            title={`Video ${idx + 1}`}
+        {/* ── FOTOS ── */}
+        {!isLoading && galleryTab === 'fotos' && (
+          <GalleryLightboxSection
+            items={images}
+            activeIndex={galleryActiveIndex}
+            onIndexChange={setGalleryActiveIndex}
+            thumbsRef={galleryThumbsRef}
+            ariaLabel={idx => `Ver foto ${idx + 1}`}
+            onClose={onClose}
+            renderMain={(src, idx) => (
+              <img src={src} alt={`Foto ${idx + 1}`} className="property-gallery-lightbox-image" />
+            )}
+            renderThumb={(src, idx) => {
+              const lastSlash = src.lastIndexOf('/');
+              return <img src={src.slice(0, lastSlash + 1) + 'thumb_' + src.slice(lastSlash + 1)} alt={`Miniatura ${idx + 1}`} />;
+            }}
           />
-          }
-          renderThumb={(v, idx) => {
-            const vId = extractYouTubeId(v.url);
-            return vId
-              ? <img src={getYouTubeThumbnail(vId)} alt={`Video ${idx + 1}`} />
-              : <div className="property-gallery-lightbox-thumb-placeholder">▶</div>;
-          }}
-        />
-      )}
+        )}
+
+        {/* ── VIDEOS ── */}
+        {!isLoading && galleryTab === 'videos' && (
+          <GalleryLightboxSection
+            items={videos}
+            activeIndex={videoActiveIndex}
+            onIndexChange={setVideoActiveIndex}
+            ariaLabel={idx => `Ver video ${idx + 1}`}
+            onClose={onClose}
+            renderMain={(vid, idx) => {
+              const videoId = extractYouTubeId(vid.url);
+              return videoId ? (
+                <iframe
+                  key={videoId}
+                  src={getYouTubeEmbed(videoId)}
+                  className="property-gallery-lightbox-video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title={`Video ${idx + 1}`}
+                />
+              ) : (
+                <div className="property-gallery-lightbox-placeholder">Video no disponible</div>
+              );
+            }}
+            renderThumb={(v, idx) => {
+              const vId = extractYouTubeId(v.url);
+              return vId
+                ? <img src={getYouTubeThumbnail(vId)} alt={`Video ${idx + 1}`} />
+                : <div className="property-gallery-lightbox-thumb-placeholder">▶</div>;
+            }}
+          />
+        )}
+
+        {/* ── PLANOS ── */}
+        {!isLoading && galleryTab === 'planos' && (
+          <GalleryLightboxSection
+            items={plans}
+            activeIndex={planActiveIndex}
+            onIndexChange={setPlanActiveIndex}
+            ariaLabel={idx => `Ver plano ${idx + 1}`}
+            onClose={onClose}
+            renderMain={(plan, idx) => {
+              const isPdf = plan?.file_url?.toLowerCase().endsWith('.pdf');
+              const src = setImagePath(plan?.file_url);
+              return isPdf ? (
+                <div className="property-gallery-lightbox-pdf">
+                  <iframe
+                    src={src}
+                    title={`Plano PDF ${idx + 1}`}
+                    className="property-gallery-lightbox-pdf-embed"
+                  />
+                  <a
+                    href={src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="property-gallery-lightbox-pdf-link"
+                  >
+                    Abrir en nueva pestaña
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={src}
+                  alt={`Plano ${idx + 1}`}
+                  className="property-gallery-lightbox-image"
+                />
+              );
+            }}
+            renderThumb={(p, idx) => {
+              const isPdfThumb = p.file_url?.toLowerCase().endsWith('.pdf');
+              return isPdfThumb
+                ? (
+                  <div className="property-gallery-lightbox-thumb-pdf">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="9" y1="13" x2="15" y2="13" />
+                      <line x1="9" y1="17" x2="15" y2="17" />
+                    </svg>
+                    <span className="property-gallery-lightbox-thumb-pdf-badge">PDF</span>
+                  </div>
+                )
+                : <img src={setImagePath(p.file_url)} alt={`Plano ${idx + 1}`} />;
+            }}
+          />
+        )}
+
+        {/* ── 360 ── */}
+        {!isLoading && galleryTab === '360' && (
+          <GalleryLightboxSection
+            items={gallery360 || []}
+            activeIndex={gallery360ActiveIndex}
+            onIndexChange={setGallery360ActiveIndex}
+            ariaLabel={idx => `Ver video ${idx + 1}`}
+            onClose={onClose}
+            renderMain={(vid, idx) => <iframe
+              key={vid.url}
+              src={vid.url}
+              className="property-gallery-lightbox-video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              title={`Video ${idx + 1}`}
+            />
+            }
+            renderThumb={(v, idx) => {
+              const vId = extractYouTubeId(v.url);
+              return vId
+                ? <img src={getYouTubeThumbnail(vId)} alt={`Video ${idx + 1}`} />
+                : <div className="property-gallery-lightbox-thumb-placeholder">▶</div>;
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }

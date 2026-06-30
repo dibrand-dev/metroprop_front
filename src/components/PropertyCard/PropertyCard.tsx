@@ -110,7 +110,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
     if (prices.length === 0) return '-';
     const currency = units[0]?.currency ?? '';
     return <div className="development-prices"><div className="main-price">{`${formatCurrency(currency)} ${formatNumbers(Math.min(...prices))}`}</div>
-      <div className="price-per-sqm">{formatCurrency(currency)}/m2 {formatNumbers(Math.min(...pricesSq2))}</div>
+      <div className="price-per-sqm">{formatCurrency(currency)}/m<sup>2</sup> {formatNumbers(Math.min(...pricesSq2))}</div>
     </div>
   };
 
@@ -233,7 +233,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <div className="price-row">
                   <div className="main-price">{formatCurrency(property.currency ?? '')} {formatNumbers(property.price)}</div>
                   {(property.price_square_meter ?? 0) > 0 && (
-                    <div className="price-per-sqm">{formatCurrency(property.currency ?? '')}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                    <div className="price-per-sqm">{formatCurrency(property.currency ?? '')}/m<sup>2</sup> {formatNumbers(property.price_square_meter!)}</div>
                   )}
                 </div>
                 <div className="address">{property.street}</div>
@@ -279,7 +279,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   ? getPrecioDesde(property.units)
                   : <><div className="total-price">{`${formatCurrency(property.currency)} ${formatNumbers(property.price)}`}</div>
                       {(property.price_square_meter ?? 0) > 0 && (
-                        <div className="price-per-meter">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                        <div className="price-per-meter">{formatCurrency(property.currency)}/m<sup>2</sup> {formatNumbers(property.price_square_meter!)}</div>
                       )}
                     </>}
                 </div>
@@ -336,7 +336,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   ? getPrecioDesde(property.units)
                   : <><div className="total-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</div>
                     {property.price_square_meter! > 0 && (
-                      <div className="price-per-meter">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                      <div className="price-per-meter">{formatCurrency(property.currency)}/m<sup>2</sup> {formatNumbers(property.price_square_meter!)}</div>
                     )}
                     </>}
                 </div>
@@ -399,7 +399,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   ? getPrecioDesde(property.units)
                   : <><div className="total-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</div>
                     {property.price_square_meter! > 0 && (
-                      <div className="price-per-meter">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                      <div className="price-per-meter">{formatCurrency(property.currency)}/m<sup>2</sup> {formatNumbers(property.price_square_meter!)}</div>
                     )}
                   </>}
                 </div>

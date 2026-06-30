@@ -311,7 +311,7 @@ export default function PublishPropertyContent({
                 {(wizardData.property_type == PropertyType.CASA || wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.PH) && (<div className="publish-property-content-detail-field">
                   
                   <InputField
-                    label="Superficie semicubierta (m2)"
+                    label="Superficie semicubierta (m²)"
                     placeholder="Ingresa un numero mayor o igual a 0"
                     type="text"
                     value={semiroofed_surface !== undefined ? formatNumbers(Number(semiroofed_surface)) : ""}
