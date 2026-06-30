@@ -60,7 +60,7 @@ export default function PublishMainInfo({
         surface_measurement,
         roofed_surface_measurement,
         total_surface,
-        roofed_surface: showRoofedSurface ? roofed_surface : 1,
+        roofed_surface,
         property_condition,
         age,
         room_amount: rooms.room_amount,

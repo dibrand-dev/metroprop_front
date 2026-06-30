@@ -446,8 +446,8 @@ export default function PublishFinalReview({
                   </div>
                   {sessionData?.user && <div className="publish-review-contact-info">
                     {agentName !== sessionData?.user?.email && <div className="publish-review-contact-name">{agentName}</div>}
-                    <div>{sessionData?.user?.email ?? ''}</div>
-                    <div>{sessionData?.user?.phone ?? ''}</div>
+                    <div style={{ padding: '0 8px' }}>{sessionData?.user?.email ?? ''}</div>
+                    <div style={{ padding: '0 8px' }}>{sessionData?.user?.phone ?? ''}</div>
                   </div>}
                 </div>
               </div>

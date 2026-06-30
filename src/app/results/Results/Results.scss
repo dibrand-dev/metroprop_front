@@ -1676,26 +1676,9 @@
 .property-grid {
   margin: 0 auto;
   display: flex;
-  gap: 24px;
+  gap: 8px;
   align-content: start;
   flex-wrap: wrap;
-  max-width: 1468px;
-
-  @media (min-width: 1501px) {
-    width: 100%;
-  }
-
-  @media (min-width: 1201px) and (max-width: 1500px) {
-    width: 1095px;
-  }
-
-  @media (min-width: 1000px) and (max-width: 1200px) {
-    width: 738px;
-  }
-
-  @media (max-width: 999px) {
-    width: 100%;
-    justify-content: center;
-  }
+  justify-content: center;
   
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { apiFetch } from '@/lib/apiFetch';
@@ -87,6 +87,7 @@ const MyProperties = () => {
   const { data: sessionData } = useSession();
   const { data: locations = [] } = useLocations();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const sessionUser: any = sessionData?.user;
   const hasOrganization = sessionUser?.organization ?? false;
   const orgId = sessionUser?.organization?.id ?? null;
@@ -330,6 +331,13 @@ const MyProperties = () => {
   }, [selectedBranchId]);
 
   useEffect(() => {
+    if (searchParams.get('showSuccess') === 'true') {
+      setToast({ type: 'success', message: 'Tu aviso fue publicado con éxito' });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     if (!toast) return;
     const timer = window.setTimeout(() => setToast(null), 3500);
     return () => window.clearTimeout(timer);
@@ -488,6 +496,14 @@ const MyProperties = () => {
       {toast && (
         <div className={`myprop-toast myprop-toast--${toast.type}`} role="status" aria-live="polite">
           {toast.message}
+          <button
+            type="button"
+            className="myprop-toast-close"
+            aria-label="Cerrar"
+            onClick={() => setToast(null)}
+          >
+            ✕
+          </button>
         </div>
       )}
       <MyPropertiesFilters

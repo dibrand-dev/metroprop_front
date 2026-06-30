@@ -11,7 +11,7 @@
 .myprop-toast {
   position: fixed;
   top: 20px;
-  right: 20px;
+  right: calc(50% - 130px);
   z-index: 1200;
   min-width: 260px;
   max-width: 420px;
@@ -21,10 +21,34 @@
   font-size: 14px;
   font-weight: 500;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .myprop-toast-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 2px;
+    opacity: 0.8;
+    flex-shrink: 0;
+    &:hover { opacity: 1; }
+  }
+  @media (max-width: 1082px) {
+    top: 100px;
+    left: 16px;
+    width: calc(100% - 32px);
+    max-width: 100%;
+  }
 }
 
 .myprop-toast--success {
-  background: #2e7d32;
+  background: rgb(76, 175, 80);
 }
 
 .myprop-toast--error {
