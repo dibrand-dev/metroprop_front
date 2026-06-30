@@ -20,12 +20,7 @@
   .image-section {
     width: 100%;
     height: 148px;
-    position: relative;
-    .favorite-button {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-    }
+    position: relative;   
     &:hover .hover-overlay {
       opacity: 1;
     }
@@ -221,5 +216,21 @@
     .price-per-sqm {
       padding: 0;
     }
+  }
+
+  .favorite-highlighted-container {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 1px;
+  }
+
+  &:hover .favorite-highlighted-container {
+    background: rgba(255, 255, 255, 0.4);    
+    border-radius: 8px;
   }
 }

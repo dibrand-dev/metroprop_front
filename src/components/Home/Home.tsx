@@ -215,6 +215,7 @@ export default function Home() {
                   cardType="home"
                   isLoggedIn={isLoggedIn}
                   onFavorite={handleToggleFavorite}
+                  isHighlighted={true}
                 />)}
               </div>
               {visitedCanScrollRight && (
@@ -254,6 +255,7 @@ export default function Home() {
                     cardType="home"
                     isLoggedIn={isLoggedIn}
                     onFavorite={handleToggleFavorite}
+                    isHighlighted={true}
                   />
                 ))}
               </div>

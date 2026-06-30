@@ -430,7 +430,9 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                     location: selectedProperty.location_id ? locations.find(l => l.id === selectedProperty.location_id)?.name : undefined,
                     state: selectedProperty.state_id ? locations.find(l => l.id === selectedProperty.state_id)?.name : undefined,
                   } : undefined;
-                  return <Link prefetch={false}  href={getPropertyDetailPath(selectedProperty, locationLabels)} className='linkToPropertyInfoWindow'><PropertyCard property={selectedProperty} cardType="gridList" fromMap={true} /></Link>;
+                  return <Link prefetch={false}  href={getPropertyDetailPath(selectedProperty, locationLabels)} className='linkToPropertyInfoWindow'>
+                    <PropertyCard property={selectedProperty} cardType="gridList" fromMap={true} isHighlighted={true} />
+                  </Link>;
                 })() : null}
               </InfoWindow>
             );

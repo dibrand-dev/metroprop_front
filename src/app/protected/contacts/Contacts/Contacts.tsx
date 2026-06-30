@@ -49,6 +49,7 @@ export default function Contacts() {
               setWhatsappModalInfo({ phoneNumber: property.user?.phone_whatsapp ? property.user.phone_whatsapp : property.user.phone ?? '', propertyId: property.id ?? 0 });
               setIsWhatsappModalOpen(true);
             }}
+            isHighlighted={true}
           />
         ))}
         {!isLoading && leads.length === 0 && (

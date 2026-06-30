@@ -56,6 +56,17 @@ body {
         background-color: #ffffff;
     }
 
+    .favorite-highlighted-container {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        border-radius: 8px;
+        padding: 1px;
+    }
+
+    &:hover .favorite-highlighted-container {
+        background: rgba(255, 255, 255, 0.4); 
+    }
 
     .entrega-delivery-date {
         position: absolute;

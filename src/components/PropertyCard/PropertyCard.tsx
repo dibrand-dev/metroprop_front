@@ -120,19 +120,24 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
       <>
         <div className="property-card-wrapper home" onClick={goToDetail}>
           {property.is_development && <div className="entrega-delivery-date">
-            <span>Emprendimiento</span>
-            {isHighlighted && <img src={`/icons/${isFavorite ? "starIsFavorite" : "star"}.svg`} alt="Icono de favorito" />}
+            <span>Emprendimiento</span>            
           </div>}
+          
           <div className="property-card-image">
             <img
               src={gallery.firstImage}
               alt={property.publication_title}
               onClick={gallery.openGallery}
               style={{ cursor: gallery.hasImages ? 'pointer' : 'default' }}
-            />
-            {/*!property.is_development && */showFavoriteBtn && <button className="property-card-heart" onClick={handleFavorite} aria-label="Add to favorites">
-              <HeartIcon isFavorite={isFavorite} />
-            </button>}
+            />     
+            <div className="favorite-highlighted-container">
+              {isHighlighted && <img src="/icons/starIsFavorite.svg" alt="Icono de favorito" />}
+              {showFavoriteBtn && (
+                <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
+                  <HeartIcon isFavorite={isFavorite} />
+                </button>
+              )}
+            </div>       
           </div>
           <div className="property-card-info">
             {property.is_development
@@ -191,7 +196,6 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
         <div className="property-card-grid-list" onClick={goToDetail}>
           {property.is_development && <div className="entrega-delivery-date">
             <span>Emprendimiento</span>
-            {isHighlighted && <img src={`/icons/${isFavorite ? "starIsFavorite" : "star"}.svg`} alt="Icono de favorito" />}
           </div>}
           <div
             className="image-section"
@@ -199,11 +203,14 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
             title={fromMap ? 'Ver detalle' : 'Abrir galería'}
           >
             <img src={gallery.firstImage} alt={property.publication_title} className="property-image" />
-            {/*!property.is_development && */showFavoriteBtn && (
-              <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
-                <HeartIcon isFavorite={isFavorite} />
-              </button>
-            )}
+            <div className="favorite-highlighted-container">
+              {isHighlighted && <img src="/icons/starIsFavorite.svg" alt="Icono de destacado" />}
+              {showFavoriteBtn && (
+                <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
+                  <HeartIcon isFavorite={isFavorite} />
+                </button>
+              )}
+            </div>
           </div>
           {property.is_development && <div className="delivery-date-content">
               <img src={'/icons/crane_gray.svg'} alt="Crane Icon" />
@@ -256,12 +263,19 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
     return (
       <>
         <div className="property-card-map-list" onClick={goToDetail}>
+          <div className="favorite-highlighted-container">
+            {isHighlighted && <img src="/icons/starIsFavorite.svg" alt="Icono de favorito" />}
+            {(/*!property.is_development && */showFavoriteBtn) && (
+              <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
+                <HeartIcon isFavorite={isFavorite} />
+              </button>
+            )}
+          </div>
           {property.is_development && <div className="entrega-delivery-date">
             <div className="delivery-date-content">
               <img src={'/icons/crane.svg'} alt="Crane Icon" />
               {`En construcción - Entrega ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
             </div>
-            {isHighlighted && <img src={`/icons/${isFavorite ? "starIsFavorite" : "star"}.svg`} alt="Icono de favorito" />}
           </div>}
           <div className="card-content">
             <img
@@ -283,11 +297,6 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                       )}
                     </>}
                 </div>
-                {(/*!property.is_development && */showFavoriteBtn) && (
-                  <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
-                    <HeartIcon isFavorite={isFavorite} />
-                  </button>
-                )}
               </div>
               <div className={`details-row ${property.is_development ? 'details-row-development' : ''}`}>
                 <div className={`address ${property.is_development ? 'address-development' : ''}`}>{property.street}</div>

@@ -252,6 +252,7 @@ export default function Results() {
                   property={{ ...property, isFavorite: favorites.has(property.id ?? 0) } as any}
                   onFavorite={() => handleToggleFavorite(property.id ?? 0)}
                   isLoggedIn={isLoggedIn}
+                  isHighlighted={true}
                 />
               ))}
             </div>
@@ -264,6 +265,7 @@ export default function Results() {
                     property={{ ...property, isFavorite: favorites.has(property.id ?? 0) } as any}
                     onFavorite={() => handleToggleFavorite(property.id ?? 0)}
                     isLoggedIn={isLoggedIn}
+                    //isHighlighted={true}
                   />  
                 </div>
               ))}

@@ -138,6 +138,8 @@ const MyProperties = () => {
     } else if (pendingAction.action === 'change-status') {
       if (pendingStatusValue === null) return;
       statusMutation.mutate({ ids: pendingAction.ids, status: pendingStatusValue });
+    } else if (pendingAction.action === 'status' && pendingAction.label === "Dar de baja") {
+      deleteMutation.mutate({ ids: pendingAction.ids });
     } else {
       statusMutation.mutate({ ids: pendingAction.ids, status: pendingAction.status! });
     }
@@ -157,6 +159,18 @@ const MyProperties = () => {
     },
     onError: () => {
       setToast({ type: 'error', message: 'No se pudo actualizar el estado. Intentá de nuevo.' });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: ({ ids }: { ids: number[] }) =>
+      apiFetch(`${API_BASE_URL}/properties`, { method: 'DELETE', body: { ids } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-properties'] });
+      setToast({ type: 'success', message: 'Propiedades eliminadas con éxito.' });
+    },
+    onError: () => {
+      setToast({ type: 'error', message: 'No se pudo eliminar las propiedades. Intentá de nuevo.' });
     },
   });
 
@@ -601,7 +615,7 @@ const MyProperties = () => {
               />
             </div>
             <div className="flex items-center gap-[32px]">
-              {hasOrganization && (isRole1 || isRole2) && selectedCount > 0 && isBranchSelected && (rawUsers.length > 1 && fetchedBranches.length > 1) && (
+              {hasOrganization && (isRole1 || isRole2) && (
                 <button
                   type="button"
                   className="myprop-toolbar-btn"
@@ -612,17 +626,19 @@ const MyProperties = () => {
                   <img src="/icons/AsignarUser.svg" alt="Asignar" />
                 </button>
               )}
-              {!isRole3 && (selectedCount > 0 && (hasOrganization && isBranchSelected)) && (
+              {!isRole3 && (
               <button type="button" className="myprop-toolbar-btn" title={(selectedCount === 0 || (hasOrganization && !isBranchSelected)) ? "Seleccionar sucursal" : "Republicar"} disabled={selectedCount === 0 || (hasOrganization && !isBranchSelected)} onClick={() => openRepublishModal(getSelectedPropertyIds(), selectedBranchId)}>
                 <img src="/icons/republicar.svg" alt="Republicar" />
               </button>
               )}
-              {selectedCount > 0  && <button type="button" className="myprop-toolbar-btn" title="Archivar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
+              <button type="button" className="myprop-toolbar-btn" title="Archivar" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.ARCHIVADA, 'Archivar')}>
                 <img src="/icons/archivar.svg" alt="Archivar" />
-              </button>}
-              {selectedCount > 0  && <button type="button" className="myprop-toolbar-btn" title="Dar de baja" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DRAFT, 'Dar de baja')}>
-                <img src="/icons/power.svg" alt="Dar de baja" />
-              </button>}
+              </button>
+              {(isRole1 || (isRole3 && !hasOrganization)) && (
+                <button type="button" className="myprop-toolbar-btn" title="Dar de baja" disabled={selectedCount === 0} onClick={() => requestStatusChange(getSelectedPropertyIds(), PropertyStatus.DRAFT, 'Dar de baja')}>
+                  <img src="/icons/power.svg" alt="Dar de baja" />
+                </button>
+              )}
             </div>
           </div>
 

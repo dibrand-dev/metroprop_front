@@ -42,6 +42,7 @@
     flex-direction: column;
     gap: 10px;
     min-width: 0;
+    padding-right: 24px;
 
     .desde-text {
       font-weight: 500;
@@ -195,6 +196,15 @@
     .favorite-button.is-favorite {
       color: #FFF700;
     }
+  }
+
+  .favorite-highlighted-container {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    gap: 8px;
+    display: flex;
+    flex-direction: column;
   }
 }
 

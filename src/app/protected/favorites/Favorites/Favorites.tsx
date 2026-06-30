@@ -46,6 +46,7 @@ export default function Favorites() {
               setContactModalInfo({ phoneNumber: property.user ? property.user.phone : property.user.phone_whatsapp ?? '', propertyId: property.id ?? 0, userId: property.user_id ?? 0, organizationId: property.organization_id ?? undefined, phone_whatsapp: property.user ? property.user.phone_whatsapp : undefined });
               setIsContactModalOpen(true);
             }}
+            isHighlighted={true}
           />
         ))}
         {!isLoading && favourites.length === 0 && (
