@@ -252,7 +252,7 @@ export default function Results() {
                   property={{ ...property, isFavorite: favorites.has(property.id ?? 0) } as any}
                   onFavorite={() => handleToggleFavorite(property.id ?? 0)}
                   isLoggedIn={isLoggedIn}
-                  isHighlighted={!!(property.hired_plan_id && property.purchased_plan_id)}
+                  isHighlighted={(property.hired_plan_id && property.purchased_plan_id)}
 
                 />
               ))}
@@ -266,7 +266,7 @@ export default function Results() {
                     property={{ ...property, isFavorite: favorites.has(property.id ?? 0) } as any}
                     onFavorite={() => handleToggleFavorite(property.id ?? 0)}
                     isLoggedIn={isLoggedIn}
-                    isHighlighted={!!(property.hired_plan_id && property.purchased_plan_id)}
+                    isHighlighted={(property.hired_plan_id && property.purchased_plan_id)}
                   />  
                 </div>
               ))}
