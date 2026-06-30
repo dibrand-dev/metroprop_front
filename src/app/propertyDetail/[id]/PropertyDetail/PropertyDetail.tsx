@@ -1076,7 +1076,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                   cardType="home"
                   isLoggedIn={isLoggedIn}
                   onFavorite={() => handleToggleFavorite(property.id ?? 0)}
-                  isHighlighted={true}
+                  isHighlighted={property.hired_plan_id && property.purchased_plan_id}
                 />)}
               </div>
               {similarCanScrollRight[index] && (

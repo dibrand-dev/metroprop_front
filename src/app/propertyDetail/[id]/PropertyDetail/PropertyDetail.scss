@@ -816,6 +816,11 @@
 .property-detail-gallery-modal-close-container {
   text-align: right;
   z-index: 1;
+  align-self: flex-start;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  padding: 8px;
 }
 
 .property-gallery-lightbox .property-detail-gallery-modal-close {

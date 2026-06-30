@@ -215,7 +215,7 @@ export default function Home() {
                   cardType="home"
                   isLoggedIn={isLoggedIn}
                   onFavorite={handleToggleFavorite}
-                  isHighlighted={true}
+                  isHighlighted={property.hired_plan_id && property.purchased_plan_id}
                 />)}
               </div>
               {visitedCanScrollRight && (
@@ -255,7 +255,7 @@ export default function Home() {
                     cardType="home"
                     isLoggedIn={isLoggedIn}
                     onFavorite={handleToggleFavorite}
-                    isHighlighted={true}
+                    isHighlighted={property.hired_plan_id && property.purchased_plan_id}
                   />
                 ))}
               </div>

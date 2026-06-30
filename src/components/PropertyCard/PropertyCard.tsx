@@ -264,8 +264,9 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
       <>
         <div className="property-card-map-list" onClick={goToDetail}>
           <div className="favorite-highlighted-container">
-            {isHighlighted && <img src="/icons/starIsFavorite.svg" alt="Icono de favorito" />}
-            {(/*!property.is_development && */showFavoriteBtn) && (
+            {isHighlighted ? <img src="/icons/starIsFavorite.svg" alt="Icono de favorito" />
+            : property.is_development && <div style={{ height: 24 }} />}
+            {showFavoriteBtn && (
               <button className="favorite-button" onClick={handleFavorite} aria-label="Agregar a favoritos">
                 <HeartIcon isFavorite={isFavorite} />
               </button>
