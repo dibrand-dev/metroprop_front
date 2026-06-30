@@ -814,44 +814,24 @@
 }
 
 .property-detail-gallery-modal-close-container {
-  width: 100%;
   text-align: right;
-  padding: 16px 24px 0 0;
   z-index: 1;
-  height: 72px;
 }
 
-.property-detail-contact-modal-close,
 .property-gallery-lightbox .property-detail-gallery-modal-close {
-  width: 48px;
-  height: 48px;
   border: none;
-  background: transparent;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
-  color: #1e1e1e;
   z-index: 1;
-  box-shadow: 1px 4px 4px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-  border-radius: 100%;
   text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   align-self: flex-end;
   justify-self: flex-end;
-  background: #0132a4;
   color: white;
+  height: 24px;
   svg {
     width: 24px;
     height: 24px;
   }
 }
-
-
-
 
 .property-detail-contact-action {
   display: inline-flex;
@@ -1038,8 +1018,6 @@
 }
 
 .property-detail-gallery-arrow {
-  position: absolute;
-  top: calc(50% - 24px);
   width: 48px;
   height: 48px;
   background-color: #ffffff;
@@ -1230,22 +1208,24 @@
   justify-content: center;
   width: 100%;
   flex: 1;
-  padding: 16px 72px;
   box-sizing: border-box;
   overflow: auto;
 
   .property-detail-gallery-arrow-left {
     left: 16px;
+    margin-right: 8px;
   }
 
   .property-detail-gallery-arrow-right {
     right: 16px;
+    margin-left: 8px;
   }
 }
 
 .property-gallery-lightbox-image {
-  max-width: 100%;
-  max-height: calc(100vh - 220px);
+  height: 100%;
+  max-height: calc(100vh - 130px);
+  max-width: calc(100% - 50px);
   object-fit: contain;
   display: block;
   border-radius: 4px;
@@ -1260,6 +1240,7 @@
 }
 
 .property-gallery-lightbox-counter {
+  align-self: center;
   position: relative;
   z-index: 10;
   color: #fff;
@@ -1271,6 +1252,7 @@
 }
 
 .property-gallery-lightbox-thumbs {
+  display: none !important;
   position: relative;
   z-index: 5;
   min-height: 54px;

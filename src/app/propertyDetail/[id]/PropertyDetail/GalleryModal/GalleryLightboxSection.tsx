@@ -50,7 +50,9 @@ export default function GalleryLightboxSection<T>({
 
   return (
     <>
+    
       <div className="property-gallery-lightbox-main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onClick={handleBackgroundClick}>
+        
         <button
           type="button"
           className="property-detail-gallery-arrow property-detail-gallery-arrow-left"
@@ -70,6 +72,23 @@ export default function GalleryLightboxSection<T>({
         >
           <img src="/icons/chevron-up.svg" alt="" />
         </button>
+        <div className="property-detail-gallery-modal-close-container">
+          <button
+            type="button"
+            className="property-detail-gallery-modal-close"
+            aria-label="Cerrar"
+            onClick={onClose}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                  d="M6 6l12 12M18 6l-12 12"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>  
       </div>
       <div className="property-gallery-lightbox-counter">
         {activeIndex + 1} / {items.length}

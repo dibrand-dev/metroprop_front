@@ -31,7 +31,7 @@ interface PropertyDetailProps {
 
 const SIMILAR_SECTIONS = [
   { title: 'Propiedades similares', count: 5 },
-  { title: 'Propiedades similares por m2', count: 5 },
+  { title: 'Propiedades similares por m²', count: 5 },
 ];
 
 export default function PropertyDetail({ propertyId }: PropertyDetailProps) {

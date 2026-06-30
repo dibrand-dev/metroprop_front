@@ -153,7 +153,7 @@ interface PrecioFilterState {
 const EMPTY_PRECIO: PrecioFilterState = {
   precio: { moneda: null, desde: '', hasta: '' },
   precioM2: { moneda: null, desde: '', hasta: '' },
-  superficie: { tipo: 'Total', unidad: 'm2', desde: '', hasta: '' },
+  superficie: { tipo: 'Total', unidad: 'm²', desde: '', hasta: '' },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -280,7 +280,7 @@ function parseUrlToState(sp: { get: (k: string) => string | null }): ParsedFilte
     precio: { moneda: currency, desde: get('price_min'), hasta: get('price_max') },
     precioM2: { moneda: currency, desde: get('price_m2_min'), hasta: get('price_m2_max') },
     superficie: {
-      tipo: superficieTipo, unidad: 'm2',
+      tipo: superficieTipo, unidad: 'm²',
       desde: get(superficieTipo === 'Cubierta' ? 'roofed_surface_min' : 'total_surface_min'),
       hasta: get(superficieTipo === 'Cubierta' ? 'roofed_surface_max' : 'total_surface_max'),
     },
