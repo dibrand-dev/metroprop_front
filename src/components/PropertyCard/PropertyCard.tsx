@@ -110,7 +110,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
     if (prices.length === 0) return '-';
     const currency = units[0]?.currency ?? '';
     return <div className="development-prices"><div className="main-price">{`${formatCurrency(currency)} ${formatNumbers(Math.min(...prices))}`}</div>
-      <div className="price-per-sqm">{formatCurrency(currency)}/m2 {formatNumbers(Math.min(...pricesSq2))}</div>
+      <div className="price-per-sqm">{formatCurrency(currency)} {formatNumbers(Math.min(...pricesSq2))} m<sup>2</sup></div>
     </div>
   };
 
@@ -140,7 +140,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <div className="property-details property-details-development">
                   <div className="delivery-date-content">
                     <img src={'/icons/crane_gray.svg'} alt="Crane Icon" />
-                    {`En const. - Entrega ${new Date(property.delivery_date ?? property.development_delivery_date).toLocaleDateString("es-ES", { month: '2-digit', year: '2-digit' })}`}
+                    {`En const. - Ent. ${new Date(property.delivery_date ?? property.development_delivery_date).toLocaleDateString("es-ES", { month: '2-digit', year: '2-digit' })}`}
                   </div>
                   <div className="property-card-price-section">
                     <div>
@@ -207,9 +207,9 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
           </div>
           {property.is_development && <div className="delivery-date-content">
               <img src={'/icons/crane_gray.svg'} alt="Crane Icon" />
-              {`En construcción - Entrega ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
+              {`En construcción - Ent. ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
             </div>}
-          <div className="info-section">                 
+          <div className={`info-section ${property.is_development ? 'info-section-development' : ''}`}>                 
             {property.is_development
             ? <div className="content-wrapper">
                 <div className="property-details property-details-development">
@@ -233,13 +233,13 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <div className="price-row">
                   <div className="main-price">{formatCurrency(property.currency ?? '')} {formatNumbers(property.price)}</div>
                   {(property.price_square_meter ?? 0) > 0 && (
-                    <div className="price-per-sqm">{formatCurrency(property.currency ?? '')}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                    <div className="price-per-sqm">{formatCurrency(property.currency ?? '')} {formatNumbers(property.price_square_meter!)} m<sup>2</sup></div>
                   )}
                 </div>
                 <div className="address">{property.street}</div>
                 <div className="specs-row">
-                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m² tot.</span>
-                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m²</span> : null}
+                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m<sup>2</sup> tot.</span>
+                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m<sup>2</sup></span> : null}
                   {(property.room_amount ?? 0) > 0 && <span>{property.room_amount} amb.</span>}
                   {(property.bathroom_amount ?? 0) > 0 && <span>{property.bathroom_amount} baños</span>}
                 </div>
@@ -279,7 +279,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   ? getPrecioDesde(property.units)
                   : <><div className="total-price">{`${formatCurrency(property.currency)} ${formatNumbers(property.price)}`}</div>
                       {(property.price_square_meter ?? 0) > 0 && (
-                        <div className="price-per-meter">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                        <div className="price-per-meter">{formatCurrency(property.currency)} {formatNumbers(property.price_square_meter!)} m<sup>2</sup></div>
                       )}
                     </>}
                 </div>
@@ -295,8 +295,8 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 ? <div className="specs">
                   {(property.room_amount ?? 0) > 0 && <span>{property.room_amount} amb.</span>}
                   {(property.bathroom_amount ?? 0) > 0 && <span>{property.bathroom_amount} baños</span>}
-                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m² tot.</span>
-                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m²</span> : null}
+                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m<sup>2</sup> tot.</span>
+                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m<sup>2</sup></span> : null}
                 </div>
                 : <>
                   {devFullLocation && <div className="full_location">{devFullLocation}</div>} 
@@ -336,7 +336,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   ? getPrecioDesde(property.units)
                   : <><div className="total-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</div>
                     {property.price_square_meter! > 0 && (
-                      <div className="price-per-meter">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                      <div className="price-per-meter">{formatCurrency(property.currency)} {formatNumbers(property.price_square_meter!)} m<sup>2</sup></div>
                     )}
                     </>}
                 </div>
@@ -353,8 +353,8 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 {devFullLocation && <div className="full_location">{devFullLocation}</div>}
                 <div className="address">{property.street}</div>
                 <div className="specs">
-                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m² tot.</span>
-                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m²</span> : null}
+                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m<sup>2</sup> tot.</span>
+                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m<sup>2</sup></span> : null}
                   {(property.room_amount ?? 0) > 0 && <span>{property.room_amount} amb.</span>}
                   {(property.bathroom_amount ?? 0) > 0 && <span>{property.bathroom_amount} baños</span>}
                 </div>
@@ -399,7 +399,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   ? getPrecioDesde(property.units)
                   : <><div className="total-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</div>
                     {property.price_square_meter! > 0 && (
-                      <div className="price-per-meter">{formatCurrency(property.currency)}/m2 {formatNumbers(property.price_square_meter!)}</div>
+                      <div className="price-per-meter">{formatCurrency(property.currency)} {formatNumbers(property.price_square_meter!)} m<sup>2</sup></div>
                     )}
                   </>}
                 </div>
@@ -415,8 +415,8 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
               <div className="details-row">
                 <div className="address">{property.street}</div>
                 <div className="specs">
-                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m² tot.</span>
-                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m²</span> : null}
+                  {(property.total_surface ?? 0) > 0 ? <span>{formatNumbers(property.total_surface!)} m<sup>2</sup> tot.</span>
+                    : (property.surface ?? 0) > 0 ? <span>{formatNumbers(property.surface!)} m<sup>2</sup></span> : null}
                   {(property.room_amount ?? 0) > 0 && <span>{property.room_amount} amb.</span>}
                   {(property.bathroom_amount ?? 0) > 0 && <span>{property.bathroom_amount} baños</span>}
                 </div>

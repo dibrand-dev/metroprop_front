@@ -50,13 +50,12 @@ export default function Footer() {
           <div className="footer-map">
             <h3 className="footer-map-title">Mapa de sitio</h3>
             <ul className="footer-map-list">
-              <li><Link prefetch={false}  href="/results?operation_type=1">Comprar</Link></li>
-              <li><Link prefetch={false}  href="/results?operation_type=2">Alquilar</Link></li>
-              <li><Link prefetch={false}  href="/results?operation_type=3">Temporal</Link></li>
-              <li><Link prefetch={false}  href="#">Emprendimientos</Link></li>
+              <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=1&page=1&limit=20`}>Comprar</Link></li>
+              <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=2&page=1&limit=20`}>Alquilar</Link></li>
+              <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=3&page=1&limit=20`}>Temporal</Link></li>
+              <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&property_type=18&page=1&limit=20`}>Emprendimientos</Link></li>
               <li><Link prefetch={false}  href="/protected/publish">Publicar</Link></li>
-              <li><Link prefetch={false}  href="#">Mi cuenta</Link></li>
-              <li><Link prefetch={false}  href="#">Contáctanos</Link></li>
+              <li><Link prefetch={false}  href="/protected/admin/profile">Mi cuenta</Link></li>
             </ul>
           </div>
 
@@ -80,10 +79,9 @@ export default function Footer() {
               <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=1&page=1&limit=20`}>Comprar</Link></li>
               <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=2&page=1&limit=20`}>Alquilar</Link></li>
               <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=3&page=1&limit=20`}>Temporal</Link></li>
-              <li><Link prefetch={false}  href="#">Emprendimientos</Link></li>
+              <li><Link prefetch={false}  href={`/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&property_type=18&page=1&limit=20`}>Emprendimientos</Link></li>
               <li><Link prefetch={false}  href="/protected/publish">Publicar</Link></li>
-              <li><Link prefetch={false}  href="#">Mi cuenta</Link></li>
-              <li><Link prefetch={false}  href="#">Contáctanos</Link></li>
+              <li><Link prefetch={false}  href="/protected/admin/profile">Mi cuenta</Link></li>
             </ul>
           </div>
 
