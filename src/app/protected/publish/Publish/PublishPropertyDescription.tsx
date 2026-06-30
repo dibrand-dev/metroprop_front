@@ -13,7 +13,7 @@ const descriptionMax = 10000;
 const descriptionMin = 150;
 
 const tooltipTextPrimary =
-  'Incluí tipo de propiedad, operación, m2, ubicación y un dato clave que destaque tu publicación.';
+  'Incluí tipo de propiedad, operación, m², ubicación y un dato clave que destaque tu publicación.';
 const tooltipTextSecondary =
   'Detallá los ambientes, las características destacadas y los alrededores. Separa la información en párrafos. Los emojis no se mostrarán en el aviso.';
 
@@ -112,7 +112,7 @@ export default function PublishPropertyDescription({
                 label="Título*"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="Ej. Departamento en alquiler de 100 m2 en Palermo"
+                placeholder="Ej. Departamento en alquiler de 100 m² en Palermo"
                 maxLength={titleMax}
                 required
               />

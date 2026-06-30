@@ -78,7 +78,7 @@ export default function PublishEmprendimientoFinalReview({
   const getSupDesde = (units: CreateProperty[]) => {
     const sups = units.map(u => Number(u.total_surface)).filter(s => s > 0);
     if (sups.length === 0) return '-';
-    const meas = units[0]?.surface_measurement ?? 'm²';
+    const meas = units[0]?.surface_measurement === 'M2' ? 'm²' : units[0]?.surface_measurement ?? 'm²';
     return `${formatNumbers(Math.min(...sups))} ${meas}`;
   };
 
@@ -209,7 +209,7 @@ export default function PublishEmprendimientoFinalReview({
 
     // total_surface range
     const totalSurfaces = units.map(u => Number(u.total_surface ?? 0));
-    const meas = units[0]?.surface_measurement ?? 'm²';
+    const meas = units[0]?.surface_measurement === 'M2' ? 'm²' : units[0]?.surface_measurement ?? 'm²';
     const totalSurfLabel = rangeLabel(totalSurfaces, meas, meas, '');
     if (totalSurfLabel) {
       const tMin = Math.min(...totalSurfaces.filter(v => v > 0));
@@ -267,9 +267,9 @@ export default function PublishEmprendimientoFinalReview({
     if (wizardData?.floors_amount && wizardData.floors_amount > 0)  result[4].push(`Pisos: ${wizardData.floors_amount}`);
     if (wizardData?.garage_coverage && wizardData.garage_coverage > 0)  result[4].push(`Cobertura cochera: ${GARAGE_COVERAGE_LABELS[wizardData.garage_coverage]}`);
     if (wizardData?.postal_code)  result[4].push(`Código postal: ${wizardData.postal_code}`);
-    if (wizardData?.semiroofed_surface && wizardData.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(wizardData.semiroofed_surface)} ${wizardData.surface_measurement ?? ''}`);
-    if (wizardData?.surface_front && wizardData.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(wizardData.surface_front)} ${wizardData.surface_measurement ?? ''}`);
-    if (wizardData?.surface_length  && wizardData.surface_length > 0)  result[4].push(`Fondo: ${formatNumbers(wizardData.surface_length)} ${wizardData.surface_measurement ?? ''}`);
+    if (wizardData?.semiroofed_surface && wizardData.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(wizardData.semiroofed_surface)} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement ?? ''}`);
+    if (wizardData?.surface_front && wizardData.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(wizardData.surface_front)} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement ?? ''}`);
+    if (wizardData?.surface_length  && wizardData.surface_length > 0)  result[4].push(`Fondo: ${formatNumbers(wizardData.surface_length)} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement ?? ''}`);
     if (result[4].length === 0) delete result[4];
     
     return result;
@@ -342,7 +342,7 @@ export default function PublishEmprendimientoFinalReview({
                     </span>
                     <div className="publish-review-preview-meta">
                       {wizardData.price && wizardData.total_surface && (
-                      <span>{formatCurrency(wizardData.currency)}/m2 {formatNumbers((wizardData.price / wizardData.total_surface))}</span>
+                      <span>{formatCurrency(wizardData.currency)}/m<sup>2</sup> {formatNumbers((wizardData.price / wizardData.total_surface))}</span>
                       )}
                       
                       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
@@ -432,7 +432,7 @@ export default function PublishEmprendimientoFinalReview({
                 <div className="description-section">
                   <h4>Sobre el emprendimiento</h4>
                   <p className={`whitespace-pre-line ${summaryExpanded ? 'summary-expanded' : 'summary-collapsed'}`}>
-                    {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm2'}.`}
+                    {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement || ''}.`}
                   </p>
                   {showSummaryToggle && (
                   <button
@@ -564,8 +564,8 @@ export default function PublishEmprendimientoFinalReview({
                         return (
                           <div key={unit.id ?? index} className="table-row">
                             <div className="table-cell">{unit.publication_title ?? '-'}</div>
-                            <div className="table-cell">{unit.total_surface ? `${formatNumbers(unit.total_surface)} ${unit.surface_measurement ?? ''}` : '-'}</div>
-                            <div className="table-cell">{unit.roofed_surface ? `${formatNumbers(unit.roofed_surface)} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
+                            <div className="table-cell">{unit.total_surface ? `${formatNumbers(unit.total_surface)} ${unit.surface_measurement === 'M2' ? 'm²' : unit.surface_measurement ?? ''}` : '-'}</div>
+                            <div className="table-cell">{unit.roofed_surface ? `${formatNumbers(unit.roofed_surface)} ${unit.roofed_surface_measurement === 'M2' ? 'm²' : unit.roofed_surface_measurement ?? ''}` : '-'}</div>
                             <div className="table-cell">{unit.bathroom_amount ?? '-'}</div>
                             <div className="table-cell">{pricePerM2}</div>
                             <div className="table-cell">{priceTotal}</div>

@@ -164,7 +164,7 @@ const MyProperties = () => {
 
   const deleteMutation = useMutation({
     mutationFn: ({ ids }: { ids: number[] }) =>
-      apiFetch(`${API_BASE_URL}/properties`, { method: 'DELETE', body: { ids } }),
+      apiFetch(`${API_BASE_URL}/properties/delete-batch`, { method: 'POST', body: { ids } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-properties'] });
       setToast({ type: 'success', message: 'Propiedades eliminadas con éxito.' });

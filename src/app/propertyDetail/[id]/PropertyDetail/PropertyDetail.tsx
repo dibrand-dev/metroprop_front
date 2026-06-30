@@ -253,8 +253,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     else if (property.age! > 0) features.push({ label: `${property.age} años`, icon: '/icons/calendar.svg' });
 
     if (property.orientation) features.push({ label: ORIENTATION_LABELS[property.orientation as Orientation] ?? String(property.orientation), icon: '/icons/orientacion.svg' });
-    if (property.total_surface && property.total_surface > 0 && property.surface_measurement) features.push({ label: `${formatNumbers(property.total_surface)} ${property.surface_measurement} tot.`, icon: '/icons/regla.svg' });
-    if (property.roofed_surface && property.roofed_surface > 0 && property.roofed_surface_measurement) features.push({ label: `${formatNumbers(property.roofed_surface)} ${property.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
+    if (property.total_surface && property.total_surface > 0 && property.surface_measurement) features.push({ label: `${formatNumbers(property.total_surface)} ${property.surface_measurement === 'M2' ? 'm²' : property.surface_measurement} tot.`, icon: '/icons/regla.svg' });
+    if (property.roofed_surface && property.roofed_surface > 0 && property.roofed_surface_measurement) features.push({ label: `${formatNumbers(property.roofed_surface)} ${property.roofed_surface_measurement === 'M2' ? 'm²' : property.roofed_surface_measurement} cub`, icon: '/icons/mcubiertos.svg' });
     if (property.room_amount) features.push({ label: `${formatNumbers(property.room_amount)} amb.`, icon: '/icons/door.svg' });
     if (property.parking_lot_amount) features.push({ label: `${formatNumbers(property.parking_lot_amount)} cochera${property.parking_lot_amount > 1 ? 's' : ''}`, icon: '/icons/cochera.svg' });
     if (property.suite_amount) features.push({ label: `${formatNumbers(property.suite_amount)} dorm.`, icon: '/icons/cama.svg' });
@@ -357,7 +357,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
     // total_surface range
     const totalSurfaces = units.map(u => Number(u.total_surface ?? 0));
-    const meas = units[0]?.surface_measurement ?? 'm²';
+    const meas = units[0]?.surface_measurement === "M2" ? 'm²' : units[0]?.surface_measurement ?? '';
     const totalSurfLabel = rangeLabel(totalSurfaces, meas, meas, '');
     if (totalSurfLabel) {
       const tMin = Math.min(...totalSurfaces.filter(v => v > 0));
@@ -413,7 +413,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const getSupDesde = (units: CreateProperty[]) => {
     const sups = units.map(u => Number(u.total_surface)).filter(s => s > 0);
     if (sups.length === 0) return '-';
-    const meas = units[0]?.surface_measurement ?? 'm²';
+    const meas = units[0]?.surface_measurement === "M2" ? 'm²' : units[0]?.surface_measurement ?? '';
     return `${formatNumbers(Math.min(...sups) )} ${meas}`;
   };
 
@@ -874,8 +874,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                               style={{ cursor: canOpenUnit ? 'pointer' : 'default' }}
                             >
                               <div className="table-cell">{unit.publication_title ?? '-'}</div>
-                              <div className="table-cell">{unit.total_surface ? `${formatNumbers(unit.total_surface)} ${unit.surface_measurement ?? ''}` : '-'}</div>
-                              <div className="table-cell">{unit.roofed_surface ? `${formatNumbers(unit.roofed_surface)} ${unit.roofed_surface_measurement ?? ''}` : '-'}</div>
+                              <div className="table-cell">{unit.total_surface ? `${formatNumbers(unit.total_surface)} ${unit.surface_measurement === 'M2' ? 'm²' : unit.surface_measurement ?? ''}` : '-'}</div>
+                              <div className="table-cell">{unit.roofed_surface ? `${formatNumbers(unit.roofed_surface)} ${unit.roofed_surface_measurement === 'M2' ? 'm²' : unit.roofed_surface_measurement ?? ''}` : '-'}</div>
                               <div className="table-cell">{unit.bathroom_amount ?? '-'}</div>
                               <div className="table-cell">{pricePerM2}</div>
                               <div className="table-cell">{priceTotal}</div>
@@ -915,11 +915,11 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                               </div>
                               <div className="unit-field">
                                 <span className="unit-label">Sup. Total:</span>
-                                <span className="unit-value">{unit.total_surface ? `${formatNumbers(unit.total_surface)} ${unit.surface_measurement ?? ''}` : '-'}</span>
+                                <span className="unit-value">{unit.total_surface ? `${formatNumbers(unit.total_surface)} ${unit.surface_measurement === 'M2' ? 'm²' : unit.surface_measurement ?? ''}` : '-'}</span>
                               </div>
                               <div className="unit-field">
                                 <span className="unit-label">Sup. Cubierta:</span>
-                                <span className="unit-value">{unit.roofed_surface ? `${formatNumbers(unit.roofed_surface)} ${unit.roofed_surface_measurement ?? ''}` : '-'}</span>
+                                <span className="unit-value">{unit.roofed_surface ? `${formatNumbers(unit.roofed_surface)} ${unit.roofed_surface_measurement === 'M2' ? 'm²' : unit.roofed_surface_measurement ?? ''}` : '-'}</span>
                               </div>
                               <div className="unit-field">
                                 <span className="unit-label">Baños:</span>

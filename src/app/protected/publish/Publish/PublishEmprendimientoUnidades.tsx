@@ -267,8 +267,8 @@ export default function PublishEmprendimientoUnidades({
       toilet_amount: unit.toilet_amount ?? 0,
       parking_lot_amount: unit.parking_lot_amount ?? 0,
     });
-    setSurface_measurement(unit.surface_measurement ?? 'M2');
-    setRoofed_surface_measurement(unit.roofed_surface_measurement ?? 'M2');
+    setSurface_measurement(unit.surface_measurement === 'M2' ? 'm²' : unit.surface_measurement ?? 'M2');
+    setRoofed_surface_measurement(unit.roofed_surface_measurement === 'M2' ? 'm²' : unit.roofed_surface_measurement ?? 'M2');
     setTotal_surface(unit.total_surface ?? '');
     setRoofed_surface(unit.roofed_surface ?? '');
     setDevelopment_units_total(unit.development_available_unit_count ?? undefined);
@@ -386,7 +386,7 @@ export default function PublishEmprendimientoUnidades({
                 <div className="unit-list-type">{PROPERTY_TYPE_LABELS[unitData.property_type as PropertyType] ?? unitData.property_type}</div>
                 <div className="unit-list-price">{formatCurrency(unitData.currency)} {formatNumbers(unitData.price)}</div>
                 <div className="unit-list-rooms">{unitData.room_amount ?? 0} amb.</div>
-                <div className="unit-list-surface">{formatNumbers(unitData.total_surface)} {unitData.surface_measurement}</div>
+                <div className="unit-list-surface">{formatNumbers(unitData.total_surface)} {unitData.surface_measurement === 'M2' ? 'm²' : unitData.surface_measurement}</div>
                 <div className="unit-list-actions">
                   <button
                     className="collaborators-action-button"
