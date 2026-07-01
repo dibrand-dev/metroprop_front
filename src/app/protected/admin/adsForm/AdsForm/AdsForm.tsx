@@ -55,7 +55,7 @@ export default function AdsForm() {
       const formData = new FormData();
       formData.append('name', name.trim());
       formData.append('status', String(habilitado));
-      formData.append('placements', "[" + placements.join(',') + "]");
+      formData.append('placements', placements);//"[" + placements.join(',') + "]");
       formData.append('link', link.trim());
       if (imageFile) formData.append('file', imageFile);
       const url = isEditing
@@ -172,7 +172,6 @@ export default function AdsForm() {
               placeholder="https://..."
               value={link}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLink(e.target.value)}
-              required={true}
               error={fieldErrors.link}
             />
           </div>

@@ -419,7 +419,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                 position={{ lat: selectedItem.lat, lng: selectedItem.lng}}
                 onCloseClick={() => setSelectedId(null)}
                 pixelOffset={[0, -14]}
-                style={{ padding: 0, width: 302, height: 190 }}
+                style={{ padding: 0, width:  302, height: selectedProperty?.is_development ? 273: 190 }}
               >
                 {isFetchingProperty && !selectedProperty ? (
                   <div style={{ padding: '8px' }}>Cargando...</div>

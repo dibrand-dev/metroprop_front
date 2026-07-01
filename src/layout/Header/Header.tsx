@@ -160,11 +160,11 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
         />
       )}
       <div className={`header-content ${showFilter ? 'with-search' : ''}`}>
-        {!isRole4 && sessionData?.user?.organization && <div className="topnavbar-menu-items">        
+        {!isRole4 ? sessionData?.user?.organization && <div className="topnavbar-menu-items">        
           <button className="topnavbar-dropdown">
             <Link prefetch={false}  href="/protected/myProperties">Mis publicaciones</Link>
           </button>
-        </div>}
+        </div> : <div  style={{width: '33.3%'}}/>}
         {/* Left Section - Navigation Dropdowns / Hamburger Menu */}
         <div className={`header-nav-wrapper ${showFilter ? 'with-search' : ''}`}>
           {/* Hamburger Button for Mobile */}
