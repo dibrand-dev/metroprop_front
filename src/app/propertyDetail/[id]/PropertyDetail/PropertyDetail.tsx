@@ -9,7 +9,7 @@ import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype, GARAGE_COVERAGE_LABELS, BannerPlacement } from '@/types/propiedad';
-import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath, getInitials, formatStreetAddress, getPropertyDetailPath } from '@/utils/utils';
+import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath, getInitials, formatStreetAddress, getPropertyDetailPath, setAdsUrl } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
 import GalleryModal, { GalleryTab, GalleryVideo } from './GalleryModal/GalleryModal';
@@ -1094,7 +1094,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         ))}
         </>) : ''}
         {!isAdsLoading && !isAdsError && adsData && <div className="add-container detail-ad">{adsData.map((ad) => ad.placements == BannerPlacement.DETAIL && ad.file &&
-          (<a key={ad.id} href={ad.link ?? '#'}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
+          (<a key={ad.id} href={setAdsUrl(ad.link)}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
       </main>
 
       {isGalleryOpen && <GalleryModal

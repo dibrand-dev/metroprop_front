@@ -298,3 +298,10 @@ export function HeartIcon({ isFavorite }: { isFavorite?: boolean }): JSX.Element
 
     return `/propertyDetail/${property.id}`;
   }
+
+  export function setAdsUrl(adLink: string): string {
+    return adLink 
+      ? adLink.startsWith('http')
+        ? adLink : `http://${adLink}`
+        : '#';
+  }

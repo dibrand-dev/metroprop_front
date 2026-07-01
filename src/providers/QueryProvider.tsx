@@ -16,7 +16,6 @@ interface QueryProviderProps {
 function PrefetchOnSession({ queryClient }: { queryClient: QueryClient }) {
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
-console.log("PrefetchOnSession: loged?", isLoggedIn);
   useEffect(() => {
     if (!isLoggedIn) return;
     queryClient.prefetchQuery({

@@ -14,7 +14,7 @@ import './Results.scss';
 import { fetchProperties, searchParamsToFilterParams } from '@/lib/properties';
 import { BannerPlacement, CreateProperty } from '@/types/propiedad';
 import type { MapDataItem } from '@/types/property-api';
-import { API_BASE_URL, setImagePath } from '@/utils/utils';
+import { API_BASE_URL, setAdsUrl, setImagePath } from '@/utils/utils';
 import { useFavoriteIds, useToggleFavorite } from '@/lib/useFavoriteIds';
 import { useAds } from '@/lib/useAds';
 
@@ -279,7 +279,7 @@ export default function Results() {
           {/* Paginator */}
           <Paginator currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
           {!isAdsLoading && !isAdsError && adsData && <div className="add-container results-ad">{adsData.map((ad) => ad.placements == BannerPlacement.RESULTS && ad.file &&
-            (<a key={ad.id} href={ad.link ?? '#'}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
+            (<a key={ad.id} href={setAdsUrl(ad.link)}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
         </div>
       </div>
     </div>

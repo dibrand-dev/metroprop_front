@@ -8,7 +8,7 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { apiFetch } from '@/lib/apiFetch';
 import Select from '@/ui/Select/Select';
@@ -171,10 +171,10 @@ export default function AdsForm() {
           </div>
 
           <div className="partner-form-section">
-            <label className="partner-form-label">Imagen* <span style={{ fontWeight: 400, fontSize: '0.85em', color: '#666' }}>(JPG, PNG, WEBP, GIF)</span></label>
+            <label className="partner-form-label">Imagen* <span style={{ fontWeight: 400, fontSize: '0.85em', color: '#666' }}>(JPG, PNG, WEBP, GIF) tamaño sugerido: 728px x 90 px </span> </label>
             {imagePreview && (
               <img
-                src={imagePreview}
+                src={setImagePath(imagePreview)}
                 alt="Preview"
                 style={{ display: 'block', maxHeight: 120, maxWidth: '100%', marginBottom: 8, borderRadius: 6, objectFit: 'contain' }}
               />
