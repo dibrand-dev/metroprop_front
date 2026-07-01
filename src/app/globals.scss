@@ -297,3 +297,13 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.add-container {
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    img {
+        max-width: 100%;
+    }
+}

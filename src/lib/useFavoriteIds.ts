@@ -14,7 +14,6 @@ export const FAVORITE_IDS_QUERY_KEY = ['favorite-ids'] as const;
 export function useFavoriteIds(): Set<number> {
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
-
   const { data } = useQuery<number[]>({
     queryKey: FAVORITE_IDS_QUERY_KEY,
     queryFn: () => apiFetch<number[]>(`${API_BASE_URL}/favourites/list-ids`),

@@ -60,13 +60,10 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
   const { data: organizationData } = useQuery({
     queryKey: ['organization', orgId],
     queryFn: async () => {
-      console.log("Fetching organization data for orgId:", orgId);
       return apiFetch(`${API_BASE_URL}/organizations/${orgId}`);
     },
     enabled: !!orgId,
   });
-
-  console.log("organizationData",organizationData)
 
   useEffect(() => {
     if (!orgId) return;

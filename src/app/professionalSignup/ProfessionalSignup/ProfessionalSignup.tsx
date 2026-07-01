@@ -230,7 +230,6 @@ export default function ProfessionalSignup() {
     ? `Podrás reenviar el correo en ${formatRemainingTime(remainingTime)}`
     : undefined;
 
-  console.log("error", error)
   return (
     <div className="signup-container bg-white min-h-screen w-full">
       <div className="signup-wrapper">

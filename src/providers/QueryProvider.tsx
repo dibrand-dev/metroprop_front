@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { LOCATIONS_QUERY_KEY, fetchLocations } from '@/lib/locations';
 import { FAVORITE_IDS_QUERY_KEY } from '@/lib/useFavoriteIds';
+import { ADS_QUERY_KEY, ADS_STALE_TIME } from '@/lib/useAds';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 
@@ -15,7 +16,7 @@ interface QueryProviderProps {
 function PrefetchOnSession({ queryClient }: { queryClient: QueryClient }) {
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
-
+console.log("PrefetchOnSession: loged?", isLoggedIn);
   useEffect(() => {
     if (!isLoggedIn) return;
     queryClient.prefetchQuery({
@@ -49,7 +50,13 @@ export default function QueryProvider({ children }: QueryProviderProps) {
       staleTime: 60 * 60 * 1000,
       gcTime: 24 * 60 * 60 * 1000,
     });
+    queryClient.prefetchQuery({
+      queryKey: ADS_QUERY_KEY,
+      queryFn: () => apiFetch(`${API_BASE_URL}/ads-banners`),
+      staleTime: ADS_STALE_TIME,
+    });
   }, [queryClient]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <PrefetchOnSession queryClient={queryClient} />

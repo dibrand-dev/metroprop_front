@@ -112,8 +112,6 @@ export default function Properties() {
     staleTime: 5 * 60 * 1000,
   });
 
-  console.log("propertiesCount", propertiesCount)
-
   const rawData: any = propertiesData;
   const rawProperties: CreateProperty[] = rawData?.data ?? []; //Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
   const total: number = rawData?.total ?? rawProperties.length;

@@ -29,24 +29,11 @@ export const authOptions = {
               password: credentials.password,
             }),
           });
-          console.log("res", res);
           if (!res.ok) return null;
           const data = await res.json();
-          console.log("data", data);
           // Support both { access_token, user } and flat user object responses
           const user = data.user ?? data;
-          if (!user?.id) return null;
-          console.log("RETURN",  {
-            id: String(user.id),
-            email: user.email,
-            name: user.name,
-            phone: user.phone,
-            apiToken: data.access_token ?? null,
-            role_id: user.role_id,
-            organization: user.organization ?? null,
-            accept_newsletters: user.accept_newsletters ?? null,            
-          });
-
+          if (!user?.id) return null;          
           return {
             id: String(user.id),
             email: user.email,
@@ -59,7 +46,6 @@ export const authOptions = {
           } as any;
         } catch (error) {
           console.log("catch", error)
-
           return null;
         }
       },

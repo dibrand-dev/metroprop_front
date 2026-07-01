@@ -34,7 +34,6 @@ import Image from 'next/image';
 
 
 const toCreatePropertyPatch = (data: Partial<CreatePropertyDraft>): Partial<CreateProperty> => {
-  console.log('toCreatePropertyPatch - input data:', data);
   const patch: Partial<CreateProperty> = {};
 
   for (const key of CREATE_PROPERTY_PATCH_KEYS) {

@@ -86,8 +86,6 @@ export default function PublishPrice({
       return;
     }
     const parsed = parseInt(raw, 10);
-    console.log("parsed", parsed)
-    console.log("field", field)
     if('price' === field) {
       setPrice(isNaN(parsed) ? undefined : parsed);
     } else if('expenses' === field) {

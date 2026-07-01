@@ -9,16 +9,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import { apiFetch } from '@/lib/apiFetch';
 import Button from '@/ui/Button/Button';
-import { BANNER_PLACEMENT_OPTIONS } from '@/types/propiedad';
+import { BannerPlacementLabels } from '@/types/propiedad';
 
 const iconArrowBack = '/icons/arrow.svg';
-const iconRefresh = '/icons/refresh.svg';
 const iconLock = '/icons/lock.svg';
 const iconWhiteTrash = '/icons/whiteTrash.svg';
 const iconTrash = '/icons/trash.svg';
 const iconCheck = '/icons/check_black.svg';
 const iconPencil = '/icons/pencil.svg';
-const iconEye = '/icons/eye.svg';
 
 type ConfirmAction = { type: 'refresh' | 'edit' | 'disable' | 'enable' | 'delete'; id: number } | null;
 
@@ -26,8 +24,6 @@ export default function Ads() {
   const { showMenu, setShowMenu } = useAdminMenu();
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
   const router = useRouter();
-  const [viewCredentials, setViewCredentials] = useState<{ app_key: string; app_secret: string } | null>(null);
-  const [copiedField, setCopiedField] = useState<'app_key' | 'app_secret' | null>(null);
   const queryClient = useQueryClient();
 
   const { data: adsData, isLoading, isError } = useQuery({
@@ -79,7 +75,6 @@ export default function Ads() {
   if (isLoading) return <div>Cargando...</div>;
   if (isError) return <div>Error cargando Ads</div>;
 
-  console.log("adsData", adsData)
   return (
     <>
       <div className={`partners-container ${showMenu ? 'mobile-hidden' : ''}`}>
@@ -111,8 +106,7 @@ export default function Ads() {
                     {ad.name ?? ''}
                   </p>
                   <p className="partners-card-subtitle">
-                    {//ad.placements?.map((placement) => BANNER_PLACEMENT_OPTIONS.find(option => option.value === placement)?.label).join(', ') ?? ''}
-                    ad.placements ?? ''}
+                    {ad.placements ? BannerPlacementLabels[ad.placements] :  ''}
                   </p>
                 </div>
                 <div className="partners-card-actions">

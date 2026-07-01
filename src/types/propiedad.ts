@@ -969,15 +969,17 @@ export const EMPRENDIMIENTO_FLOW = [
 ];
 
 export enum BannerPlacement {
-  HEADER = 1,
-  FOOTER = 2,
-  SIDEBAR = 3,
+  HOME_TOP = 1,
+  HOME_BOTTOM = 2,
+  RESULTS = 3,
+  DETAIL = 4
 }
 
 export const BannerPlacementLabels: Record<BannerPlacement, string> = {
-  [BannerPlacement.HEADER]: 'Header',
-  [BannerPlacement.FOOTER]: 'Footer',
-  [BannerPlacement.SIDEBAR]: 'Sidebar',
+  [BannerPlacement.HOME_TOP]: 'Home Superior',
+  [BannerPlacement.HOME_BOTTOM]: 'Home Inferior',
+  [BannerPlacement.RESULTS]: 'Resultados',
+  [BannerPlacement.DETAIL]: 'Detalle',
 };
 
 export const BANNER_PLACEMENT_OPTIONS = Object.entries(BannerPlacementLabels).map(([key, label]) => ({

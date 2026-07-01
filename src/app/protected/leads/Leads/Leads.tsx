@@ -25,7 +25,7 @@ export default function Leads() {
   const [selectedLeadIds, setSelectedLeadIds] = useState<number[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteMode, setDeleteMode] = useState(true);
-  console.log("deleteMode", deleteMode);
+  
   const deleteMutation = useMutation({
     mutationFn: (ids: number[]) =>
       Promise.all(ids.map(id => apiFetch(`${API_BASE_URL}/leads/${id}`, { method: 'PATCH', body: { deleted: deleteMode, highlighted: false } }))),

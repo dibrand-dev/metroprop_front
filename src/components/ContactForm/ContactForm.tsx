@@ -50,7 +50,7 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
-console.log({ phoneNumber, phone_whatsapp });
+
   useEffect(() => {
     const u = sessionData?.user as any;
     if (!u) return;

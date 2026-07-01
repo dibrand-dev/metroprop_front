@@ -172,9 +172,7 @@ export default function PublishPropertyContent({
       onNext(propertyContentUpdate);
     }
   };
-
-  console.log("wizardData", wizardData)
-
+  
   return (
     <div className="publish-property-content">
       <div className="publish-property-content-inner">

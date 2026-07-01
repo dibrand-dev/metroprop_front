@@ -7,11 +7,12 @@ import PropertyCard from '@/components/PropertyCard/PropertyCard';
 import Button from '@/ui/Button/Button';
 import { useRouter } from 'next/navigation';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
-import { getVisitedProperties, type VisitedProperty } from '@/utils/utils';
+import { API_BASE_URL, getVisitedProperties, setImagePath, type VisitedProperty } from '@/utils/utils';
 import { fetchProperties } from '@/lib/properties';
 import { LOCATION_CABA_ID } from '@/app/constants';
-import type { CreateProperty } from '@/types/propiedad';
+import { BannerPlacement, type CreateProperty } from '@/types/propiedad';
 import { useToggleFavorite, useFavoriteIds } from '@/lib/useFavoriteIds';
+import { useAds } from '@/lib/useAds';
 import { useSession } from 'next-auth/react';
 
 export default function Home() {
@@ -125,6 +126,9 @@ export default function Home() {
       }
     }, 300);
   };
+
+  const { adsData, isAdsLoading, isAdsError } = useAds();
+
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''}>
       <div className="bg-white w-full overflow-x-hidden">
@@ -191,6 +195,9 @@ export default function Home() {
               ))}
             </div>
           </section>
+
+          {!isAdsLoading && !isAdsError && adsData && <div className="add-container home-top-ad">{adsData.map((ad) => ad.placements == BannerPlacement.HOME_TOP && ad.file &&
+            (<a key={ad.id} href={ad.link}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
 
           {/* Properties Visited Section */}
           {visitedProperties.length > 0 && (
@@ -270,6 +277,8 @@ export default function Home() {
               )}
             </div>
           </section>
+          {!isAdsLoading && !isAdsError && adsData && <div className="add-container home-down-ad">{adsData.map((ad) => ad.placements == BannerPlacement.HOME_BOTTOM && ad.file &&
+            (<a key={ad.id} href={ad.link ?? '#'}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
         </div>
       </div>
     </APIProvider>

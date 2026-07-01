@@ -11,7 +11,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { apiFetch } from '@/lib/apiFetch';
-import { AdBanner, BANNER_PLACEMENT_OPTIONS, BannerPlacement } from '@/types/propiedad';
+import Select from '@/ui/Select/Select';
+import { AdBanner, BANNER_PLACEMENT_OPTIONS } from '@/types/propiedad';
 
 const iconArrowBack = '/icons/arrow.svg';
 
@@ -21,7 +22,7 @@ export default function AdsForm() {
   const adId = params?.id as string | undefined;
   const { showMenu, setShowMenu } = useAdminMenu();
   const [name, setName] = useState('');
-  const [placements, setPlacements] = useState<number[]>([]);
+  const [placement, setPlacement] = useState<string>('');
   const [link, setLink] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -44,7 +45,8 @@ export default function AdsForm() {
     if (!adData) return;
     const ad: AdBanner = adData?.ad ?? adData;
     setName(ad.name ?? '');
-    setPlacements(Array.isArray((ad as any).placements) ? (ad as any).placements.map(Number) : (ad.placements ? [Number(ad.placements)] : []));
+    const raw = (ad as any).placements;
+    setPlacement(Array.isArray(raw) ? String(raw[0] ?? '') : String(raw ?? ''));
     setLink((ad as any).link ?? '');
     setImagePreview((ad as any).file ?? '');
     setHabilitado(ad.status);
@@ -55,7 +57,7 @@ export default function AdsForm() {
       const formData = new FormData();
       formData.append('name', name.trim());
       formData.append('status', String(habilitado));
-      formData.append('placements', placements);//"[" + placements.join(',') + "]");
+      formData.append('placements', placement);
       formData.append('link', link.trim());
       if (imageFile) formData.append('file', imageFile);
       const url = isEditing
@@ -70,7 +72,7 @@ export default function AdsForm() {
       queryClient.invalidateQueries({ queryKey: ['ads'] });
       if (!isEditing) {
         setName('');
-        setPlacements([]);
+        setPlacement('');
         setLink('');
         setImageFile(null);
         setImagePreview('');
@@ -89,7 +91,7 @@ export default function AdsForm() {
 
     const errors = { name: '', placements: '', link: '', file: '' };
     if (!name.trim()) errors.name = 'El nombre es requerido';
-    if (placements.length === 0) errors.placements = 'Seleccioná al menos una ubicación';
+    if (!placement) errors.placements = 'Seleccioná una ubicación';
     if (!link.trim()) errors.link = 'El link es requerido';
     if (!imageFile && !imagePreview) errors.file = 'La imagen es requerida';
 
@@ -148,27 +150,19 @@ export default function AdsForm() {
           </div>
           <div className="partner-form-section">
             <label className="partner-form-label">Ubicación*</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {BANNER_PLACEMENT_OPTIONS.map((option) => (
-                <Checkbox
-                  key={option.value}
-                  label={option.label}
-                  checked={placements.includes(option.value)}
-                  onChange={(checked) =>
-                    setPlacements(prev =>
-                      checked ? [...prev, option.value] : prev.filter(v => v !== option.value)
-                    )
-                  }
-                />
-              ))}
-            </div>
+            <Select
+              options={BANNER_PLACEMENT_OPTIONS}
+              value={placement}
+              onChange={setPlacement}
+              placeholder="Seleccionar ubicación"
+            />
             {fieldErrors.placements && <span style={{ color: '#d32f2f', fontSize: '0.8em' }}>{fieldErrors.placements}</span>}
           </div>
 
           <div className="partner-form-section">
             <InputField2
               label="Link*"
-              type="url"
+              type="text"
               placeholder="https://..."
               value={link}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLink(e.target.value)}

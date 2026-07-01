@@ -8,7 +8,7 @@ import PropertyDetailSubmenu from './PropertyDetailSubmenu/PropertyDetailSubmenu
 import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype, GARAGE_COVERAGE_LABELS } from '@/types/propiedad';
+import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype, GARAGE_COVERAGE_LABELS, BannerPlacement } from '@/types/propiedad';
 import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath, getInitials, formatStreetAddress, getPropertyDetailPath } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
@@ -24,6 +24,7 @@ import { useFavoriteIds, useToggleFavorite } from '@/lib/useFavoriteIds';
 import ShareModal from '@/components/ShareModal/ShareModal';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useAds } from '@/lib/useAds';
 
 interface PropertyDetailProps {
   propertyId: string;
@@ -40,6 +41,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { data: locations = [] } = useLocations();
+  const { adsData, isAdsLoading, isAdsError } = useAds();
   const [activeTab, setActiveTab] = useState<string>('');
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
   const [featuresExpanded, setFeaturesExpanded] = useState(false);
@@ -1091,6 +1093,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           </section>
         ))}
         </>) : ''}
+        {!isAdsLoading && !isAdsError && adsData && <div className="add-container detail-ad">{adsData.map((ad) => ad.placements == BannerPlacement.DETAIL && ad.file &&
+          (<a key={ad.id} href={ad.link ?? '#'}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
       </main>
 
       {isGalleryOpen && <GalleryModal

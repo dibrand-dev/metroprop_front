@@ -12,17 +12,20 @@ import PropertyCardSkeleton from './PropertyCardSkeleton';
 import Paginator from '@/components/Paginator/Paginator';
 import './Results.scss';
 import { fetchProperties, searchParamsToFilterParams } from '@/lib/properties';
-import { CreateProperty } from '@/types/propiedad';
+import { BannerPlacement, CreateProperty } from '@/types/propiedad';
 import type { MapDataItem } from '@/types/property-api';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import { useFavoriteIds, useToggleFavorite } from '@/lib/useFavoriteIds';
+import { useAds } from '@/lib/useAds';
 
 
 export default function Results() {
   const { data: sessionData } = useSession();
   const isLoggedIn = !!sessionData?.user;
   const favorites = useFavoriteIds();
-  const handleToggleFavorite = useToggleFavorite();
+  const handleToggleFavorite = useToggleFavorite();  
+  const { adsData, isAdsLoading, isAdsError } = useAds();
+  
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('list');
   const [sortBy, setSortBy] = useState('relevant');
@@ -275,6 +278,8 @@ export default function Results() {
 
           {/* Paginator */}
           <Paginator currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+          {!isAdsLoading && !isAdsError && adsData && <div className="add-container results-ad">{adsData.map((ad) => ad.placements == BannerPlacement.RESULTS && ad.file &&
+            (<a key={ad.id} href={ad.link ?? '#'}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
         </div>
       </div>
     </div>
