@@ -41,6 +41,12 @@ const HIST_BAR_MAX_HEIGHT = 56;
 const HIST_BUCKET_SIZE = 1000;
 const HIST_MAX_BARS = 60;
 
+const PLACEHOLDER_HIST_BARS = [
+  4, 6, 10, 8, 14, 12, 18, 22, 16, 28, 24, 32, 20, 38, 44, 36, 50, 48, 56, 52,
+  46, 40, 34, 42, 38, 30, 26, 22, 28, 18, 24, 16, 20, 12, 8, 14, 10, 6, 12, 16,
+  10, 8, 14, 18, 12, 8, 6, 10, 4, 6,
+];
+
 function buildHistogramBars(prices: number[], bucketSize: number, capMax?: number): number[] {
   if (prices.length === 0) return [];
   // Clamp prices to capMax so everything >= capMax falls in the last bar
@@ -344,17 +350,22 @@ function PriceRangeSlider({
   const fillLeft = Math.min(fromPct, toPct);
   const fillRight = 100 - Math.max(fromPct, toPct);
 
+  const noRealData = histBars.length === 0;
+  const displayBars = noRealData ? PLACEHOLDER_HIST_BARS : histBars;
+  const FILLER_HEIGHTS = [3, 35, 2, 17, 24, 66, 23, 48, 55, 64, 37, 3, 6, 22, 45, 28, 24, 43, 6, 5];
   return (
     <div className="precio-slider-wrapper">
       <div className="precio-histogram">
-        {histBars.map((h, i) => {
-          const barPct = (i / (histBars.length - 1)) * 100;
-          const inRange = barPct >= fillLeft && barPct <= (100 - fillRight);
+        {displayBars.map((h, i) => {
+          const isFiller = noRealData || h === 0;
+          const barHeight = h === 0 ? FILLER_HEIGHTS[i % FILLER_HEIGHTS.length] : h;
+          const barPct = (i / (displayBars.length - 1)) * 100;
+          const inRange = !isFiller && barPct >= fillLeft && barPct <= (100 - fillRight);
           return (
             <div
               key={i}
               className="precio-histogram-bar"
-              style={{ height: `${h}px`, background: inRange ? '#006AFF' : '#EBF2FD' }}
+              style={{ height: `${barHeight}px`, background: inRange ? '#006AFF' : '#EBF2FD' }}
             />
           );
         })}

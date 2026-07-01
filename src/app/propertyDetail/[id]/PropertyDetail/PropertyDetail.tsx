@@ -484,12 +484,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   const openUnitDetailInNewTab = (unitId?: number) => {
     if (!unitId) return;
-
-    //use slug instead of id for better SEO and user experience
     const unit = property?.units?.find(u => u.id === unitId);
     if (!unit) return;
-     console.log('unit slug', unit);
-    //const unitSlug = 
     window.open(getPropertyDetailPath(unit, devLocationLabels), '_blank', 'noopener,noreferrer');
   };
 
