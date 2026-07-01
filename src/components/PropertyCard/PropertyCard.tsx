@@ -121,8 +121,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
         <div className="property-card-wrapper home" onClick={goToDetail}>
           {property.is_development && <div className="entrega-delivery-date">
             <span>Emprendimiento</span>            
-          </div>}
-          
+          </div>}          
           <div className="property-card-image">
             <img
               src={gallery.firstImage}
@@ -162,7 +161,8 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 </div>
               </div>
             : <div className="content-wrapper">            
-                <h3 className="property-card-title">{`${PROPERTY_TYPE_LABELS[property.property_type]}${property.property_subtype ? ` - ${PROPERTY_SUBTYPE_LABELS[property.property_subtype]}` : ''} en ${OPERATION_TYPE_LABELS[property.operation_type]}`}</h3>
+                <h3 className="property-card-title">{`
+                  ${property.property_subtype ? PROPERTY_SUBTYPE_LABELS[property.property_subtype] : PROPERTY_TYPE_LABELS[property.property_type]} en ${OPERATION_TYPE_LABELS[property.operation_type]}`}</h3>
                 <div className="property-card-price-section">
                   <div>
                     <p className="property-card-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</p>
