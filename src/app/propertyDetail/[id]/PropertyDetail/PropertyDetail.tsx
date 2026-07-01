@@ -965,7 +965,24 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 <span>{address}</span>
               </div>
               <div className="property-detail-map-image">
-                <PropertyMap address={formattedStreet} lat={isNaN(Number(property?.geo_lat)) ? undefined : Number(property?.geo_lat)} lng={isNaN(Number(property?.geo_long)) ? undefined : Number(property?.geo_long)} />
+                <PropertyMap address={formattedStreet}
+                  lat={property.development 
+                    ? isNaN(Number(property.development.geo_lat)) 
+                      ? undefined 
+                      : Number(property.development.geo_lat)
+                    : isNaN(Number(property?.geo_lat))
+                      ? undefined
+                      : Number(property?.geo_lat)
+                  }
+                  lng={property.development 
+                    ? isNaN(Number(property.development.geo_long)) 
+                      ? undefined 
+                      : Number(property.development.geo_long)
+                    : isNaN(Number(property?.geo_long))
+                      ? undefined
+                      : Number(property?.geo_long)
+                  }
+                />
               </div>
             </section>
 
