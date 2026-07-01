@@ -315,12 +315,6 @@ const MyProperties = () => {
   }, [hasOrganization, hasBranches, fetchedBranches, isRole1]);
 
   useEffect(() => {
-    if (onLoadUserAvailability !== undefined) {
-      console.log('[MyProperties] onload user availability (userId:', loggedUserId, '):', onLoadUserAvailability);
-    }
-  }, [onLoadUserAvailability, loggedUserId]);
-
-  useEffect(() => {
     if (!republishModalOpen) return;
     if (hasOrganization && hasBranches && fetchedBranches.length === 1) {
       setSelectedBranchId(String(fetchedBranches[0].id));
