@@ -197,7 +197,7 @@ export default function Home() {
           </section>
 
           {!isAdsLoading && !isAdsError && adsData && <div className="add-container home-top-ad">{adsData.map((ad) => ad.placements == BannerPlacement.HOME_TOP && ad.file &&
-            (<a key={ad.id} href={setAdsUrl(ad.link)}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
+            (<a key={ad.id} href={setAdsUrl(ad.link)} target="_blank" rel="noopener noreferrer"><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
 
           {/* Properties Visited Section */}
           {visitedProperties.length > 0 && (
@@ -278,7 +278,7 @@ export default function Home() {
             </div>
           </section>
           {!isAdsLoading && !isAdsError && adsData && <div className="add-container home-down-ad">{adsData.map((ad) => ad.placements == BannerPlacement.HOME_BOTTOM && ad.file &&
-            (<a key={ad.id} href={setAdsUrl(ad.link)}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
+            (<a key={ad.id} href={setAdsUrl(ad.link)} target="_blank" rel="noopener noreferrer"><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
         </div>
       </div>
     </APIProvider>

@@ -279,7 +279,7 @@ export default function Results() {
           {/* Paginator */}
           <Paginator currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
           {!isAdsLoading && !isAdsError && adsData && <div className="add-container results-ad">{adsData.map((ad) => ad.placements == BannerPlacement.RESULTS && ad.file &&
-            (<a key={ad.id} href={setAdsUrl(ad.link)}><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
+            (<a key={ad.id} href={setAdsUrl(ad.link)} target="_blank" rel="noopener noreferrer"><img src={setImagePath(ad.file)} alt={ad.name} /></a>))}</div>}
         </div>
       </div>
     </div>
