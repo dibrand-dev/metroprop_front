@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import './AdsForm.scss';
 import { useAdminMenu } from '../../AdminLayoutClient';
 import InputField2 from '@/ui/InputField2/InputField2';
@@ -15,12 +15,10 @@ import { AdBanner, BANNER_PLACEMENT_OPTIONS, BannerPlacement } from '@/types/pro
 
 const iconArrowBack = '/icons/arrow.svg';
 
-interface PlanFormProps {
-  adId?: string;
-}
-
-export default function AdsForm({ adId }: PlanFormProps) {
+export default function AdsForm() {
   const router = useRouter();
+  const params = useParams();
+  const adId = params?.id as string | undefined;
   const { showMenu, setShowMenu } = useAdminMenu();
   const [name, setName] = useState('');
   const [placements, setPlacements] = useState<number[]>([]);
@@ -38,7 +36,7 @@ export default function AdsForm({ adId }: PlanFormProps) {
   const { isLoading: isLoadingAd, data: adData } = useQuery<AdBanner>({
     queryKey: ['ad', adId],
     queryFn: async () => apiFetch(`${API_BASE_URL}/ads-banners/${adId}`),
-    enabled: Boolean(adId),
+    enabled: !!adId,
     staleTime: 30_000,
   });
 

@@ -184,7 +184,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     if (property?.floors_amount)  result[4].push(`Pisos: ${property.floors_amount}`);
     if (property?.garage_coverage)  result[4].push(`Cobertura cochera: ${GARAGE_COVERAGE_LABELS[property.garage_coverage]}`);
     if (property?.postal_code)  result[4].push(`Código postal: ${property.postal_code}`);
-    if (property?.semiroofed_surface && property?.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(property.semiroofed_surface)} ${property.surface_measurement ?? ''}`);
+    if (property?.semiroofed_surface && property?.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(property.semiroofed_surface)} ${property.surface_measurement === 'M2' ? 'm²' : property.surface_measurement}`);
     if (property?.surface_front && property?.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(property.surface_front)} M`);
     if (property?.surface_length && property?.surface_length > 0)  result[4].push(`Fondo: ${formatNumbers(property.surface_length)} M`);
     if (property?.disposition)  result[4].push(`Orientación: ${property.disposition}`);
@@ -420,7 +420,14 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   const getRoomsRange = (units: CreateProperty[]) => {
     const rooms = units.map(u => u.room_amount ?? 0);
     return rangeLabel(rooms, 'amb.', 'amb.');
-  };  
+  };
+
+  const devLocationLabels = locations.length > 0 && property?.development! ? {
+    neighborhood: property.development.neighborhood_id ? locations.find(l => l.id === property.development.neighborhood_id)?.name : undefined,
+    subLocation: property.development.sub_location_id ? locations.find(l => l.id === property.development.sub_location_id)?.name : undefined,
+    location: property.development.location_id ? locations.find(l => l.id === property.development.location_id)?.name : undefined,
+    state: property.development.state_id ? locations.find(l => l.id === property.development.state_id)?.name : undefined,
+  } : undefined;
 
   useEffect(() => {
     // Recalculate after DOM updates when similar data changes
@@ -477,8 +484,13 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   const openUnitDetailInNewTab = (unitId?: number) => {
     if (!unitId) return;
-    // For units, we might not have full property data, so use old format or fetch it
-    window.open(`/propertyDetail/${unitId}`, '_blank', 'noopener,noreferrer');
+
+    //use slug instead of id for better SEO and user experience
+    const unit = property?.units?.find(u => u.id === unitId);
+    if (!unit) return;
+     console.log('unit slug', unit);
+    //const unitSlug = 
+    window.open(getPropertyDetailPath(unit, devLocationLabels), '_blank', 'noopener,noreferrer');
   };
 
   const dynamicFeaturesDevelopment = property?.is_development ? buildFeaturesDevelopment() : [];
@@ -570,7 +582,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           <div className="property-detail-not-found">
             <h1>Propiedad no encontrada</h1>
           </div>
-        ) : (<>
+        ) : !isLoading && property ? (<>
         <section className="property-detail-hero" id="property-detail-fotos">
            {property?.is_development
            ? <div className="property-detail-hero-row">
@@ -995,15 +1007,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 )}
               </div>
             </section>
-            ): property?.development && (() => {
-              const devLocationLabels = locations.length > 0 ? {
-                neighborhood: property.development.neighborhood_id ? locations.find(l => l.id === property.development.neighborhood_id)?.name : undefined,
-                subLocation: property.development.sub_location_id ? locations.find(l => l.id === property.development.sub_location_id)?.name : undefined,
-                location: property.development.location_id ? locations.find(l => l.id === property.development.location_id)?.name : undefined,
-                state: property.development.state_id ? locations.find(l => l.id === property.development.state_id)?.name : undefined,
-              } : undefined;
-            return (
-            <section className="unit-details-development">
+            ) : property?.development && (() => <section className="unit-details-development">
               <h4>Esta unidad pertenece al emprendimiento</h4>
               <Link prefetch={false}  href={property?.development ? getPropertyDetailPath(property.development, devLocationLabels) : '#'} target="_blank" rel="noopener noreferrer">
                 <div className="unit-details-development-info">
@@ -1015,9 +1019,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                   </div>
                 </div>
               </Link>
-            </section>
-              );
-            })()}
+            </section>)}
           </div>
 
           <aside className="property-detail-right">
@@ -1092,7 +1094,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             </div>
           </section>
         ))}
-        </>)}
+        </>) : ''}
       </main>
 
       {isGalleryOpen && <GalleryModal

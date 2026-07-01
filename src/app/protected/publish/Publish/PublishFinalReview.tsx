@@ -336,7 +336,7 @@ export default function PublishFinalReview({
                 <div className="publish-review-summary">
                   <h4>{propertyTitle}</h4>
                   <p className={`whitespace-pre-line ${summaryExpanded ? 'summary-expanded' : 'summary-collapsed'}`}>
-                    {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement || 'm²'}.`}
+                    {wizardData.description || `En ${wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} ${wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} en ${wizardData.sub_location_id || 'zona exclusiva'}. Esta propiedad cuenta con una superficie total de ${wizardData.total_surface || ''} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement ?? ''}.`}
                   </p>
                   {showSummaryToggle && (
                     <button

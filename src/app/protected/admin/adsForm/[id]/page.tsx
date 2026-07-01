@@ -1,9 +1,5 @@
-import PlanForm from '../AdsForm/AdsForm';
+import AdsForm from '../AdsForm/AdsForm';
 
-interface PlanFormEditPageProps {
-  params: { id: string };
-}
-
-export default function PlanFormEditPage({ params }: PlanFormEditPageProps) {
-  return <PlanForm planId={params.id} />;
+export default function AdsFormEditPage() {
+  return <AdsForm />;
 }

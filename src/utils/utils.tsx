@@ -175,7 +175,6 @@ export function HeartIcon({ isFavorite }: { isFavorite?: boolean }): JSX.Element
     if (!property.id) {
       throw new Error('Property ID is required to generate slug');
     }
-console.log("locationLabelass", locationLabels)
     // Import types from propiedad.ts
     const propertyTypeLabels: Record<number, string> = {
       1: 'casa',
