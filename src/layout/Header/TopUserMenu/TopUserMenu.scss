@@ -271,17 +271,16 @@ $font-family-button: Montserrat, sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
-
+  &:hover {
+      color: #006aff;
+    }
   .header-dropdown-item-label {
     font-size: 16px;
     font-weight: 500;
     line-height: 20px;
     letter-spacing: 0.32px;
-    color: $color-text-primary;
     padding: 14px 8px;
-    &:hover {
-      color: #006aff;
-    }
+    
   }
 
 }
