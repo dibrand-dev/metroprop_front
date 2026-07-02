@@ -216,8 +216,10 @@ $font-family-button: Montserrat, sans-serif;
   height: 100%;
   
 
-  &:hover {
-    background-color: #f5f5f5;
+  &:hover, &.active {
+    .header-dropdown-label, .header-dropdown-icon {
+      color: #006aff;
+    }
   }
 
   
@@ -386,12 +388,11 @@ $font-family-button: Montserrat, sans-serif;
   height: 48px;
 
   &:hover {
-    background-color: #ebf2fd;
+    color: #006aff;
   }
 
   &.active {
-    background-color: #ebf2fd;
-    color: $color-primary;
+    color: #006aff;
   }
 
   @media (max-width: 768px) {

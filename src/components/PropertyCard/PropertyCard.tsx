@@ -162,13 +162,16 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
               </div>
             : <div className="content-wrapper">            
                 <h3 className="property-card-title">{`
-                  ${property.property_subtype ? PROPERTY_SUBTYPE_LABELS[property.property_subtype] : PROPERTY_TYPE_LABELS[property.property_type]} en ${OPERATION_TYPE_LABELS[property.operation_type]}`}</h3>
+                  ${property.property_subtype ? PROPERTY_SUBTYPE_LABELS[property.property_subtype] : PROPERTY_TYPE_LABELS[property.property_type]} en ${OPERATION_TYPE_LABELS[property.operation_type]}`}
+                </h3>
                 <div className="property-card-price-section">
                   <div>
                     <p className="property-card-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</p>
-                    {(property.expenses ?? 0) > 0 && (
+                    {property.expenses && property.expenses > 0 ? (
                       <p className="property-card-rent">Exp. {formatCurrency(property.currency)} {formatNumbers(property.expenses ?? 0)}</p>
-                    )}
+                    ) : (property.price_square_meter && property.price_square_meter > 0) ? (
+                      <div className="price-per-sqm">{formatCurrency(property.currency ?? '')} {formatNumbers(property.price_square_meter!)} m<sup>2</sup></div>
+                    ) : null}
                   </div>
                   {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
                 </div>

@@ -257,6 +257,10 @@
   }
   border: 0 none;
   height: 100%;
+
+  .property-details-development {
+    overflow: auto;
+  }
 }
 
 .gm-ui-hover-effect {
