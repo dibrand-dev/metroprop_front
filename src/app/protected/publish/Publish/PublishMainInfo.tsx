@@ -42,7 +42,7 @@ export default function PublishMainInfo({
   const [total_surface, setTotal_surface] = useState(wizardData.total_surface || "");
   const [roofed_surface, setRoofed_surface] = useState(wizardData.roofed_surface || "");
   const [property_condition, setProperty_condition] = useState<AntiquityOption | string | undefined>(wizardData.age === -1 ? "construction" : wizardData.age === 0 ? "new" : wizardData.age ? "years" : undefined);
-  const [age, setAge] = useState(wizardData.age || undefined);
+  const [age, setAge] = useState<number | undefined>(wizardData.age || undefined);
   const [rooms, setRooms] = useState<Record<RoomKey, number>>({    
     room_amount: wizardData.room_amount || 0,
     suite_amount: wizardData.suite_amount || 0,
