@@ -15,6 +15,7 @@ const iconArrowBack = "/icons/arrow.svg";
 
 export default function DeleteAccount() {
   const { data: sessionData } = useSession();
+  const isGoogle = !!(sessionData?.user as any)?.isGoogle;
   const { showMenu, setShowMenu } = useAdminMenu();
   const [showConfirm, setShowConfirm] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -58,8 +59,12 @@ export default function DeleteAccount() {
 
   const validate = (): boolean => {
     const errors = { password: '', newPassword: '', confirmPassword: '' };
-    if (!properties.password) errors.password = 'Ingresa tu contraseña actual';
-    else if (properties.password.length < 6) errors.password = 'La contraseña debe tener al menos 6 caracteres';
+    if (isGoogle) {
+      if (properties.password !== 'ELIMINAR CUENTA') errors.password = 'Debes escribir exactamente "ELIMINAR CUENTA"';
+    } else {
+      if (!properties.password) errors.password = 'Ingresa tu contraseña actual';
+      else if (properties.password.length < 6) errors.password = 'La contraseña debe tener al menos 6 caracteres';
+    }
     setFieldErrors(errors);
     return !errors.password;
   };
@@ -105,14 +110,25 @@ export default function DeleteAccount() {
           </section>
           <section className="professional-profile-section">                     
             <div className="professional-profile-fields">
-              <InputField
-                type="password"
-                placeholder="Contraseña"
-                value={properties.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                label="Si deseas eliminar tu cuenta, ingresa tu contraseña actual"
-                error={fieldErrors.password}
-              />
+              {isGoogle ? (
+                <InputField
+                  type="text"
+                  placeholder='ELIMINAR CUENTA'
+                  value={properties.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  label='Para confirmar, escribí exactamente: "ELIMINAR CUENTA"'
+                  error={fieldErrors.password}
+                />
+              ) : (
+                <InputField
+                  type="password"
+                  placeholder="Contraseña"
+                  value={properties.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  label="Si deseas eliminar tu cuenta, ingresa tu contraseña actual"
+                  error={fieldErrors.password}
+                />
+              )}
             </div>
           </section>
 

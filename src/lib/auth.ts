@@ -88,6 +88,7 @@ export const authOptions = {
         });
         token.accessToken = account.access_token;
         token.provider = account.provider;
+        if (account.provider === 'google') token.isGoogle = true;
       }
       if (user) {
         console.log("👤 User details:", user);
@@ -141,6 +142,9 @@ export const authOptions = {
         }
         if (token.role_id !== undefined) {
           session.user.role_id = token.role_id;
+        }
+        if (token.isGoogle) {
+          (session.user as any).isGoogle = true;
         }
       }
       
