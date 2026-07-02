@@ -43,7 +43,7 @@ export default function Home() {
       desc: 'Invertí con previsibilidad y descubrí oportunidades reales largo plazo hoy.',
       icon: '/images/home_emprendimientos.svg',
       boton: 'Emprendimientos',
-      link: ""
+      link: `/results?q=Capital+Federal&location_id=${LOCATION_CABA_ID}&operation_type=1&property_type=18&page=1&limit=20`
     }
   ];
   const { data: sessionData } = useSession();

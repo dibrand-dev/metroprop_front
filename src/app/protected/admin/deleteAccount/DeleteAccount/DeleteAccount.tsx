@@ -29,7 +29,10 @@ export default function DeleteAccount() {
     mutationFn: async () => {
       const userId = (sessionData?.user as any)?.id;
       if (!userId) throw new Error('No user id');
-      await apiFetch(`${API_BASE_URL}/users/close-account`, { method: 'POST', body: { password: properties.password, id: Number.parseInt(userId) } });
+      await apiFetch(`${API_BASE_URL}/users/close-account`, { method: 'POST', body: { 
+        ...(isGoogle ? {} : { password: properties.password }),
+        id: Number.parseInt(userId)
+      } });
       return null;
     },
     onSuccess: () => {
@@ -50,7 +53,7 @@ export default function DeleteAccount() {
 
     // Revalidate on change
     const errors = { password: '' };
-    if (field === 'password' || next.password) {
+    if (!isGoogle && (field === 'password' || next.password)) {
       const pw = field === 'password' ? nextValue : next.password;
       if (pw && pw.length < 6) errors.password = 'La contraseña debe tener al menos 6 caracteres';
     }
