@@ -6,7 +6,7 @@ import InputField from '@/ui/InputField/InputField';
 import Select from '@/ui/Select/Select';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import { Plan } from '@/types/plan';
-import { formatCurrency } from '@/utils/utils';
+import { formatCurrency, formatNumbers } from '@/utils/utils';
 import { apiFetch } from '@/lib/apiFetch';
 import { useSession } from 'next-auth/react';
 import { API_BASE_URL } from '@/utils/utils';
@@ -390,13 +390,13 @@ export default function PublishCheckoutPayment({
                 {planToBuy && (
                   <div className="publish-payment-summary-row">
                     <span>{planToBuy.plan_name}</span>
-                    <span>{formatCurrency(planToBuy.currency)} {planToBuy.price}</span>
+                    <span>{formatCurrency(planToBuy.currency)} {formatNumbers(planToBuy.price)}</span>
                   </div>
                 )}
               </div>
               <div className="publish-payment-summary-total">
                 <span>Total</span>
-                <strong>{planToBuy ? `${formatCurrency(planToBuy.currency)} ${planToBuy.price}` : ''}</strong>
+                <strong>{planToBuy ? `${formatCurrency(planToBuy.currency)} ${formatNumbers(planToBuy.price)}` : ''}</strong>
               </div>
               <Button 
                 label={isSubmitting ? 'Procesando...' : 'Comprar'}

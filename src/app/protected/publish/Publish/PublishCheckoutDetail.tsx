@@ -3,7 +3,7 @@
 import { CreatePropertyDraft } from '@/types/propiedad';
 import './PublishCheckoutDetail.scss';
 import { Plan } from '@/types/plan';
-import { formatCurrency } from '@/utils/utils';
+import { formatCurrency, formatNumbers } from '@/utils/utils';
 import Button from '@/ui/Button/Button';
 
 interface PublishCheckoutDetailProps {
@@ -62,13 +62,13 @@ export default function PublishCheckoutDetail({
                 {planToBuy && (
                   <div className="publish-checkout-row">
                     <span>{planToBuy.plan_name}</span>
-                    <span>{formatCurrency(planToBuy.currency)} {planToBuy.price}</span>
+                    <span>{formatCurrency(planToBuy.currency)} {formatNumbers(planToBuy.price)}</span>
                   </div>
                 )}
               </div>
               <div className="publish-checkout-total">
                 <span>Total</span>
-                <span>{planToBuy ? `${formatCurrency(planToBuy.currency)} ${planToBuy.price}` : ''}</span>
+                <span>{planToBuy ? `${formatCurrency(planToBuy.currency)} ${formatNumbers(planToBuy.price)}` : ''}</span>
               </div>
             </div>
             <Button label="Comprar" className="publish-checkout-buy" type="button" onClick={handleBuy} />
