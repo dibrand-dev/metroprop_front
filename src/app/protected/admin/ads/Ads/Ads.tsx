@@ -33,17 +33,17 @@ export default function Ads() {
   });
 
   const disableMutation = useMutation({
-    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/ads/${id}`, { method: 'PATCH', body: { status: false }, }),
+    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/ads-banners/${id}`, { method: 'PATCH', body: { status: false }, }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ads'] }),
   });
 
   const enableMutation = useMutation({
-    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/ads/${id}`, { method: 'PATCH', body: { status: true }, }),
+    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/ads-banners/${id}`, { method: 'PATCH', body: { status: true }, }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ads'] }),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/ads/${id}`, { method: 'DELETE' }),
+    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/ads-banners/${id}`, { method: 'DELETE' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ads'] }),
   });
 
@@ -123,8 +123,8 @@ export default function Ads() {
                     <button
                       className="partners-action-button"
                       type="button"
-                      aria-label={ad.status === 1 ? "Deshabilitar ad" : "Habilitar ad"}
-                      onClick={() => ad.status === 1 ? desHabilitar(ad.id) : habilitar(ad.id)}
+                      aria-label={ad.status? "Deshabilitar ad" : "Habilitar ad"}
+                      onClick={() => ad.status ? desHabilitar(ad.id) : habilitar(ad.id)}
                     >
                       <img src={ad.status ? iconLock : iconCheck} alt={ad.status ? "Deshabilitar ad" : "Habilitar ad"} />
                     </button>

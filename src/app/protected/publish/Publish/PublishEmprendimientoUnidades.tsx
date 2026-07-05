@@ -596,7 +596,7 @@ export default function PublishEmprendimientoUnidades({
                     <InputField
                       placeholder="Ingresar superficie"
                       type="text"
-                      value={total_surface}
+                      value={Number(total_surface) ? `${formatNumbers(Number(total_surface))}` : ''}
                       onChange={(event) => handleChangeNumbersInput(event, 'total_surface')}
                       error={submitted && !total_surface ? ' ' : ''}
                     />
@@ -624,7 +624,7 @@ export default function PublishEmprendimientoUnidades({
                     <InputField
                       placeholder="Ingresar superficie"
                       type="text"
-                      value={roofed_surface}
+                      value={Number(roofed_surface) ? `${formatNumbers(Number(roofed_surface))}` : ''}
                       onChange={(event) => handleChangeNumbersInput(event, 'roofed_surface')}
                       error={submitted && !roofed_surface ? ' ' : ''}
                     />
