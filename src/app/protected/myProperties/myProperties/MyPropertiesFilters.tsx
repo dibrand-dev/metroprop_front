@@ -80,23 +80,28 @@ export default function MyPropertiesFilters({
     facetKey,
     title: FILTER_VALUE_LABEL[facetKey] ?? facetKey,
     expandable: facets[facetKey].length > 3,
-    options: (facets[facetKey] ?? []).map(item => ({
-      label: facetKey === 'location_id'
-        ? getDisplayValue(locationMap.get(item.value) ?? item.value)
-        : facetKey === 'status'
-          ? getDisplayValue(PROPERTY_STATUS_LABELS[item.value as PropertyStatus] ?? item.value)
-          : facetKey === 'property_type'
-            ? getDisplayValue(PROPERTY_TYPE_LABELS[item.value as PropertyType] ?? item.value)
-            : facetKey === 'operation_type'
-              ? getDisplayValue(OPERATION_TYPE_LABELS[item.value as OperationType] ?? item.value)
-              : facetKey === 'user_id'
-                ? getDisplayValue(userMap.get(String((item as any).user_name)) ?? (item as any).user_name)
-                : facetKey === 'hired_plan_id'
-                  ? (Number(item.value) === 0 ? 'Gratis' : getDisplayValue(planNameMap[Number(item.value)] ?? item.value))
-                  : getDisplayValue(item.value),
-      value: String(item.value),
-      count: item.count,
-    })),
+    options: (facets[facetKey] ?? []).map(item => {
+      console.log("item", item)
+      return ({
+        label: facetKey === 'location_id'
+          ? getDisplayValue(item.value ? locationMap.get(item.value) : "Sin definir")
+          : facetKey === 'status'
+            ? getDisplayValue(PROPERTY_STATUS_LABELS[item.value as PropertyStatus] ?? item.value)
+            : facetKey === 'property_type'
+              ? getDisplayValue(PROPERTY_TYPE_LABELS[item.value as PropertyType] ?? item.value)
+              : facetKey === 'operation_type'
+                ? getDisplayValue(OPERATION_TYPE_LABELS[item.value as OperationType] ?? item.value)
+                : facetKey === 'user_id'
+                  ? getDisplayValue(item.user_name ?? "Sin definir") /*userMap.get(String((item as any).user_name)) ?? (item as any).user_name*/
+                  : facetKey === 'hired_plan_id'
+                    ? (item.value === null || item.value === undefined) 
+                        ? 'Sin definir'
+                        : item.value === 0 ? 'Gratis' : getDisplayValue(item.plan_name)
+                    : getDisplayValue(item.value ?? "Sin definir"),
+        value: String(item.value),
+        count: item.count,
+      })
+    }),
   }));
 
   const toggleExpand = (key: string) => {

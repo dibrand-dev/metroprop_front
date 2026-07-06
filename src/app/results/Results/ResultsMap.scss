@@ -255,8 +255,11 @@
   @media (max-width: 500px) {
     width: 100%;
   }
-  .property-card-grid-list {
-    border: 0 none;
+  border: 0 none;
+  height: 100%;
+
+  .property-details-development {
+    overflow: auto;
   }
 }
 

@@ -62,6 +62,7 @@ body {
         right: 16px;
         border-radius: 8px;
         padding: 1px;
+        z-index: 2;
     }
 
     &:hover .favorite-highlighted-container {
@@ -223,6 +224,14 @@ body {
         gap: 8px;
         .agency-logo {
             width: 56px;
+        }
+
+        .price-per-sqm {
+            color: #7A7A7A;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 22px;
         }
     }
     

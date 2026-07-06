@@ -15,8 +15,7 @@ import Button from '@/ui/Button/Button';
 import { useGoogleAuth } from '@/lib/useGoogleAuth';
 import { apiFetch } from '@/lib/apiFetch';
 import Link from 'next/link';
-
-const iconGoogle = "/icons/google.svg";
+import { googleIcon } from '@/utils/icons';
 
 // Email validation helper
 const isValidEmail = (email: string): boolean => {
@@ -317,7 +316,7 @@ export default function UserSignup() {
         onClick={handleGoogleAuth}
         disabled={isFormDisabled}
       >
-        <img src={iconGoogle} alt="" />
+        {googleIcon}
         <span>{isGoogleLoading ? 'Procesando...' : 'Google'}</span>
       </button>
 

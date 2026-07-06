@@ -268,10 +268,10 @@
         overflow-y: auto;
         padding: 16px;
         box-shadow: -4px 0px 4px 0px #343850;
-
         .property-list {         
           gap: 16px;
-
+          display: flex;
+          flex-direction: column;
           .mobile-card {
             display: block;
           }

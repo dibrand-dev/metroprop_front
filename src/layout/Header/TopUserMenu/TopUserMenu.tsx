@@ -9,18 +9,14 @@ import Button from '@/ui/Button/Button';
 import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
 import { API_BASE_URL, getInitials } from '@/utils/utils';
 import Link from 'next/link';
+import { alertasIcon, cuentaIcon, heartIcon, messageIcon, publicacionesIcon } from '@/utils/icons';
 
 const chevronIcon = "/icons/chevron-up.svg";
-const contactosIcon = "/icons/message.svg";
-const favoritosIcon ="/icons/heart.svg";
-const alertasIcon ="/icons/bell.svg";
-const publicacionesIcon ="/icons/publicaciones.svg";
-const cuentaIcon ="/icons/user.svg";
 
 interface MenuItemType {
   id: string;
   label: string;
-  icon?: string;
+  icon?: JSX.Element;
   href?: URL | string;
   onClick?: () => void;
   isLogout?: boolean;
@@ -99,19 +95,19 @@ export default function TopUserMenu() {
     ...(sessionData?.user?.role_id !== 4 ? [{
       id: 'contactos',
       label: 'Contactados',
-      icon: contactosIcon,
+      icon: messageIcon,
       href: '/protected/contacts'
     },
     {
       id: 'favoritos',
       label: 'Favoritos',
-      icon: favoritosIcon,
+      icon: heartIcon,
       href: '/protected/favorites'
     },
     {
       id: 'interesados',
       label: 'Interesados',
-      icon: contactosIcon,
+      icon: messageIcon,
       href: '/protected/leads'
     },
     {
@@ -183,7 +179,7 @@ export default function TopUserMenu() {
           title="Notificaciones"
           onClick={() => router.push('/protected/leads')}
         >
-          <img src="/icons/iconoir_bell.svg" alt="Notificaciones" />
+          {alertasIcon}
           {unreadLeadsCount > 0 && (
             <span className="header-notification-badge">
               {unreadLeadsCount > 99 ? '99+' : unreadLeadsCount}
@@ -249,7 +245,7 @@ export default function TopUserMenu() {
                     onClick={() => setShowUserDropdown(false)}
                   >
                     {item.icon && <div className="header-dropdown-item-icon">
-                      <img src={item.icon} alt={item.label} />
+                      {item.icon}
                     </div>}
                     <span className="header-dropdown-item-label">{item.label}</span>
                   </Link>

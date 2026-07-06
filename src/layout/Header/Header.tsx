@@ -8,9 +8,9 @@ import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/Lo
 import { useRouter, useSearchParams } from 'next/navigation';
 import { TemporalRentPeriod } from '@/types/propiedad';
 import Link from 'next/link';
+import { chevronUp } from '@/utils/icons';
 
 const logoMetroprop = "/images/metroprop.svg";
-const chevronIcon = "/icons/chevron-up.svg";
 
 interface DropdownSubItem {
   label: string;
@@ -200,7 +200,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
                     {key === 'temporal' && 'Temporal'}
                   </span>
                   <span className='header-dropdown-icon'>
-                    <img src={chevronIcon} alt="" className="header-chevron" />
+                    {chevronUp}
                   </span>
                 </button>
                 
@@ -245,7 +245,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
                           >
                             <span className="subcategory-label">{column.title}</span>
                             <span className='header-dropdown-icon'>
-                              <img src={chevronIcon} alt="" className="chevron" />
+                              {chevronUp}
                             </span>
                           </button>
                           {isSubCategoryOpen && (

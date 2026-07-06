@@ -3,7 +3,7 @@
 import { Plan } from '@/types/plan';
 import './PublishCheckoutSuccess.scss';
 import Button from '@/ui/Button/Button';
-import { formatCurrency } from '@/utils/utils';
+import { formatCurrency, formatNumbers } from '@/utils/utils';
 
 interface PublishCheckoutSuccessProps {
   onFinish: () => void;
@@ -51,13 +51,13 @@ export default function PublishCheckoutSuccess({
                 <div className="publish-success-items">
                   <div className="publish-success-item">
                     <span className="publish-success-item-label">{planToBuy.plan_name}</span>
-                    <span className="publish-success-item-value">{planToBuy.price}</span>
+                    <span className="publish-success-item-value">{formatNumbers(planToBuy.price)}</span>
                   </div>
                 </div>
                 
                 <div className="publish-success-total">
                   <span className="publish-success-total-label">Total</span>
-                  <span className="publish-success-total-value">{formatCurrency(planToBuy.currency)} {planToBuy.price}</span>
+                  <span className="publish-success-total-value">{formatCurrency(planToBuy.currency)} {formatNumbers(planToBuy.price)}</span>
                 </div>
               </div>
 

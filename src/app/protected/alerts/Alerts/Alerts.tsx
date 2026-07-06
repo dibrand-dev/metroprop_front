@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import './Alerts.scss';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, formatNumbers } from '@/utils/utils';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import CreateAlertModal from '@/components/CreateAlertModal/CreateAlertModal';
 import Paginator from '@/components/Paginator/Paginator';
@@ -112,19 +112,23 @@ function parseFilters(
         continue;
       }
       if (key === 'price_min') {
-        entries.push(['price_min', `Precio mínimo: ${str}`]);
+        const num = Number(str);
+        if (!isNaN(num)) entries.push(['price_min', `Precio mínimo: ${formatNumbers(num)}`]);
         continue;
       }
       if (key === 'price_max') {
-        entries.push(['price_max', `Precio máximo: ${str}`]);
+        const num = Number(str);
+        if (!isNaN(num)) entries.push(['price_max', `Precio máximo: ${formatNumbers(num)}`]);
         continue;
       }
       if (key === 'total_surface_min') {
-        entries.push(['total_surface_min', `Superficie total mínima: ${str}`]);
+        const num = Number(str);
+        if (!isNaN(num)) entries.push(['total_surface_min', `Superficie total mínima: ${formatNumbers(num)}`]);
         continue;
       }
       if (key === 'total_surface_max') {
-        entries.push(['total_surface_max', `Superficie total máxima: ${str}`]);
+        const num = Number(str);
+        if (!isNaN(num)) entries.push(['total_surface_max', `Superficie total máxima: ${formatNumbers(num)}`]);
         continue;
       }
       if (key === 'direct_owner') {

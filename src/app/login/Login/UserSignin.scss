@@ -310,7 +310,8 @@ $breakpoint-mobile: 768px;
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background-color: $background-color;
+    border-color: #006aff;
+    color: #006aff
   }
 
   &:disabled {

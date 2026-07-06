@@ -334,9 +334,9 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     }
     try {
       const result = await updatePropertyMutation.mutateAsync(_wizardDataUpdate);
-      if (result?.data?.price_square_meter) {
-        updateWizardData({...wizardData, ...{ price_square_meter: result?.data?.price_square_meter }});
-      }
+      updateWizardData({...wizardData, ...result?.data?.price_square_meter 
+        ? {price_square_meter: result?.data?.price_square_meter} : {},
+        ...{age: result?.data?.age}});
     } catch (error: any) {
       console.error('Error updating property:', error?.message || error);
     }
