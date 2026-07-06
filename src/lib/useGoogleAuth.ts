@@ -5,7 +5,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
-import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
+import { apiFetch, invalidateSessionTokenCache, setSessionTokenCache } from '@/lib/apiFetch';
 
 interface UseGoogleAuthOptions {
   /** Page path for the Google OAuth callback, e.g. '/login' */
@@ -52,8 +52,28 @@ export function useGoogleAuth({
     },
   });
 
+  const verifyAuthCookieReady = async () => {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const healthRes = await fetch('/api/auth/health-cookie', {
+        method: 'GET',
+        cache: 'no-store',
+        credentials: 'include',
+      });
+      const healthData = await healthRes.json().catch(() => ({ hasAuthToken: false }));
+      const hasAuthToken = !!healthData?.hasAuthToken;
+
+      if (healthRes.ok && hasAuthToken) return;
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    throw new Error('No se pudo confirmar la cookie de autenticación. Intenta nuevamente.');
+  };
+
   const storeAuthData = async (data: any) => {
-    if (!(data?.access_token && data?.user)) return;
+    if (!(data?.access_token && data?.user)) {
+      throw new Error('No se pudo completar el login con Google. Intenta nuevamente.');
+    }
+
     const sessionUpdate: Record<string, unknown> = {};
     if (data.user?.id) sessionUpdate.id = String(data.user.id);
     if (data.user?.name) sessionUpdate.name = data.user.name;
@@ -76,11 +96,11 @@ export function useGoogleAuth({
       await updateSession(sessionUpdate);
     }
 
-    try {
-      await setCookieMutation.mutateAsync(data.access_token);
-    } catch (cookieError) {
-      console.error('Error calling set-cookie API:', cookieError);
-    }
+    // Prime local token cache to avoid first apiFetch calls racing with session refresh.
+    setSessionTokenCache(data.access_token);
+
+    await setCookieMutation.mutateAsync(data.access_token);
+    await verifyAuthCookieReady();
   };
 
   const googleRegistrationMutation = useMutation({
@@ -88,13 +108,21 @@ export function useGoogleAuth({
       return apiFetch(`${API_BASE_URL}/registration/google`, { method: 'POST', body: payload });
     },
     onSuccess: async (data: any) => {
-      await storeAuthData(data);
-      invalidateSessionTokenCache();
-      const isNew = data.message === 'Usuario creado exitosamente con Google';
-      if (isNew) {
-        onNewUserRef.current?.();
-      } else {
-        onExistingUserRef.current?.();
+      try {
+        await storeAuthData(data);
+        invalidateSessionTokenCache();
+        setSessionTokenCache(data?.access_token);
+        const isNew = data.message === 'Usuario creado exitosamente con Google';
+        if (isNew) {
+          onNewUserRef.current?.();
+        } else {
+          onExistingUserRef.current?.();
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
+        setGoogleError(msg);
+      } finally {
+        setIsGoogleLoading(false);
       }
     },
     onError: (err: any) => {
@@ -104,9 +132,11 @@ export function useGoogleAuth({
     },
   });
 
-  const processGoogleSession = (user: { email?: string | null; name?: string | null; image?: string | null; id?: string; role_id?: number }) => {
-    if (!user?.email) return;
-    googleRegistrationMutation.mutate({
+  const processGoogleSession = async (user: { email?: string | null; name?: string | null; image?: string | null; id?: string; role_id?: number }) => {
+    if (hasProcessedRef.current || !user?.email) return;
+    hasProcessedRef.current = true;
+
+    await googleRegistrationMutation.mutateAsync({
       email: user.email,
       name: user.name ?? undefined,
       avatar: user.image ?? undefined,
@@ -163,10 +193,18 @@ export function useGoogleAuth({
 
       cleanup();
 
-      const sessionRes = await fetch('/api/auth/session');
-      const sessionData = await sessionRes.json();
-      if (sessionData?.user) {
-        processGoogleSession(sessionData.user);
+      try {
+        const sessionRes = await fetch('/api/auth/session', { cache: 'no-store' });
+        const sessionData = await sessionRes.json();
+        if (sessionData?.user) {
+          await processGoogleSession(sessionData.user);
+          return;
+        }
+        setIsGoogleLoading(false);
+        setGoogleError('No se pudo recuperar la sesión de Google. Intenta nuevamente.');
+      } catch {
+        setIsGoogleLoading(false);
+        setGoogleError('No se pudo recuperar la sesión de Google. Intenta nuevamente.');
       }
     };
 
@@ -205,13 +243,16 @@ export function useGoogleAuth({
     if (hasProcessedRef.current) return;
     if (sessionStatus !== 'authenticated') return;
 
-    hasProcessedRef.current = true;
     setGoogleError('');
     processGoogleSession({
       email: session?.user?.email,
       name: session?.user?.name,
       image: (session?.user as any)?.image,
       id: (session?.user as any)?.id,
+    }).catch((err) => {
+      const msg = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
+      setGoogleError(msg);
+      setIsGoogleLoading(false);
     });
   }, [searchParams, sessionStatus, session]);
 

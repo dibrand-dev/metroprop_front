@@ -30,6 +30,13 @@ export function invalidateSessionTokenCache() {
   _sessionInflight = null;
 }
 
+/** Prime token cache right after login to avoid first-request race conditions. */
+export function setSessionTokenCache(token?: string) {
+  _sessionToken = token;
+  _sessionExpiry = token ? Date.now() + SESSION_CACHE_TTL : 0;
+  _sessionInflight = null;
+}
+
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
 interface ApiFetchOptions<TBody = unknown> {
