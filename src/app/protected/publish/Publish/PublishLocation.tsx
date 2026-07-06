@@ -184,6 +184,7 @@ interface PublishLocationProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (locationUpdate: any) => void;
   onBack: () => void;
+  onSaveAndBack: (locationUpdate: any) => void;
   onSaveAndExit: (locationUpdate: any) => void;
   isEditMode?: boolean;
 }
@@ -193,6 +194,7 @@ export default function PublishLocation({
   updateWizardData,
   onNext,
   onBack,
+  onSaveAndBack,
   onSaveAndExit,
   isEditMode,
 }: PublishLocationProps) {
@@ -262,10 +264,14 @@ export default function PublishLocation({
   }, [street, locationData, postal_code, show_exact_location, geo_lat, geo_long]);
 
   const handleBack = () => {
+    if (isEditMode) {
+      handleContinue('back');
+      return;
+    }
     onBack();
   };
 
-  const handleContinue = (continueFlag = true) => {
+  const handleContinue = (action: 'next' | 'exit' | 'back' = 'next') => {
     const locationUpdate = {
       postal_code,
       street,
@@ -280,8 +286,10 @@ export default function PublishLocation({
       geo_long
     }
 
-    if (!continueFlag) {
+    if (action === 'exit') {
       onSaveAndExit(locationUpdate);
+    } else if (action === 'back') {
+      onSaveAndBack(locationUpdate);
     } else {
       onNext(locationUpdate);
     }
@@ -294,7 +302,7 @@ export default function PublishLocation({
         <div className="publish-location-card">
           <div className="publish-location-top">
             <p className="publish-location-label">{wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' +PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}</p>
-            <button className="publish-location-link" type="button" onClick={() => handleContinue(false)}>
+            <button className="publish-location-link" type="button" onClick={() => handleContinue('exit')}>
               Guardar y salir
             </button>
           </div>
@@ -392,11 +400,11 @@ export default function PublishLocation({
           </div>
 
           <div className="publish-location-footer">
-            <button className="publish-location-back" type="button" onClick={handleBack} disabled={isEditMode}>
+            <button className="publish-location-back" type="button" onClick={handleBack} disabled={isEditMode ? !hasSelectedAutocompleteLocation : false}>
               <img src={iconChevron} alt="" />
               Volver
             </button>
-            <Button label="Continuar" type="button" onClick={() => handleContinue(true)} disabled={!hasSelectedAutocompleteLocation} />
+            <Button label="Continuar" type="button" onClick={() => handleContinue('next')} disabled={!hasSelectedAutocompleteLocation} />
           </div>
         </div>
       </div>

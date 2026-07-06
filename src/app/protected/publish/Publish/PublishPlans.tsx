@@ -16,8 +16,10 @@ interface PublishPlansProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
+  onSaveAndBack: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onComprar: (plan: Plan, branchFilter: number | undefined) => void;
   onSaveAndExit: (descriptionData: Partial<CreatePropertyDraft>) => void;
+  isEditMode?: boolean;
 }
 
 const iconChevron = '/icons/chevron-up.svg';
@@ -30,7 +32,9 @@ export default function PublishPlans({
   onComprar,
   onNext,
   onBack,
-  onSaveAndExit
+  onSaveAndBack,
+  onSaveAndExit,
+  isEditMode = false
 }: PublishPlansProps) {
   const [user_id, setUser_id] = useState(wizardData.user_id || undefined);
   const [hired_plan_id, setHired_plan_id] = useState(wizardData.hired_plan_id || 1);
@@ -131,26 +135,35 @@ export default function PublishPlans({
     });
   }, [user_id, hired_plan_id, visibility, purchased_plan_id, branchFilter, updateWizardData]);
 
+  const continueDisabled = hired_plan_id === undefined || (orgId && !isRole3 && (branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)));
+
   const handleBack = () => {
+    if (isEditMode) {
+      handleContinue('back');
+      return;
+    }
     onBack();
   };
 
-  const handleContinue = (continueFlag = true) => {
-    if (!continueFlag) {
+  const handleContinue = (action: 'next' | 'exit' | 'back' = 'next') => {
+    const plansUpdate = {
+      user_id,
+      hired_plan_id,
+      visibility,
+      purchased_plan_id,
+      branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
+    };
+    if (action === 'exit') {
       onSaveAndExit({
-        user_id,
-        hired_plan_id,
-        visibility,
-        purchased_plan_id,
-        branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
+        ...plansUpdate,
+      });
+    } else if (action === 'back') {
+      onSaveAndBack({
+        ...plansUpdate,
       });
     } else {
       onNext({
-        user_id,
-        hired_plan_id,
-        visibility,
-        purchased_plan_id,
-        branch_id: branchFilter ? Number.parseInt(branchFilter) : undefined
+        ...plansUpdate,
       });
     }
   };
@@ -167,7 +180,7 @@ export default function PublishPlans({
             <div className="publish-plans-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' +PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-plans-link" type="button" onClick={() => handleContinue(false)}>
+            <button className="publish-plans-link" type="button" onClick={() => handleContinue('exit')}>
               Guardar y salir
             </button>
           </div>
@@ -294,15 +307,16 @@ export default function PublishPlans({
               label="Volver"
               variant="back"
               onClick={handleBack}
+              disabled={isEditMode ? continueDisabled : false}
               icon={<img src={iconChevron} alt="" />}
               iconPosition="left"
               className="publish-plans-back"
             />
             <Button
               variant="primary"
-              onClick={() => handleContinue(true)}
+              onClick={() => handleContinue('next')}
               label="Continuar" // isRole3
-              disabled={hired_plan_id === undefined || (orgId && !isRole3 && (branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)))} />
+              disabled={continueDisabled} />
           </div>
         </div>
       </div>

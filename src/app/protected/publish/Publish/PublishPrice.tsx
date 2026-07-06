@@ -18,7 +18,9 @@ interface PublishPriceProps {
   updateWizardData: (data: Partial<CreatePropertyDraft & {withoutExpenses?: boolean}>) => void;
   onNext: (priceData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
+  onSaveAndBack: (priceData: Partial<CreatePropertyDraft>) => void;
   onSaveAndExit: (priceData: Partial<CreatePropertyDraft>) => void;
+  isEditMode?: boolean;
 }
 
 export default function PublishPrice({
@@ -26,7 +28,9 @@ export default function PublishPrice({
   updateWizardData,
   onNext,
   onBack,
-  onSaveAndExit
+  onSaveAndBack,
+  onSaveAndExit,
+  isEditMode = false
 }: PublishPriceProps) {
   const [currency, setCurrency] = useState(wizardData.currency || 'ARS');
   const [price, setPrice] = useState<number | undefined>(wizardData.price || undefined);
@@ -50,24 +54,34 @@ export default function PublishPrice({
     });
   }, [currency, price, expenses, currency_expenses, withoutExpenses, updateWizardData]);
 
+  const continueDisabled = !price || price <= 0;
+
   const handleBack = () => {
+    if (isEditMode) {
+      handleContinue('back');
+      return;
+    }
     onBack();
   };
 
-  const handleContinue = (continueFlag = true) => {
-    if (!continueFlag) {
+  const handleContinue = (action: 'next' | 'exit' | 'back' = 'next') => {
+    const priceData = {
+      currency,
+      price,
+      currency_expenses,
+      expenses: withoutExpenses ? 0 : expenses
+    };
+    if (action === 'exit') {
       onSaveAndExit({
-        currency,
-        price,
-        currency_expenses,
-        expenses: withoutExpenses ? 0 : expenses
+        ...priceData,
+      });
+    } else if (action === 'back') {
+      onSaveAndBack({
+        ...priceData,
       });
     } else {
       onNext({
-        currency,
-        price,
-        currency_expenses,
-        expenses: withoutExpenses ? 0 : expenses
+        ...priceData,
       });
     }
   };
@@ -103,7 +117,7 @@ export default function PublishPrice({
             <div className="publish-price-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-price-link" type="button" onClick={() => handleContinue(false)}>
+            <button className="publish-price-link" type="button" onClick={() => handleContinue('exit')}>
               Guardar y salir
             </button>
           </div>
@@ -184,14 +198,15 @@ export default function PublishPrice({
               label="Volver"
               variant="back"
               onClick={handleBack}
+              disabled={isEditMode ? continueDisabled : false}
               icon={<img src={iconChevron} alt="" />}
               iconPosition="left"
               className="publish-price-back"
             />
             <Button
-              onClick={() => handleContinue(true)}
+              onClick={() => handleContinue('next')}
               label="Continuar" // isRole3
-              disabled={!price || price <= 0}
+              disabled={continueDisabled}
             />
           </div>
         </div>

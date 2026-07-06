@@ -27,7 +27,9 @@ interface PublishMainInfoProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (mainInfo: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
+  onSaveAndBack: (mainInfo: Partial<CreatePropertyDraft>) => void;
   onSaveAndExit: (mainInfo: Partial<CreatePropertyDraft>) => void;
+  isEditMode?: boolean;
 }
 
 export default function PublishMainInfo({
@@ -35,7 +37,9 @@ export default function PublishMainInfo({
   updateWizardData,
   onNext,
   onBack,
-  onSaveAndExit
+  onSaveAndBack,
+  onSaveAndExit,
+  isEditMode = false
 }: PublishMainInfoProps) {
   const [surface_measurement, setSurface_measurement] = useState(wizardData.surface_measurement || "M2");
   const [roofed_surface_measurement, setRoofed_surface_measurement] = useState(wizardData.roofed_surface_measurement || "M2");
@@ -81,11 +85,17 @@ export default function PublishMainInfo({
     });
   };
 
+  const continueDisabled = total_surface === undefined || total_surface <= 0 || isNaN(total_surface) || total_surface === '' || (showRoofedSurface && (roofed_surface === undefined || roofed_surface <= 0 || roofed_surface === '' || isNaN(roofed_surface))) || property_condition === undefined || (property_condition === 'years' && (age === undefined || age <= 0 || age === '' || isNaN(age)));
+
   const handleBack = () => {
+    if (isEditMode) {
+      handleContinue('back');
+      return;
+    }
     onBack();
   };
 
-  const handleContinue = (continueFlag = true) => {
+  const handleContinue = (action: 'next' | 'exit' | 'back' = 'next') => {
     const mainInfoUpdate = { 
       surface_measurement,
       roofed_surface_measurement,
@@ -98,8 +108,10 @@ export default function PublishMainInfo({
       toilet_amount: rooms.toilet_amount,
       parking_lot_amount: rooms.parking_lot_amount,
     }
-    if (!continueFlag) {
+    if (action === 'exit') {
       onSaveAndExit(mainInfoUpdate);
+    } else if (action === 'back') {
+      onSaveAndBack(mainInfoUpdate);
     } else {
       onNext(mainInfoUpdate);
     }
@@ -134,7 +146,7 @@ export default function PublishMainInfo({
             <div className="publish-main-info-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-main-info-link" type="button" onClick={() => handleContinue(false)}>
+            <button className="publish-main-info-link" type="button" onClick={() => handleContinue('exit')}>
               Guardar y salir
             </button>
           </div>
@@ -279,6 +291,7 @@ export default function PublishMainInfo({
               label="Volver"
               variant="back"
               onClick={handleBack}
+              disabled={isEditMode ? continueDisabled : false}
               icon={<img src={iconChevron} alt="" />}
               iconPosition="left"
               className="publish-content-back"
@@ -286,8 +299,8 @@ export default function PublishMainInfo({
             <Button
               label="Continuar"
               type="button" 
-              onClick={() => handleContinue(true)}
-              disabled={total_surface === undefined || total_surface <= 0 || isNaN(total_surface) || total_surface === '' || (showRoofedSurface && (roofed_surface === undefined || roofed_surface <= 0 || roofed_surface === '' || isNaN(roofed_surface))) || property_condition === undefined || (property_condition === 'years' && (age === undefined || age <= 0 || age === '' || isNaN(age)))} 
+              onClick={() => handleContinue('next')}
+              disabled={continueDisabled} 
             />
           </div>
         </div>
