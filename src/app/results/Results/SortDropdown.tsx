@@ -11,12 +11,11 @@ export default function SortDropdown({ value, onChange }: SortDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const sortOptions = [
-    // { value: 'relevant', label: 'Más relevantes' },
-    { value: 'price:asc', label: 'Menor precio' },
-    { value: 'price:desc', label: 'Mayor precio' },
-    { value: 'created_at:desc', label: 'Más recientes' },
-    { value: 'total_surface:desc', label: 'Mayor superficie' },
-    { value: 'total_surface:asc', label: 'Menor superficie' },
+    { value: 'price:desc', label: 'Precio mayor a precio menor' },
+    { value: 'price:asc', label: 'Precio menor a precio mayor' },
+    // { value: 'created_at:desc', label: 'Más recientes' },
+    { value: 'price_square_meter:desc', label: 'M² menor a M² mayor' },
+    { value: 'price_square_meter:asc', label: 'M² mayor a M² menor' },
   ];
 
   const currentOption = sortOptions.find(opt => opt.value === value) || sortOptions[0];

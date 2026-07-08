@@ -217,7 +217,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
           </div>
           {property.is_development && <div className="delivery-date-content">
               <img src={'/icons/crane_gray.svg'} alt="Crane Icon" />
-              {`En construcción - Ent. ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
+              {`En construcción - Ent. ${new Date(property.delivery_date ?? property.development_delivery_date).toLocaleDateString("es-ES")}`}
             </div>}
           <div className={`info-section ${property.is_development ? 'info-section-development' : ''}`}>                 
             {property.is_development

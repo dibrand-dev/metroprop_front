@@ -419,7 +419,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                 position={{ lat: selectedItem.lat, lng: selectedItem.lng}}
                 onCloseClick={() => setSelectedId(null)}
                 pixelOffset={[0, -14]}
-                style={{ padding: 0, width:  302, height: selectedProperty?.is_development ? 250: 190, overflow: 'auto' }}
+                style={{ padding: 0, width:  302, height: selectedProperty?.is_development ? 300 : 190, overflow: 'auto' }}
               >
                 {isFetchingProperty && !selectedProperty ? (
                   <div style={{ padding: '8px' }}>Cargando...</div>
@@ -431,7 +431,12 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                     state: selectedProperty.state_id ? locations.find(l => l.id === selectedProperty.state_id)?.name : undefined,
                   } : undefined;
                   return <Link prefetch={false}  href={getPropertyDetailPath(selectedProperty, locationLabels)} className='linkToPropertyInfoWindow'>
-                    <PropertyCard property={selectedProperty} cardType="gridList" fromMap={true} isHighlighted={true} />
+                    <PropertyCard
+                      property={selectedProperty}
+                      cardType="gridList"
+                      fromMap={true}
+                      isHighlighted={selectedProperty.hired_plan_id && selectedProperty.purchased_plan_id}
+                    />
                   </Link>;
                 })() : null}
               </InfoWindow>
