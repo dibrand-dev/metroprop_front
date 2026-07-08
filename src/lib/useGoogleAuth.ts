@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import { apiFetch, invalidateSessionTokenCache, setSessionTokenCache } from '@/lib/apiFetch';
@@ -18,6 +18,20 @@ interface UseGoogleAuthOptions {
   onExistingUser?: () => void;
 }
 
+const OAUTH_ERROR_MESSAGES: Record<string, string> = {
+  OAuthCallback: 'No se pudo completar el login con Google. Por favor intentá de nuevo.',
+  OAuthSignin: 'Error al iniciar sesión con Google. Por favor intentá de nuevo.',
+  OAuthCreateAccount: 'No se pudo crear la cuenta con Google.',
+  AccessDenied: 'Acceso denegado. No tenés permiso para iniciar sesión.',
+  Configuration: 'Error de configuración del servidor. Contactá soporte.',
+  Verification: 'El link de verificación expiró o ya fue usado.',
+  CredentialsSignin: 'Email o contraseña incorrectos. Por favor intentá de nuevo.',
+};
+
+function getOAuthErrorMessage(errorCode: string): string {
+  return OAUTH_ERROR_MESSAGES[errorCode] ?? 'Error al iniciar sesión. Por favor intentá de nuevo.';
+}
+
 export function useGoogleAuth({
   callbackPath,
   paramName,
@@ -26,12 +40,11 @@ export function useGoogleAuth({
 }: UseGoogleAuthOptions) {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
-  const popupCleanupRef = useRef<(() => void) | null>(null);
   const hasProcessedRef = useRef(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { data: session, status: sessionStatus, update: updateSession } = useSession();
 
-  // Keep callbacks in refs so the mutation always calls the latest version
   const onNewUserRef = useRef(onNewUser);
   const onExistingUserRef = useRef(onExistingUser);
   onNewUserRef.current = onNewUser;
@@ -81,7 +94,6 @@ export function useGoogleAuth({
     if (data.access_token) sessionUpdate.apiToken = data.access_token;
     if (data.user?.role_id !== undefined) sessionUpdate.role_id = data.user.role_id;
 
-    // If role_id is missing from the registration response, fetch the full user profile
     if (sessionUpdate.role_id === undefined && data.user?.id && data.access_token) {
       try {
         const fullUser = await apiFetch<any>(`${API_BASE_URL}/users/${data.user.id}`, { token: data.access_token });
@@ -96,9 +108,7 @@ export function useGoogleAuth({
       await updateSession(sessionUpdate);
     }
 
-    // Prime local token cache to avoid first apiFetch calls racing with session refresh.
     setSessionTokenCache(data.access_token);
-
     await setCookieMutation.mutateAsync(data.access_token);
     await verifyAuthCookieReady();
   };
@@ -145,103 +155,41 @@ export function useGoogleAuth({
     });
   };
 
-  // --- Popup flow ---
-  const handleGoogleAuth = async () => {
+  const handleGoogleAuth = () => {
     setGoogleError('');
+    hasProcessedRef.current = false;
     setIsGoogleLoading(true);
-    popupCleanupRef.current?.();
-
-    const width = 500;
-    const height = 600;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-
-    const popup = window.open(
-      'about:blank',
-      'google-login',
-      `width=${width},height=${height},left=${left},top=${top}`
-    );
-
-    if (!popup) {
-      signIn('google', { redirect: true, callbackUrl });
-      return;
-    }
-
-    try {
-      const result = await signIn('google', {
-        redirect: false,
-        callbackUrl: `${window.location.origin}${callbackUrl}`,
-      });
-
-      if (result?.url) {
-        popup.location.href = result.url;
-      } else {
-        popup.close();
-        signIn('google', { redirect: true, callbackUrl });
-        return;
-      }
-    } catch {
-      popup.close();
-      setIsGoogleLoading(false);
-      setGoogleError('Error al iniciar sesión con Google. Por favor intenta de nuevo.');
-      return;
-    }
-
-    const handleMessage = async (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data?.type !== 'google-auth-success') return;
-
-      cleanup();
-
-      try {
-        const sessionRes = await fetch('/api/auth/session', { cache: 'no-store' });
-        const sessionData = await sessionRes.json();
-        if (sessionData?.user) {
-          await processGoogleSession(sessionData.user);
-          return;
-        }
-        setIsGoogleLoading(false);
-        setGoogleError('No se pudo recuperar la sesión de Google. Intenta nuevamente.');
-      } catch {
-        setIsGoogleLoading(false);
-        setGoogleError('No se pudo recuperar la sesión de Google. Intenta nuevamente.');
-      }
-    };
-
-    const pollTimer = setInterval(() => {
-      if (popup.closed) {
-        cleanup();
-        setIsGoogleLoading(false);
-      }
-    }, 1000);
-
-    const cleanup = () => {
-      window.removeEventListener('message', handleMessage);
-      clearInterval(pollTimer);
-      popupCleanupRef.current = null;
-    };
-
-    window.addEventListener('message', handleMessage);
-    popupCleanupRef.current = cleanup;
+    signIn('google', { redirect: true, callbackUrl });
   };
 
-  // --- Detect popup callback OR fallback redirect ---
+  // Show NextAuth OAuth errors returned in the URL (e.g. error=OAuthCallback)
+  useEffect(() => {
+    const oauthError = searchParams.get('error');
+    if (!oauthError) return;
+
+    setGoogleError(getOAuthErrorMessage(oauthError));
+    setIsGoogleLoading(false);
+    hasProcessedRef.current = false;
+
+    router.replace(callbackPath);
+  }, [searchParams, router, callbackPath]);
+
+  // Process session after Google redirect callback
   useEffect(() => {
     const isGoogleCallback = searchParams.get(paramName) === '1';
     if (!isGoogleCallback) return;
 
-    // Inside popup → notify opener and close
-    if (typeof window !== 'undefined' && window.opener) {
-      try {
-        window.opener.postMessage({ type: 'google-auth-success' }, window.location.origin);
-      } catch { /* opener may be closed */ }
-      window.close();
+    if (sessionStatus === 'loading') {
+      setIsGoogleLoading(true);
       return;
     }
 
-    // Fallback redirect flow (popup was blocked)
     if (hasProcessedRef.current) return;
-    if (sessionStatus !== 'authenticated') return;
+    if (sessionStatus !== 'authenticated') {
+      setIsGoogleLoading(false);
+      setGoogleError('No se pudo recuperar la sesión de Google. Intenta nuevamente.');
+      return;
+    }
 
     setGoogleError('');
     processGoogleSession({
@@ -252,19 +200,16 @@ export function useGoogleAuth({
     }).catch((err) => {
       const msg = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
       setGoogleError(msg);
+      hasProcessedRef.current = false;
       setIsGoogleLoading(false);
     });
-  }, [searchParams, sessionStatus, session]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => { popupCleanupRef.current?.(); };
-  }, []);
+  }, [searchParams, sessionStatus, session, paramName]);
 
   return {
     isGoogleLoading,
     googleError,
     setGoogleError,
     handleGoogleAuth,
+    getOAuthErrorMessage,
   };
 }

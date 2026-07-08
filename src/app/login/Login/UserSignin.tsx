@@ -153,6 +153,19 @@ export default function UserSignin() {
     }
   }, [searchParams]);
 
+  // Surface credential-login errors returned by NextAuth in the URL
+  useEffect(() => {
+    const authError = searchParams.get('error');
+    if (!authError || authError === 'OAuthCallback' || authError.startsWith('OAuth')) return;
+
+    setError(
+      authError === 'CredentialsSignin'
+        ? 'Email o contraseña incorrectos. Por favor intentá de nuevo.'
+        : 'Error al iniciar sesión. Por favor intentá de nuevo.'
+    );
+    router.replace('/login');
+  }, [searchParams, router]);
+
   useEffect(() => {    
     const shouldProcessValidation = searchParams.get('verifyMailToken') !== null && searchParams.get('verifyMailToken') !== "";
     
