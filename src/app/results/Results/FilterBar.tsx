@@ -7,7 +7,7 @@ import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
 import Select from '@/ui/Select/Select';
 import { useQuery } from '@tanstack/react-query';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, formatNumbers } from '@/utils/utils';
 import { apiFetch } from '@/lib/apiFetch';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, OperationType, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput/LocationAutocompleteInput';
@@ -97,7 +97,7 @@ const SUPERFICIE_OPTIONS = [
   { value: '50', label: '50' }, { value: '60', label: '60' }, { value: '70', label: '70' },
   { value: '80', label: '80' }, { value: '100', label: '100' }, { value: '120', label: '120' },
   { value: '150', label: '150' }, { value: '200', label: '200' }, { value: '300', label: '300' },
-  { value: '500', label: '500' }, { value: '1000', label: '1000' },
+  { value: '500', label: '500' }, { value: '1000', label: '1.000' },
 ];
 
 const UNIDAD_OPTIONS = [
@@ -387,7 +387,7 @@ function PriceRangeSlider({
         )}
         <input
           type="range" min="0" max="100" step="0.5"
-          value={fromPct}
+          value={formatNumbers(fromPct)}
           onMouseDown={() => setDraggingFrom(true)}
           onMouseUp={() => setDraggingFrom(false)}
           onTouchStart={() => setDraggingFrom(true)}
@@ -403,7 +403,7 @@ function PriceRangeSlider({
         />
         <input
           type="range" min="0" max="100" step="0.5"
-          value={toPct}
+          value={formatNumbers(toPct)}
           onMouseDown={() => setDraggingTo(true)}
           onMouseUp={() => setDraggingTo(false)}
           onTouchStart={() => setDraggingTo(true)}
@@ -421,7 +421,7 @@ function PriceRangeSlider({
         <input
           type="text"
           inputMode="numeric"
-          value={desde}
+          value={desde && formatNumbers(desde)}
           onChange={(e) => onDesdeChange(e.target.value.replace(/\D/g, ''))}
           placeholder="Desde"
           className="precio-input-field"
@@ -430,7 +430,7 @@ function PriceRangeSlider({
         <input
           type="text"
           inputMode="numeric"
-          value={hasta}
+          value={hasta && formatNumbers(hasta)}
           onChange={(e) => onHastaChange(e.target.value.replace(/\D/g, ''))}
           placeholder="Hasta"
           className="precio-input-field"
