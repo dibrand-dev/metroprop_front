@@ -39,7 +39,9 @@ const accordionItems = [
     updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
     onNext: () => void;
     onBack: () => void;
+    onBackWithSave: () => void;
     onSaveAndExit: () => void;
+    isEditMode?: boolean;
   }
 
   // YouTube utility functions
@@ -71,7 +73,9 @@ export default function PublishContent({
   updateWizardData,
   onNext,
   onBack,
+  onBackWithSave,
   onSaveAndExit,
+  isEditMode = false,
 }: PublishContentProps) {
   const [openAccordions, setOpenAccordions] = useState<string[]>([]);
   const [images, setImages] = useState<CreateImage[] | undefined>(wizardData.images || []);
@@ -95,6 +99,8 @@ export default function PublishContent({
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [fileDropZone, setFileDropZone] = useState<'image' | 'plan' | null>(null);
+
+  const continueDisabled = isUploading || ((images?.length ?? 0) + uploadedImages.length) === 0;
   
   const imageInputRef = useRef<HTMLInputElement>(null);
   const imageGridInputRef = useRef<HTMLInputElement>(null);
@@ -142,12 +148,16 @@ export default function PublishContent({
   };
 
   const handleBack = () => {
+    if (isEditMode) {
+      handleContinue('back');
+      return;
+    }
     onBack();
   };
 
-  const handleContinue = async (nextStep: boolean) => {
+  const handleContinue = async (action: 'next' | 'exit' | 'back' = 'next') => {
     //if (uploadedImages.length > 0 || uploadedPlans.length > 0) {
-    await handleFormSubmit(nextStep);
+    await handleFormSubmit(action);
     //}
   };
 
@@ -299,7 +309,7 @@ export default function PublishContent({
     },
   });
 
-  const handleFormSubmit = async (nextStep: boolean) => {
+  const handleFormSubmit = async (action: 'next' | 'exit' | 'back') => {
     setIsUploading(true);
     try {
       const formData = new FormData();
@@ -337,8 +347,10 @@ export default function PublishContent({
         const urlsFromFiles = result.multimedia360.map((item: any) => item.url);
         setMultimedia360(prev => [urlsFromFiles[0], ...urlsFromFiles.slice(1)]);
       }
-      if (nextStep) {
+      if (action === 'next') {
         onNext();
+      } else if (action === 'back') {
+        onBackWithSave();
       } else {
         onSaveAndExit();
       }
@@ -466,7 +478,7 @@ export default function PublishContent({
             <div className="publish-content-route">
              {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ? '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-             <button className="publish-location-link" type="button" onClick={() => handleContinue(false)}>
+             <button className="publish-location-link" type="button" onClick={() => handleContinue('exit')}>
               Guardar y salir
             </button>
           </div>
@@ -926,6 +938,7 @@ export default function PublishContent({
               label="Volver"
               variant="back"
               onClick={handleBack}
+              disabled={isEditMode ? continueDisabled : false}
               icon={<img src={iconChevron} alt="" />}
               iconPosition="left"
               className="publish-content-back"
@@ -933,8 +946,8 @@ export default function PublishContent({
             <Button
               label={isUploading ? "Subiendo..." : "Continuar"}
               variant="primary"
-              onClick={() => handleContinue(true)}
-              disabled={isUploading || ((images?.length ?? 0) + uploadedImages.length) === 0}
+              onClick={() => handleContinue('next')}
+              disabled={continueDisabled}
               className="publish-content-continue"
             />
           </div>

@@ -18,6 +18,7 @@ interface PublishFinalReviewProps {
   onNext: (data: Partial<CreatePropertyDraft>) => void;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
+  onSaveAndBack: (data: Partial<CreatePropertyDraft>) => void;
   onSaveAndExit: (data: Partial<CreatePropertyDraft>) => void;
   isEditMode?: boolean;
 }
@@ -26,6 +27,7 @@ export default function PublishFinalReview({
   wizardData,
   onNext,
   onBack,
+  onSaveAndBack,
   onSaveAndExit,
   updateWizardData,
   isEditMode = false,
@@ -207,6 +209,10 @@ export default function PublishFinalReview({
   const statusDisplay = <><span className="property-type">{`${wizardData?.property_type ? `${PROPERTY_TYPE_LABELS[wizardData.property_type as PropertyType]} ` : ''}${wizardData?.property_subtype ? `${PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype as PropertySubtype]} ` : ''}`}</span>{wizardData?.operation_type ? `En ${OPERATION_TYPE_LABELS[wizardData.operation_type as OperationType]}` : ''}</>;
   
   const handleBack = () => {
+    if (isEditMode) {
+      onSaveAndBack(wizardData);
+      return;
+    }
     onBack();
   };
 
@@ -229,7 +235,7 @@ export default function PublishFinalReview({
             <div className="publish-review-route">              
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-review-link" type="button" onClick={onSaveAndExit}>
+            <button className="publish-review-link" type="button" onClick={() => onSaveAndExit(wizardData)}>
               Guardar y salir
             </button>
           </div>

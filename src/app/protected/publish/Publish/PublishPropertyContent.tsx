@@ -18,7 +18,9 @@ interface PublishPropertyContentProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (data: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
+  onSaveAndBack: (data: Partial<CreatePropertyDraft>) => void;
   onSaveAndExit: (data: Partial<CreatePropertyDraft>) => void;
+  isEditMode?: boolean;
 }
 
 export default function PublishPropertyContent({
@@ -26,7 +28,9 @@ export default function PublishPropertyContent({
   updateWizardData,
   onNext,
   onBack,
-  onSaveAndExit
+  onSaveAndBack,
+  onSaveAndExit,
+  isEditMode = false
 }: PublishPropertyContentProps) {
   const [amenityGroups, setAmenityGroups] = useState<AmenityGroup[]>([]);
   const [expandedGroups, setExpandedGroups] = useState<Record<AmenityType, boolean>>({
@@ -143,11 +147,17 @@ export default function PublishPropertyContent({
     }));
   };
 
+  const continueDisabled = period === '' && wizardData.operation_type === 3;
+
   const handleBack = () => {
+    if (isEditMode) {
+      handleContinue('back');
+      return;
+    }
     onBack();
   };
 
-  const handleContinue = (continueFlag = true) => {
+  const handleContinue = (action: 'next' | 'exit' | 'back' = 'next') => {
     const propertyContentUpdate = { 
       tags: selectedAmenities,
       brightness,
@@ -166,8 +176,10 @@ export default function PublishPropertyContent({
       apartments_per_floor,
       period: wizardData.operation_type === 3 ? period : undefined,
     }
-    if (!continueFlag) {
+    if (action === 'exit') {
       onSaveAndExit(propertyContentUpdate);
+    } else if (action === 'back') {
+      onSaveAndBack(propertyContentUpdate);
     } else {
       onNext(propertyContentUpdate);
     }
@@ -181,7 +193,7 @@ export default function PublishPropertyContent({
             <div className="publish-property-content-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-property-content-link" type="button" onClick={() => handleContinue(false)}>
+            <button className="publish-property-content-link" type="button" onClick={() => handleContinue('exit')}>
               Guardar y salir
             </button>
           </div>
@@ -393,11 +405,12 @@ export default function PublishPropertyContent({
               label="Volver"
               variant="back"
               onClick={handleBack}
+              disabled={isEditMode ? continueDisabled : false}
               icon={<img src={iconChevron} alt="" />}
               iconPosition="left"
               className="publish-property-content-back"
             />
-            <Button label="Continuar" variant="primary" onClick={() => handleContinue(true)} disabled={period === '' && wizardData.operation_type === 3}/>
+            <Button label="Continuar" variant="primary" onClick={() => handleContinue('next')} disabled={continueDisabled}/>
           </div>
         </div>
       </div>

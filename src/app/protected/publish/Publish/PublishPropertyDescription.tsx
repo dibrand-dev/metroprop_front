@@ -22,7 +22,9 @@ interface PublishPropertyDescriptionProps {
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;
   onNext: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onBack: () => void;
+  onSaveAndBack: (descriptionData: Partial<CreatePropertyDraft>) => void;
   onSaveAndExit: (descriptionData: Partial<CreatePropertyDraft>) => void;
+  isEditMode?: boolean;
 }
 
 export default function PublishPropertyDescription({
@@ -30,7 +32,9 @@ export default function PublishPropertyDescription({
   updateWizardData,
   onNext,
   onBack,
+  onSaveAndBack,
   onSaveAndExit
+  , isEditMode = false
 }: PublishPropertyDescriptionProps) {
   const [title, setTitle] = useState(wizardData.publication_title || '');
   const [description, setDescription] = useState(wizardData.description || '');
@@ -49,19 +53,30 @@ export default function PublishPropertyDescription({
   }, [title, description, updateWizardData]);
 
   const handleBack = () => {
+    if (isEditMode) {
+      handleContinue('back');
+      return;
+    }
     onBack();
   };
 
-  const handleContinue = (continueFlag = true) => {
-    if (!continueFlag) {
+  const handleContinue = (action: 'next' | 'exit' | 'back' = 'next') => {
+    const descriptionData = {
+      publication_title: title,
+      description: description,
+    };
+
+    if (action === 'exit') {
       onSaveAndExit({
-        publication_title: title,
-        description: description,
+        ...descriptionData,
+      });
+    } else if (action === 'back') {
+      onSaveAndBack({
+        ...descriptionData,
       });
     } else {
       onNext({
-        publication_title: title,
-        description: description,
+        ...descriptionData,
       });
     }
   };
@@ -74,7 +89,7 @@ export default function PublishPropertyDescription({
             <div className="publish-property-description-route">
               {wizardData.operation_type ? OPERATION_TYPE_LABELS[wizardData.operation_type] : ''} - {wizardData.property_type ? PROPERTY_TYPE_LABELS[wizardData.property_type] : ''} {wizardData.property_subtype ?  '- ' + PROPERTY_SUBTYPE_LABELS[wizardData.property_subtype] : ''}<br />{wizardData.street ? wizardData.street : 'Sin dirección'}
             </div>
-            <button className="publish-property-description-link" type="button" onClick={() => handleContinue(false)}>
+            <button className="publish-property-description-link" type="button" onClick={() => handleContinue('exit')}>
               Guardar y salir
             </button>
           </div>
@@ -154,7 +169,7 @@ export default function PublishPropertyDescription({
               className="publish-property-description-back"
             />
             <Button
-              onClick={() => handleContinue(true)}
+              onClick={() => handleContinue('next')}
               label="Continuar" // isRole3
               disabled={!title.trim()}
             />

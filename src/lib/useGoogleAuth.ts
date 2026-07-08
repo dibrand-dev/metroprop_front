@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
-import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
+import { apiFetch, invalidateSessionTokenCache, setSessionTokenCache } from '@/lib/apiFetch';
 
 interface UseGoogleAuthOptions {
   /** Page path for the Google OAuth callback, e.g. '/login' */
@@ -18,6 +18,20 @@ interface UseGoogleAuthOptions {
   onExistingUser?: () => void;
 }
 
+const OAUTH_ERROR_MESSAGES: Record<string, string> = {
+  OAuthCallback: 'No se pudo completar el login con Google. Por favor intentá de nuevo.',
+  OAuthSignin: 'Error al iniciar sesión con Google. Por favor intentá de nuevo.',
+  OAuthCreateAccount: 'No se pudo crear la cuenta con Google.',
+  AccessDenied: 'Acceso denegado. No tenés permiso para iniciar sesión.',
+  Configuration: 'Error de configuración del servidor. Contactá soporte.',
+  Verification: 'El link de verificación expiró o ya fue usado.',
+  CredentialsSignin: 'Email o contraseña incorrectos. Por favor intentá de nuevo.',
+};
+
+function getOAuthErrorMessage(errorCode: string): string {
+  return OAUTH_ERROR_MESSAGES[errorCode] ?? 'Error al iniciar sesión. Por favor intentá de nuevo.';
+}
+
 export function useGoogleAuth({
   callbackPath,
   paramName,
@@ -26,12 +40,11 @@ export function useGoogleAuth({
 }: UseGoogleAuthOptions) {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
-  const popupCleanupRef = useRef<(() => void) | null>(null);
   const hasProcessedRef = useRef(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { data: session, status: sessionStatus, update: updateSession } = useSession();
 
-  // Keep callbacks in refs so the mutation always calls the latest version
   const onNewUserRef = useRef(onNewUser);
   const onExistingUserRef = useRef(onExistingUser);
   onNewUserRef.current = onNewUser;
@@ -52,8 +65,28 @@ export function useGoogleAuth({
     },
   });
 
+  const verifyAuthCookieReady = async () => {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const healthRes = await fetch('/api/auth/health-cookie', {
+        method: 'GET',
+        cache: 'no-store',
+        credentials: 'include',
+      });
+      const healthData = await healthRes.json().catch(() => ({ hasAuthToken: false }));
+      const hasAuthToken = !!healthData?.hasAuthToken;
+
+      if (healthRes.ok && hasAuthToken) return;
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    throw new Error('No se pudo confirmar la cookie de autenticación. Intenta nuevamente.');
+  };
+
   const storeAuthData = async (data: any) => {
-    if (!(data?.access_token && data?.user)) return;
+    if (!(data?.access_token && data?.user)) {
+      throw new Error('No se pudo completar el login con Google. Intenta nuevamente.');
+    }
+
     const sessionUpdate: Record<string, unknown> = {};
     if (data.user?.id) sessionUpdate.id = String(data.user.id);
     if (data.user?.name) sessionUpdate.name = data.user.name;
@@ -61,7 +94,6 @@ export function useGoogleAuth({
     if (data.access_token) sessionUpdate.apiToken = data.access_token;
     if (data.user?.role_id !== undefined) sessionUpdate.role_id = data.user.role_id;
 
-    // If role_id is missing from the registration response, fetch the full user profile
     if (sessionUpdate.role_id === undefined && data.user?.id && data.access_token) {
       try {
         const fullUser = await apiFetch<any>(`${API_BASE_URL}/users/${data.user.id}`, { token: data.access_token });
@@ -76,11 +108,9 @@ export function useGoogleAuth({
       await updateSession(sessionUpdate);
     }
 
-    try {
-      await setCookieMutation.mutateAsync(data.access_token);
-    } catch (cookieError) {
-      console.error('Error calling set-cookie API:', cookieError);
-    }
+    setSessionTokenCache(data.access_token);
+    await setCookieMutation.mutateAsync(data.access_token);
+    await verifyAuthCookieReady();
   };
 
   const googleRegistrationMutation = useMutation({
@@ -88,13 +118,21 @@ export function useGoogleAuth({
       return apiFetch(`${API_BASE_URL}/registration/google`, { method: 'POST', body: payload });
     },
     onSuccess: async (data: any) => {
-      await storeAuthData(data);
-      invalidateSessionTokenCache();
-      const isNew = data.message === 'Usuario creado exitosamente con Google';
-      if (isNew) {
-        onNewUserRef.current?.();
-      } else {
-        onExistingUserRef.current?.();
+      try {
+        await storeAuthData(data);
+        invalidateSessionTokenCache();
+        setSessionTokenCache(data?.access_token);
+        const isNew = data.message === 'Usuario creado exitosamente con Google';
+        if (isNew) {
+          onNewUserRef.current?.();
+        } else {
+          onExistingUserRef.current?.();
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
+        setGoogleError(msg);
+      } finally {
+        setIsGoogleLoading(false);
       }
     },
     onError: (err: any) => {
@@ -104,9 +142,11 @@ export function useGoogleAuth({
     },
   });
 
-  const processGoogleSession = (user: { email?: string | null; name?: string | null; image?: string | null; id?: string; role_id?: number }) => {
-    if (!user?.email) return;
-    googleRegistrationMutation.mutate({
+  const processGoogleSession = async (user: { email?: string | null; name?: string | null; image?: string | null; id?: string; role_id?: number }) => {
+    if (hasProcessedRef.current || !user?.email) return;
+    hasProcessedRef.current = true;
+
+    await googleRegistrationMutation.mutateAsync({
       email: user.email,
       name: user.name ?? undefined,
       avatar: user.image ?? undefined,
@@ -115,115 +155,61 @@ export function useGoogleAuth({
     });
   };
 
-  // --- Popup flow ---
-  const handleGoogleAuth = async () => {
+  const handleGoogleAuth = () => {
     setGoogleError('');
+    hasProcessedRef.current = false;
     setIsGoogleLoading(true);
-    popupCleanupRef.current?.();
-
-    const width = 500;
-    const height = 600;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-
-    const popup = window.open(
-      'about:blank',
-      'google-login',
-      `width=${width},height=${height},left=${left},top=${top}`
-    );
-
-    if (!popup) {
-      signIn('google', { redirect: true, callbackUrl });
-      return;
-    }
-
-    try {
-      const result = await signIn('google', {
-        redirect: false,
-        callbackUrl: `${window.location.origin}${callbackUrl}`,
-      });
-
-      if (result?.url) {
-        popup.location.href = result.url;
-      } else {
-        popup.close();
-        signIn('google', { redirect: true, callbackUrl });
-        return;
-      }
-    } catch {
-      popup.close();
-      setIsGoogleLoading(false);
-      setGoogleError('Error al iniciar sesión con Google. Por favor intenta de nuevo.');
-      return;
-    }
-
-    const handleMessage = async (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data?.type !== 'google-auth-success') return;
-
-      cleanup();
-
-      const sessionRes = await fetch('/api/auth/session');
-      const sessionData = await sessionRes.json();
-      if (sessionData?.user) {
-        processGoogleSession(sessionData.user);
-      }
-    };
-
-    const pollTimer = setInterval(() => {
-      if (popup.closed) {
-        cleanup();
-        setIsGoogleLoading(false);
-      }
-    }, 1000);
-
-    const cleanup = () => {
-      window.removeEventListener('message', handleMessage);
-      clearInterval(pollTimer);
-      popupCleanupRef.current = null;
-    };
-
-    window.addEventListener('message', handleMessage);
-    popupCleanupRef.current = cleanup;
+    signIn('google', { redirect: true, callbackUrl });
   };
 
-  // --- Detect popup callback OR fallback redirect ---
+  // Show NextAuth OAuth errors returned in the URL (e.g. error=OAuthCallback)
+  useEffect(() => {
+    const oauthError = searchParams.get('error');
+    if (!oauthError) return;
+
+    setGoogleError(getOAuthErrorMessage(oauthError));
+    setIsGoogleLoading(false);
+    hasProcessedRef.current = false;
+
+    router.replace(callbackPath);
+  }, [searchParams, router, callbackPath]);
+
+  // Process session after Google redirect callback
   useEffect(() => {
     const isGoogleCallback = searchParams.get(paramName) === '1';
     if (!isGoogleCallback) return;
 
-    // Inside popup → notify opener and close
-    if (typeof window !== 'undefined' && window.opener) {
-      try {
-        window.opener.postMessage({ type: 'google-auth-success' }, window.location.origin);
-      } catch { /* opener may be closed */ }
-      window.close();
+    if (sessionStatus === 'loading') {
+      setIsGoogleLoading(true);
       return;
     }
 
-    // Fallback redirect flow (popup was blocked)
     if (hasProcessedRef.current) return;
-    if (sessionStatus !== 'authenticated') return;
+    if (sessionStatus !== 'authenticated') {
+      setIsGoogleLoading(false);
+      setGoogleError('No se pudo recuperar la sesión de Google. Intenta nuevamente.');
+      return;
+    }
 
-    hasProcessedRef.current = true;
     setGoogleError('');
     processGoogleSession({
       email: session?.user?.email,
       name: session?.user?.name,
       image: (session?.user as any)?.image,
       id: (session?.user as any)?.id,
+    }).catch((err) => {
+      const msg = err instanceof Error ? err.message : 'Error de conexión. Por favor intenta de nuevo.';
+      setGoogleError(msg);
+      hasProcessedRef.current = false;
+      setIsGoogleLoading(false);
     });
-  }, [searchParams, sessionStatus, session]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => { popupCleanupRef.current?.(); };
-  }, []);
+  }, [searchParams, sessionStatus, session, paramName]);
 
   return {
     isGoogleLoading,
     googleError,
     setGoogleError,
     handleGoogleAuth,
+    getOAuthErrorMessage,
   };
 }

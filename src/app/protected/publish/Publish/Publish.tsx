@@ -350,6 +350,25 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     }
   }
 
+  const saveCurrentStepAndBack = async (wizardDataUpdate: Partial<CreatePropertyDraft>) => {
+    const _wizardDataUpdate = toCreatePropertyPatch(wizardDataUpdate);
+    if (!wizardData.draft_id) {
+      const draftData = await createDraftMutation.mutateAsync(wizardData);
+      updateWizardData({ draft_id: draftData.id });
+    }
+    try {
+      const result = await updatePropertyMutation.mutateAsync(_wizardDataUpdate);
+      updateWizardData({
+        ...wizardData,
+        ...result?.data?.price_square_meter ? { price_square_meter: result?.data?.price_square_meter } : {},
+        ...{ age: result?.data?.age }
+      });
+    } catch (error: any) {
+      console.error('Error updating property:', error?.message || error);
+    }
+    goToPreviousStep();
+  };
+
   const saveCurrentStepEmprendimiento = async (wizardDataUpdate: Partial<CreatePropertyDraft>, nextStep: boolean) => {
     const _wizardDataUpdate = toDevelopmentPatch(wizardDataUpdate);
     delete _wizardDataUpdate.draft_id;
@@ -439,6 +458,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             updateWizardData={updateWizardData}
             onNext={(locationData) => saveCurrentStep(locationData, true)}
             onBack={goToPreviousStep}
+            onSaveAndBack={(locationData) => saveCurrentStepAndBack(locationData)}
             onSaveAndExit={(locationData) => saveCurrentStep(locationData, false)}
             isEditMode={isEditMode}
           />
@@ -451,7 +471,9 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             updateWizardData={updateWizardData}
             onNext={() => goToNextStep()}
             onBack={goToPreviousStep}
+            onBackWithSave={goToPreviousStep}
             onSaveAndExit={() => window.location.href = '/protected/myProperties?showSuccess=true'}
+            isEditMode={isEditMode}
           />
         );
 
@@ -462,7 +484,9 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             updateWizardData={updateWizardData}
             onNext={(descriptionData) => saveCurrentStep(descriptionData, true)}
             onBack={goToPreviousStep}
+            onSaveAndBack={(descriptionData) => saveCurrentStepAndBack(descriptionData)}
             onSaveAndExit={(descriptionData) => saveCurrentStep(descriptionData, false)}
+            isEditMode={isEditMode}
           />
         );
 
@@ -473,7 +497,9 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             updateWizardData={updateWizardData}
             onNext={(mainData) => saveCurrentStep(mainData, true)}
             onBack={goToPreviousStep}
+            onSaveAndBack={(mainData) => saveCurrentStepAndBack(mainData)}
             onSaveAndExit={(mainData) => saveCurrentStep(mainData, false)}
+            isEditMode={isEditMode}
           />
         );
 
@@ -484,7 +510,9 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             updateWizardData={updateWizardData}
             onNext={(priceData) => saveCurrentStep(priceData, true)}
             onBack={goToPreviousStep}
+            onSaveAndBack={(priceData) => saveCurrentStepAndBack(priceData)}
             onSaveAndExit={(priceData) => saveCurrentStep(priceData, false)}
+            isEditMode={isEditMode}
           />
         );
 
@@ -495,7 +523,9 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             updateWizardData={updateWizardData}
             onNext={(propertyContentUpdate) => saveCurrentStep(propertyContentUpdate, true)}
             onBack={goToPreviousStep}
+            onSaveAndBack={(propertyContentUpdate) => saveCurrentStepAndBack(propertyContentUpdate)}
             onSaveAndExit={(propertyContentUpdate) => saveCurrentStep(propertyContentUpdate, false)}
+            isEditMode={isEditMode}
           />
         );
 
@@ -513,6 +543,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
                 }, 3000);
               })}
               onBack={goToPreviousStep}
+              onSaveAndBack={(reviewData) => saveCurrentStepAndBack(reviewData)}
               onSaveAndExit={(wizardData) => saveCurrentStep(wizardData, false)}
               isEditMode={isEditMode}
             />
@@ -532,8 +563,10 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
             updateWizardData={updateWizardData}
             onNext={(plansUpdate) => saveCurrentStep(plansUpdate, true)}
             onBack={goToPreviousStep}
+            onSaveAndBack={(plansUpdate) => saveCurrentStepAndBack(plansUpdate)}
             onComprar={(plan, branchId) => goToBuyPlan(plan, branchId, false)}
             onSaveAndExit={(plansUpdate) => saveCurrentStep(plansUpdate, false)}
+            isEditMode={isEditMode}
           />
         );
 
