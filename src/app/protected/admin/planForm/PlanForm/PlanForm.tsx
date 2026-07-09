@@ -22,8 +22,6 @@ interface PlanFormProps {
   planId?: string;
 }
 
-
-
 export default function PlanForm({ planId }: PlanFormProps) {
   const router = useRouter();
   const { showMenu, setShowMenu } = useAdminMenu();
@@ -84,6 +82,8 @@ export default function PlanForm({ planId }: PlanFormProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['plans'] });
+      queryClient.invalidateQueries({ queryKey: ['plan'] });
+      queryClient.invalidateQueries({ queryKey: [planId] });
       if (!isEditing) {
         setName('');
         setDescription('');

@@ -35,8 +35,7 @@ export default function Highlights() {
         { method: 'PATCH' },
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['branch-plans-all'] });
-      queryClient.invalidateQueries({ queryKey: ['user-plans'] });
+      queryClient.invalidateQueries({ queryKey: ['branch-plans-all', 'user-plans'] });
       setPlanToCancel(null);
     },
   });
@@ -75,12 +74,9 @@ export default function Highlights() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const activePlans = orgId ? allBranchPlans : userPlans;
-  console.log("activePlans", activePlans);
   const showAll = branchFilter === 'todas';
-  console.log("showAll", showAll);
   const filteredPlans = allBranchPlans.find((e) => String(e.branchId) === branchFilter)?.plans ?? [];
-  console.log("filteredPlans", filteredPlans);
+
   return (
       <div className={`highlights-container ${showMenu ? 'mobile-hidden' : ''}`}>
         <div className="highlights-mobile-header">
