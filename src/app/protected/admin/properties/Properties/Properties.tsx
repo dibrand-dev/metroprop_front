@@ -50,6 +50,8 @@ export default function Properties() {
     onSuccess: () => {
       setDeleteModal({ open: false, propertyId: null, propertyTitle: '' });
       queryClient.invalidateQueries({ queryKey: ['all-properties'] });
+      setSearchQuery("");
+      setSearchId(null);
     },
   });
 
@@ -88,15 +90,11 @@ export default function Properties() {
     staleTime: 5 * 60 * 1000,
   });
   */
-
-// http://localhost:3000/properties/filter?page=1&limit=20&q=Argentina+%7C+Capital+Federal&location_id=146&operation_type=1
   const { data: propertiesData, isLoading } = useQuery({
-    queryKey: ['my-properties', currentPage, searchId/*, activeFilters, selectedBranchId*/],
+    queryKey: ['all-properties', currentPage, searchId/*, activeFilters, selectedBranchId*/],
     queryFn: async () => {
       if (searchId !== null) {
-        const property: CreateProperty = await apiFetch<CreateProperty>(`${API_BASE_URL}/properties/${searchId}`, {
-         // params: { id: searchId },
-        });
+        const property: CreateProperty = await apiFetch<CreateProperty>(`${API_BASE_URL}/properties/${searchId}`);
         return { data: [property], total: 1 };
       }
     },

@@ -100,7 +100,7 @@ export default function PublishMainInfo({
       surface_measurement,
       roofed_surface_measurement,
       total_surface,
-      roofed_surface,
+      roofed_surface: (!!roofed_surface && roofed_surface !== '') ? roofed_surface : 0,
       age: property_condition === "construction" ? -1 : property_condition === "new" ? 0 : age,
       room_amount: rooms.room_amount,
       suite_amount: rooms.suite_amount,
