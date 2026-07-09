@@ -7,7 +7,7 @@ import InputField from '@/ui/InputField/InputField';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import { CreatePropertyDraft, OPERATION_TYPE_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS } from '@/types/propiedad';
 import Button from '@/ui/Button/Button';
-import { formatNumbers } from '@/utils/utils';
+import { formatNumbers, handleChangeNumbersInput } from '@/utils/utils';
 
 const iconChevron = '/icons/chevron-up.svg';
 
