@@ -178,12 +178,15 @@ export default function PublishCheckoutPayment({
         `https://api.mercadopago.com/v1/payment_methods/search?public_key=${MP_PUBLIC_KEY}&bins=${bin}`
       );
       const binData = await binResponse.json();
-      const paymentMethodId = binData?.results?.[0]?.id;
+      const paymentMethod = binData?.results?.[0];
+      const paymentMethodId = paymentMethod?.id;
       if (!paymentMethodId) {
         throw new Error('No se pudo determinar el método de pago para esta tarjeta');
       }
-     
-      const response = await apiFetch(`${API_BASE_URL}/plans/${userHasOrganization ? `branch/${branchID}` : `user/${userId}`}`, {
+
+      const issuerId = paymentMethod?.issuer?.id;
+
+      await apiFetch(`${API_BASE_URL}/plans/${userHasOrganization ? `branch/${branchID}` : `user/${userId}`}`, {
         method: 'POST',
         body: {
           transaction_amount: planToBuy?.price ?? 0,
@@ -191,6 +194,7 @@ export default function PublishCheckoutPayment({
           description: planToBuy?.plan_name ?? 'Plan',
           installments: 1,
           payment_method_id: paymentMethodId,
+          ...(issuerId != null ? { issuer_id: Number(issuerId) } : {}),
           payer: {
             email,
             identification: {
@@ -202,18 +206,11 @@ export default function PublishCheckoutPayment({
               number: phone,
             },
           },
-          planId: planToBuy?.id
-        }
-      }).then(data => {
-        onNext();
-      })
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.message || `Payment failed with status ${response.status}`);
-      }
+          planId: planToBuy?.id,
+        },
+      });
 
-      
+      onNext();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '';
       if (message.includes('205') || message.includes('cardNumber')) {
@@ -229,7 +226,9 @@ export default function PublishCheckoutPayment({
       } else if (message.includes('E301') || message.includes('securityCode')) {
         setErrors((prev) => ({ ...prev, securityCode: 'Código de seguridad inválido' }));
       } else {
-        setSubmitError('Error al procesar el pago. Verifique los datos e intente nuevamente.');
+        setSubmitError(
+          message || 'Error al procesar el pago. Verifique los datos e intente nuevamente.',
+        );
       }
     } finally {
       setIsSubmitting(false);
