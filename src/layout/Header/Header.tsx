@@ -121,6 +121,11 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedSubCategory, setExpandedSubCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileMenuOpen]);
   const [selectedItem, setSelectedItem] = useState<{ [key: string]: string } | null>(null);
 
   const toggleDropdown = (name: string) => {
