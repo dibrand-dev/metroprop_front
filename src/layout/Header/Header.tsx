@@ -18,8 +18,9 @@ interface DropdownSubItem {
 }
 
 interface DropdownColumn {
-  title: string;
+  title?: string;
   items: DropdownSubItem[];
+  sections?: { title: string; items: DropdownSubItem[] }[];
 }
 
 interface DropdownSection {
@@ -53,13 +54,18 @@ const dropdownItems: DropdownSection = {
         { label: 'PH', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=4&page=1&limit=20' },
         { label: 'Local Comercial', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=15&page=1&limit=20' },
       ],
-    },
-    {
-      title: 'Otros',
-      items: [
-        { label: 'Emprendimientos', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=18&page=1&limit=20' },
+      sections: [
+        {
+          title: 'Otros',
+          items: [
+            { label: 'Emprendimientos', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=18&page=1&limit=20' },
+          ],
+        },
       ],
     },
+    {items: [
+      { label: 'Emprendimientos', href: '/results?q=Argentina+%7C+Capital+Federal&location_id=146&property_type=18&page=1&limit=20' },
+    ]}
   ],
   alquilar: [
     {
@@ -162,7 +168,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           <button className="topnavbar-dropdown">
             <Link prefetch={false}  href="/protected/myProperties">Mis publicaciones</Link>
           </button>
-        </div> : <div  style={{width: '33.3%'}}/>}
+        </div> : <div className="header-placeholder" />}
         {/* Left Section - Navigation Dropdowns / Hamburger Menu */}
         <div className={`header-nav-wrapper ${showFilter ? 'with-search' : ''}`}>
           {/* Hamburger Button for Mobile */}
@@ -208,7 +214,8 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
                 {openDropdown === key && (
                   <div className="header-dropdown-menu header-dropdown-menu-grid header-desktop-dropdown">
                     {columns.map((column, colIndex) => (
-                      <div key={colIndex} className="header-dropdown-column">
+                      column.title && (
+                        <div key={colIndex} className="header-dropdown-column">
                         <div className="header-dropdown-column-title">
                           {column.title}
                         </div>
@@ -226,7 +233,25 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
                             </a>
                           ))}
                         </div>
-                      </div>
+                        {column.sections?.map((section, sectionIndex) => (
+                          <div key={sectionIndex} className="header-dropdown-column-section">
+                            <div className="header-dropdown-column-title">{section.title}</div>
+                            <div className="header-dropdown-column-items">
+                              {section.items.map((item, itemIndex) => (
+                                <a
+                                  key={itemIndex}
+                                  href={item.href}
+                                  className={`header-dropdown-item ${selectedItem?.[key] === item.label ? 'active' : ''}`}
+                                  onClick={() => handleItemClick(key, item.label)}
+                                >
+                                  {item.label}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                        </div>
+                      )
                     ))}
                   </div>
                 )}
@@ -239,16 +264,18 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
                       const isSubCategoryOpen = expandedSubCategory === subcategoryKey;
                       return (
                         <div key={colIndex} className="accordion-subcategory">
-                          <button
-                            className={`accordion-subcategory-toggle ${isSubCategoryOpen ? 'active' : ''}`}
-                            onClick={() => toggleSubCategory(subcategoryKey)}
-                          >
-                            <span className="subcategory-label">{column.title}</span>
-                            <span className='header-dropdown-icon'>
-                              {chevronUp}
-                            </span>
-                          </button>
-                          {isSubCategoryOpen && (
+                          {column.title 
+                          ? <>
+                            <button
+                              className={`accordion-subcategory-toggle ${isSubCategoryOpen ? 'active' : ''}`}
+                              onClick={() => toggleSubCategory(subcategoryKey)}
+                            >
+                              <span className="subcategory-label">{column.title}</span>
+                              <span className='header-dropdown-icon'>
+                                {chevronUp}
+                              </span>
+                            </button>
+                            {isSubCategoryOpen && (
                             <div className="accordion-items">
                               {column.items.map((item, itemIndex) => (
                                 <a
@@ -262,8 +289,19 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
                                   {item.label}
                                 </a>
                               ))}
-                            </div>
-                          )}
+                            </div>)}</>
+                          : column.items.map((item, itemIndex) => (
+                            <a
+                              key={itemIndex}
+                              href={item.href}
+                              className={`accordion-item no-title ${selectedItem?.[key] === item.label ? 'active' : ''}`}
+                              onClick={(e) => {
+                                handleItemClick(key, item.label);
+                              }}
+                            >
+                              {item.label}
+                            </a>))
+                          }
                         </div>
                       );
                     })}

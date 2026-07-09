@@ -86,29 +86,6 @@ export default function PublishPrice({
     }
   };
 
-  const handleChangeNumbersInput = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
-    // limpiar todo lo que no sea número
-    const raw = event.target.value.replace(/\D/g, "");
-
-    if (raw === "") {
-      if('price' === field) {
-        setPrice(undefined);
-      } else if('expenses' === field) {
-        setExpenses(undefined);
-      }
-
-      return;
-    }
-    const parsed = parseInt(raw, 10);
-    if('price' === field) {
-      setPrice(isNaN(parsed) ? undefined : parsed);
-    } else if('expenses' === field) {
-      setExpenses(isNaN(parsed) ? undefined : parsed);
-    }
-
-      return;
-  }
-
   return (
     <div className="publish-price">
       <div className="publish-price-inner">
@@ -152,7 +129,7 @@ export default function PublishPrice({
                   /> */}
                   <InputField
                     value={price !== undefined ? formatNumbers(Number(price)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, 'price')}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setPrice(value))}
                     placeholder={'Ej. 700000'}
                     type="text"
                   />
@@ -178,7 +155,7 @@ export default function PublishPrice({
                   /> */}
                   <InputField
                     value={expenses !== undefined ? formatNumbers(Number(expenses)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, 'expenses')}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setExpenses(value))}
                     placeholder="Ej. 100000"
                     type="text"
                     disabled={withoutExpenses}

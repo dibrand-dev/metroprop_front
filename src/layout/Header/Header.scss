@@ -92,6 +92,7 @@ $font-family-button: Montserrat, sans-serif;
           margin-top: 0;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
           z-index: 3;
+          overflow: auto;
         }
       }
 
@@ -287,16 +288,15 @@ $font-family-button: Montserrat, sans-serif;
 // Dropdown Menu
 .header-dropdown-menu {
   position: absolute;
-  top: 52px;
+  top: 55px;
   left: 0;
   background-color: $color-bg-primary;
-  border: 1px solid $color-border;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   min-width: 200px;
   margin-top: 8px;
   z-index: 2;
   overflow: hidden;
+  box-shadow: 1px 4px 6px 0px #00000040;
 
   @media (max-width: 768px) {
     position: static;
@@ -329,8 +329,8 @@ $font-family-button: Montserrat, sans-serif;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #d9d9d9;
-  padding: 24px;
-  min-width: 280px;
+  padding: 32px;
+  min-width: 296px;
 
   &:last-child {
     border-right: none;
@@ -345,61 +345,66 @@ $font-family-button: Montserrat, sans-serif;
       border-bottom: none;
     }
   }
-}
 
-// Column Title
-.header-dropdown-column-title {
-  font-family: $font-family-body;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 28px;
-  color: $color-text-primary;
-  margin-bottom: 8px;
-  padding: 0 8px;
+  // Column Title
+  .header-dropdown-column-title {
+    font-family: $font-family-body;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 28px;
+    color: $color-text-primary;
+    margin-bottom: 8px;
 
-  @media (max-width: 768px) {
-    font-size: 18px;
-    margin-bottom: 12px;
-    padding: 0 16px;
+    @media (max-width: 768px) {
+      font-size: 18px;
+      margin-bottom: 12px;
+      padding: 0 16px;
+    }
+  }
+
+  // Column Items Container
+  .header-dropdown-column-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  // Dropdown Items
+  .header-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 0px;
+    font-family: $font-family-body;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.32px;
+    color: $color-text-primary;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    height: 48px;
+
+    &:hover {
+      color: #006aff;
+    }
+
+    &.active {
+      color: #006aff;
+    }
+
+    @media (max-width: 768px) {
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+  }
+
+  .header-dropdown-column-section {
+    padding-top: 32px;
   }
 }
 
-// Column Items Container
-.header-dropdown-column-items {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
 
-// Dropdown Items
-.header-dropdown-item {
-  display: flex;
-  align-items: center;
-  padding: 14px 8px;
-  font-family: $font-family-body;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 20px;
-  letter-spacing: 0.32px;
-  color: $color-text-primary;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  border-radius: 4px;
-  height: 48px;
-
-  &:hover {
-    color: #006aff;
-  }
-
-  &.active {
-    color: #006aff;
-  }
-
-  @media (max-width: 768px) {
-    padding: 12px 16px;
-    font-size: 14px;
-  }
-}
 
 // Logo Section
 .header-logo {
@@ -680,6 +685,11 @@ $font-family-button: Montserrat, sans-serif;
   &:last-child {
     border-bottom: none;
   }
+
+  &.no-title {
+    background-color: #fff;
+    height: 64px;
+  }
 }
 
 
@@ -777,4 +787,11 @@ $font-family-button: Montserrat, sans-serif;
   height: 24px;
   display: block;
   transform: rotate(180deg);
+}
+
+.header-placeholder {
+  width: 33.3%;
+  @media (max-width: 768px) {
+    display: none;
+  }
 }

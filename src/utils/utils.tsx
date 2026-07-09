@@ -305,3 +305,15 @@ export function HeartIcon({ isFavorite }: { isFavorite?: boolean }): JSX.Element
         ? adLink : `http://${adLink}`
         : '#';
   }
+
+  
+  export const handleChangeNumbersInput = (event: React.ChangeEvent<HTMLInputElement>, setField: (value: number | undefined) => void) => {
+    // limpiar todo lo que no sea número
+    const raw = event.target.value.replace(/\D/g, "");
+    if (raw === "") {
+      setField(undefined);
+      return;
+    }
+    const parsed = parseInt(raw, 10);
+    setField(isNaN(parsed) ? undefined : parsed);
+  };

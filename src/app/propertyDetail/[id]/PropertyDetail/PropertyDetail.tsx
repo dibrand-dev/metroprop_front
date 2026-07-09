@@ -8,7 +8,7 @@ import PropertyDetailSubmenu from './PropertyDetailSubmenu/PropertyDetailSubmenu
 import PhoneRevealModal from '@/components/PhoneRevealModal/PhoneRevealModal';
 import WhatsappModal from '@/components/WhatsappModal/WhatsappModal';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype, GARAGE_COVERAGE_LABELS, BannerPlacement } from '@/types/propiedad';
+import { AmenityGroup, AmenityTag, AmenityType, AMENITY_TYPE_LABELS, OperationType, OPERATION_TYPE_LABELS, ORIENTATION_LABELS, Orientation, CreateProperty, PROPERTY_TYPE_LABELS, PropertyType, PROPERTY_SUBTYPE_LABELS, PropertySubtype, GARAGE_COVERAGE_LABELS, BannerPlacement, DispositionLabels } from '@/types/propiedad';
 import { API_BASE_URL, saveVisitedProperty, removeVisitedProperty, setImagePath, getInitials, formatStreetAddress, getPropertyDetailPath, setAdsUrl } from '@/utils/utils';
 import { APIProvider } from '@vis.gl/react-google-maps';
 import PropertyMap from './PropertyMap/PropertyMap';
@@ -189,12 +189,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     if (property?.semiroofed_surface && property?.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(property.semiroofed_surface)} ${property.surface_measurement === 'M2' ? 'm²' : property.surface_measurement}`);
     if (property?.surface_front && property?.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(property.surface_front)} M`);
     if (property?.surface_length && property?.surface_length > 0)  result[4].push(`Fondo: ${formatNumbers(property.surface_length)} M`);
-    if (property?.disposition)  result[4].push(`Orientación: ${property.disposition}`);
-    if (property?.floors_in_building)  result[4].push(`Cantidad de pisos: ${property.floors_in_building}`);
+    if (property?.disposition)  result[4].push(`Orientación: ${DispositionLabels[property.disposition] ?? property.disposition}`);
+    if (property?.floors_in_building && property?.floors_in_building > 0)  result[4].push(`Cantidad de pisos: ${formatNumbers(property.floors_in_building)}`);
     if (property?.business_type)  result[4].push(`Tipo de rubro: ${property.business_type}`);
     if (property?.number_of_guests)  result[4].push(`Cantidad de huéspedes: ${property.number_of_guests}`);
     if (property?.fot)  result[4].push(`F.O.T: ${property.fot}`);
-    if (property?.apartments_per_floor)  result[4].push(`Cantidad de departamentos por piso: ${property.apartments_per_floor}`);
+    if (property?.apartments_per_floor && property?.apartments_per_floor > 0)  result[4].push(`Cantidad de departamentos por piso: ${formatNumbers(property.apartments_per_floor)}`);
 
     if (result[4].length === 0) delete result[4];
     return result;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import './PublishFinalReview.scss';
-import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, GARAGE_COVERAGE_LABELS, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
+import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, CreatePropertyDraft, DispositionLabels, GARAGE_COVERAGE_LABELS, OPERATION_TYPE_LABELS, OperationType, ORIENTATION_LABELS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyStatus, PropertySubtype, PropertyType } from '@/types/propiedad';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL, setImagePath, formatNumbers, formatCurrency, getInitials, formatStreetAddress } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
@@ -193,12 +193,12 @@ export default function PublishFinalReview({
     if (wizardData?.semiroofed_surface && wizardData.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(wizardData.semiroofed_surface)} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement ?? ''}`);
     if (wizardData?.surface_front && wizardData.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(wizardData.surface_front)} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement ?? ''}`);
     if (wizardData?.surface_length)  result[4].push(`Fondo: ${formatNumbers(wizardData.surface_length)} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement ?? ''}`);
-    if (wizardData?.disposition)  result[4].push(`Orientación: ${wizardData.disposition}`);
-    if (wizardData?.floors_in_building)  result[4].push(`Cantidad de pisos en edificio: ${wizardData.floors_in_building}`);
+    if (wizardData?.disposition)  result[4].push(`Orientación: ${DispositionLabels[wizardData.disposition] ?? wizardData.disposition}`);
+    if (wizardData?.floors_in_building && wizardData.floors_in_building > 0)  result[4].push(`Cantidad de pisos en edificio: ${formatNumbers(wizardData.floors_in_building)}`);
     if (wizardData?.business_type)  result[4].push(`Tipo de rubro: ${wizardData.business_type}`);
     if (wizardData?.number_of_guests)  result[4].push(`Cantidad de huéspedes: ${wizardData.number_of_guests}`);
     if (wizardData?.fot)  result[4].push(`F.O.T: ${wizardData.fot}`);
-    if (wizardData?.apartments_per_floor)  result[4].push(`Cantidad de departamentos por piso: ${wizardData.apartments_per_floor}`);
+    if (wizardData?.apartments_per_floor && wizardData.apartments_per_floor > 0)  result[4].push(`Cantidad de departamentos por piso: ${formatNumbers(wizardData.apartments_per_floor)}`);
     if (result[4].length === 0) delete result[4];
     
     return result;

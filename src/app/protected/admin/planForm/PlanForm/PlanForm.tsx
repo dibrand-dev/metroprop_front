@@ -8,7 +8,7 @@ import InputField2 from '@/ui/InputField2/InputField2';
 import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, formatNumbers, handleChangeNumbersInput } from '@/utils/utils';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import { apiFetch } from '@/lib/apiFetch';
 import Select from '@/ui/Select/Select';
@@ -184,8 +184,8 @@ export default function PlanForm({ planId }: PlanFormProps) {
                 label="Precio"
                 type="text"
                 placeholder="Precio"
-                value={price}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPrice(event.target.value)}
+                value={price !== undefined ? formatNumbers(Number(price)) : ""}
+                onChange={(event) => handleChangeNumbersInput(event, (value: number | undefined) => setPrice(value))}
                 required={true}
                 error={fieldErrors.price}
               />
@@ -195,10 +195,10 @@ export default function PlanForm({ planId }: PlanFormProps) {
             <label className="partner-form-label">Nivel de prioridad</label>
             <InputField2
               label="Nivel de prioridad"
-              type="number"
+              type="text"
               placeholder="Nivel de prioridad"
-              value={propertyLimit}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPropertyLimit(event.target.value)}
+              value={propertyLimit !== undefined ? formatNumbers(Number(propertyLimit)) : ""}
+              onChange={(event) => handleChangeNumbersInput(event, (value: number | undefined) => setPropertyLimit(value))}
               required={true}
               error={fieldErrors.propertyLimit}
             />
@@ -207,10 +207,10 @@ export default function PlanForm({ planId }: PlanFormProps) {
             <label className="partner-form-label">Límite de destacados</label>
             <InputField2
               label="Límite de destacados"
-              type="number"
+              type="text"
               placeholder="Límite de destacados"
-              value={highlightLimit}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setHighlightLimit(event.target.value)}
+              value={highlightLimit !== undefined ? formatNumbers(Number(highlightLimit)) : ""}
+              onChange={(event) => handleChangeNumbersInput(event, (value: number | undefined) => setHighlightLimit(value))}
               required={true}
               error={fieldErrors.highlightLimit}
             />

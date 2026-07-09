@@ -227,7 +227,7 @@ export default function Alerts() {
                   <div className="property-owner-info">
                     {filterChips.length > 0
                       ? filterChips.map(([key, value]) => (
-                          <span key={key} className="alert-filter-chip">{value}</span>
+                          <span key={`${key}${value}`} className="alert-filter-chip">{value}</span>
                         ))
                       : <span className="collaborators-card-subtitle">Sin filtros guardados</span>
                     }

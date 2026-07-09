@@ -61,12 +61,13 @@ body {
         top: 16px;
         right: 16px;
         border-radius: 8px;
-        padding: 1px;
         z-index: 2;
     }
 
     &:hover .favorite-highlighted-container {
-        background: rgba(255, 255, 255, 0.4); 
+        svg path {
+            fill: #fff;
+        }
     }
 
     .entrega-delivery-date {

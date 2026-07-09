@@ -6,7 +6,7 @@ import './PublishPropertyContent.scss';
 import Select from '@/ui/Select/Select';
 import InputField from '@/ui/InputField/InputField';
 import { AMENITY_TYPE_LABELS, AmenityGroup, AmenityTag, AmenityType, Brightness, BRIGHTNESS_LABELS, BRIGHTNESS_SELECT_OPTIONS, CreatePropertyDraft, DISPOSITION_OPTIONS, GARAGE_COVERAGE_LABELS, GARAGE_SELECT_OPTIONS, GarageCoverage, OPERATION_TYPE_LABELS, Orientation, ORIENTATION_LABELS, ORIENTATION_SELECT_OPTIONS, PROPERTY_SUBTYPE_LABELS, PROPERTY_TYPE_LABELS, PropertyType, TEMPORAL_RENT_PERIOD_OPTIONS } from '@/types/propiedad';
-import { API_BASE_URL, formatNumbers } from '@/utils/utils';
+import { API_BASE_URL, formatNumbers, handleChangeNumbersInput } from '@/utils/utils';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 import Button from '@/ui/Button/Button';
@@ -58,30 +58,6 @@ export default function PublishPropertyContent({
   const [fot, setFot] = useState(wizardData.fot || undefined);
   const [apartments_per_floor, setApartments_per_floor] = useState(wizardData.apartments_per_floor || undefined);
 
-  const handleChangeNumbersInput = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
-    // limpiar todo lo que no sea número
-    const raw = event.target.value.replace(/\D/g, "");
-
-    if (raw === "") {
-      if('surface_length' === field) {
-        setSurface_length(undefined);
-      } else if('surface_front' === field) {
-        setSurface_front(undefined);
-      } else if ( 'semiroofed_surface' === field) {
-        setSemiroofed_surface(undefined);
-      } 
-
-      return;
-    }
-    const parsed = parseInt(raw, 10);
-    if('surface_length' === field) {
-      setSurface_length(isNaN(parsed) ? undefined : parsed);
-    } else if('surface_front' === field) {
-      setSurface_front(isNaN(parsed) ? undefined : parsed);
-    } else if ( 'semiroofed_surface' === field) {
-      setSemiroofed_surface(isNaN(parsed) ? undefined : parsed);
-    }
-  }
   const _pt = Number(wizardData.property_type);
   const showLuminoso = _pt !== PropertyType.GALPON_BODEGA && _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.DEPOSITO &&  _pt !== PropertyType.TERRENO && _pt !== PropertyType.GARAGE && _pt !== PropertyType.HOTEL && _pt !== PropertyType.FONDO_DE_COMERCIO  ;
   const showOrientacion = _pt !== PropertyType.GALPON_BODEGA && _pt !== PropertyType.BOVEDA_NICHO_PARCELA && _pt !== PropertyType.CAMA_NAUTICA && _pt !== PropertyType.CONSULTORIO && _pt !== PropertyType.DEPOSITO  && _pt !== PropertyType.FONDO_DE_COMERCIO && _pt !== PropertyType.GARAGE && _pt !== PropertyType.HOTEL  && _pt !== PropertyType.LOCAL_COMERCIAL && _pt !== PropertyType.OFICINA_COMERCIAL && _pt !== PropertyType.TERRENO;
@@ -306,7 +282,7 @@ export default function PublishPropertyContent({
                     placeholder="Ingresa un numero mayor o igual a 0"
                     type="text"
                     value={surface_front !== undefined ? formatNumbers(Number(surface_front)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, 'surface_front')}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setSurface_front(value))}
                   />
                 </div>}
                 {showLargoDelTerreno && <div className="publish-property-content-detail-field">                  
@@ -315,7 +291,7 @@ export default function PublishPropertyContent({
                     placeholder="Ingresa un numero mayor o igual a 0"
                     type="text"
                     value={surface_length !== undefined ? formatNumbers(Number(surface_length)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, 'surface_length')}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setSurface_length(value))}
                   />
                 </div>}
                 {(wizardData.property_type == PropertyType.CASA || wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.PH) && (<div className="publish-property-content-detail-field">
@@ -325,16 +301,16 @@ export default function PublishPropertyContent({
                     placeholder="Ingresa un numero mayor o igual a 0"
                     type="text"
                     value={semiroofed_surface !== undefined ? formatNumbers(Number(semiroofed_surface)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, 'semiroofed_surface')}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setSemiroofed_surface(value))}
                   />
                 </div>)}
                 {(wizardData.property_type == PropertyType.CAMA_NAUTICA) && (<div className="publish-property-content-detail-field">
                   <InputField
                     label="Cantidad de naves"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={warehouse_units ?? null}
-                    onChange={(event) => setWarehouse_units(parseInt(event.target.value) || undefined)}
-                    type="number"
+                    value={warehouse_units !== undefined ? formatNumbers(Number(warehouse_units)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setWarehouse_units(value))}
+                    type="text"
                   />
                 </div>)}
               
@@ -351,9 +327,9 @@ export default function PublishPropertyContent({
                   <InputField
                     label="Cantidad de huéspedes"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={number_of_guests ?? null}
-                    onChange={(event) => setNumber_of_guests(parseInt(event.target.value) || undefined)}
-                    type="number"
+                    value={number_of_guests !== undefined ? formatNumbers(Number(number_of_guests)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setNumber_of_guests(value))}
+                    type="text"
                   />
                 </div>)}
 
@@ -361,9 +337,9 @@ export default function PublishPropertyContent({
                   <InputField
                     label="F.O.T"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={fot ?? null}
-                    onChange={(event) => setFot(parseInt(event.target.value) || undefined)}
-                    type="number"
+                    value={fot !== undefined ? formatNumbers(Number(fot)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setFot(value))}
+                    type="text"
                   />
                 </div>}
               </div>
@@ -381,19 +357,19 @@ export default function PublishPropertyContent({
                 {(wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.EDIFICIO) && (<div className="publish-property-content-detail-field">
                   <InputField
                     label="Cantidad de pisos en edificio"
+                    type="text"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={floors_amount ?? null}
-                    onChange={(event) => setFloors_amount(parseInt(event.target.value) || undefined)}
-                    type="number"
+                    value={floors_amount !== undefined ? formatNumbers(Number(floors_amount)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setFloors_amount(value))}
                   />
                 </div>)}
                 {(wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.EDIFICIO) && (<div className="publish-property-content-detail-field">
                   <InputField
                     label="Departamentos por piso"
+                    type="text"
                     placeholder="Ingresa un numero mayor o igual a 0"
-                    value={apartments_per_floor ?? null}
-                    onChange={(event) => setApartments_per_floor(parseInt(event.target.value) || undefined)}
-                    type="number"
+                    value={apartments_per_floor !== undefined ? formatNumbers(Number(apartments_per_floor)) : ""}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setApartments_per_floor(value))}
                   />
                 </div>)}
               </div>

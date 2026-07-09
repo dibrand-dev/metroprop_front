@@ -10,7 +10,7 @@ import { CreateProperty, CreatePropertyDraft, currencySelectOptions, OperationTy
 import InputField from '@/ui/InputField/InputField';
 import EmprendimientoImages, { EmprendimientoImagesRef } from './EmprendimientoImages';
 import { apiFetch } from '@/lib/apiFetch';
-import { API_BASE_URL, setImagePath, formatCurrency, formatNumbers } from '@/utils/utils';
+import { API_BASE_URL, setImagePath, formatCurrency, formatNumbers, handleChangeNumbersInput } from '@/utils/utils';
 import EmprendimientoTabs, { EmprendimientoStep } from './EmprendimientoTabs';
 import SuccessModal from '@/components/SuccessModal/SuccessModal';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
@@ -195,36 +195,6 @@ export default function PublishEmprendimientoUnidades({
     setDevelopment_units_total(undefined);
     imagesRef.current?.resetFiles();
   }
-
-   const handleChangeNumbersInput = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
-      // limpiar todo lo que no sea número
-      const raw = event.target.value.replace(/\D/g, "");
-      if (raw === "") {
-        if('price' === field) {
-          setPrice(undefined);
-        } else if('expenses' === field) {
-          setExpenses(undefined);
-        } else if ("total_surface" === field) {
-          setTotal_surface('');
-        } else if ("roofed_surface" === field) {
-          setRoofed_surface('');
-        }
-
-        return;
-      }
-      const parsed = parseInt(raw, 10);
-      if('price' === field) {
-        setPrice(isNaN(parsed) ? undefined : parsed);
-      } else if('expenses' === field) {
-        setExpenses(isNaN(parsed) ? undefined : parsed);
-      } else if ("total_surface" === field) {
-        setTotal_surface(isNaN(parsed) ? '' : parsed.toString());
-      } else if ("roofed_surface" === field) {
-        setRoofed_surface(isNaN(parsed) ? '' : parsed.toString());
-      }
-
-        return;
-    }
 
   const handleCounterChange = (key: RoomKey, delta: number) => {
     setRooms((prev) => {
@@ -487,7 +457,7 @@ export default function PublishEmprendimientoUnidades({
                   /> */}
                   <InputField
                     value={price !== undefined ? formatNumbers(Number(price)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, 'price')}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setPrice(value))}
                     placeholder={'Ej. 700000'}
                     type="text"
                     error={submitted && !price ? ' ' : ''}
@@ -515,7 +485,7 @@ export default function PublishEmprendimientoUnidades({
                   /> */  }
                   <InputField
                     value={expenses !== undefined ? formatNumbers(Number(expenses)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, 'expenses')}
+                    onChange={(event) => handleChangeNumbersInput(event, (value) => setExpenses(value))}
                     placeholder="Ej. 100000"
                     type="text"
                     disabled={withoutExpenses}
@@ -597,7 +567,7 @@ export default function PublishEmprendimientoUnidades({
                       placeholder="Ingresar superficie"
                       type="text"
                       value={Number(total_surface) ? `${formatNumbers(Number(total_surface))}` : ''}
-                      onChange={(event) => handleChangeNumbersInput(event, 'total_surface')}
+                      onChange={(event) => handleChangeNumbersInput(event, (value) => setTotal_surface(value))}
                       error={submitted && !total_surface ? ' ' : ''}
                     />
                   </div>
@@ -625,7 +595,7 @@ export default function PublishEmprendimientoUnidades({
                       placeholder="Ingresar superficie"
                       type="text"
                       value={Number(roofed_surface) ? `${formatNumbers(Number(roofed_surface))}` : ''}
-                      onChange={(event) => handleChangeNumbersInput(event, 'roofed_surface')}
+                      onChange={(event) => handleChangeNumbersInput(event, (value) => setRoofed_surface(value))}
                       error={submitted && !roofed_surface ? ' ' : ''}
                     />
                   </div>
