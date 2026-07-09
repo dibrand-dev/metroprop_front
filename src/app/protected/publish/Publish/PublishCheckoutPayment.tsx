@@ -82,7 +82,7 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-export default function PublishCheckoutPayment({
+export default function PublishCheckoutPayment({ 
   onNext,
   onBack,
   planToBuy,
