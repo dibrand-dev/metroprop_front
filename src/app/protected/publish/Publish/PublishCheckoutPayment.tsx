@@ -16,6 +16,21 @@ import Button from '@/ui/Button/Button';
 const MP_PUBLIC_KEY = 'TEST-8a741dc5-dc45-4271-be8b-501f9ef0107c';
 const MP_SDK_URL = 'https://sdk.mercadopago.com/js/v2';
 
+function mpCheckoutLog(step: string, data?: unknown) {
+  const timestamp = new Date().toISOString();
+  if (data !== undefined) {
+    console.log(`[MP-CHECKOUT][${timestamp}] ${step}`, data);
+  } else {
+    console.log(`[MP-CHECKOUT][${timestamp}] ${step}`);
+  }
+}
+
+function maskToken(token?: string): string {
+  if (!token) return '(empty)';
+  if (token.length <= 8) return '****';
+  return `${token.slice(0, 4)}...${token.slice(-4)} (len=${token.length})`;
+}
+
 declare global {
   interface Window {
     MercadoPago: new (publicKey: string, options?: { locale?: string }) => {
@@ -67,15 +82,16 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-export default function PublishCheckoutPayment({
+export default function PublishCheckoutPayment({ 
   onNext,
   onBack,
   planToBuy,
   branchID,
 }: PublishCheckoutPaymentProps) {
   const { data: session } = useSession();
-  const userId = session?.user?.id ?? '';
-  const userHasOrganization = session?.user?.organization != null;
+  const sessionUser = session?.user as { id?: number | string; organization?: unknown } | undefined;
+  const userId = sessionUser?.id ?? '';
+  const userHasOrganization = sessionUser?.organization != null;
   const [cardHolder, setCardHolder] = useState('');
   const [email, setEmail] = useState('');
   const [areaCode, setAreaCode] = useState('');
@@ -95,19 +111,34 @@ export default function PublishCheckoutPayment({
 
   // Load MercadoPago SDK
   useEffect(() => {
+    mpCheckoutLog('SDK init effect', {
+      MP_PUBLIC_KEY_PREFIX: MP_PUBLIC_KEY.slice(0, 16),
+      MP_PUBLIC_KEY_SUFFIX: MP_PUBLIC_KEY.slice(-8),
+      MP_PUBLIC_KEY_LEN: MP_PUBLIC_KEY.length,
+      isTestKey: MP_PUBLIC_KEY.startsWith('TEST-'),
+    });
+
     if (document.querySelector(`script[src="${MP_SDK_URL}"]`)) {
       if (window.MercadoPago) {
         mpRef.current = new window.MercadoPago(MP_PUBLIC_KEY, { locale: 'es-AR' });
+        mpCheckoutLog('SDK already loaded, MercadoPago instance created');
         setSdkReady(true);
+      } else {
+        mpCheckoutLog('SDK script tag exists but window.MercadoPago missing');
       }
       return;
     }
+    mpCheckoutLog('Loading MP SDK script', { url: MP_SDK_URL });
     const script = document.createElement('script');
     script.src = MP_SDK_URL;
     script.async = true;
     script.onload = () => {
       mpRef.current = new window.MercadoPago(MP_PUBLIC_KEY, { locale: 'es-AR' });
+      mpCheckoutLog('SDK script onload OK, MercadoPago instance created');
       setSdkReady(true);
+    };
+    script.onerror = (err) => {
+      mpCheckoutLog('SDK script onerror FAILED', err);
     };
     document.head.appendChild(script);
   }, []);
@@ -153,8 +184,26 @@ export default function PublishCheckoutPayment({
 
   const handleBuy = async () => {
     setSubmitError('');
-    if (!validate()) return;
+    mpCheckoutLog('handleBuy START', {
+      sdkReady,
+      userId,
+      userHasOrganization,
+      branchID,
+      planToBuy: planToBuy
+        ? { id: planToBuy.id, name: planToBuy.plan_name, price: planToBuy.price, currency: planToBuy.currency }
+        : null,
+      email,
+      documentType,
+      documentNumberMasked: documentNumber ? `${documentNumber.slice(0, 2)}***` : '',
+      cardLast4: cardNumber.replace(/\s/g, '').slice(-4) || 'n/a',
+    });
+
+    if (!validate()) {
+      mpCheckoutLog('handleBuy ABORT validation failed', errors);
+      return;
+    }
     if (!sdkReady || !mpRef.current) {
+      mpCheckoutLog('handleBuy ABORT SDK not ready', { sdkReady, hasMpInstance: !!mpRef.current });
       setSubmitError('El servicio de pago no está disponible aún. Intente nuevamente.');
       return;
     }
@@ -162,6 +211,15 @@ export default function PublishCheckoutPayment({
     setIsSubmitting(true);
     try {
       const expiryParts = expiryDate.split('/');
+      mpCheckoutLog('createCardToken START', {
+        cardholderName: cardHolder,
+        cardExpirationMonth: expiryParts[0],
+        cardExpirationYear: `20${expiryParts[1]}`,
+        identificationType: documentType,
+        identificationNumberMasked: documentNumber ? `${documentNumber.slice(0, 2)}***` : '',
+        cardLast4: cardNumber.replace(/\s/g, '').slice(-4),
+      });
+
       const tokenResult = await mpRef.current.createCardToken({
         cardNumber: cardNumber.replace(/\s/g, ''),
         cardholderName: cardHolder,
@@ -172,46 +230,92 @@ export default function PublishCheckoutPayment({
         identificationNumber: documentNumber,
       });
 
+      mpCheckoutLog('createCardToken SUCCESS', {
+        token: maskToken(tokenResult.id),
+        tokenResultKeys: Object.keys(tokenResult),
+        tokenResult,
+      });
+
       // Get payment method from card BIN (first 6 digits)
       const bin = cardNumber.replace(/\s/g, '').substring(0, 6);
-      const binResponse = await fetch(
-        `https://api.mercadopago.com/v1/payment_methods/search?public_key=${MP_PUBLIC_KEY}&bins=${bin}`
-      );
+      const binUrl = `https://api.mercadopago.com/v1/payment_methods/search?public_key=${MP_PUBLIC_KEY}&bins=${bin}`;
+      mpCheckoutLog('BIN lookup START', { bin, binUrl: binUrl.replace(MP_PUBLIC_KEY, `${MP_PUBLIC_KEY.slice(0, 12)}...`) });
+
+      const binResponse = await fetch(binUrl);
+      mpCheckoutLog('BIN lookup HTTP response', {
+        status: binResponse.status,
+        statusText: binResponse.statusText,
+        ok: binResponse.ok,
+      });
+
       const binData = await binResponse.json();
+      mpCheckoutLog('BIN lookup parsed', binData);
+
       const paymentMethod = binData?.results?.[0];
       const paymentMethodId = paymentMethod?.id;
       if (!paymentMethodId) {
+        mpCheckoutLog('BIN lookup FAILED no payment method', binData);
         throw new Error('No se pudo determinar el método de pago para esta tarjeta');
       }
 
       const issuerId = paymentMethod?.issuer?.id;
+      mpCheckoutLog('BIN lookup SUCCESS', {
+        paymentMethodId,
+        issuerId: issuerId ?? 'n/a',
+        paymentMethodName: paymentMethod?.name,
+      });
 
-      await apiFetch(`${API_BASE_URL}/plans/${userHasOrganization ? `branch/${branchID}` : `user/${userId}`}`, {
-        method: 'POST',
+      const endpoint = `${API_BASE_URL}/plans/${userHasOrganization ? `branch/${branchID}` : `user/${userId}`}`;
+      const requestBody = {
+        transaction_amount: planToBuy?.price ?? 0,
+        token: tokenResult.id,
+        description: planToBuy?.plan_name ?? 'Plan',
+        installments: 1,
+        payment_method_id: paymentMethodId,
+        ...(issuerId != null ? { issuer_id: Number(issuerId) } : {}),
+        payer: {
+          email,
+          identification: {
+            type: documentType,
+            number: documentNumber,
+          },
+          phone: {
+            area_code: areaCode,
+            number: phone,
+          },
+        },
+        planId: planToBuy?.id,
+      };
+
+      mpCheckoutLog('apiFetch START', {
+        endpoint,
         body: {
-          transaction_amount: planToBuy?.price ?? 0,
-          token: tokenResult.id,
-          description: planToBuy?.plan_name ?? 'Plan',
-          installments: 1,
-          payment_method_id: paymentMethodId,
-          ...(issuerId != null ? { issuer_id: Number(issuerId) } : {}),
+          ...requestBody,
+          token: maskToken(requestBody.token),
           payer: {
-            email,
+            ...requestBody.payer,
             identification: {
-              type: documentType,
-              number: documentNumber,
-            },
-            phone: {
-              area_code: areaCode,
-              number: phone,
+              type: requestBody.payer.identification.type,
+              number: `${requestBody.payer.identification.number.slice(0, 2)}***`,
             },
           },
-          planId: planToBuy?.id,
         },
       });
 
+      const apiResult = await apiFetch(endpoint, {
+        method: 'POST',
+        body: requestBody,
+      });
+
+      mpCheckoutLog('apiFetch SUCCESS', apiResult);
       onNext();
     } catch (err: unknown) {
+      mpCheckoutLog('handleBuy ERROR', {
+        error: err,
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+      });
+
       const message = err instanceof Error ? err.message : '';
       if (message.includes('205') || message.includes('cardNumber')) {
         setErrors((prev) => ({ ...prev, cardNumber: 'El número de tarjeta no es válido' }));
