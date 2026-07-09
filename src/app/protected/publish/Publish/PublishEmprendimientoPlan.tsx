@@ -224,8 +224,7 @@ export default function PublishPlansEmprendimiento({
               >
                 <span className="publish-plans-radio-dot" />
                 <span className="publish-plans-radio-title">{plan.plan_name}</span>
-                <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.available}</span>
-                <span className="publish-plans-radio-vencimiento">Vencimiento: {plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
+                <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.available}</span>                
               </button>
             ))}
           </div>

@@ -63,7 +63,7 @@ interface ApiFetchOptions<TBody = unknown> {
 export async function apiFetch<TResponse = unknown, TBody = unknown>(
   url: string,
   options: ApiFetchOptions<TBody> = {},
-): Promise<TResponse> | false {
+): Promise<TResponse> {
   const { method = 'GET', body, params, token: explicitToken } = options;
   // ── Resolve auth token ────────────────────────────────────────────────────
   let token = explicitToken;

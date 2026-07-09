@@ -30,7 +30,7 @@ const items: SubmenuItem[] = [
   { id: 'all-properties', label: 'Todas las Propiedades', href: "/protected/admin/properties", roles: [4] },
   { id: 'datos_inmobiliaria', label: 'Datos de inmobiliaria', href: "/protected/admin/organization", roles: [1] },
   { id: 'sucursales', label: 'Sucursales', href: "/protected/admin/branches", roles: [1] },
-  { id: 'destaques', label: 'Destaques', href: "/protected/admin/highlights", roles: [1] },
+  { id: 'destaques', label: 'Destaques', href: "/protected/admin/highlights", condition: (user) => user?.role_id === 1 || (user?.role_id === 3 && !user?.organization) },
   { id: 'colaboradores', label: 'Colaboradores', href: "/protected/admin/collaborators", roles: [1] },
   // { id: 'leads', label: 'Interesados', href: "/protected/admin/leadsBack", roles: [1, 3] },
   { id: 'datos', label: 'Datos', href: "/protected/admin/profile", roles: [1, 2, 3, 4] },

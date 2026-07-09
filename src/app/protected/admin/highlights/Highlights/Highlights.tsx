@@ -5,7 +5,7 @@ import './Highlights.scss';
 import { useAdminMenu } from '../../AdminLayoutClient';
 import Select from '@/ui/Select/Select';
 import { useSession } from 'next-auth/react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
 import { API_BASE_URL } from '@/utils/utils';
 
@@ -20,12 +20,37 @@ export default function Highlights() {
   const [branchFilter, setBranchFilter] = useState('todas');
 
   const orgId = (sessionData?.user as any)?.organization?.id ?? null;
+  const user_id = (sessionData?.user as any)?.id ?? null;
+
+  const queryClient = useQueryClient();
+
+  const cancelPlanMutation = useMutation({
+    mutationFn: (purchasedPlanId: number) =>
+      apiFetch(
+        orgId
+          ? `${API_BASE_URL}/plans/branch-plan/${purchasedPlanId}/cancel`
+          : `${API_BASE_URL}/plans/user-plan/${purchasedPlanId}/cancel`,
+        { method: 'PATCH' },
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['branch-plans-all'] });
+      queryClient.invalidateQueries({ queryKey: ['user-plans'] });
+    },
+  });
 
   const { data: fetchedBranches = [] } = useQuery<any[]>({
     queryKey: ['branches', orgId],
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/branches/organization/${orgId}`),
     enabled: !!orgId,
   });
+
+  // user plans are fetched only if user_id is available and orgId is not set  
+  const { data: userPlans = [], isLoading: loadingUserPlans } = useQuery<any[]>({
+    queryKey: ['user-plans', user_id],
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${user_id}/availability`),
+    enabled: !!user_id && !orgId,
+  });
+
   const branches: any[] = Array.isArray(fetchedBranches) ? fetchedBranches : [];
   const branchOptions = [
     { value: 'todas', label: 'Todas' },
@@ -47,9 +72,12 @@ export default function Highlights() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const activePlans = orgId ? allBranchPlans : userPlans;
+  console.log("activePlans", activePlans);
   const showAll = branchFilter === 'todas';
+  console.log("showAll", showAll);
   const filteredPlans = allBranchPlans.find((e) => String(e.branchId) === branchFilter)?.plans ?? [];
-
+  console.log("filteredPlans", filteredPlans);
   return (
       <div className={`highlights-container ${showMenu ? 'mobile-hidden' : ''}`}>
         <div className="highlights-mobile-header">
@@ -70,17 +98,57 @@ export default function Highlights() {
             <p>{highlightDescription}</p>
           </div>
 
-          <div className="highlights-filter">
-            <Select
-              label="Sucursal"
-              value={branchFilter}
-              onChange={(value) => setBranchFilter(value)}
-              options={branchOptions}
-            />
-          </div>
+          {orgId && (
+            <div className="highlights-filter">
+              <Select
+                label="Sucursal"
+                value={branchFilter}
+                onChange={(value) => setBranchFilter(value)}
+                options={branchOptions}
+              />
+            </div>
+          )}
 
           <div className="highlights-list">
-            {showAll ? (
+            {!orgId ? (
+              <div className="highlights-card">
+                <div className="highlights-table">
+                  <div className="highlights-row highlights-row-header">
+                    <span>Productos</span>
+                    <span>Contratados</span>
+                    <span>Usados</span>
+                    <span>Disponibles</span>
+                    <span>Fecha de contratación</span>
+                    <span>Acciones</span>
+                  </div>
+                  {loadingUserPlans && (
+                    <div className="highlights-row"><span>Cargando...</span></div>
+                  )}
+                  {!loadingUserPlans && userPlans.length === 0 && (
+                    <div className="highlights-row"><span>Sin productos disponibles</span></div>
+                  )}
+                  {userPlans.map((plan: any, idx: number) => (
+                    <div key={plan.purchased_plan_id ?? idx} className="highlights-row">
+                      <span>{plan.plan_name}</span>
+                      <span>{plan.highlight_limit ?? '-'}</span>
+                      <span>{plan.used ?? '-'}</span>
+                      <span>{plan.available ?? '-'}</span>
+                      <span>{plan.start_date && !isNaN(new Date(plan.start_date).getTime()) ? new Date(plan.start_date).toLocaleDateString("es-ES") : '-'}</span>
+                      <span>
+                        <button
+                          type="button"
+                          className="highlights-cancel-button"
+                          onClick={() => cancelPlanMutation.mutate(plan.purchased_plan_id)}
+                          disabled={cancelPlanMutation.isPending || plan.purchased_plan_id == null}
+                        >
+                          Dar de baja
+                        </button>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : showAll ? (
               <>
                 {loadingAllPlans && (
                   <div className="highlights-card"><div className="highlights-row"><span>Cargando...</span></div></div>
@@ -98,7 +166,7 @@ export default function Highlights() {
                           <span>Usados</span>
                           <span>Disponibles</span>
                           <span>Fecha de contratación</span>
-                          <span>Fecha de finalización</span>
+                          <span>Acciones</span>
                         </div>
                         {branchPlans.length === 0 && (
                           <div className="highlights-row"><span>Sin productos disponibles</span></div>
@@ -110,7 +178,16 @@ export default function Highlights() {
                             <span>{plan.used ?? '-'}</span>
                             <span>{plan.available ?? '-'}</span>
                             <span>{plan.start_date && !isNaN(new Date(plan.start_date).getTime()) ? new Date(plan.start_date).toLocaleDateString("es-ES") : '-'}</span>
-                            <span>{plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
+                            <span>
+                              <button
+                                type="button"
+                                className="highlights-cancel-button"
+                                onClick={() => cancelPlanMutation.mutate(plan.purchased_plan_id)}
+                                disabled={cancelPlanMutation.isPending || plan.purchased_plan_id == null}
+                              >
+                                Dar de baja
+                              </button>
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -128,7 +205,7 @@ export default function Highlights() {
                   <span>Usados</span>
                   <span>Disponibles</span>
                   <span>Fecha de contratación</span>
-                  <span>Fecha de finalización</span>
+                  <span>Acciones</span>
                 </div>
                 {loadingAllPlans && (
                   <div className="highlights-row"><span>Cargando...</span></div>
@@ -143,7 +220,16 @@ export default function Highlights() {
                     <span>{plan.used ?? '-'}</span>
                     <span>{plan.available ?? '-'}</span>
                     <span>{plan.start_date && !isNaN(new Date(plan.start_date).getTime()) ? new Date(plan.start_date).toLocaleDateString("es-ES") : '-'}</span>
-                    <span>{plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
+                    <span>
+                      <button
+                        type="button"
+                        className="highlights-cancel-button"
+                        onClick={() => cancelPlanMutation.mutate(plan.purchased_plan_id)}
+                        disabled={cancelPlanMutation.isPending || plan.purchased_plan_id == null}
+                      >
+                        Dar de baja
+                      </button>
+                    </span>
                   </div>
                 ))}
               </div>
