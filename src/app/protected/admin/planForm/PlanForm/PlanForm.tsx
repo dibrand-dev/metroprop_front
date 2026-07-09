@@ -109,10 +109,10 @@ export default function PlanForm({ planId }: PlanFormProps) {
     const errors = { name: '', description: '', price: '', currency: '', propertyLimit: '', highlightLimit: '', userType: '' };
     if (!name.trim()) errors.name = 'El nombre es requerido';
     if (!description.trim()) errors.description = 'La descripción es requerida';
-    if (!price.trim()) errors.price = 'El precio es requerido';
+    if (parseFloat(price) <= 0) errors.price = 'El precio es requerido';
     if (!currency.trim()) errors.currency = 'La moneda es requerida';
-    if (!propertyLimit.trim()) errors.propertyLimit = 'El nivel de prioridad es requerido';
-    if (!highlightLimit.trim()) errors.highlightLimit = 'El límite de destacados es requerido';
+    if (parseFloat(propertyLimit) <= 0) errors.propertyLimit = 'El nivel de prioridad es requerido';
+    if (parseFloat(highlightLimit) <= 0) errors.highlightLimit = 'El límite de destacados es requerido';
     if (!userType) errors.userType = 'El tipo de usuario es requerido';
 
     if (errors.name || errors.description || errors.price || errors.currency || errors.propertyLimit || errors.highlightLimit || errors.userType) {
