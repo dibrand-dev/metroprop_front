@@ -186,6 +186,12 @@
     gap: 8px;
     padding: 16px 16px 0 16px;
   }
+
+   &:hover .favorite-highlighted-container:hover {
+      svg path {
+          fill: #fff;
+      }
+  }
 }
 
 .ambients {
@@ -230,6 +236,8 @@
   }
 
   &:hover .favorite-highlighted-container {
-    color: #fff;
+    svg path {
+        fill: #fff;
+    }
   }
 }
