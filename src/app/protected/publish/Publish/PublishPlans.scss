@@ -222,31 +222,23 @@
   border-radius: 8px;
   border: 1.3px solid #a6a6a6;
   padding: 16px 24px;
-  background: #ffffff;
+  background: #ebf2fd;
   display: flex;
   gap: 24px;
   align-items: center;
   text-align: left;
   cursor: pointer;
-  
   font-size: 16px;
   color: #1e1e1e;
-
-  &.is-highlighted {
-    background: #ebf2fd;
-  }
-
-  &.is-selected {
-    border-color: #006aff;
-  }
-
+  
   .publish-plans-radio-dot {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    border: 1.3px solid #006aff;
-    background: #006aff;
+    border: 1.3px solid #a6a6a6;
+    background: #fff;
     position: relative;
+    
 
     &::after {
       content: '';
@@ -257,10 +249,15 @@
     }
   }
 
+  &.is-selected {
+    .publish-plans-radio-dot {
+      background-color: #006aff;
+    }
+  }
+
   .publish-plans-radio-title {
     width: 20%;
   }
-  
 }
 
 .publish-plans-radio-subtitle {
