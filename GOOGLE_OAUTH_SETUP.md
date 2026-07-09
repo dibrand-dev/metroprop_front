@@ -20,7 +20,7 @@ Google OAuth login has been implemented on the login page. Follow these steps to
    ```bash
    cp .env.local.example .env.local
    ```
-
+ 
 2. Update `.env.local` with your credentials:
    ```env
    GOOGLE_CLIENT_ID=your_client_id_here
