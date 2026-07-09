@@ -51,39 +51,19 @@ function buildHistogramBars(prices: number[], bucketSize: number, capMax?: numbe
   if (prices.length === 0) return [];
   // Clamp prices to capMax so everything >= capMax falls in the last bar
   const clamped = capMax != null ? prices.map(p => Math.min(p, capMax)) : prices;
-  let min = clamped[0];
-  let max = clamped[0];
-  for (let i = 1; i < clamped.length; i++) {
-    if (clamped[i] < min) min = clamped[i];
-    if (clamped[i] > max) max = clamped[i];
-  }
-  if (min === max) return [HIST_BAR_MAX_HEIGHT];
-  // Always count by the requested bucketSize (e.g. 1000)
-  const bucketStart = Math.floor(min / bucketSize) * bucketSize;
-  const bucketEnd = Math.ceil(max / bucketSize) * bucketSize;
-  const bucketCount = Math.round((bucketEnd - bucketStart) / bucketSize);
-  const counts = new Array(bucketCount).fill(0);
+  const rangeMax = capMax ?? Math.ceil(Math.max(...clamped) / bucketSize) * bucketSize;
+  // Always produce exactly HIST_MAX_BARS buckets over [0, rangeMax] so bar width never changes
+  const bucketWidth = rangeMax / HIST_MAX_BARS;
+  const counts = new Array(HIST_MAX_BARS).fill(0);
   for (const p of clamped) {
-    const idx = Math.min(Math.floor((p - bucketStart) / bucketSize), bucketCount - 1);
+    if (p <= 0) continue;
+    const idx = Math.min(Math.floor(p / bucketWidth), HIST_MAX_BARS - 1);
     counts[idx]++;
   }
-  // Downsample to HIST_MAX_BARS for display if needed
-  let display = counts;
-  if (counts.length > HIST_MAX_BARS) {
-    const ratio = counts.length / HIST_MAX_BARS;
-    display = [];
-    for (let i = 0; i < HIST_MAX_BARS; i++) {
-      const from = Math.round(i * ratio);
-      const to = Math.round((i + 1) * ratio);
-      let sum = 0;
-      for (let j = from; j < to; j++) sum += counts[j];
-      display.push(sum);
-    }
-  }
   let maxCount = 0;
-  for (const c of display) { if (c > maxCount) maxCount = c; }
-  if (maxCount === 0) return display.map(() => 0);
-  return display.map(c => c > 0 ? Math.max(2, Math.round((c / maxCount) * HIST_BAR_MAX_HEIGHT)) : 0);
+  for (const c of counts) { if (c > maxCount) maxCount = c; }
+  if (maxCount === 0) return counts.map(() => 0);
+  return counts.map(c => c > 0 ? Math.max(2, Math.round((c / maxCount) * HIST_BAR_MAX_HEIGHT)) : 0);
 }
 
 const PRECIO_USD_MAX = 1_000_000;
@@ -349,10 +329,10 @@ function PriceRangeSlider({
   const toPct = ((toVal - min) / (max - min)) * 100;
   const fillLeft = Math.min(fromPct, toPct);
   const fillRight = 100 - Math.max(fromPct, toPct);
-
   const noRealData = histBars.length === 0;
   const displayBars = noRealData ? PLACEHOLDER_HIST_BARS : histBars;
   const FILLER_HEIGHTS = [3, 35, 2, 17, 24, 66, 23, 48, 55, 64, 37, 3, 6, 22, 45, 28, 24, 43, 6, 5];
+
   return (
     <div className="precio-slider-wrapper">
       <div className="precio-histogram">
