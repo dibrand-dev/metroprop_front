@@ -259,7 +259,7 @@ export default function PublishPlansEmprendimiento({
                       Destaques: {plan.highlight_limit}
                     </li>
                   </ul>
-                  <Button label="Comprar" type="button" onClick={() => handleComprar(plan)} />
+                  <Button label="Comprar" type="button" onClick={() => handleComprar(plan)} disabled={hired_plan_id === undefined || (orgId && !isRole3 && (branchFilter === '' || (fetchedBranches.length > 0 && user_id === undefined)))} />
                 </div>
               ))}
             </div>

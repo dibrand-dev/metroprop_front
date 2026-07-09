@@ -294,7 +294,7 @@ export default function PublishPlans({
                           Destaques: {plan.highlight_limit}
                         </li>
                       </ul>
-                      <Button label="Comprar" type="button" onClick={() => handleComprar(plan)} />
+                      <Button label="Comprar" type="button" onClick={() => handleComprar(plan)} disabled={continueDisabled} />
                     </div>
                   ))}
                 </div>
