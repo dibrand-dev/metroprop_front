@@ -818,6 +818,7 @@
     padding: 24px 16px;
     overflow-y: auto;
     flex: 1;
+    min-height: 0;
   }
 
   .filtros-top-row {
@@ -899,7 +900,8 @@
     gap: 32px;
     padding: 24px 16px;
     overflow-y: auto;
-    max-height: calc(100vh - 160px);
+    flex: 1;
+    min-height: 0;
   }
 
   .precio-section {
