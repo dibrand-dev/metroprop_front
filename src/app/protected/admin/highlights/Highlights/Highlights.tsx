@@ -4,6 +4,7 @@ import { useState } from 'react';
 import './Highlights.scss';
 import { useAdminMenu } from '../../AdminLayoutClient';
 import Select from '@/ui/Select/Select';
+import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import { useSession } from 'next-auth/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/apiFetch';
@@ -18,6 +19,7 @@ export default function Highlights() {
   const { data: sessionData } = useSession();
   const { showMenu, setShowMenu } = useAdminMenu();
   const [branchFilter, setBranchFilter] = useState('todas');
+  const [planToCancel, setPlanToCancel] = useState<number | null>(null);
 
   const orgId = (sessionData?.user as any)?.organization?.id ?? null;
   const user_id = (sessionData?.user as any)?.id ?? null;
@@ -35,6 +37,7 @@ export default function Highlights() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['branch-plans-all'] });
       queryClient.invalidateQueries({ queryKey: ['user-plans'] });
+      setPlanToCancel(null);
     },
   });
 
@@ -138,7 +141,7 @@ export default function Highlights() {
                         <button
                           type="button"
                           className="highlights-cancel-button"
-                          onClick={() => cancelPlanMutation.mutate(plan.purchased_plan_id)}
+                          onClick={() => setPlanToCancel(plan.purchased_plan_id)}
                           disabled={cancelPlanMutation.isPending || plan.purchased_plan_id == null}
                         >
                           Dar de baja
@@ -182,7 +185,7 @@ export default function Highlights() {
                               <button
                                 type="button"
                                 className="highlights-cancel-button"
-                                onClick={() => cancelPlanMutation.mutate(plan.purchased_plan_id)}
+                                onClick={() => setPlanToCancel(plan.purchased_plan_id)}
                                 disabled={cancelPlanMutation.isPending || plan.purchased_plan_id == null}
                               >
                                 Dar de baja
@@ -224,7 +227,7 @@ export default function Highlights() {
                       <button
                         type="button"
                         className="highlights-cancel-button"
-                        onClick={() => cancelPlanMutation.mutate(plan.purchased_plan_id)}
+                        onClick={() => setPlanToCancel(plan.purchased_plan_id)}
                         disabled={cancelPlanMutation.isPending || plan.purchased_plan_id == null}
                       >
                         Dar de baja
@@ -237,6 +240,17 @@ export default function Highlights() {
             )}
           </div>
         </div>
+
+        {planToCancel != null && (
+          <AreYouSureModal
+            title="Dar de baja plan"
+            text="¿Estás seguro de que deseas dar de baja este plan? Esta acción no se puede deshacer."
+            acceptText="Dar de baja"
+            cancelText="Cancelar"
+            onAccept={() => cancelPlanMutation.mutate(planToCancel)}
+            onCancel={() => setPlanToCancel(null)}
+          />
+        )}
       </div>
   );
 }
