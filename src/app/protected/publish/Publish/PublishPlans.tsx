@@ -47,7 +47,6 @@ export default function PublishPlans({
     queryKey: ['plans'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/plans/`),
     staleTime: 0,
-    cacheTime: 0,
     refetchOnMount: 'always',
   });
 
@@ -85,6 +84,8 @@ export default function PublishPlans({
     queryKey: ['collaborators-users'],
     queryFn: () => apiFetch<any>(`${API_BASE_URL}/users`),
     enabled: !!orgId,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const rawData: any = usersData;
@@ -102,12 +103,16 @@ export default function PublishPlans({
     queryKey: ['branch-plans', branchFilter],
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/branch/${branchFilter}/availability`),
     enabled: !!branchFilter && !!orgId,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const { data: userPlans = [], isLoading: loadingUserPlans } = useQuery<any[]>({
     queryKey: ['user-plans', user_id],
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${user_id}/availability`),
     enabled: !!user_id && !orgId,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const activePlans = orgId ? branchPlans : userPlans;
