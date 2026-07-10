@@ -13,7 +13,7 @@ import { API_BASE_URL } from '@/utils/utils';
 import Button from '@/ui/Button/Button';
 
 // ─── MercadoPago configuration ────────────────────────────────────────────────
-const MP_PUBLIC_KEY = 'TEST-8a741dc5-dc45-4271-be8b-501f9ef0107c';
+const MP_PUBLIC_KEY = process.env.MERCADOLIBRE_ACCESS_TOKEN || 'APP_USR-eef34a31-a4e3-47c7-b2b0-e6b54d6782c6'; // Default to a placeholder if not set
 const MP_SDK_URL = 'https://sdk.mercadopago.com/js/v2';
 
 function mpCheckoutLog(step: string, data?: unknown) {
