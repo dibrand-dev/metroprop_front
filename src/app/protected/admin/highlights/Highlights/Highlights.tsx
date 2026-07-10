@@ -133,16 +133,18 @@ export default function Highlights() {
                       <span>{plan.used ?? '-'}</span>
                       <span>{plan.available ?? '-'}</span>
                       <span>{plan.start_date && !isNaN(new Date(plan.start_date).getTime()) ? new Date(plan.start_date).toLocaleDateString("es-ES") : '-'}</span>
-                      <span>
-                        <button
-                          type="button"
-                          className="highlights-cancel-button"
-                          onClick={() => setPlanToCancel(plan.purchased_plan_id)}
-                          disabled={cancelPlanMutation.isPending || plan.purchased_plan_id == null}
-                        >
-                          Dar de baja
-                        </button>
-                      </span>
+                      {plan.end_date && !isNaN(new Date(plan.end_date).getTime())
+                      ? <span>{ new Date(plan.end_date).toLocaleDateString("es-ES")}</span>
+                      : <span>
+                          <button
+                            type="button"
+                            className="highlights-cancel-button"
+                            onClick={() => setPlanToCancel(plan.purchased_plan_id)}
+                            disabled={cancelPlanMutation.isPending || plan.purchased_plan_id == null}
+                          >
+                            Dar de baja
+                          </button>
+                        </span>}
                     </div>
                   ))}
                 </div>
