@@ -208,6 +208,7 @@ export default function Highlights() {
                   <span>Usados</span>
                   <span>Disponibles</span>
                   <span>Fecha de contratación</span>
+                  <span>Fecha de finalización</span>
                   <span>Acciones</span>
                 </div>
                 {loadingAllPlans && (
@@ -223,7 +224,8 @@ export default function Highlights() {
                     <span>{plan.used ?? '-'}</span>
                     <span>{plan.available ?? '-'}</span>
                     <span>{plan.start_date && !isNaN(new Date(plan.start_date).getTime()) ? new Date(plan.start_date).toLocaleDateString("es-ES") : '-'}</span>
-                    <span>
+                    <span>{plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>                            
+                    <span>{(plan.end_date === undefined || plan.end_date == null || plan.end_date === '') && (
                       <button
                         type="button"
                         className="highlights-cancel-button"
@@ -232,7 +234,7 @@ export default function Highlights() {
                       >
                         Dar de baja
                       </button>
-                    </span>
+                    )}</span>
                   </div>
                 ))}
               </div>
