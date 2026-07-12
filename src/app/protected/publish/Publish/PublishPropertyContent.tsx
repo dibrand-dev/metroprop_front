@@ -332,7 +332,6 @@ export default function PublishPropertyContent({
                     type="text"
                   />
                 </div>)}
-
                 {(wizardData.property_type == PropertyType.TERRENO) && <div className="publish-property-content-detail-field">
                   <InputField
                     label="F.O.T"
@@ -342,9 +341,7 @@ export default function PublishPropertyContent({
                     type="text"
                   />
                 </div>}
-              </div>
-                <div className="publish-property-content-inputs">
-                  {(wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.PH) && (
+                {(wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.PH) && (
                   <div className="publish-property-content-detail-field">
                     <Select
                       label="Orientación"

@@ -251,7 +251,7 @@ export default function PublishPlans({
                 {!loadingActivePlans && (orgId ? branchFilter !== '' : true) && activePlans.length === 0 && (
                   <p style={{ fontSize: 13, color: '#888' }}>No hay planes disponibles.</p>
                 )}
-                {activePlans.map((plan) => (
+                {activePlans.map((plan) => ( plan.available > 0 || plan.purchased_plan_id === purchased_plan_id) && (
                   <button
                     key={plan.purchased_plan_id}
                     type="button"
@@ -264,7 +264,7 @@ export default function PublishPlans({
                   >
                     <span className="publish-plans-radio-dot" />
                     <span className="publish-plans-radio-title">{plan.plan_name}</span>
-                    <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.available ?? '-'}</span>                    
+                    <span className="publish-plans-radio-subtitle">Cantidad disponible: {purchased_plan_id === plan.purchased_plan_id ? plan.available + 1 : plan.available ?? '-'}</span>                    
                   </button>
                 ))}
               </div>

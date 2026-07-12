@@ -37,6 +37,8 @@ export default function Highlights() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['branch-plans-all', 'user-plans'] });
       setPlanToCancel(null);
+      if (orgId) refetchBranches();
+      else refetchUserPlans();
     },
   });
 
@@ -47,7 +49,7 @@ export default function Highlights() {
   });
 
   // user plans are fetched only if user_id is available and orgId is not set  
-  const { data: userPlans = [], isLoading: loadingUserPlans } = useQuery<any[]>({
+  const { data: userPlans = [], isLoading: loadingUserPlans, refetch: refetchUserPlans } = useQuery<any[]>({
     queryKey: ['user-plans', user_id],
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${user_id}/availability`),
     enabled: !!user_id && !orgId,
@@ -59,7 +61,7 @@ export default function Highlights() {
     ...branches.map((b: any) => ({ value: String(b.id), label: b.branch_name ?? b.name ?? String(b.id) })),
   ];
 
-  const { data: allBranchPlans = [], isLoading: loadingAllPlans } = useQuery<{ branchId: number; plans: any[] }[]>({
+  const { data: allBranchPlans = [], isLoading: loadingAllPlans, refetch: refetchBranches } = useQuery<{ branchId: number; plans: any[] }[]>({
     queryKey: ['branch-plans-all', branches.map((b: any) => b.id).join(',')],
     queryFn: async () => {
       const results = await Promise.all(
@@ -71,7 +73,7 @@ export default function Highlights() {
       return results;
     },
     enabled: branches.length > 0,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
   const showAll = branchFilter === 'todas';
