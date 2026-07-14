@@ -193,7 +193,7 @@ export default function PublishFinalReview({
     if (wizardData?.semiroofed_surface && wizardData.semiroofed_surface > 0)  result[4].push(`Superficie semicubierta: ${formatNumbers(wizardData.semiroofed_surface)} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement ?? ''}`);
     if (wizardData?.surface_front && wizardData.surface_front > 0)  result[4].push(`Frente: ${formatNumbers(wizardData.surface_front)} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement ?? ''}`);
     if (wizardData?.surface_length)  result[4].push(`Fondo: ${formatNumbers(wizardData.surface_length)} ${wizardData.surface_measurement === 'M2' ? 'm²' : wizardData.surface_measurement ?? ''}`);
-    if (wizardData?.disposition)  result[4].push(`Orientación: ${DispositionLabels[wizardData.disposition] ?? wizardData.disposition}`);
+    if (wizardData?.disposition)  result[4].push(`Disposición: ${DispositionLabels[wizardData.disposition] ?? wizardData.disposition}`);
     if (wizardData?.floors_in_building && wizardData.floors_in_building > 0)  result[4].push(`Cantidad de pisos en edificio: ${formatNumbers(wizardData.floors_in_building)}`);
     if (wizardData?.business_type)  result[4].push(`Tipo de rubro: ${wizardData.business_type}`);
     if (wizardData?.number_of_guests)  result[4].push(`Cantidad de huéspedes: ${wizardData.number_of_guests}`);

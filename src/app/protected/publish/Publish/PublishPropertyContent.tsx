@@ -344,7 +344,7 @@ export default function PublishPropertyContent({
                 {(wizardData.property_type == PropertyType.DEPARTAMENTO || wizardData.property_type == PropertyType.PH) && (
                   <div className="publish-property-content-detail-field">
                     <Select
-                      label="Orientación"
+                      label="Disposición"
                       options={DISPOSITION_OPTIONS}
                       placeholder="Selecciona una opción"
                       value={disposition ?? null}
