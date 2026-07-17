@@ -74,7 +74,7 @@ export default function PublishEmprendimientoUnidades({
   const [pendingDeleteId, setPendingDeleteId] = useState<number | undefined>(undefined);
 
 
-  const isFormValid = publication_title.trim() !== '' && !!property_type && !!total_surface && !!roofed_surface && hasImages;
+  const isFormValid = publication_title.trim() !== '' && !!property_type && !!total_surface && total_surface !== '' && !!roofed_surface && roofed_surface !== '' && hasImages;
   const isDirty = publication_title.trim() !== '' || !!property_type || !!total_surface || !!roofed_surface || hasImages || !!price || description.trim() !== '';
 
   const getUnitThumbnail = (unit: CreateProperty): string | undefined => {

@@ -25,7 +25,6 @@
     width: 100%;
     padding: 24px;
     @media (max-width: 768px) {
-      max-width: 390px;
       padding: 1.5rem 1rem;
       background: #f5f5f5;
       border-radius: 8px;
@@ -269,10 +268,7 @@
 
   // Mobile specific styles
   @media (max-width: 768px) {
-    &-card {
-      margin-top: 80px; // Account for mobile header
-    }
-
+   
     &-inner {
       align-items: flex-start;
       padding-top: 1rem;

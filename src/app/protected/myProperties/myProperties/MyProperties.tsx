@@ -543,8 +543,8 @@ console.log("hasOrganization", hasOrganization)
                   <p className="myprop-overview-empty">Cargando planes...</p>
                 )}
 
-                {((!loadingBranchOverviewPlans && (branchOverviewPlans.length === 0)) || 
-                  (!loadingUserPlans && (userPlans.length === 0))) && (
+                {((hasOrganization && !loadingBranchOverviewPlans && (branchOverviewPlans.length === 0)) || 
+                  (!hasOrganization && !loadingUserPlans && (userPlans.length === 0))) && (
                   <p className="myprop-overview-empty">Sin productos disponibles</p>
                 )}
 

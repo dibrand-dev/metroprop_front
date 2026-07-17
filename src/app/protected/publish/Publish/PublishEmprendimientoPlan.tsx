@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './PublishEmprendimientoPlan.scss';
 import Select from '@/ui/Select/Select';
 import { CreatePropertyDraft } from '@/types/propiedad';
@@ -36,7 +36,19 @@ export default function PublishPlansEmprendimiento({
   const [visibility, setVisibility] = useState(wizardData.visibility || 0);
   const [purchased_plan_id, setPurchased_plan_id] = useState(wizardData.purchased_plan_id || 0);
   const [branchFilter, setBranchFilter] = useState(wizardData.branch_id?.toString() || '');
+  // Plan que la propiedad tenía originalmente. Se captura una sola vez para que el +1
+  // de disponibilidad siempre aplique al plan en uso original, sin importar qué plan
+  // se seleccione luego en el formulario.
+  const [originalPurchasedPlanId, setOriginalPurchasedPlanId] = useState(0);
+  const originalPurchasedCaptured = useRef(false);
   const { data: sessionData } = useSession();
+
+  useEffect(() => {
+    if (!originalPurchasedCaptured.current && wizardData.purchased_plan_id) {
+      setOriginalPurchasedPlanId(wizardData.purchased_plan_id);
+      originalPurchasedCaptured.current = true;
+    }
+  }, [wizardData.purchased_plan_id]);
 
   const { data:plansData , isLoading, isError } = useQuery<Plan[]>({
     queryKey: ['plans'],
@@ -109,7 +121,13 @@ export default function PublishPlansEmprendimiento({
     refetchOnMount: 'always',
   });
 
-  const activePlans = orgId ? branchPlans : userPlans;
+  // El plan que la propiedad ya tenía en uso (originalPurchasedPlanId) libera un cupo
+  // al editar, por eso se le suma +1 directamente a su disponibilidad.
+  const activePlans = (orgId ? branchPlans : userPlans).map((plan) =>
+    plan.purchased_plan_id === originalPurchasedPlanId
+      ? { ...plan, available: (plan.available ?? 0) + 1 }
+      : plan
+  );
   const loadingActivePlans = orgId ? loadingPlans : loadingUserPlans;
 
   const collaboratorOptions = rawUsers
@@ -216,7 +234,7 @@ export default function PublishPlansEmprendimiento({
             {!loadingActivePlans && (orgId ? branchFilter !== '' : true) && activePlans.length === 0 && (
               <p style={{ fontSize: 13, color: '#888' }}>No hay planes disponibles.</p>
             )}
-            {activePlans.map((plan) => (plan.available > 0 || plan.purchased_plan_id === purchased_plan_id) && (
+            {activePlans.map((plan) => (plan.available > 0 || plan.purchased_plan_id === originalPurchasedPlanId) && (
               <button
                 key={plan.purchased_plan_id}
                 type="button"
@@ -229,7 +247,7 @@ export default function PublishPlansEmprendimiento({
               >
                 <span className="publish-plans-radio-dot" />
                 <span className="publish-plans-radio-title">{plan.plan_name}</span>
-                <span className="publish-plans-radio-subtitle">Cantidad disponible: {purchased_plan_id === plan.purchased_plan_id ? plan.available + 1 : plan.available ?? '-'}</span>                
+                <span className="publish-plans-radio-subtitle">Cantidad disponible: {plan.available ?? '-'}</span>                
               </button>
             ))}
           </div>
