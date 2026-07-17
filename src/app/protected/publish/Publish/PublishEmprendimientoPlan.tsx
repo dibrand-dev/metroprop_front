@@ -102,9 +102,9 @@ export default function PublishPlansEmprendimiento({
   });
 
   const { data: userPlans = [], isLoading: loadingUserPlans } = useQuery<any[]>({
-    queryKey: ['user-plans', user_id],
-    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${user_id}/availability`),
-    enabled: !!user_id && !orgId,
+    queryKey: ['user-plans', loggedUserId],
+    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${loggedUserId}/availability`),
+    enabled: !!loggedUserId && !orgId,
     staleTime: 0,
     refetchOnMount: 'always',
   });
