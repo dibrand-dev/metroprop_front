@@ -232,12 +232,6 @@ const MyProperties = () => {
   const { data: userPlans = [], isLoading: loadingUserPlans } = useQuery<any[]>({
     queryKey: ['republish-user-plans', loggedUserId],
     queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${loggedUserId}/availability`),
-    enabled: republishModalOpen && !!loggedUserId && (!hasOrganization || !hasBranches),
-  });
-
-  const { data: onLoadUserAvailability } = useQuery<any[]>({
-    queryKey: ['onload-user-availability', loggedUserId],
-    queryFn: () => apiFetch<any[]>(`${API_BASE_URL}/plans/user/${loggedUserId}/availability`),
     enabled: !!loggedUserId && !hasOrganization,
   });
 
@@ -498,7 +492,7 @@ const MyProperties = () => {
   };
 
   const selectedCount = selectedIds.size;
-
+console.log("hasOrganization", hasOrganization)
   return (
     <div className="myprop-wrapper">
       {toast && (
@@ -549,11 +543,12 @@ const MyProperties = () => {
                   <p className="myprop-overview-empty">Cargando planes...</p>
                 )}
 
-                {!loadingBranchOverviewPlans && branchOverviewPlans.length === 0 && (
+                {((!loadingBranchOverviewPlans && (branchOverviewPlans.length === 0)) || 
+                  (!loadingUserPlans && (userPlans.length === 0))) && (
                   <p className="myprop-overview-empty">Sin productos disponibles</p>
                 )}
 
-                {branchOverviewPlans.map((entry: any) => {
+                {(hasOrganization ? branchOverviewPlans : userPlans).map((entry: any) => {
                   const branch = fetchedBranches.find((item: any) => String(item.id) === String(entry.branchId));
                   const branchName = branch?.branch_name ?? branch?.name ?? String(entry.branchId);
                   const plans = Array.isArray(entry.plans) ? entry.plans : [];

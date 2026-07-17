@@ -81,7 +81,6 @@ export default function MyPropertiesFilters({
     title: FILTER_VALUE_LABEL[facetKey] ?? facetKey,
     expandable: facets[facetKey].length > 3,
     options: (facets[facetKey] ?? []).map(item => {
-      console.log("item", item)
       return ({
         label: facetKey === 'location_id'
           ? getDisplayValue(item.value ? locationMap.get(item.value) : "Sin definir")
