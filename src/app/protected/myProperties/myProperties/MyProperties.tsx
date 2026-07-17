@@ -548,7 +548,7 @@ console.log("hasOrganization", hasOrganization)
                   <p className="myprop-overview-empty">Sin productos disponibles</p>
                 )}
 
-                {(hasOrganization ? branchOverviewPlans : userPlans).map((entry: any) => {
+                {hasOrganization && !loadingBranchOverviewPlans ? branchOverviewPlans.map((entry: any) => {
                   const branch = fetchedBranches.find((item: any) => String(item.id) === String(entry.branchId));
                   const branchName = branch?.branch_name ?? branch?.name ?? String(entry.branchId);
                   const plans = Array.isArray(entry.plans) ? entry.plans : [];
@@ -584,7 +584,30 @@ console.log("hasOrganization", hasOrganization)
                       </div>
                     </div>
                   );
-                })}
+                }): ''}
+
+                {!hasOrganization && !loadingUserPlans && userPlans.length > 0 && (
+                  <div className="myprop-overview-card">
+                    <div className="myprop-overview-table">
+                      <div className="myprop-overview-row myprop-overview-row-header">
+                        <span>Productos</span>
+                        <span>Contratados</span>
+                        <span>Usados</span>
+                        <span>Disponibles</span>
+                      </div>
+                    </div>
+                    {userPlans.map((plan: any, idx: number) => (
+                      <div key={plan.id ?? idx} className="myprop-overview-row">
+                        <span>{plan.plan_name}</span>
+                        <span>{plan.highlight_limit ?? '-'}</span>
+                        <span>{plan.used ?? '-'}</span>
+                        <span>{plan.available ?? '-'}</span>
+                        <span>{plan.start_date && !isNaN(new Date(plan.start_date).getTime()) ? new Date(plan.start_date).toLocaleDateString("es-ES") : '-'}</span>
+                        <span>{plan.end_date && !isNaN(new Date(plan.end_date).getTime()) ? new Date(plan.end_date).toLocaleDateString("es-ES") : '-'}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
