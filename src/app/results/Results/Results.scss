@@ -856,13 +856,22 @@
     gap: 24px;
   }
 
-  .filtros-section-title {
-    
+  .filtros-section-title {    
     font-size: 18px;
     font-weight: 600;
     line-height: 22px;
     color: #1E1E1E;
     margin: 0;
+
+    @media screen and (max-width: 999px) {
+      display: flex;
+      justify-content: space-between;
+    }
+    @media screen and (min-width: 1000px) {      
+      .close-button-mobile {
+        display: none;
+      }
+    }
   }
 
   .filtros-section-grid {
