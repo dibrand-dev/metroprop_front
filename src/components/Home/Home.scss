@@ -8,11 +8,15 @@
     overflow: visible;
 }
 
-.search-card .filter-tabs .filter-button.active {
-    background-color: #EBF2FD;
-    color: #006AFF;
+.search-card .filter-tabs .filter-button {
+    &:hover {
+        color: #006AFF;
+    }
+    &.active {
+        background-color: #EBF2FD;
+        color: #006AFF;
+    }
 }
-
 .service-card {
     display: flex;
     flex-direction: column;
@@ -123,8 +127,8 @@
     }
 
     .filter-tabs {
-    gap: 0.5rem;
-    overflow-x: auto;
+        gap: 0.5rem;
+        overflow-x: auto;
     }
 
     .filter-button {
@@ -166,7 +170,7 @@
     }
 
     .filter-tabs {
-    gap: 1rem;
+        gap: 1rem;
     }
 
     .filter-button {
@@ -403,5 +407,16 @@
         img {
             rotate: 270deg;
         }
+    }
+}
+
+.btn.btn-secondary.btn-type-2.btn-medium.btn-state-default.home-service-button {
+    &:hover {
+        background: #EBF2FD;
+    }
+
+    &:active {
+        background: #0041D9;
+        color: #fff;
     }
 }

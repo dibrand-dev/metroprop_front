@@ -466,6 +466,11 @@
     white-space: nowrap;
     transition: all 0.2s;
     height: 48px;
+    font-family: 'Montserrat';
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: 1%;
 
     svg {
       width: 16px;
@@ -681,6 +686,11 @@
     transition: all 0.2s;
     position: relative;
     height: 48px;
+    font-family: 'Montserrat';
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: 1%;
 
     svg {
       width: 20px;
@@ -1154,7 +1164,7 @@
     position: absolute;
     right: 0;
     top: calc(100% + 8px);
-    min-width: 230px;
+    min-width: 254px;
     background: #fff;
     border: 1px solid #E5E5E5;
     border-radius: 8px;
@@ -1168,7 +1178,7 @@
       border: none;
       background: #fff;
       text-align: left;
-      font-size: 14px;
+      font-size: 16px;
       color: #333;
       cursor: pointer;
       transition: all 0.2s;
@@ -1179,11 +1189,11 @@
       }
 
       &:hover {
-        background: #F8F8F8;
+        background: #EBF2FD;
       }
 
       &.active {
-        background: #F0F7FF;
+        background: #EBF2FD;
         color: #006AFF;
         font-weight: 500;
       }

@@ -1,10 +1,11 @@
 'use client';
 
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
-import InputField2 from '@/ui/InputField2/InputField2';
 import { Location, useLocations } from '@/lib/locations';
 import './LocationAutocompleteInput.scss';
 import { LOCATION_CABA_ID, LOCATION_COSTA_ATLANTICA_ID, LOCATION_GB_INTERIOR_ID, LOCATION_GB_NORTE_ID, LOCATION_GB_OESTE_ID, LOCATION_GB_SUR_ID } from '@/app/constants';
+import InputField from '@/ui/InputField/InputField';
+import InputField2 from '@/ui/InputField2/InputField2';
 
 function normalizeText(value: string) {
   return value
@@ -94,7 +95,7 @@ export default function LocationAutocompleteInput({
   placeholder,
   onChange,
   onSubmit,
-  onKeyDown,
+  onKeyDown
 }: LocationAutocompleteInputProps) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isSelectingRef = useRef(false);
@@ -215,7 +216,7 @@ export default function LocationAutocompleteInput({
         />
       )}
       <div className="location-autocomplete-input-wrap">
-        <InputField2
+        <InputField
           type="text"
           placeholder={placeholder}
           icon={isLoading ? (

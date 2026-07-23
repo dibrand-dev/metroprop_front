@@ -16,6 +16,23 @@
 .location-autocomplete-input-wrap {
   position: relative;
   z-index: 2;
+
+  .input-field-wrapper {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: 0.75%;
+    padding: 14px;
+
+    .input-field-icon-button {
+      height: 20px;
+      width: 20px;
+      img {
+        height: 20px;
+        width: 20px;
+      }
+    }
+  }
 }
 
 .location-autocomplete-loading-icon {

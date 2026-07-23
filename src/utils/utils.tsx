@@ -94,6 +94,7 @@ export function HeartIcon({ isFavorite }: { isFavorite?: boolean }): JSX.Element
         stroke={isFavorite ? '#006AFF' : 'currentColor'}
         fill={isFavorite ? '#006AFF' : 'none'}
         strokeWidth="1.5"
+        className={isFavorite ? "favorite" : ""}
       />
     </svg>;
 }

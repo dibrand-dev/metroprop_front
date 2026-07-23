@@ -9,7 +9,7 @@ import Button from '@/ui/Button/Button';
 import { apiFetch, invalidateSessionTokenCache } from '@/lib/apiFetch';
 import { API_BASE_URL, getInitials } from '@/utils/utils';
 import Link from 'next/link';
-import { alertasIcon, cuentaIcon, heartIcon, messageIcon, publicacionesIcon } from '@/utils/icons';
+import { alertasIcon, cuentaIcon, heartIconMenu, messageIcon, publicacionesIcon } from '@/utils/icons';
 
 const chevronIcon = "/icons/chevron-up.svg";
 
@@ -101,7 +101,7 @@ export default function TopUserMenu() {
     {
       id: 'favoritos',
       label: 'Favoritos',
-      icon: heartIcon,
+      icon: heartIconMenu,
       href: '/protected/favorites'
     },
     {

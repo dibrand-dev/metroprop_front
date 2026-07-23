@@ -17,6 +17,10 @@
     align-items: center;
     &:hover {
       background-color: white;
+      box-shadow: 1px 4px 8px 0px #00000040;
+    }
+    &:active {
+      border-color: #006aff;
     }
   }
 
@@ -110,9 +114,6 @@
     justify-content: center;
     flex-shrink: 0;
 
-    &:hover {
-      opacity: 0.7;
-    }
   }
 
   .details-row {
@@ -192,9 +193,6 @@
       display: flex;
       align-items:center;
       gap: 8px;
-    }
-    .favorite-button.is-favorite {
-      color: #FFF700;
     }
   }
 

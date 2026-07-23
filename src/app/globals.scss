@@ -47,8 +47,7 @@ body {
   height: 100%;
   max-width: 264px;
   cursor: pointer;
-  
- 
+
   &.home {
     position: relative;
 
@@ -62,12 +61,6 @@ body {
         right: 16px;
         border-radius: 8px;
         z-index: 2;
-    }
-
-    &:hover .favorite-highlighted-container {
-        svg path {
-            fill: #fff;
-        }
     }
 
     .entrega-delivery-date {
@@ -315,5 +308,24 @@ body {
     align-items: center;
     img {
         max-width: 100%;
+    }
+}
+
+.favorite-highlighted-container {
+    svg path {
+        stroke: #1e1e1e;            
+        fill: #fff;
+        &.favorite {
+            stroke: #006aff;
+            fill: #006aff;
+            &:hover {
+                stroke: #fff;
+                fill: #006aff;
+            }
+        }
+        &:hover {           
+            stroke: #006aff;
+            fill: #fff;         
+        }
     }
 }

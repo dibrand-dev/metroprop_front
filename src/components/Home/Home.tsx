@@ -190,6 +190,7 @@ export default function Home() {
                     fullWidth={false}
                     size="medium"
                     onClick={() => router.push(service.link)}
+                    className="home-service-button"
                   />               
                 </div>
               ))}

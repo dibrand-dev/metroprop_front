@@ -36,8 +36,8 @@
 
 // Input Wrapper
 .input-field-wrapper {
-  background-color: $bg-secondary;
-  border: 1.3px solid $border-color;
+  background-color: #f5f5f5;
+  border: 1.3px solid #a6a6a6;
   border-radius: $border-radius-md;
   padding: 18px 16px;
   display: flex;
@@ -46,10 +46,14 @@
   transition: all $transition-time ease;
   gap: $spacing-md;
 
+  &:hover {
+    background-color: #fff;
+  }
+
   &:focus-within {
     outline: none;
     border-color: $primary-color;
-    background-color: $bg-secondary;
+    background-color: #EBF2FD;
   }
 
   &.error {
