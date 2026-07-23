@@ -20,6 +20,7 @@ import type { CreateProperty } from '@/types/propiedad';
 const OPERACION_COLLAPSED = 8;
 
 const QUANTITY_OPTIONS = [
+  { value: '', label: 'Todos' },
   { value: '1', label: '1' },
   { value: '2', label: '2' },
   { value: '3', label: '3' },
@@ -1155,7 +1156,7 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [], propert
               <div ref={filtrosPopoverRef} className="filtros-popover">
                 <div className="filtros-popover-body">
                   <div className="filtros-section operacion-section">
-                    <h3 className="filtros-section-title">Tipo de operación</h3>
+                    <h3 className="filtros-section-title">Tipo de operación <button onClick={() => setFiltrosOpen(false)} className="close-button-mobile"><img src="/icons/close.svg" alt="Cerrar" /></button></h3>
                     <div className="operacion-radio-group">
                       {FILTER_OPERATION_OPTIONS.map((op) => (
                         <RadioButton key={op} label={OPERATION_TYPE_LABELS[op]} name="operacion" value={String(op)} checked={tempOperacion === op} onChange={(val) => setTempOperacion(Number(val) as OperationType)} />
