@@ -1140,7 +1140,7 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [], propert
           <div className="filter-dropdown-wrapper filtros-dropdown">
             <button
               ref={filtrosTriggerRef}
-              className={`filter-button${filtrosOpen ? ' active' : ''}`}
+              className={`filter-button${filtrosOpen ? ' active' : ''} ${filtrosBadge > 0 ? ' has-badge' : ''}`}
               onClick={handleOpenFiltros}
               aria-haspopup="true"
               aria-expanded={filtrosOpen}

@@ -1,5 +1,6 @@
 'use client';
 
+import { sortIcon } from '@/utils/icons';
 import { useState } from 'react';
 
 interface SortDropdownProps {
@@ -22,14 +23,15 @@ export default function SortDropdown({ value, onChange }: SortDropdownProps) {
 
   return (
     <div className="sort-dropdown h-full">
-      <button 
-        className="sort-button"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <img src="/icons/sort.svg" alt="Sort Icon" />
-        <span>Ordenar</span>
-      </button>
-
+      <div className="sort-button-container">
+        <button 
+          className={`sort-button ${isOpen ? 'open' : ''}`}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {sortIcon}
+          <span>Ordenar</span>
+        </button>
+      </div>
       {isOpen && (
         <>
           <div className="sort-overlay" onClick={() => setIsOpen(false)} />

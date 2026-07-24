@@ -67,7 +67,7 @@ $font-family-button: Montserrat, sans-serif;
   width: 33.3%; 
   @media (max-width: 999px) {
     &.with-search {
-      width: 60px;
+      width: 40px;
       .header-nav {   
         position: absolute;
         top: -21px;
@@ -479,7 +479,7 @@ $font-family-button: Montserrat, sans-serif;
     }
 
     @media (max-width: 769px) {
-      width: 100px;
+      width: 87px;
     }
   }
 }
@@ -695,6 +695,7 @@ $font-family-button: Montserrat, sans-serif;
 
 .header-search {
   width: 100%;
+  max-width: 50%;
   @media (min-width: 1000px) {
     display: none;
   }
