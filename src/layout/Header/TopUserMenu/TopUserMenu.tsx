@@ -138,7 +138,11 @@ export default function TopUserMenu() {
     }
   ];
 
-  return sessionStatus === "unauthenticated" ? (    
+  if (sessionStatus === "loading") {
+    return null;
+  }
+
+  return (sessionStatus === "unauthenticated") ? (
     <Button
       label="Ingresar"
       type="button"
