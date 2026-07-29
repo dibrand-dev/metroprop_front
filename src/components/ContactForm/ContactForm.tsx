@@ -158,6 +158,12 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
           user_id: userId
         },
       });
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'contacto_enviado',
+        metodo: actionId === 'whatsapp' ? 'whatsapp' : 'mensaje',
+        id_propiedad: propertyId,
+      });
       if (actionId === 'whatsapp') {
         openWhatsApp(formState.message);
         resetForm();

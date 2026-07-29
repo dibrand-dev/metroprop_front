@@ -492,7 +492,7 @@ const MyProperties = () => {
   };
 
   const selectedCount = selectedIds.size;
-console.log("hasOrganization", hasOrganization)
+  
   return (
     <div className="myprop-wrapper">
       {toast && (

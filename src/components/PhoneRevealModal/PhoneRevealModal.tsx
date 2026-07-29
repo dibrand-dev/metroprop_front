@@ -132,6 +132,11 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
           user_id: userId
         },
       });
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'ver_telefono_enviado',
+        id_propiedad: propertyId,
+      });
       setFormState(EMPTY_FORM);
       setTermsAccepted(false);
       setPrivacyAccepted(false);

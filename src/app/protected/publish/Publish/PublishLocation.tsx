@@ -164,21 +164,6 @@ function AddressAutocompleteInput({ value, onChange, onPlaceSelect, onSuggestion
   );
 }
 
-function findBestMatch(
-  options: { value: string; label: string }[],
-  name: string
-): string | undefined {
-  if (!name) return undefined;
-  const norm = name.toLowerCase().trim();
-  const exact = options.find(o => o.label.toLowerCase().trim() === norm);
-  if (exact) return exact.value;
-  const partial = options.find(o => {
-    const l = o.label.toLowerCase().trim();
-    return l.includes(norm) || norm.includes(l);
-  });
-  return partial?.value;
-}
-
 interface PublishLocationProps {
   wizardData: CreatePropertyDraft;
   updateWizardData: (data: Partial<CreatePropertyDraft>) => void;

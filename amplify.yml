@@ -11,6 +11,7 @@ frontend:
         - echo "CORS_ORIGINS=$CORS_ORIGINS" >> .env
         - echo "NEXT_PUBLIC_API_BASE_URL=https://api.metroprop.co" >> .env
         - echo "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY" >> .env
+        - echo "NEXT_PUBLIC_GTM_CONTAINER_ID=$GTM_CONTAINER_ID" >> .env
         - nvm use 20
         - npm ci
         - npm install next@14 --no-save

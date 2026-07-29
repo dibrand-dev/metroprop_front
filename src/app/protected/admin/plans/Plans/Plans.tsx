@@ -11,7 +11,6 @@ import { apiFetch } from '@/lib/apiFetch';
 import Button from '@/ui/Button/Button';
 
 const iconArrowBack = '/icons/arrow.svg';
-const iconRefresh = '/icons/refresh.svg';
 const iconLock = '/icons/lock.svg';
 const iconTrash = '/icons/trash.svg';
 const iconCheck = '/icons/check_black.svg';

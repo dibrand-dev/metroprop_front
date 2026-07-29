@@ -86,6 +86,40 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     }
   }, [isLoading, property, isError, propertyId]);
 
+  // GTM: registrar vista de la ficha de propiedad
+  useEffect(() => {
+    if (!property) return;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'vista_propiedad',
+      tipo_propiedad: PROPERTY_TYPE_LABELS[property.property_type as PropertyType],
+      operacion: OPERATION_TYPE_LABELS[property.operation_type as OperationType],
+      id_propiedad: property.id,
+    });
+  }, [property]);
+
+  // GTM: click en "Contactar"
+  const handleContactClick = () => {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'contacto_click',
+      tipo_propiedad: property ? PROPERTY_TYPE_LABELS[property.property_type as PropertyType] : undefined,
+      operacion: property ? OPERATION_TYPE_LABELS[property.operation_type as OperationType] : undefined,
+    });
+    setIsContactModalOpen(true);
+  };
+
+  // GTM: click en "Ver teléfono"
+  const handlePhoneClick = () => {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'ver_telefono_click',
+      tipo_propiedad: property ? PROPERTY_TYPE_LABELS[property.property_type as PropertyType] : undefined,
+      operacion: property ? OPERATION_TYPE_LABELS[property.operation_type as OperationType] : undefined,
+    });
+    setIsPhoneModalOpen(true);
+  };
+
   // Fetch tags for amenity tab names
   const { data: tagsData = [] } = useQuery<AmenityTag[]>({
     queryKey: ['tags'],
@@ -1060,7 +1094,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 </div>
               </div>
               <div className="property-detail-agent-details">
-                <Button label="Ver teléfono" type="button" onClick={() => setIsPhoneModalOpen(true)} />
+                <Button label="Ver teléfono" type="button" onClick={handlePhoneClick} />
               </div>
             </div>
           </aside>
@@ -1149,7 +1183,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
           className={`property-detail-mobile-action property-detail-contact-action-primary`}
           icon={<img src="/icons/envelope_w.svg" alt="" aria-hidden="true" />}
           iconPosition="left"
-          onClick={() => setIsContactModalOpen(true)}
+          onClick={handleContactClick}
         />
       </div>
     </div>
