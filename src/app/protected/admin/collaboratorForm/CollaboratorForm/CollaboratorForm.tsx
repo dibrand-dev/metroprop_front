@@ -9,7 +9,7 @@ import Select from '@/ui/Select/Select';
 import Button from '@/ui/Button/Button';
 import { useSession } from 'next-auth/react';
 import InputField from '@/ui/InputField/InputField';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
@@ -22,6 +22,7 @@ interface CollaboratorFormProps {
 
 export default function CollaboratorForm({ collaboratorId }: CollaboratorFormProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: sessionData } = useSession();
   const { showMenu, setShowMenu } = useAdminMenu();
   const [submitted, setSubmitted] = useState(false);
@@ -117,6 +118,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
     },
     onSuccess: () => {
       setErrorMessage('');
+      queryClient.invalidateQueries({ queryKey: ['collaborators-users'] });
       if (!isEditing) {
         setFormData({
           role_id: '',
@@ -182,7 +184,7 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
                 />
               </div>
             </div>
-            <div>
+            <div className="w-full">
               <p>Administrador Publica, edita, lee todos los avisos y edita datos de la empresa y administra usuarios.</p>
               <p>Supervisor Publica, edita, lee todos los avisos y administra usuarios.</p>
               <p>Vendedor Publica, edita y lee avisos en los que tiene permisos.</p>

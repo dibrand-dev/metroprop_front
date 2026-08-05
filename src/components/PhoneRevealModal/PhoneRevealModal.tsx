@@ -1,5 +1,5 @@
 'use client';
-
+import { Organization } from '@/types/propiedad';
 import { useEffect, useState } from 'react';
 import './PhoneRevealModal.scss';
 // import CountryCodeModal from '@/components/CountryCodeModal/CountryCodeModal';
@@ -29,6 +29,8 @@ interface PhoneRevealModalProps {
   ownerEmail?: string;
   ownerPhone?: string;
   user?: PropertyUser;
+  organization: Organization | null;
+  branchId?: number;
 }
 
 const closeIcon = '/icons/close.svg';
@@ -47,7 +49,7 @@ const EMPTY_FORM = {
   phone: '',
 };
 
-export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, organizationId, ownerName, ownerEmail, ownerPhone, user }: PhoneRevealModalProps) {
+export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, organizationId, ownerName, ownerEmail, ownerPhone, user, organization, branchId }: PhoneRevealModalProps) {
   const { data: sessionData } = useSession();
   // const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
   const [formState, setFormState] = useState(EMPTY_FORM);
@@ -56,6 +58,14 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
   const [touched, setTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [branchPhone, setBranchPhone] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen || !branchId || user?.phone || organization?.phone) return;
+    apiFetch<any>(`${API_BASE_URL}/branches/${branchId}`)
+      .then((branch) => setBranchPhone(branch?.phone ?? null))
+      .catch(() => setBranchPhone(null));
+  }, [isOpen, branchId, user?.phone, organization?.phone]);
 
   useEffect(() => {
     const u = sessionData?.user as any;
@@ -149,6 +159,9 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
     }
   };
 
+
+
+
   return (
     <div className="phone-reveal-modal-overlay" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="phone-reveal-modal" onClick={(event) => event.stopPropagation()}>
@@ -173,7 +186,14 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
                 <ul className="phone-reveal-contact-list">
                   {user.name && <li><strong>Nombre:</strong> {user.name}</li>}
                   {user.email && <li><strong>Email:</strong> {user.email}</li>}
-                  {user.phone && <li><strong>Teléfono:</strong> {user.phone}</li>}
+                  {user.phone 
+                    ? <li><strong>Teléfono:</strong> {user.phone}</li>
+                    : organization?.phone 
+                      ? <li><strong>Teléfono:</strong> {organization.phone}</li>
+                      : branchPhone 
+                        ? <li><strong>Teléfono:</strong> {branchPhone}</li>
+                        : null
+                  }
                   {user.phone_additional && <li><strong>Teléfono adicional:</strong> {user.phone_additional}</li>}
                   {user.phone_whatsapp && <li><strong>WhatsApp:</strong> {user.phone_whatsapp}</li>}
                 </ul>

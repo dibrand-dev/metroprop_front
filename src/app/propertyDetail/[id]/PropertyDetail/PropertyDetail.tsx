@@ -548,6 +548,8 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         ownerEmail={property?.owner_email}
         ownerPhone={property?.owner_phone}
         user={(property as any)?.user}
+        organization={property?.organization}
+        branchId={(property as any)?.branch_id}
       />}
       {isWhatsappModalOpen && property?.user?.phone_whatsapp && <WhatsappModal
         isOpen={isWhatsappModalOpen}
