@@ -159,9 +159,6 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
     }
   };
 
-
-
-
   return (
     <div className="phone-reveal-modal-overlay" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="phone-reveal-modal" onClick={(event) => event.stopPropagation()}>

@@ -102,8 +102,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
     },
   });
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleSubmit = () => {
     setFieldErrors({ name: '', description: '', price: '', currency: '', propertyLimit: '', highlightLimit: '', userType: '' });
 
     const errors = { name: '', description: '', price: '', currency: '', propertyLimit: '', highlightLimit: '', userType: '' };
@@ -136,7 +135,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
           </button>
         </div>
 
-        <form className="partner-form-content" onSubmit={handleSubmit}>
+        <form className="partner-form-content" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <div className="partner-form-header">
             <h1>{pageTitle}</h1>
             <Button
@@ -245,11 +244,12 @@ export default function PlanForm({ planId }: PlanFormProps) {
         <div className="partner-form-mobile-footer">
           <Button
             label="Guardar plan"
-            type="submit"
+            type="button"
             variant="primary"
             buttonType="1"
             fullWidth={true}
             size="medium"
+            onClick={handleSubmit}
           />
         </div>
       </div>

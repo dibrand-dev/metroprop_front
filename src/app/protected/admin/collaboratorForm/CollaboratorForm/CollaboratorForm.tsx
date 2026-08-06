@@ -148,6 +148,12 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
     saveMutation.mutate();
   };
 
+  const handleMobileSubmit = () => {
+    setSubmitted(true);
+    if (!isFormValid) return;
+    saveMutation.mutate();
+  };
+
   return (
       <div className={`branch-form-container ${showMenu ? 'mobile-hidden' : ''}`}>
         <div className="branch-form-mobile-header">
@@ -295,7 +301,8 @@ export default function CollaboratorForm({ collaboratorId }: CollaboratorFormPro
           />
           <Button
             label={saveMutation.isPending ? 'Guardando...' : 'Guardar colaborador'}
-            type="submit"
+            type="button"
+            onClick={handleMobileSubmit}
             variant="primary"
             buttonType="1"
             fullWidth={true}

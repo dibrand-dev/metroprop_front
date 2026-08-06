@@ -9,7 +9,7 @@ import Checkbox from '@/ui/Checkbox/Checkbox';
 import Button from '@/ui/Button/Button';
 import { useSession } from 'next-auth/react';
 import InputField from '@/ui/InputField/InputField';
-import { useMutation, QueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { API_BASE_URL, setImagePath } from '@/utils/utils';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
@@ -23,6 +23,7 @@ interface BranchFormProps {
 
 export default function BranchForm({ branchId }: BranchFormProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: sessionData, update: updateSession } = useSession();
   const { showMenu, setShowMenu } = useAdminMenu();
   const [submitted, setSubmitted] = useState(false);
@@ -88,7 +89,6 @@ export default function BranchForm({ branchId }: BranchFormProps) {
       payload.append('contact_time', '');
       payload.append('country_id', String(LOCATION_ARGENTINA_ID));
       payload.append('email', formData.email || '');
-      payload.append('external_reference', 'false');
       if (locationData.location_id) payload.append('location_id', String(locationData.location_id));
       payload.append('phone', formData.phone || '');
       if (locationData.state_id) payload.append('state_id', String(locationData.state_id));
@@ -110,14 +110,12 @@ export default function BranchForm({ branchId }: BranchFormProps) {
         method: isEditing ? 'PATCH' : 'POST',
         body: payload,
       });
-      const queryClient = new QueryClient();
-      queryClient.invalidateQueries({ queryKey: ['branches', organizationId] });  
       return { status: isEditing ? 200 : 201, data };
-      //invalidate query "branches"
-      
     },
     onSuccess: (result) => {
       setErrorMessage('');
+      const organizationId = (sessionData?.user as any)?.organization?.id ?? null;
+      queryClient.invalidateQueries({ queryKey: ['branches', organizationId] });
       // Update session with new/updated branch
       const currentBranches: any[] = (sessionData?.user as any)?.organization?.branches ?? [];
       const savedBranch = result.data;
@@ -152,6 +150,12 @@ export default function BranchForm({ branchId }: BranchFormProps) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setSubmitted(true);
+    if (!isFormValid) return;
+    saveMutation.mutate();
+  };
+
+  const handleMobileSubmit = () => {
     setSubmitted(true);
     if (!isFormValid) return;
     saveMutation.mutate();
@@ -319,7 +323,8 @@ export default function BranchForm({ branchId }: BranchFormProps) {
         <div className="branch-form-mobile-footer">
           <Button
             label={saveMutation.isPending ? 'Guardando...' : 'Guardar sucursal'}
-            type="submit"
+            type="button"
+            onClick={handleMobileSubmit}
             variant="primary"
             buttonType="1"
             fullWidth={true}

@@ -207,7 +207,8 @@ export default function AdsForm() {
         <div className="partner-form-mobile-footer">
           <Button
             label="Guardar Ad"
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             variant="primary"
             buttonType="1"
             fullWidth={true}

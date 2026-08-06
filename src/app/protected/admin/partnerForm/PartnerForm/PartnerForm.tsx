@@ -77,8 +77,7 @@ export default function PartnerForm({ partnerId }: PartnerFormProps) {
     },
   });
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleSubmit = () => {
     setFieldErrors({ name: '', description: '' });
 
     const errors = { name: '', description: '' };
@@ -106,7 +105,7 @@ export default function PartnerForm({ partnerId }: PartnerFormProps) {
           </button>
         </div>
 
-        <form className="partner-form-content" onSubmit={handleSubmit}>
+        <form className="partner-form-content" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <div className="partner-form-header">
             <h1>{pageTitle}</h1>
             <Button
@@ -168,6 +167,7 @@ export default function PartnerForm({ partnerId }: PartnerFormProps) {
             buttonType="1"
             fullWidth={true}
             size="medium"
+            onClick={handleSubmit}
           />
         </div>
       </div>
