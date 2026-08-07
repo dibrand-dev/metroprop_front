@@ -4,6 +4,17 @@
   height: 100%;
 }
 
+.results-map-draw-surface {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  cursor: crosshair;
+  // Prevent the browser/map from panning or zooming on touch while drawing
+  touch-action: none;
+  -ms-touch-action: none;
+  background: transparent;
+}
+
 .results-map-search-area-btn {
   position: absolute;
   top: 12px;

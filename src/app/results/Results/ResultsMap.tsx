@@ -204,7 +204,9 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
   const [drawnPolygon, setDrawnPolygon] = useState<google.maps.Polygon | null>(null);
   const drawingPoints = useRef<google.maps.LatLngLiteral[]>([]);
   const drawingOverlay = useRef<google.maps.Polyline | null>(null);
-  const drawListenersRef = useRef<google.maps.MapsEventListener[]>([]);
+  const projectionOverlayRef = useRef<google.maps.OverlayView | null>(null);
+  const drawSurfaceRef = useRef<HTMLDivElement | null>(null);
+  const isPointerDownRef = useRef(false);
 
   const propertiesById = useMemo(() => {
     const acc: Record<number, CreateProperty> = {};
@@ -279,12 +281,12 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
       setDrawnPolygon(null);
     }
 
-    setIsDrawing(true);
     setSelectedId(null);
     drawingPoints.current = [];
+    isPointerDownRef.current = false;
 
-    // Disable map dragging while drawing
-    map.setOptions({ draggable: false, scrollwheel: false });
+    // Disable all map gestures so touch/drag won't pan or zoom the map while drawing
+    map.setOptions({ draggable: false, scrollwheel: false, gestureHandling: 'none' });
 
     // Create a polyline to show drawing in progress
     const polyline = new google.maps.Polyline({
@@ -295,83 +297,90 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
     });
     drawingOverlay.current = polyline;
 
-    let isMouseDown = false;
-
-    const finishDrawing = () => {
-      if (!isMouseDown) return;
-      isMouseDown = false;
-
-      // Clean up listeners
-      drawListenersRef.current.forEach(l => l.remove());
-      drawListenersRef.current = [];
-
-      // Remove polyline
-      polyline.setMap(null);
-      drawingOverlay.current = null;
-
-      // Re-enable map interaction
-      map.setOptions({ draggable: true, scrollwheel: true });
-      setIsDrawing(false);
-
-      if (drawingPoints.current.length < 3) return;
-
-      // Create a filled polygon
-      const polygon = new google.maps.Polygon({
-        paths: drawingPoints.current,
-        strokeColor: '#006aff',
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: '#006aff',
-        fillOpacity: 0.15,
-        map,
-      });
-      setDrawnPolygon(polygon);
-
-      // Extract bounding box from the polygon and trigger search
-      let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
-      for (const pt of drawingPoints.current) {
-        if (pt.lat < minLat) minLat = pt.lat;
-        if (pt.lat > maxLat) maxLat = pt.lat;
-        if (pt.lng < minLng) minLng = pt.lng;
-        if (pt.lng > maxLng) maxLng = pt.lng;
-      }
-
-      const params = new URLSearchParams(window.location.search);      
-      params.set('page', '1');
-      params.set('polygon', drawingPoints.current.map(pt => `LatLng(${pt.lat.toFixed(4)},${pt.lng.toFixed(4)})`).join(','));
-
-      const nextSearch = params.toString();
-      window.history.replaceState(window.history.state, '', `/results?${nextSearch}`);
-      window.dispatchEvent(
-        new CustomEvent('results:filters-changed', { detail: { search: nextSearch } })
-      );
-    };
-
-    const handleMouseDown = (e: google.maps.MapMouseEvent) => {
-      if (!e.latLng) return;
-      isMouseDown = true;
-      drawingPoints.current = [{ lat: e.latLng.lat(), lng: e.latLng.lng() }];
-      polyline.setPath(drawingPoints.current);
-    };
-
-    const handleMouseMove = (e: google.maps.MapMouseEvent) => {
-      if (!isMouseDown || !e.latLng) return;
-      drawingPoints.current.push({ lat: e.latLng.lat(), lng: e.latLng.lng() });
-      polyline.setPath(drawingPoints.current);
-    };
-
-    // Use window-level mouseup to reliably catch mouse release anywhere on screen
-    const handleWindowMouseUp = () => finishDrawing();
-    window.addEventListener('mouseup', handleWindowMouseUp);
-
-    const l1 = map.addListener('mousedown', handleMouseDown);
-    const l2 = map.addListener('mousemove', handleMouseMove);
-    drawListenersRef.current = [
-      l1,
-      l2,
-      { remove: () => window.removeEventListener('mouseup', handleWindowMouseUp) } as google.maps.MapsEventListener,
-    ];
+    setIsDrawing(true);
   }, [drawnPolygon]);
+
+  // Convert a client (screen) coordinate to a map LatLng using the overlay projection
+  const clientToLatLng = useCallback((clientX: number, clientY: number): google.maps.LatLng | null => {
+    const overlay = projectionOverlayRef.current;
+    const surface = drawSurfaceRef.current;
+    if (!overlay || !surface) return null;
+    const projection = overlay.getProjection();
+    if (!projection) return null;
+    const rect = surface.getBoundingClientRect();
+    const point = new google.maps.Point(clientX - rect.left, clientY - rect.top);
+    return projection.fromContainerPixelToLatLng(point);
+  }, []);
+
+  const finishDrawing = useCallback(() => {
+    if (!isPointerDownRef.current) return;
+    isPointerDownRef.current = false;
+
+    const map = mapRef.current;
+
+    // Remove in-progress polyline
+    if (drawingOverlay.current) {
+      drawingOverlay.current.setMap(null);
+      drawingOverlay.current = null;
+    }
+
+    // Re-enable map interaction
+    map?.setOptions({ draggable: true, scrollwheel: true, gestureHandling: 'greedy' });
+    setIsDrawing(false);
+
+    if (!map || drawingPoints.current.length < 3) return;
+
+    // Create a filled polygon
+    const polygon = new google.maps.Polygon({
+      paths: drawingPoints.current,
+      strokeColor: '#006aff',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: '#006aff',
+      fillOpacity: 0.15,
+      map,
+    });
+    setDrawnPolygon(polygon);
+
+    const params = new URLSearchParams(window.location.search);
+    params.set('page', '1');
+    params.set('polygon', drawingPoints.current.map(pt => `LatLng(${pt.lat.toFixed(4)},${pt.lng.toFixed(4)})`).join(','));
+
+    const nextSearch = params.toString();
+    window.history.replaceState(window.history.state, '', `/results?${nextSearch}`);
+    window.dispatchEvent(
+      new CustomEvent('results:filters-changed', { detail: { search: nextSearch } })
+    );
+  }, []);
+
+  const handleDrawPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDrawing) return;
+    e.preventDefault();
+    drawSurfaceRef.current?.setPointerCapture(e.pointerId);
+    const ll = clientToLatLng(e.clientX, e.clientY);
+    if (!ll) return;
+    isPointerDownRef.current = true;
+    drawingPoints.current = [{ lat: ll.lat(), lng: ll.lng() }];
+    drawingOverlay.current?.setPath(drawingPoints.current);
+  }, [isDrawing, clientToLatLng]);
+
+  const handleDrawPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDrawing || !isPointerDownRef.current) return;
+    e.preventDefault();
+    const ll = clientToLatLng(e.clientX, e.clientY);
+    if (!ll) return;
+    drawingPoints.current.push({ lat: ll.lat(), lng: ll.lng() });
+    drawingOverlay.current?.setPath(drawingPoints.current);
+  }, [isDrawing, clientToLatLng]);
+
+  const handleDrawPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDrawing) return;
+    e.preventDefault();
+    if (drawSurfaceRef.current?.hasPointerCapture(e.pointerId)) {
+      drawSurfaceRef.current.releasePointerCapture(e.pointerId);
+    }
+    finishDrawing();
+  }, [isDrawing, finishDrawing]);
 
   const clearDrawnArea = useCallback(() => {
     if (drawnPolygon) {
@@ -404,6 +413,14 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
             initialBounds={initialBounds}
             onMapReady={(map) => {
               mapRef.current = map;
+              if (!projectionOverlayRef.current) {
+                const overlay = new google.maps.OverlayView();
+                overlay.onAdd = () => {};
+                overlay.draw = () => {};
+                overlay.onRemove = () => {};
+                overlay.setMap(map);
+                projectionOverlayRef.current = overlay;
+              }
             }}
           />
           <ClusteredMarkers
@@ -443,6 +460,16 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
             );
           })()}
         </Map>
+        {isDrawing && (
+          <div
+            ref={drawSurfaceRef}
+            className="results-map-draw-surface"
+            onPointerDown={handleDrawPointerDown}
+            onPointerMove={handleDrawPointerMove}
+            onPointerUp={handleDrawPointerUp}
+            onPointerCancel={handleDrawPointerUp}
+          />
+        )}
         <button
           type="button"
           className="results-map-search-area-btn"
