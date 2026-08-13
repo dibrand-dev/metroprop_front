@@ -1236,7 +1236,7 @@ export default function FilterBar({ setViewMode, viewMode, mapData = [], propert
               </div>
             )}
           </div>
-          <Button id="list-map-view-mobile" label={viewMode === "list" ? "Lista" : "Mapa"} variant="secondary" onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}  icon={<img src={viewMode === "list" ? "/icons/list.svg" : "/icons/map.svg"} />} />
+          <Button id="list-map-view-mobile" label={viewMode === "list" ? "Mapa" : "Lista"} variant="secondary" onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}  icon={<img src={viewMode === "list" ? "/icons/list.svg" : "/icons/map.svg"} />} />
         </div>
 
         <Button label="Crear Alerta" variant="secondary" onClick={() => createAlert()} id="crear-alerta-button-desktop"  icon={
