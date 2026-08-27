@@ -402,7 +402,7 @@ function PriceRangeSlider({
         <input
           type="text"
           inputMode="numeric"
-          value={desde && formatNumbers(desde)}
+          value={desde ? formatNumbers(Number(desde)) : ''}
           onChange={(e) => onDesdeChange(e.target.value.replace(/\D/g, ''))}
           placeholder="Desde"
           className="precio-input-field"
@@ -411,7 +411,7 @@ function PriceRangeSlider({
         <input
           type="text"
           inputMode="numeric"
-          value={hasta && formatNumbers(hasta)}
+          value={hasta ? formatNumbers(Number(hasta)) : ''}
           onChange={(e) => onHastaChange(e.target.value.replace(/\D/g, ''))}
           placeholder="Hasta"
           className="precio-input-field"

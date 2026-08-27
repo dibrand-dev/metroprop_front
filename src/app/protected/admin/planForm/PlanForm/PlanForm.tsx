@@ -33,7 +33,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
   const [propertyLimit, setPropertyLimit] = useState('');
   const [highlightLimit, setHighlightLimit] = useState('');
   const [userType, setUserType] = useState<PlanUserType>(PlanUserType.COMPANY);
-  const [fieldErrors, setFieldErrors] = useState({ name: '', description: '', price: '', currency: '', propertyLimit: '', highlightLimit: '' });
+  const [fieldErrors, setFieldErrors] = useState({ name: '', description: '', price: '', currency: '', propertyLimit: '', highlightLimit: '', userType: '' });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const isEditing = Boolean(planId);
@@ -49,7 +49,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
 
   useEffect(() => {
     if (!planData) return;
-    const plan:Plan = planData?.plan ?? planData;
+    const plan:Plan = (planData as any)?.plan ?? planData;
     setName(plan.plan_name ?? '');
     setDescription(plan.plan_description ?? '');
     setHabilitado(plan.is_active);
@@ -184,7 +184,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
                 type="text"
                 placeholder="Precio"
                 value={price !== undefined ? formatNumbers(Number(price)) : ""}
-                onChange={(event) => handleChangeNumbersInput(event, (value: number | undefined) => setPrice(value))}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleChangeNumbersInput(event, (value: number | undefined) => setPrice(value !== undefined ? String(value) : ''))}
                 required={true}
                 error={fieldErrors.price}
               />
@@ -197,7 +197,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
               type="text"
               placeholder="Nivel de prioridad"
               value={propertyLimit !== undefined ? formatNumbers(Number(propertyLimit)) : ""}
-              onChange={(event) => handleChangeNumbersInput(event, (value: number | undefined) => setPropertyLimit(value))}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleChangeNumbersInput(event, (value: number | undefined) => setPropertyLimit(value !== undefined ? String(value) : ''))}
               required={true}
               error={fieldErrors.propertyLimit}
             />
@@ -209,7 +209,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
               type="text"
               placeholder="Límite de destacados"
               value={highlightLimit !== undefined ? formatNumbers(Number(highlightLimit)) : ""}
-              onChange={(event) => handleChangeNumbersInput(event, (value: number | undefined) => setHighlightLimit(value))}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleChangeNumbersInput(event, (value: number | undefined) => setHighlightLimit(value !== undefined ? String(value) : ''))}
               required={true}
               error={fieldErrors.highlightLimit}
             />
@@ -222,7 +222,7 @@ export default function PlanForm({ planId }: PlanFormProps) {
                 { value: PlanUserType.COMPANY, label: 'Empresa' },
               ]}
               value={userType || PlanUserType.COMPANY}
-              onChange={setUserType}
+              onChange={(val) => setUserType(val as PlanUserType)}
             />
           </div>
           <div className="partner-form-section">

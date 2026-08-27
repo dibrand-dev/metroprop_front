@@ -233,7 +233,7 @@ export default function UserSignin() {
               type="text"
               placeholder="Correo electrónico*"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               id="email"
               name="email"
               disabled={isFormDisabled}
@@ -247,7 +247,7 @@ export default function UserSignin() {
               type="password"
               placeholder="Contraseña*"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               id="password"
               name="password"
               disabled={isFormDisabled}

@@ -305,7 +305,7 @@ export default function PublishContent({
 
   const uploadMultimediaMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      return apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}/save-multimedia`, { method: 'POST', body: formData });
+      return apiFetch<any>(`${API_BASE_URL}/properties/${wizardData.draft_id}/save-multimedia`, { method: 'POST', body: formData });
     },
   });
 
@@ -409,7 +409,7 @@ export default function PublishContent({
     }
   };
 
-  const handleDrop = (e: React.DragEvent, dropIndex: number, type: 'image' | 'plan' | 'video') => {
+  const handleDrop = (e: React.DragEvent, dropIndex: number, type: 'image' | 'plan' | 'video' | '360') => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -455,6 +455,12 @@ export default function PublishContent({
       newPreviews.splice(draggedIndex, 1);
       newPreviews.splice(dropIndex, 0, draggedPreview);
       setVideosPreview(newPreviews);
+    } else if (type === '360') {
+      const new360 = [...multimedia360];
+      const dragged360 = new360[draggedIndex];
+      new360.splice(draggedIndex, 1);
+      new360.splice(dropIndex, 0, dragged360);
+      setMultimedia360(new360);
     }
     
     setDraggedIndex(null);

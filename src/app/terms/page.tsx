@@ -4,7 +4,7 @@ export default function TermsPage() {
   return (<div className="terms-container">
     <h1>TÉRMINOS Y CONDICIONES GENERALES DE USO — METROPROP</h1>
     <p><strong>Última actualización</strong>: 23/06/2026 </p>
-    <p>Bienvenido a <strong>MetroProp</strong> (en adelante, la "Plataforma"), el portal inmobiliario y de agregación de datos diseñado para optimizar la búsqueda, visualización y análisis de propiedades en el mercado</p>
+    <p>Bienvenido a <strong>MetroProp</strong> (en adelante, la &quot;Plataforma&quot;), el portal inmobiliario y de agregación de datos diseñado para optimizar la búsqueda, visualización y análisis de propiedades en el mercado</p>
     <p>La utilización de la Plataforma, ya sea como visitante, usuario registrado o anunciante profesional, implica la <strong>aceptación plena, incondicional y expresa</strong> de los presentes Términos y Condiciones, así como de nuestra Política de Privacidad. Si usted no está de acuerdo con estos términos, le solicitamos que abandone la Plataforma y se abstenga de utilizar nuestros servicios.</p>
     <h2>1. Naturaleza del Servicio y Rol de MetroProp</h2>    
     <ul>
@@ -16,7 +16,7 @@ export default function TermsPage() {
     <ul>
         <li><strong>Análisis de Valor ($/m²)</strong>: La Plataforma ofrece herramientas analíticas, como el filtrado y ordenamiento interactivo basado en el valor por metro cuadrado. Estos datos son calculados en base a la información provista por los anunciantes y tienen un fin puramente orientativo e informativo.</li>
         <li><strong>Operaciones de Alquiler</strong>: Para el caso de propiedades en alquiler, MetroProp podrá sustituir la visualización del valor por metro cuadrado por el valor de las expensas (si estuviese disponible), adaptando la interfaz a los usos y costumbres del mercado.</li>
-        <li><strong>Geolocalización</strong>: La visualización de inmuebles en la "Vista de Mapa" se basa en integraciones de terceros (ej. Google Maps). MetroProp no garantiza la precisión milimétrica de los marcadores (pines) geográficos.</li>
+        <li><strong>Geolocalización</strong>: La visualización de inmuebles en la &quot;Vista de Mapa&quot; se basa en integraciones de terceros (ej. Google Maps). MetroProp no garantiza la precisión milimétrica de los marcadores (pines) geográficos.</li>
     </ul>
     <h2>3. Registro, Tipos de Usuarios y Cuentas</h2>
     <p>El uso de funcionalidades avanzadas requiere el registro previo. Al registrarse, el usuario declara ser mayor de edad y tener capacidad legal para contratar. Existen dos perfiles:</p>

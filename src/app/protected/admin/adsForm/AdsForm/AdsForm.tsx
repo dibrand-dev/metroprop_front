@@ -43,7 +43,7 @@ export default function AdsForm() {
 
   useEffect(() => {
     if (!adData) return;
-    const ad: AdBanner = adData?.ad ?? adData;
+    const ad: AdBanner = (adData as any)?.ad ?? adData;
     setName(ad.name ?? '');
     const raw = (ad as any).placements;
     setPlacement(Array.isArray(raw) ? String(raw[0] ?? '') : String(raw ?? ''));

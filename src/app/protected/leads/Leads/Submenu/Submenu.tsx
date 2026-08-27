@@ -38,8 +38,7 @@ export default function SubmenuLeads({ active, onItemChange }: SubmenuProps) {
         <Select 
           value={activeItemId}
           onChange={(value) => {
-            setActiveItemId(value)
-            onItemChange?.(value);
+            handleDropdownChange(value as any);
           }}
           options={items.map((item) => ({ value: item.id, label: item.label }))}
         />

@@ -181,7 +181,7 @@ export default function ResetPassword() {
               type="password"
               placeholder="Contraseña nueva"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e: any) => setNewPassword(e.target.value)}
               id="newPassword"
               name="newPassword"
               autoComplete="new-password"
@@ -197,7 +197,7 @@ export default function ResetPassword() {
               type="password"
               placeholder="Repetir contraseña nueva"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e: any) => setConfirmPassword(e.target.value)}
               id="confirmPassword"
               name="confirmPassword"
               autoComplete="new-password"

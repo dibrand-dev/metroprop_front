@@ -92,7 +92,7 @@ export default function TopUserMenu() {
   };
 
   const menuItems: MenuItemType[] = [
-    ...(sessionData?.user?.role_id !== 4 ? [{
+    ...((sessionData?.user as any)?.role_id !== 4 ? [{
       id: 'contactos',
       label: 'Contactados',
       icon: messageIcon,
@@ -124,7 +124,7 @@ export default function TopUserMenu() {
     }] : []),
     {
       id: 'cuenta',
-      label: sessionData?.user?.role_id !== 4 ? 'Mi cuenta' : 'Panel de administración',
+      label: (sessionData?.user as any)?.role_id !== 4 ? 'Mi cuenta' : 'Panel de administración',
       icon: cuentaIcon,
       href: '/protected/admin/profile'
     },
@@ -166,7 +166,7 @@ export default function TopUserMenu() {
           }}
         />
       )}
-      {sessionData?.user?.role_id !== 4 && (
+      {(sessionData?.user as any)?.role_id !== 4 && (
       <>
         <Button
           label="Publicar"
@@ -207,7 +207,7 @@ export default function TopUserMenu() {
 
         {showUserDropdown && (
           <div className="header-user-dropdown-menu">
-            {sessionData?.user?.role_id !== 4 && <div className="header-dropdown-publish-wrapper">
+            {(sessionData?.user as any)?.role_id !== 4 && <div className="header-dropdown-publish-wrapper">
               <button
                 className="header-dropdown-publish-button"
                 onClick={handlePublish}
@@ -236,14 +236,14 @@ export default function TopUserMenu() {
                     onClick={item.onClick}
                   >
                     {item.icon && <div className="header-dropdown-item-icon">
-                      <img src={item.icon} alt={item.label} />
+                      {item.icon}
                     </div>}
                     <span className="header-dropdown-item-label">{item.label}</span>
                   </button>
                 ) : (
                   <Link prefetch={false} 
                     key={item.id}
-                    href={item.href}
+                    href={item.href ?? ''}
                     className="header-dropdown-item"
                     onNavigate={() => setShowUserDropdown(false)}
                     onClick={() => setShowUserDropdown(false)}

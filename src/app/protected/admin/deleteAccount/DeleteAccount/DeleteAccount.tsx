@@ -106,7 +106,7 @@ export default function DeleteAccount() {
           <section className='section-warning'>
             <h2>Esta acción eliminará tus datos de forma permanente</h2>
             <ul>
-              {sessionData?.user?.organization && <li>Para dar de baja tus avisos, deshabilitá la publicación con Metroprop desde tu CRM</li>}
+              {(sessionData?.user as any)?.organization && <li>Para dar de baja tus avisos, deshabilitá la publicación con Metroprop desde tu CRM</li>}
               <li>Se perderán publicaciones activas</li>
               <li>Se eliminarán datos guardados (favoritos, borradores, historial)</li>
             </ul>

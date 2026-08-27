@@ -39,6 +39,7 @@ const LIMIT = 20;
 export default function Properties() {
   const queryClient = useQueryClient();
   const { showMenu, setShowMenu } = useAdminMenu();
+  const { data: locations = [] } = useLocations();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchId, setSearchId] = useState<number | null>(null);
@@ -102,7 +103,7 @@ export default function Properties() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: propertiesCount } = useQuery({
+  const { data: propertiesCount } = useQuery<any>({
     queryKey: ['my-properties', currentPage],
     queryFn: async () => apiFetch(`${API_BASE_URL}/properties/filter`, {
       params: { order_by: 'created_at:desc', page: currentPage, limit: 1/*, ...activeFilters, ...branchFilterParam */},
@@ -267,13 +268,14 @@ export default function Properties() {
                       type="button"
                       aria-label="Ver detalle"
                       onClick={() => {
+                        const prop = property as any;
                         const locationLabels = locations.length > 0 ? {
-                          neighborhood: property.neighborhood_id ? locations.find(l => l.id === property.neighborhood_id)?.name : undefined,
-                          subLocation: property.sub_location_id ? locations.find(l => l.id === property.sub_location_id)?.name : undefined,
-                          location: property.location_id ? locations.find(l => l.id === property.location_id)?.name : undefined,
-                          state: property.state_id ? locations.find(l => l.id === property.state_id)?.name : undefined,
+                          neighborhood: prop.neighborhood_id ? locations.find(l => l.id === prop.neighborhood_id)?.name : undefined,
+                          subLocation: prop.sub_location_id ? locations.find(l => l.id === prop.sub_location_id)?.name : undefined,
+                          location: prop.location_id ? locations.find(l => l.id === prop.location_id)?.name : undefined,
+                          state: prop.state_id ? locations.find(l => l.id === prop.state_id)?.name : undefined,
                         } : undefined;
-                        window.open(getPropertyDetailPath(property, locationLabels), '_blank');
+                        window.open(getPropertyDetailPath(property as any, locationLabels), '_blank');
                       }}
                     >
                       <img src={iconView} alt="" />

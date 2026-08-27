@@ -187,13 +187,13 @@ export default function Leads() {
                 <div className="collaborators-card-actions">
                   <span className="collaborators-role-chip">Fecha de contacto: {contacto.date ?? '-'}</span>
                   <div className="collaborators-card-tools">
-                    {contacto.actions.map((action) => (
+                    {contacto.actions.map((action: any) => (
                       <button
                         key={action}
                         className="collaborators-action-button"
                         type="button"
-                        aria-label={actionIcons[action].label}
-                        title={actionIcons[action].label}
+                        aria-label={(actionIcons as any)[action]?.label ?? ''}
+                        title={(actionIcons as any)[action]?.label ?? ''}
                         onClick={() => {
                           // if (action === 'edit') handleEdit(String(contacto.id));
                           // if (action === 'lock') { setNewPassword(''); setConfirmPassword(''); setPasswordError(''); setLockModal({ open: true, userId: contacto.id, userName: contacto.name }); }
@@ -209,7 +209,7 @@ export default function Leads() {
                           }
                         }}
                       >
-                        <img src={actionIcons[action].src} alt="" />
+                        <img src={(actionIcons as any)[action]?.src ?? ''} alt="" />
                       </button>
                     ))}
                   </div>

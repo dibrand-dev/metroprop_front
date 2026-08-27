@@ -102,14 +102,14 @@ export default function PublishEmprendimientoUnidades({
       publication_title,
       description,
       property_type,
-      price,
+      price: price ?? 0,
       currency,
       expenses: withoutExpenses ? 0 : expenses,
       currency_expenses,
       surface_measurement,
       roofed_surface_measurement,
-      total_surface,
-      roofed_surface,
+      total_surface: total_surface ? Number(total_surface) : undefined,
+      roofed_surface: roofed_surface ? Number(roofed_surface) : undefined,
       room_amount: rooms.room_amount,
       suite_amount: rooms.suite_amount,
       bathroom_amount: rooms.bathroom_amount,
@@ -260,8 +260,8 @@ export default function PublishEmprendimientoUnidades({
       currency_expenses,
       surface_measurement,
       roofed_surface_measurement,
-      total_surface,
-      roofed_surface,
+      total_surface: total_surface ? Number(total_surface) : undefined,
+      roofed_surface: roofed_surface ? Number(roofed_surface) : undefined,
       room_amount: rooms.room_amount,
       suite_amount: rooms.suite_amount,
       bathroom_amount: rooms.bathroom_amount,
@@ -356,7 +356,7 @@ export default function PublishEmprendimientoUnidades({
                 <div className="unit-list-type">{PROPERTY_TYPE_LABELS[unitData.property_type as PropertyType] ?? unitData.property_type}</div>
                 <div className="unit-list-price">{formatCurrency(unitData.currency)} {formatNumbers(unitData.price)}</div>
                 <div className="unit-list-rooms">{unitData.room_amount ?? 0} amb.</div>
-                <div className="unit-list-surface">{formatNumbers(unitData.total_surface)} {unitData.surface_measurement === 'M2' ? 'm²' : unitData.surface_measurement}</div>
+                <div className="unit-list-surface">{formatNumbers(unitData.total_surface ?? 0)} {unitData.surface_measurement === 'M2' ? 'm²' : unitData.surface_measurement}</div>
                 <div className="unit-list-actions">
                   <button
                     className="collaborators-action-button"
@@ -457,7 +457,7 @@ export default function PublishEmprendimientoUnidades({
                   /> */}
                   <InputField
                     value={price !== undefined ? formatNumbers(Number(price)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, (value) => setPrice(value))}
+                    onChange={(event: any) => handleChangeNumbersInput(event, (value) => setPrice(value))}
                     placeholder={'Ej. 700000'}
                     type="text"
                     error={submitted && !price ? ' ' : ''}
@@ -485,7 +485,7 @@ export default function PublishEmprendimientoUnidades({
                   /> */  }
                   <InputField
                     value={expenses !== undefined ? formatNumbers(Number(expenses)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, (value) => setExpenses(value))}
+                    onChange={(event: any) => handleChangeNumbersInput(event, (value) => setExpenses(value))}
                     placeholder="Ej. 100000"
                     type="text"
                     disabled={withoutExpenses}
@@ -567,7 +567,7 @@ export default function PublishEmprendimientoUnidades({
                       placeholder="Ingresar superficie"
                       type="text"
                       value={Number(total_surface) ? `${formatNumbers(Number(total_surface))}` : ''}
-                      onChange={(event) => handleChangeNumbersInput(event, (value) => setTotal_surface(value))}
+                      onChange={(event: any) => handleChangeNumbersInput(event, (value) => setTotal_surface(value ?? ""))}
                       error={submitted && !total_surface ? ' ' : ''}
                     />
                   </div>
@@ -595,7 +595,7 @@ export default function PublishEmprendimientoUnidades({
                       placeholder="Ingresar superficie"
                       type="text"
                       value={Number(roofed_surface) ? `${formatNumbers(Number(roofed_surface))}` : ''}
-                      onChange={(event) => handleChangeNumbersInput(event, (value) => setRoofed_surface(value))}
+                      onChange={(event: any) => handleChangeNumbersInput(event, (value) => setRoofed_surface(value ?? ""))}
                       error={submitted && !roofed_surface ? ' ' : ''}
                     />
                   </div>
@@ -610,7 +610,7 @@ export default function PublishEmprendimientoUnidades({
             <InputField
               placeholder="Ej 80"
               type="number"
-              value={development_units_total ?? undefined}
+              value={development_units_total ?? ""}
               onChange={(event) => setDevelopment_units_total(parseInt(event.target.value))}
             />
           </section>

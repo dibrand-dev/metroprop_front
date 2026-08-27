@@ -1,9 +1,15 @@
 'use client';
 
+import { use } from 'react';
 import OrganizationProfile from '../Profile/OrganizationProfile';
 
-export default function OrganizationEditPage({ params }: { params: { id: string } }) {
-  const orgId = parseInt(params.id);
+interface OrganizationEditPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function OrganizationEditPage({ params }: OrganizationEditPageProps) {
+  const resolvedParams = use(params);
+  const orgId = parseInt(resolvedParams.id);
   
   return <OrganizationProfile organizationId={orgId} />;
 }

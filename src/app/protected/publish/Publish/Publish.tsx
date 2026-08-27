@@ -239,11 +239,11 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
 
   const createDraftMutation = useMutation({
     mutationFn: async (draftData: Partial<CreatePropertyDraft>) => {
-      const user_id = sessionData?.user?.id;
-      const organization_id = sessionData?.user?.organization_id ?? undefined;
+      const user_id = (sessionData?.user as any)?.id;
+      const organization_id = (sessionData?.user as any)?.organization_id ?? undefined;
       if (!user_id) throw new Error('User not authenticated');
 
-      return apiFetch(`${API_BASE_URL}/properties/draft`, {
+      return apiFetch<any>(`${API_BASE_URL}/properties/draft`, {
         method: 'POST',
         body: {
           user_id,
@@ -279,9 +279,10 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
     }
 
     const _wizardData = {...wizardData};
-    if (sessionData?.user.organization) {      
-      for (const branch of sessionData.user.organization.branches ?? []) {
-        const found = (branch.users ?? []).find((u: any) => String(u.id) === sessionData.user?.id);
+    const user = sessionData?.user as any;
+    if (user?.organization) {      
+      for (const branch of user.organization.branches ?? []) {
+        const found = (branch.users ?? []).find((u: any) => String(u.id) === user?.id);
         if (found) {
           _wizardData.branch_id = branch.id;
           break;
@@ -310,7 +311,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
   
   const updatePropertyMutation = useMutation({
     mutationFn: async (updateData: Partial<CreatePropertyDraft>) => {
-      return apiFetch(`${API_BASE_URL}/properties/${wizardData.draft_id}`, {
+      return apiFetch<any>(`${API_BASE_URL}/properties/${wizardData.draft_id}`, {
         method: 'PATCH',
         body: updateData,
       });
@@ -319,7 +320,7 @@ export default function Publish({ propertyId }: { propertyId?: string } = {}) {
 
   const updateEmprendimientoMutation = useMutation({
     mutationFn: async (updateData: Partial<CreatePropertyDraft>) => {
-      return apiFetch(`${API_BASE_URL}/properties/development/${wizardData.draft_id}`, {
+      return apiFetch<any>(`${API_BASE_URL}/properties/development/${wizardData.draft_id}`, {
         method: 'PATCH',
         body: updateData,
       });

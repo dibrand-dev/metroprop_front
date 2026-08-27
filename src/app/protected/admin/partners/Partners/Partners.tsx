@@ -29,14 +29,14 @@ export default function Partners() {
   const [copiedField, setCopiedField] = useState<'app_key' | 'app_secret' | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: partnersData, isLoading, isError } = useQuery({
+  const { data: partnersData, isLoading, isError } = useQuery<any>({
     queryKey: ['partners'],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/partners`),
+    queryFn: async () => apiFetch<any>(`${API_BASE_URL}/partners`),
     staleTime: 30_000,
   });
 
   const refreshMutation = useMutation({
-    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/partners/${id}/refresh-access-key`),
+    mutationFn: async (id: number) => apiFetch<{ data: { app_key: string; app_secret: string } }>(`${API_BASE_URL}/partners/${id}/refresh-access-key`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['partners'] }),
   });
 
@@ -112,7 +112,7 @@ export default function Partners() {
           </div>
 
           <div className="partners-list">
-            {partnersData?.partners?.map((partner) => (
+            {partnersData?.partners?.map((partner: any) => (
               <div key={partner.id} className="partners-card">
                 <div className="partners-card-info">
                   <p className="partners-card-title">

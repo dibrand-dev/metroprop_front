@@ -4,7 +4,7 @@ export default function policyPage() {
   return (<div className="policy-container">
     <h1>POLÍTICA DE PRIVACIDAD — METROPROP</h1>
     <p><strong>Última actualización</strong>: 23/06/2026 </p>
-    <p>La presente Política de Privacidad establece los términos en que <strong>MetroProp</strong> (en adelante, "la Plataforma") recopila, utiliza, almacena y protege la información que es provista por los usuarios al momento de utilizar el portal web, registrarse en sus sistemas o interactuar con sus herramientas analíticas.</p>
+    <p>La presente Política de Privacidad establece los términos en que <strong>MetroProp</strong> (en adelante, &quot;la Plataforma&quot;) recopila, utiliza, almacena y protege la información que es provista por los usuarios al momento de utilizar el portal web, registrarse en sus sistemas o interactuar con sus herramientas analíticas.</p>
     <p>Esta Plataforma está firmemente comprometida con la seguridad y protección de los datos de sus usuarios, dando estricto cumplimiento a lo establecido por la <strong>Ley N° 25.326 de Protección de Datos Personales</strong> de la República Argentina, sus normas complementarias y las directivas de la Agencia de Acceso a la Información Pública.</p>
     <h2>1. Información que Recopilamos</h2>
     <p>La Plataforma recolecta únicamente los datos estrictamente necesarios para proveer los servicios de agregación de datos y búsqueda inmobiliaria modular, distinguiendo según el tipo de interacción:</p>
@@ -12,7 +12,7 @@ export default function policyPage() {
     <ul>
       <li><strong>Registro Directo</strong>: Correo electrónico, nombre de usuario y contraseña cifrada mediante algoritmos criptográficos seguros.</li>
     <li><strong>Login Social (Google OAuth2)</strong>: Cuando el usuario decide registrarse o iniciar sesión utilizando su cuenta de Google, la Plataforma recopila el identificador único (ID de Google), nombre completo, dirección de correo electrónico de Gmail y la imagen de perfil/avatar.</li>
-    <li><strong>Datos de Interacción Interna</strong>: Historial de búsquedas guardadas, configuraciones de filtros específicos, listado de propiedades seleccionadas como "Favoritas" y parámetros de Alertas por Email (criterios de zonas y rangos de valor por m²).</li>
+    <li><strong>Datos de Interacción Interna</strong>: Historial de búsquedas guardadas, configuraciones de filtros específicos, listado de propiedades seleccionadas como &quot;Favoritas&quot; y parámetros de Alertas por Email (criterios de zonas y rangos de valor por m²).</li>
     </ul>
     <p><strong>B. Usuarios Profesionales (Inmobiliarias y Agentes)</strong></p>
     <ul>

@@ -236,8 +236,8 @@ export default function PublishEmprendimiento({
       geo_long,
       publication_title: nombreEmprendimiento,
       description: descripcion,
-      development_type: tipoEmprendimiento,
-      development_units_total: totalUnidades,
+      development_type: tipoEmprendimiento || undefined,
+      development_units_total: totalUnidades || undefined,
       development_delivery_date: entrega,
       property_type: PropertyType.EMPRENDIMIENTO,
       is_development: true
@@ -457,7 +457,7 @@ export default function PublishEmprendimiento({
                     label="Código postal"
                     placeholder="Código postal"
                     value={postal_code}
-                    onChange={(e) => setPostal_code(e.target.value)}
+                    onChange={(e: any) => setPostal_code(e.target.value)}
                   />
                 </div>
               </div>

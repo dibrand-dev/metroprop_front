@@ -156,7 +156,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
   };
 
   return (
-    <header className={`header-container ${!sessionData ? 'user-comun' : ''} ${sessionData?.user?.organization === null || sessionData?.user?.organization === undefined ? 'user-comun' : ''}`}>
+    <header className={`header-container ${!sessionData ? 'user-comun' : ''} ${(sessionData?.user as any)?.organization === null || (sessionData?.user as any)?.organization === undefined ? 'user-comun' : ''}`}>
       {(openDropdown !== null || mobileMenuOpen) && (
         <button
           type="button"
@@ -169,7 +169,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
         />
       )}
       <div className={`header-content ${showFilter ? 'with-search' : ''}`}>
-        {!isRole4 ? sessionData?.user?.organization && <div className="topnavbar-menu-items">        
+        {!isRole4 ? (sessionData?.user as any)?.organization && <div className="topnavbar-menu-items">        
           <button className="topnavbar-dropdown">
             <Link prefetch={false}  href="/protected/myProperties">Mis publicaciones</Link>
           </button>
@@ -189,7 +189,7 @@ export default function Header({ showFilter = false }: { showFilter?: boolean })
           {/* Desktop Navigation */}
           <nav className={`header-nav ${mobileMenuOpen ? 'mobile-open' : ''}`}>
             <div className='mobile-header-open-nav'>
-              <Link prefetch={false} href="/" className='home-link'><img src={logoMetroprop} alt="MetroProp" /></Link>
+              <Link prefetch={false} href="/" className='home-link'><img src={logoMetroprop} alt="MetroProp" fetchPriority='high' /></Link>
               <button
                 className="close-button"
                 onClick={toggleMobileMenu}

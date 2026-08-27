@@ -1,9 +1,10 @@
 import PropertyLeads from './PropertyLeads';
 
 interface PropertyLeadsPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function PropertyLeadsPage({ params }: PropertyLeadsPageProps) {
-  return <PropertyLeads propertyId={Number(params.id)} />;
+export default async function PropertyLeadsPage({ params }: PropertyLeadsPageProps) {
+  const resolvedParams = await params;
+  return <PropertyLeads propertyId={Number(resolvedParams.id)} />;
 }

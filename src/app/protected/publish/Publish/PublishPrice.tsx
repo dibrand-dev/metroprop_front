@@ -129,7 +129,7 @@ export default function PublishPrice({
                   /> */}
                   <InputField
                     value={price !== undefined ? formatNumbers(Number(price)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, (value) => setPrice(value))}
+                    onChange={(event: any) => handleChangeNumbersInput(event, (value) => setPrice(value))}
                     placeholder={'Ej. 700000'}
                     type="text"
                   />
@@ -155,7 +155,7 @@ export default function PublishPrice({
                   /> */}
                   <InputField
                     value={expenses !== undefined ? formatNumbers(Number(expenses)) : ""}
-                    onChange={(event) => handleChangeNumbersInput(event, (value) => setExpenses(value))}
+                    onChange={(event: any) => handleChangeNumbersInput(event, (value) => setExpenses(value))}
                     placeholder="Ej. 100000"
                     type="text"
                     disabled={withoutExpenses}

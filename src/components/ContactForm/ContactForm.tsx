@@ -254,7 +254,7 @@ export default function ContactForm({ isModal = false, propertyId, userId, organ
           <InputField
             placeholder="Consulta"
             value={formState.message}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormState((prev) => ({ ...prev, message: e.target.value }))}
+            onChange={(e: any) => setFormState((prev) => ({ ...prev, message: e.target.value }))}
             multiline={true}
             rows={4}
             id="contact_consulta"

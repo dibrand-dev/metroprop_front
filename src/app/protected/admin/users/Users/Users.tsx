@@ -33,6 +33,7 @@ interface UserItem {
   branchName: string;
   branchId: string;
   role_id: number | null;
+  status: any;
   actions: UserAction[];
 }
 const LIMIT = 20;

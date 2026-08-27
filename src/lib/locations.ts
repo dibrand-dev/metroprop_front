@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/utils/utils';
 import { LOCATION_ARGENTINA_ID } from '@/app/constants';
 import { apiFetch } from '@/lib/apiFetch';
+import { getCachedLocations, setCachedLocations } from './indexedDB';
 
 export interface Location {
   id: number;
@@ -20,13 +21,27 @@ export interface Location {
 
 export const LOCATIONS_QUERY_KEY = ['locations-global'];
 
-/**
- * Fetch all locations from the API
- */
 export const fetchLocations = async (): Promise<Location[]> => {
-  return apiFetch<Location[]>(`${API_BASE_URL}/location/getAllLocations`, {
+  try {
+    const cached = await getCachedLocations<Location[]>();
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      return cached;
+    }
+  } catch (err) {
+    console.warn('Error reading locations from cache, falling back to network:', err);
+  }
+
+  const data = await apiFetch<Location[]>(`${API_BASE_URL}/location/getAllLocations`, {
     params: { country_id: LOCATION_ARGENTINA_ID },
   });
+
+  if (data && Array.isArray(data) && data.length > 0) {
+    setCachedLocations(data).catch((err) => {
+      console.error('Error saving locations to cache:', err);
+    });
+  }
+
+  return data;
 };
 
 /**

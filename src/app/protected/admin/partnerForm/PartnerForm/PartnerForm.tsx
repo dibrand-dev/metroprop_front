@@ -41,7 +41,7 @@ export default function PartnerForm({ partnerId }: PartnerFormProps) {
 
   useEffect(() => {
     if (!partnerData) return;
-    const partner = partnerData?.partner ?? partnerData;
+    const partner = (partnerData as any)?.partner ?? partnerData;
     setName(partner.name ?? '');
     setDescription(partner.description ?? '');
     setHabilitado(partner.status === 1);
@@ -123,7 +123,7 @@ export default function PartnerForm({ partnerId }: PartnerFormProps) {
               type="text"
               placeholder="Nombre del partner"
               value={name}
-              onChange={(event) => setName(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
               required={true}
               error={fieldErrors.name}
             />
@@ -136,7 +136,7 @@ export default function PartnerForm({ partnerId }: PartnerFormProps) {
               type="text"
               placeholder="Descripción"
               value={description}
-              onChange={(event) => setDescription(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDescription(event.target.value)}
               required={true}
               error={fieldErrors.description}
             />

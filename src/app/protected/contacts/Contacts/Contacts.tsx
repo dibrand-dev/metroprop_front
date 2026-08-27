@@ -49,7 +49,7 @@ export default function Contacts() {
               setWhatsappModalInfo({ phoneNumber: property.user?.phone_whatsapp ? property.user.phone_whatsapp : property.user.phone ?? '', propertyId: property.id ?? 0 });
               setIsWhatsappModalOpen(true);
             }}
-            isHighlighted={property.hired_plan_id && property.purchased_plan_id}
+            isHighlighted={!!(property.hired_plan_id && property.purchased_plan_id)}
           />
         ))}
         {!isLoading && leads.length === 0 && (

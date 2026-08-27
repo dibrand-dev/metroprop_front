@@ -65,7 +65,7 @@ export default function MyPropertiesFilters({
 
 	const userMap = new Map<string, string>();
 
-	if (!sessionData?.organization) {
+	if (!(sessionData?.user as any)?.organization) {
 		userMap.set(String((sessionData?.user as any)?.id), (sessionData?.user as any)?.name);
 	} else {
 		const branches: any[] = (sessionData?.user as any)?.organization?.branches ?? [];
@@ -80,7 +80,7 @@ export default function MyPropertiesFilters({
     facetKey,
     title: FILTER_VALUE_LABEL[facetKey] ?? facetKey,
     expandable: facets[facetKey].length > 3,
-    options: (facets[facetKey] ?? []).map(item => {
+    options: (facets[facetKey] ?? []).map((item: any) => {
       return ({
         label: facetKey === 'location_id'
           ? getDisplayValue(item.value ? locationMap.get(item.value) : "Sin definir")

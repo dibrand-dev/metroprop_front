@@ -63,8 +63,8 @@ export default function PublishMainInfo({
     updateWizardData({
         surface_measurement,
         roofed_surface_measurement,
-        total_surface,
-        roofed_surface,
+        total_surface: total_surface ? Number(total_surface) : undefined,
+        roofed_surface: roofed_surface ? Number(roofed_surface) : undefined,
         property_condition,
         age,
         room_amount: rooms.room_amount,
@@ -85,7 +85,11 @@ export default function PublishMainInfo({
     });
   };
 
-  const continueDisabled = total_surface === undefined || total_surface <= 0 || isNaN(total_surface) || total_surface === '' || (showRoofedSurface && (roofed_surface === undefined || roofed_surface <= 0 || roofed_surface === '' || isNaN(roofed_surface))) || property_condition === undefined || (property_condition === 'years' && (age === undefined || age <= 0 || age === '' || isNaN(age)));
+  const numTotal = Number(total_surface);
+  const numRoofed = Number(roofed_surface);
+  const numAge = Number(age);
+
+  const continueDisabled = total_surface === undefined || numTotal <= 0 || isNaN(numTotal) || total_surface === '' || (showRoofedSurface && (roofed_surface === undefined || numRoofed <= 0 || roofed_surface === '' || isNaN(numRoofed))) || property_condition === undefined || (property_condition === 'years' && (age === undefined || numAge <= 0 || isNaN(numAge)));
 
   const handleBack = () => {
     if (isEditMode) {
@@ -99,8 +103,8 @@ export default function PublishMainInfo({
     const mainInfoUpdate = { 
       surface_measurement,
       roofed_surface_measurement,
-      total_surface,
-      ...(showRoofedSurface ? {roofed_surface: (!!roofed_surface && roofed_surface !== '') ? roofed_surface : 0} : {}),
+      total_surface: total_surface ? Number(total_surface) : undefined,
+      ...(showRoofedSurface ? {roofed_surface: (!!roofed_surface && roofed_surface !== '') ? Number(roofed_surface) : 0} : {}),
       age: property_condition === "construction" ? -1 : property_condition === "new" ? 0 : age,
       room_amount: rooms.room_amount,
       suite_amount: rooms.suite_amount,
@@ -117,7 +121,7 @@ export default function PublishMainInfo({
     }
   };
 
-  const handleChangeSurfaceInput = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
+  const handleChangeSurfaceInput = (event: any, field: string) => {
     // limpiar todo lo que no sea número
     const raw = event.target.value.replace(/\D/g, "");
 

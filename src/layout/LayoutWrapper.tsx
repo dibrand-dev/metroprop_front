@@ -1,7 +1,8 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import styles from './LayoutWrapper.scss';
+import { Suspense } from 'react';
+import './LayoutWrapper.scss';
 import Header from './Header/Header';
 import Footer from './Footer/Footer';
 
@@ -10,8 +11,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const showFilter = pathname === '/results';
   return (
     <div className={`bodyContainer ${pathname.replace(/\//g, '-').replace(/^-/, '')}`}>
-      <Header className={styles.header} showFilter={showFilter}/>
-      <main className={styles.mainContent}>{children}</main>
+      <Suspense fallback={null}>
+        <Header showFilter={showFilter}/>
+      </Suspense>
+      <main className="main-content">{children}</main>
       <Footer />
     </div>
   );

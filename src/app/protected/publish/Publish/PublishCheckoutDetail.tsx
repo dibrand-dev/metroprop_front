@@ -9,7 +9,7 @@ import Button from '@/ui/Button/Button';
 interface PublishCheckoutDetailProps {
   onNext: () => void;
   onBack: (emprendimiento: boolean) => void;
-  planToBuy: Plan | null;
+  planToBuy: any;
 }
 
 const iconChevron = '/icons/chevron-up.svg';

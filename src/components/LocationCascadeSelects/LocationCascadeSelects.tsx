@@ -65,30 +65,30 @@ export default function LocationCascadeSelects({
 }: LocationCascadeSelectsProps) {
   const { state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id } = value;
 
-  const { data: provinces = EMPTY_ARRAY, isLoading: loadingProvinces } = useQuery({
+  const { data: provinces = EMPTY_ARRAY, isLoading: loadingProvinces } = useQuery<any>({
     queryKey: ['provinces', 1],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getCountryStates`, { params: { countryId: 1 } }),
   });
 
-  const { data: locations = EMPTY_ARRAY, isLoading: loadingLocations } = useQuery({
+  const { data: locations = EMPTY_ARRAY, isLoading: loadingLocations } = useQuery<any>({
     queryKey: ['locations', state_id],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getStateLocations`, { params: { stateId: state_id } }),
     enabled: !!state_id,
   });
 
-  const { data: zones = EMPTY_ARRAY, isLoading: loadingZones } = useQuery({
+  const { data: zones = EMPTY_ARRAY, isLoading: loadingZones } = useQuery<any>({
     queryKey: ['zones', location_id],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: location_id } }),
     enabled: !!location_id,
   });
 
-  const { data: neighborhoods = EMPTY_ARRAY, isLoading: loadingNeighborhoods } = useQuery({
+  const { data: neighborhoods = EMPTY_ARRAY, isLoading: loadingNeighborhoods } = useQuery<any>({
     queryKey: ['neighborhoods', sub_location_id],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: sub_location_id } }),
     enabled: !!sub_location_id,
   });
 
-  const { data: sub_neighborhoods = EMPTY_ARRAY, isLoading: loadingSubNeighborhoods } = useQuery({
+  const { data: sub_neighborhoods = EMPTY_ARRAY, isLoading: loadingSubNeighborhoods } = useQuery<any>({
     queryKey: ['sub_neighborhoods', neighborhood_id],
     queryFn: async () => apiFetch(`${API_BASE_URL}/location/getLocationChildrens`, { params: { locationId: neighborhood_id } }),
     enabled: !!neighborhood_id,
@@ -103,11 +103,11 @@ export default function LocationCascadeSelects({
   // Notify parent of current label names whenever options or selected IDs change (e.g. for building a map address string)
   useEffect(() => {
     onNamesChange?.({
-      stateName: provinceOptions.find(o => o.value === state_id?.toString())?.label ?? '',
-      locationName: locationOptions.find(o => o.value === location_id?.toString())?.label ?? '',
-      subLocationName: zoneOptions.find(o => o.value === sub_location_id?.toString())?.label ?? '',
-      neighborhoodName: neighborhoodOptions.find(o => o.value === neighborhood_id?.toString())?.label ?? '',
-      subNeighborhoodName: subNeighborhoodOptions.find(o => o.value === sub_neighborhood_id?.toString())?.label ?? '',
+      stateName: provinceOptions.find((o: any) => o.value === state_id?.toString())?.label ?? '',
+      locationName: locationOptions.find((o: any) => o.value === location_id?.toString())?.label ?? '',
+      subLocationName: zoneOptions.find((o: any) => o.value === sub_location_id?.toString())?.label ?? '',
+      neighborhoodName: neighborhoodOptions.find((o: any) => o.value === neighborhood_id?.toString())?.label ?? '',
+      subNeighborhoodName: subNeighborhoodOptions.find((o: any) => o.value === sub_neighborhood_id?.toString())?.label ?? '',
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state_id, location_id, sub_location_id, neighborhood_id, sub_neighborhood_id, provinceOptions, locationOptions, zoneOptions, neighborhoodOptions, subNeighborhoodOptions]);

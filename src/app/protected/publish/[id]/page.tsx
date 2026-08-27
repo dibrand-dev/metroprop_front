@@ -1,9 +1,10 @@
 import Publish from '@/app/protected/publish/Publish/Publish';
 
 interface EditPublishPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function EditPublishPage({ params }: EditPublishPageProps) {
-  return <Publish propertyId={params.id} />;
+export default async function EditPublishPage({ params }: EditPublishPageProps) {
+  const resolvedParams = await params;
+  return <Publish propertyId={resolvedParams.id} />;
 }

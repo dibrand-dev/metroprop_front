@@ -144,12 +144,12 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                 <div className="property-details property-details-development">
                   <div className="delivery-date-content">
                     <img src={'/icons/crane_gray.svg'} alt="Crane Icon" />
-                    {`En const. - Ent. ${new Date(property.delivery_date ?? property.development_delivery_date).toLocaleDateString("es-ES", { month: '2-digit', year: '2-digit' })}`}
+                    {`En const. - Ent. ${new Date((property as any).delivery_date ?? property.development_delivery_date).toLocaleDateString("es-ES", { month: '2-digit', year: '2-digit' })}`}
                   </div>
                   <div className="property-card-price-section">
                     <div>
                       <p>Desde</p>
-                      {getPrecioDesde(property.units)}
+                      {getPrecioDesde(property.units ?? [])}
                     </div>
                     {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
                   </div>
@@ -217,7 +217,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
           </div>
           {property.is_development && <div className="delivery-date-content">
               <img src={'/icons/crane_gray.svg'} alt="Crane Icon" />
-              {`En construcción - Ent. ${new Date(property.delivery_date ?? property.development_delivery_date).toLocaleDateString("es-ES")}`}
+              {`En construcción - Ent. ${new Date((property as any).delivery_date ?? property.development_delivery_date).toLocaleDateString("es-ES")}`}
             </div>}
           <div className={`info-section ${property.is_development ? 'info-section-development' : ''}`}>                 
             {property.is_development
@@ -226,7 +226,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
                   <div className="price-row">
                     <div>
                       <p>Desde</p>
-                      {getPrecioDesde(property.units)}
+                      {getPrecioDesde(property.units ?? [])}
                     </div>
                     {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
                   </div>
@@ -278,7 +278,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
           {property.is_development && <div className="entrega-delivery-date">
             <div className="delivery-date-content">
               <img src={'/icons/crane.svg'} alt="Crane Icon" />
-              {`En construcción - Entrega ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
+              {`En construcción - Entrega ${new Date((property as any).delivery_date).toLocaleDateString("es-ES")}`}
             </div>
           </div>}
           <div className="card-content">
@@ -294,7 +294,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
               <div className="title-row">               
                 <div className="price-section">                  
                   {property.is_development
-                  ? getPrecioDesde(property.units)
+                  ? getPrecioDesde(property.units ?? [])
                   : <><div className="total-price">{`${formatCurrency(property.currency)} ${formatNumbers(property.price)}`}</div>
                       {(property.price_square_meter ?? 0) > 0 && (
                         <div className="price-per-meter">{formatCurrency(property.currency)} {formatNumbers(property.price_square_meter!)} m<sup>2</sup></div>
@@ -339,14 +339,14 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
             <div className="property-info">
               {property.is_development && <div className="delivery-date-content">
                 <img src={'/icons/crane.svg'} alt="Crane Icon" />
-                {`En construcción - Entrega ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
+                {`En construcción - Entrega ${new Date((property as any).delivery_date).toLocaleDateString("es-ES")}`}
               </div>}
               {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
               <div className="title-row">
                 <div className="price-section">
                   {property.is_development && <span className="desde-text">Desde</span>}
                   {property.is_development
-                  ? getPrecioDesde(property.units)
+                  ? getPrecioDesde(property.units ?? [])
                   : <><div className="total-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</div>
                     {property.price_square_meter! > 0 && (
                       <div className="price-per-meter">{formatCurrency(property.currency)} {formatNumbers(property.price_square_meter!)} m<sup>2</sup></div>
@@ -391,7 +391,7 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
       <>
         <div className={`property-card-favorites-list ${property.is_development ? 'is-development' : ''}`} onClick={goToDetail}>
           <div className="card-content">
-            <div className="contact-date">Contactado el {new Date(property.lead_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</div>
+            <div className="contact-date">Contactado el {new Date((property as any).lead_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</div>
             <img
               src={gallery.firstImage}
               alt={property.publication_title}
@@ -402,14 +402,14 @@ export default function PropertyCard({ property, cardType, onFavorite, isLoggedI
             <div className="property-info">
               {property.is_development && <div className="delivery-date-content">
                 <img src={'/icons/crane.svg'} alt="Crane Icon" />
-                {`En construcción - Entrega ${new Date(property.delivery_date).toLocaleDateString("es-ES")}`}
+                {`En construcción - Entrega ${new Date((property as any).delivery_date).toLocaleDateString("es-ES")}`}
               </div>}
               {org?.company_logo ? (<img src={setImagePath(org.company_logo)} alt="Agency logo" className="agency-logo" />) : <img src="/images/organization-noimage.png" alt="sin imagen de agencia" className="agency-logo" />}
               <div className="title-row">
                 <div className="price-section">
                   {property.is_development && <span className="desde-text">Desde</span>}
                   {property.is_development
-                  ? getPrecioDesde(property.units)
+                  ? getPrecioDesde(property.units ?? [])
                   : <><div className="total-price">{formatCurrency(property.currency)} {formatNumbers(property.price)}</div>
                     {property.price_square_meter! > 0 && (
                       <div className="price-per-meter">{formatCurrency(property.currency)} {formatNumbers(property.price_square_meter!)} m<sup>2</sup></div>

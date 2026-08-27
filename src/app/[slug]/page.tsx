@@ -4,12 +4,13 @@ import { parsePropertySlug } from '@/utils/utils';
 import { Metadata } from 'next';
 
 interface SlugPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: SlugPageProps): Promise<Metadata> {
-  const propertyId = parsePropertySlug(params.slug);
+  const resolvedParams = await params;
+  const propertyId = parsePropertySlug(resolvedParams.slug);
   
   if (!propertyId) {
     return {
@@ -26,9 +27,10 @@ export async function generateMetadata({ params }: SlugPageProps): Promise<Metad
   };
 }
 
-export default function SlugPage({ params }: SlugPageProps) {
+export default async function SlugPage({ params }: SlugPageProps) {
+  const resolvedParams = await params;
   // Parse the slug to extract property ID
-  const propertyId = parsePropertySlug(params.slug);
+  const propertyId = parsePropertySlug(resolvedParams.slug);
 
   // If slug doesn't match property pattern, return 404
   if (!propertyId) {

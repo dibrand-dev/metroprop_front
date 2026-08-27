@@ -2,13 +2,16 @@
 
 import UserSignin from "@/app/login/Login/UserSignin";
 import Image from "next/image";
+import { Suspense } from "react";
 
 export default function SigninPage() {
   return (
     <div className="signin-container">
       {/* Left Panel */}
       <div className="signin-left-panel">
-        <UserSignin />
+        <Suspense fallback={null}>
+          <UserSignin />
+        </Suspense>
       </div>
       <div className="signin-right-panel">
         <Image

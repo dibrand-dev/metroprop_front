@@ -26,9 +26,9 @@ export default function Ads() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: adsData, isLoading, isError } = useQuery({
+  const { data: adsData, isLoading, isError } = useQuery<any[]>({
     queryKey: ['ads'],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/ads-banners`),
+    queryFn: async () => apiFetch<any[]>(`${API_BASE_URL}/ads-banners`),
     staleTime: 30_000,
   });
 
@@ -106,7 +106,7 @@ export default function Ads() {
                     {ad.name ?? ''}
                   </p>
                   <p className="partners-card-subtitle">
-                    {ad.placements ? BannerPlacementLabels[ad.placements] :  ''}
+                    {ad.placements ? (BannerPlacementLabels as any)[ad.placements] :  ''}
                   </p>
                 </div>
                 <div className="partners-card-actions">

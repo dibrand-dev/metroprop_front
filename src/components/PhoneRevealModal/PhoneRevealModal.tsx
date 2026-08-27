@@ -218,7 +218,7 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
                     type="text"
                     placeholder="Nombre"
                     value={formState.name}
-                    onChange={(event) => handleChange('name', event.target.value)}
+                    onChange={(event: any) => handleChange('name', event.target.value)}
                     error={fieldErrors.name ? ' ' : ''}
                   />
                   <InputField2
@@ -226,7 +226,7 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
                     type="email"
                     placeholder="unemail@dibrand.com"
                     value={formState.email}
-                    onChange={(event) => handleChange('email', event.target.value)}
+                    onChange={(event: any) => handleChange('email', event.target.value)}
                     error={fieldErrors.email ? ' ' : ''}
                   />
                 </div>
@@ -251,7 +251,7 @@ export default function PhoneRevealModal({ isOpen, onClose, propertyId, userId, 
                     type="tel"
                     placeholder="1526458466"
                     value={formState.phone}
-                    onChange={(event) => handleChange('phone', event.target.value)}
+                    onChange={(event: any) => handleChange('phone', event.target.value)}
                     error={fieldErrors.phone ? ' ' : ''}
                   />
                 </div>

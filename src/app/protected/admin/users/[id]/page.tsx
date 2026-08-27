@@ -1,9 +1,15 @@
 'use client';
 
+import { use } from 'react';
 import Profile from '../../profile/Profile/Profile';
 
-export default function UserEditPage({ params }: { params: { id: string } }) {
-  const userId = parseInt(params.id);
+interface UserEditPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function UserEditPage({ params }: UserEditPageProps) {
+  const resolvedParams = use(params);
+  const userId = parseInt(resolvedParams.id);
   
   return <Profile userId={userId} />;
 }

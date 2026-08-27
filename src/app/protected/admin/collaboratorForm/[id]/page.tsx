@@ -1,9 +1,10 @@
 import CollaboratorForm from '../CollaboratorForm/CollaboratorForm';
 
 interface CollaboratorFormEditPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function CollaboratorFormEditPage({ params }: CollaboratorFormEditPageProps) {
-  return <CollaboratorForm collaboratorId={params.id} />;
+export default async function CollaboratorFormEditPage({ params }: CollaboratorFormEditPageProps) {
+  const resolvedParams = await params;
+  return <CollaboratorForm collaboratorId={resolvedParams.id} />;
 }

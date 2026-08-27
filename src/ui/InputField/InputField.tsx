@@ -28,6 +28,8 @@ interface InputFieldProps {
   // onPaste?: (e: React.ClipboardEvent) => void;
   onCut?: (e: React.ClipboardEvent) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
 export default function InputField({
@@ -55,6 +57,8 @@ export default function InputField({
   // onPaste,
   onCut,
   onBlur,
+  onKeyDown,
+  onFocus,
 }: InputFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
   const isPasswordField = type === 'password';
@@ -128,6 +132,8 @@ export default function InputField({
             // onPaste={handlePaste}
             onCut={handleCut}
             onBlur={onBlur}
+            onKeyDown={onKeyDown}
+            onFocus={onFocus}
           />
         ) : (
           <input
@@ -149,6 +155,8 @@ export default function InputField({
             // onPaste={handlePaste}
             onCut={handleCut}
             onBlur={onBlur}
+            onKeyDown={onKeyDown}
+            onFocus={onFocus}
           />
         )}
         {displayIcon && (

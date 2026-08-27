@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import './Plans.scss';
 import { useAdminMenu } from '../../AdminLayoutClient';
-import { API_BASE_URL } from '@/utils/utils';
+import { API_BASE_URL, formatCurrency, formatNumbers } from '@/utils/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AreYouSureModal from '@/components/AreYouSureModal/AreYouSureModal';
 import { apiFetch } from '@/lib/apiFetch';
 import Button from '@/ui/Button/Button';
+import { Plan } from '@/types/plan';
 
 const iconArrowBack = '/icons/arrow.svg';
 const iconLock = '/icons/lock.svg';
@@ -25,14 +26,14 @@ export default function Plans() {
   const [refreshCredentials, setRefreshCredentials] = useState<{ app_key: string; app_secret: string } | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: plansData, isLoading, isError } = useQuery({
+  const { data: plansData, isLoading, isError } = useQuery<Plan[]>({
     queryKey: ['plans'],
-    queryFn: async () => apiFetch(`${API_BASE_URL}/plans/`),
+    queryFn: async () => apiFetch<Plan[]>(`${API_BASE_URL}/plans/`),
     staleTime: 30_000,
   });
 
   const refreshMutation = useMutation({
-    mutationFn: async (id: number) => apiFetch(`${API_BASE_URL}/plans/${id}/refresh-access-key`),
+    mutationFn: async (id: number) => apiFetch<{ data: { app_key: string; app_secret: string } }>(`${API_BASE_URL}/plans/${id}/refresh-access-key`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plans'] }),
   });
 
@@ -109,7 +110,7 @@ export default function Plans() {
               <div key={plan.id} className="partners-card">
                 <div className="partners-card-info">
                   <p className="partners-card-title">
-                    {plan.plan_name ?? ''}
+                    {plan.plan_name ?? ''} - <span style={{ fontWeight: 800 }}>${plan.price ? formatNumbers(plan.price) : 0}</span>
                   </p>
                   <p className="partners-card-subtitle">
                     {plan.plan_description ?? ''}
@@ -133,7 +134,7 @@ export default function Plans() {
                       type="button"
                       title={plan.is_active ? "Deshabilitar plan" : "Habilitar plan"}
                       aria-label={plan.is_active ? "Deshabilitar plan" : "Habilitar plan"}
-                      onClick={() => plan.is_active ? desHabilitar(plan.id) : habilitar(plan.id)}
+                      onClick={() => plan.is_active ? desHabilitar(plan.id!) : habilitar(plan.id!)}
                     >
                       <img src={plan.is_active ? iconLock : iconCheck} alt={plan.is_active ? "Deshabilitar plan" : "Habilitar plan"} />
                     </button>
@@ -142,7 +143,7 @@ export default function Plans() {
                       type="button"
                       title="Eliminar plan"
                       aria-label="Eliminar plan"
-                      onClick={() => eliminar(plan.id)}
+                      onClick={() => eliminar(plan.id!)}
                     >
                       <img src={iconTrash} alt="Eliminar plan" />
                     </button>

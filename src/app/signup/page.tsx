@@ -1,12 +1,15 @@
 import UserSignup from "@/app/signup/UserSignup/UserSignup";
 import Image from "next/image";
+import { Suspense } from "react";
 
 export default function SignupPage() {
   return (
     <div className="merged-signup-container">
       {/* Left Panel */}
       <div className="merged-signup-left-panel">
-        <UserSignup />
+        <Suspense fallback={null}>
+          <UserSignup />
+        </Suspense>
       </div>
       <div className="signup-right-panel">
         <Image

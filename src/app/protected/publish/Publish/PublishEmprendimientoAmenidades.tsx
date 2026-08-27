@@ -37,7 +37,7 @@ export default function PublishEmprendimientoAmenidades({
     (wizardData.tags || []).map((t: any) => typeof t === 'number' ? t : t.tag_id)
   );
 
-  const { data: tagsData = [] } = useQuery({
+  const { data: tagsData = [] } = useQuery<any>({
     queryKey: ['tags'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
   });

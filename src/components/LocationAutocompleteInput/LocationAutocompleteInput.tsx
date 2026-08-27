@@ -225,13 +225,13 @@ export default function LocationAutocompleteInput({
             <img src="/icons/lupa.svg" alt="" />
           )}
           value={value}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+          onChange={(event: any) => {
             hasSelectedRef.current = false;
             userTypedRef.current = true;
             onChange(event.target.value);
           }}
           onIconClick={() => { if (hasSelectedRef.current) onSubmit?.(value); }}
-          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (hasSelectedRef.current) onKeyDown?.(e); }}
+          onKeyDown={(e: any) => { if (hasSelectedRef.current) onKeyDown?.(e); }}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
           autoComplete="off"

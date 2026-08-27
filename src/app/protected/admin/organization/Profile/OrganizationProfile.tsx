@@ -72,7 +72,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
 
   useEffect(() => {
     if (!organizationData) return;
-    const org = organizationData;
+    const org = organizationData as any;
     setLocationData({
       state_id: org.state_id ?? undefined,
       location_id: org.location_id ?? undefined,
@@ -154,7 +154,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
     const nextValue = ['telefono', 'telefonoAdicional'].includes(field)
       ? formatNumeric(value)
       : value;
-    setProperties(prev => ({
+    setProperties((prev: any) => ({
       ...prev,
       [field]: nextValue
     }));
@@ -213,10 +213,10 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
             </div>
             
             <div className="professional-profile-fields">               
-              {organizationData?.id && (
+               {(organizationData as any)?.id && (
                 <div className="professional-profile-identifier-text">
                   <p className="professional-profile-label">Identificador:</p>
-                  <p className="professional-profile-value">{getIdentificador(organizationData.id)}</p>
+                  <p className="professional-profile-value">{getIdentificador((organizationData as any).id)}</p>
                 </div>
               )}
               <div className="branch-form-logo">
@@ -258,7 +258,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                 type="text"
                 placeholder="Nombre"
                 value={properties.company_name}
-                onChange={(e) => handleInputChange('company_name', e.target.value)}
+                onChange={(e: any) => handleInputChange('company_name', e.target.value)}
                 disabled={!(isEditing && activeSection === 'generales')}
                 label="Nombre"
               />
@@ -266,7 +266,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                 type="text"
                 placeholder="Razón social"
                 value={properties.social_reason}
-                onChange={(e) => handleInputChange('social_reason', e.target.value)}
+                onChange={(e: any) => handleInputChange('social_reason', e.target.value)}
                 disabled={!(isEditing && activeSection === 'generales')}
                 label="Razón social"
               />          
@@ -287,7 +287,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                 type="text"
                 placeholder="Número de matrícula"
                 value={properties.license_number}
-                onChange={(e) => handleInputChange('license_number', e.target.value)}
+                onChange={(e: any) => handleInputChange('license_number', e.target.value)}
                 disabled={!(isEditing && activeSection === 'generales')}
                 label="Número de matrícula"
               />
@@ -295,7 +295,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                 type="email"
                 placeholder="Email"
                 value={properties.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
+                onChange={(e: any) => handleInputChange('email', e.target.value)}
                 disabled={!(isEditing && activeSection === 'generales')}
                 label="Email"
               />
@@ -303,7 +303,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                 type="tel"
                 placeholder="Teléfono"
                 value={properties.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
+                onChange={(e: any) => handleInputChange('phone', e.target.value)}
                 disabled={!(isEditing && activeSection === 'generales')}
                 label="Teléfono"
               />
@@ -311,7 +311,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                 type="tel"
                 placeholder="Teléfono adicional"
                 value={properties.alternative_phone}
-                onChange={(e) => handleInputChange('alternative_phone', e.target.value)}
+                onChange={(e: any) => handleInputChange('alternative_phone', e.target.value)}
                 disabled={!(isEditing && activeSection === 'generales')}
                 label="Teléfono adicional"
               />
@@ -336,7 +336,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
                 type="text"
                 placeholder="Dirección"
                 value={properties.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
+                onChange={(e: any) => handleInputChange('address', e.target.value)}
                 disabled={!(isEditing && activeSection === 'ubicacion')}
                 label="Dirección"
               />
@@ -369,7 +369,7 @@ export default function OrganizationProfile({ organizationId: propOrganizationId
               rows={5}
               placeholder="Descripción"
               value={properties.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
+              onChange={(e: any) => handleInputChange('description', e.target.value)}
               disabled={!(isEditing && activeSection === 'descripcion')}
               label="Descripción"
             />

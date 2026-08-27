@@ -448,6 +448,7 @@
   gap: 8px;
   border-bottom: 1px solid #a6a6a6;
   overflow-x: auto;
+  overflow-y: hidden;
 
   @media (max-width: 768px) {
     gap: 0;

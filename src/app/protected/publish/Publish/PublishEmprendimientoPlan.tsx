@@ -133,7 +133,7 @@ export default function PublishPlansEmprendimiento({
   const collaboratorOptions = rawUsers
     .filter((user: any) => {
       if (!branchFilter) return true;
-      const userBranchId = String(user.branches.find((b) => String(b.id) === branchFilter)?.id ?? '');
+      const userBranchId = String(user.branches.find((b: any) => String(b.id) === branchFilter)?.id ?? '');
       return userBranchId === branchFilter?.toString();
     })
     .map((user: any) => ({

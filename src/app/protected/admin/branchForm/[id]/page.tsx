@@ -1,9 +1,10 @@
 import BranchForm from '@/app/protected/admin/branchForm/BranchForm/BranchForm';
 
 interface BranchFormEditPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function BranchFormEditPage({ params }: BranchFormEditPageProps) {
-  return <BranchForm branchId={params.id} />;
+export default async function BranchFormEditPage({ params }: BranchFormEditPageProps) {
+  const resolvedParams = await params;
+  return <BranchForm branchId={resolvedParams.id} />;
 }

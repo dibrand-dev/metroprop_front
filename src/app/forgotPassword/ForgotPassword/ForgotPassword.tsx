@@ -27,7 +27,7 @@ export default function ForgotPassword() {
 
   const requestPasswordResetMutation = useMutation({
     mutationFn: async (email: string) => {
-      return apiFetch(`${API_BASE_URL}/users/request-password-reset`, {
+      return apiFetch<{ success: boolean; message?: string }>(`${API_BASE_URL}/users/request-password-reset`, {
         method: 'POST',
         body: { email },
       });
@@ -83,7 +83,7 @@ export default function ForgotPassword() {
             type="text"
             placeholder="Correo electrónico*"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
             id="email"
             name="email"
             error={fieldError}

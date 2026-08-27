@@ -82,7 +82,7 @@ export default function PublishEmprendimientoFinalReview({
     return `${formatNumbers(Math.min(...sups))} ${meas}`;
   };
 
-  const { data: tagsData = [] } = useQuery({
+  const { data: tagsData = [] } = useQuery<any>({
     queryKey: ['tags'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
   });
@@ -156,7 +156,7 @@ export default function PublishEmprendimientoFinalReview({
 
   // Gallery plans (attached files)
   const galleryPlans = useMemo(() => {
-    return (wizardData?.attached ?? []).filter(a => a.upload_status === 'completed');
+    return (wizardData?.attached ?? []).filter((a: any) => a.upload_status === 'completed');
   }, [wizardData]);
 
   // 360 videos (from videos array where is_360 === true)
@@ -629,7 +629,7 @@ export default function PublishEmprendimientoFinalReview({
                   {sessionData?.user && <div className="publish-review-contact-info">
                     {agentName !== sessionData?.user?.email && <div className="publish-review-contact-name">{agentName}</div>}
                     <div style={{ padding: '0 8px' }}>{sessionData?.user?.email ?? ''}</div>
-                    <div style={{ padding: '0 8px' }}>{sessionData?.user?.phone ?? sessionData?.user?.phone_whatsapp ?? ''}</div>
+                    <div style={{ padding: '0 8px' }}>{(sessionData?.user as any)?.phone ?? (sessionData?.user as any)?.phone_whatsapp ?? ''}</div>
                   </div>}
                 </div>
               </div>

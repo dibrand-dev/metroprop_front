@@ -93,7 +93,7 @@ export default function Profile({ userId: propUserId }: ProfileProps = {}) {
     const nextValue = ['telefono', 'telefonoAdicional', 'numero'].includes(field)
       ? formatNumeric(value)
       : value;
-    setProperties(prev => ({
+    setProperties((prev: any) => ({
       ...prev,
       [field]: nextValue
     }));
@@ -143,14 +143,14 @@ export default function Profile({ userId: propUserId }: ProfileProps = {}) {
                 type="text"
                 placeholder="Nombre"
                 value={properties.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
+                onChange={(e: any) => handleInputChange('name', e.target.value)}
                 label="Nombre"
               />
               <InputField2
                 type="text"
                 placeholder="Número de documento"
                 value={properties.document}
-                onChange={(e) => handleInputChange('document', e.target.value)}
+                onChange={(e: any) => handleInputChange('document', e.target.value)}
                 label="Número de documento"
               />               
             </div>
@@ -179,7 +179,7 @@ export default function Profile({ userId: propUserId }: ProfileProps = {}) {
                 type="tel"
                 placeholder="Número de teléfono"
                 value={properties.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
+                onChange={(e: any) => handleInputChange('phone', e.target.value)}
                 label="Número de teléfono"
               />
               {/*<InputField2
@@ -193,7 +193,7 @@ export default function Profile({ userId: propUserId }: ProfileProps = {}) {
                 type="tel"
                 placeholder="Número de WhatsApp"
                 value={properties.phone_whatsapp}
-                onChange={(e) => handleInputChange('phone_whatsapp', e.target.value)}
+                onChange={(e: any) => handleInputChange('phone_whatsapp', e.target.value)}
                 label="Número de WhatsApp"
                 disabled={properties.phone_whatsapp_available === "0"}
               />

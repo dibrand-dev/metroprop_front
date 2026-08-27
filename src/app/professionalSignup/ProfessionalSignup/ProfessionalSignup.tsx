@@ -266,7 +266,7 @@ export default function ProfessionalSignup() {
                       type="text"
                       placeholder="Correo electrónico*"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                       id="email"
                       name="email"
                       autoComplete="email"
@@ -280,7 +280,7 @@ export default function ProfessionalSignup() {
                       type="password"
                       placeholder="Contraseña*"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                       id="password"
                       name="password"
                       autoComplete="new-password"
@@ -295,7 +295,7 @@ export default function ProfessionalSignup() {
                       type="password"
                       placeholder="Confirmar contraseña*"
                       value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
                       id="confirmPassword"
                       name="confirmPassword"
                       autoComplete="new-password"
@@ -315,7 +315,7 @@ export default function ProfessionalSignup() {
                       type="text"
                       placeholder="Nombre*"
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                       id="name"
                       name="name"
                       error={fieldErrors.name}
@@ -328,7 +328,7 @@ export default function ProfessionalSignup() {
                       type="text"
                       placeholder="Razón social*"
                       value={businessName}
-                      onChange={(e) => setBusinessName(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBusinessName(e.target.value)}
                       id="businessName"
                       name="businessName"
                       error={fieldErrors.businessName}
@@ -362,8 +362,8 @@ export default function ProfessionalSignup() {
                       type="text"
                       placeholder="CUIT*"
                       value={cuit}
-                      onChange={(e) => setCuit(formatCuit(e.target.value))}
-                      onBlur={(e) => setCuit(formatCuit(e.target.value, true))}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCuit(formatCuit(e.target.value))}
+                      onBlur={(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => setCuit(formatCuit(e.target.value, true))}
                       id="cuit"
                       name="cuit"
                       error={fieldErrors.cuit}
@@ -376,7 +376,7 @@ export default function ProfessionalSignup() {
                       type="tel"
                       placeholder="Teléfono móvil*"
                       value={phone}
-                      onChange={(e) => setPhone(formatPhone(e.target.value))}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(formatPhone(e.target.value))}
                       id="phone"
                       name="phone"
                       autoComplete="tel"

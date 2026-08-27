@@ -383,6 +383,8 @@ export interface CreateProperty {
   branch_id?: number;
   user_id?: number;
   organization_id?: number;
+  organization?: Organization;
+  user?: any;
   key_contact?: string;
   key_agent_user?: string;
   key_location?: string;
@@ -449,15 +451,16 @@ export interface CreateProperty {
   development_delivery_date?: string;
   development_available_unit_count?: number;
   development_units?: CreateProperty[]; 
+  units?: CreateProperty[]; 
   development_unit_type?: string;
 
-  hired_plan_id: number;
-  visibility: number;
-  leads_count: number;
+  hired_plan_id?: number;
+  visibility?: number;
+  leads_count?: number;
   purchased_plan_id?: number;
   
   dispositions?: string;
-  disposition: Disposition
+  disposition?: Disposition;
   apartments_per_floor?: number;
   floors_in_building?: number;
   business_type?: string;

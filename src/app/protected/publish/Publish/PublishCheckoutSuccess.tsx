@@ -7,7 +7,7 @@ import { formatCurrency, formatNumbers } from '@/utils/utils';
 
 interface PublishCheckoutSuccessProps {
   onFinish: () => void;
-  planToBuy: Plan | null; 
+  planToBuy: any; 
 }
 
 const iconCheck = '/icons/check.svg';

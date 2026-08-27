@@ -25,6 +25,7 @@ import ShareModal from '@/components/ShareModal/ShareModal';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useAds } from '@/lib/useAds';
+import { useTags } from '@/lib/useTags';
 
 interface PropertyDetailProps {
   propertyId: string;
@@ -121,10 +122,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   };
 
   // Fetch tags for amenity tab names
-  const { data: tagsData = [] } = useQuery<AmenityTag[]>({
-    queryKey: ['tags'],
-    queryFn: async () => apiFetch<AmenityTag[]>(`${API_BASE_URL}/tags`),
-  });
+  const { data: tagsData = [] } = useTags();
 
   // Fetch similar properties by price
   const { data: similarByPrice } = useQuery({
@@ -208,7 +206,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   const getAmenitiesByTab = (): Record<string, string[]> => {
     const result: Record<string, string[]> = {};
-    const selectedTagIds = (property?.tags ?? []).map(t => t.tag_id);
+    const selectedTagIds = (property?.tags ?? []).map((t: any) => typeof t === 'number' ? t : t?.tag_id);
     amenityGroups.forEach(group => {
       const groupKey = group.type.toString();
       result[groupKey] = group.options
@@ -249,7 +247,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
   // Gallery images (non-blueprint, completed uploads)
   const galleryImages = useMemo(() => {
     return (property?.images ?? [])
-      .filter(img => !img.is_blueprint && img.upload_status === 'completed')
+      .filter(img => !img.is_blueprint/* && img.upload_status === 'completed'*/)
       .map(img => setImagePath(img.url));
   }, [property]);
 
@@ -272,7 +270,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
   // Gallery plans (attached files)
   const galleryPlans = useMemo(() => {
-    return (property?.attached ?? []).filter(a => a.upload_status === 'completed');
+    return (property?.attached ?? [])//.filter((a: any) => a.upload_status === 'completed');
   }, [property]);
 
   // 360 videos (from videos array where is_360 === true)
@@ -458,11 +456,12 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
     return rangeLabel(rooms, 'amb.', 'amb.');
   };
 
-  const devLocationLabels = locations.length > 0 && property?.development! ? {
-    neighborhood: property.development.neighborhood_id ? locations.find(l => l.id === property.development.neighborhood_id)?.name : undefined,
-    subLocation: property.development.sub_location_id ? locations.find(l => l.id === property.development.sub_location_id)?.name : undefined,
-    location: property.development.location_id ? locations.find(l => l.id === property.development.location_id)?.name : undefined,
-    state: property.development.state_id ? locations.find(l => l.id === property.development.state_id)?.name : undefined,
+  const dev = property?.development as any;
+  const devLocationLabels = locations.length > 0 && dev ? {
+    neighborhood: dev.neighborhood_id ? locations.find(l => l.id === dev.neighborhood_id)?.name : undefined,
+    subLocation: dev.sub_location_id ? locations.find(l => l.id === dev.sub_location_id)?.name : undefined,
+    location: dev.location_id ? locations.find(l => l.id === dev.location_id)?.name : undefined,
+    state: dev.state_id ? locations.find(l => l.id === dev.state_id)?.name : undefined,
   } : undefined;
 
   useEffect(() => {
@@ -548,7 +547,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
         ownerEmail={property?.owner_email}
         ownerPhone={property?.owner_phone}
         user={(property as any)?.user}
-        organization={property?.organization}
+        organization={property?.organization ?? null}
         branchId={(property as any)?.branch_id}
       />}
       {isWhatsappModalOpen && property?.user?.phone_whatsapp && <WhatsappModal
@@ -623,7 +622,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
             <div className="publish-review-preview-hero">
               <span className="entrega">
                 <img src={'/icons/crane.svg'} alt="Crane Icon" />
-                En pozo - Entrega {new Date(property?.development_delivery_date).toLocaleDateString("es-ES")}
+                En pozo - Entrega {property?.development_delivery_date ? new Date(property.development_delivery_date).toLocaleDateString("es-ES") : ''}
               </span>
             </div>
           </div>
@@ -705,7 +704,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
 
         {property?.development_id !== null && !property?.is_development && 
         <section className="property-unit-details property-detail-summary">
-          <div className="property-unit-delivery"><img src={'/icons/crane.svg'} alt="Crane Icon" />En pozo - entrega estimada: {new Date(property?.development?.development_delivery_date).toLocaleDateString("es-ES")}</div>
+          <div className="property-unit-delivery"><img src={'/icons/crane.svg'} alt="Crane Icon" />En pozo - entrega estimada: {dev?.development_delivery_date ? new Date(dev.development_delivery_date).toLocaleDateString("es-ES") : ''}</div>
           <h2>{property?.publication_title}</h2>
           <div className="publish-review-address-1">
             <span className="publish-review-address-icon" aria-hidden="true">
@@ -1002,18 +1001,18 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
               </div>
               <div className="property-detail-map-image">
                 <PropertyMap address={formattedStreet}
-                  lat={property.development 
-                    ? isNaN(Number(property.development.geo_lat)) 
+                  lat={dev 
+                    ? isNaN(Number(dev.geo_lat)) 
                       ? undefined 
-                      : Number(property.development.geo_lat)
+                      : Number(dev.geo_lat)
                     : isNaN(Number(property?.geo_lat))
                       ? undefined
                       : Number(property?.geo_lat)
                   }
-                  lng={property.development 
-                    ? isNaN(Number(property.development.geo_long)) 
+                  lng={dev 
+                    ? isNaN(Number(dev.geo_long)) 
                       ? undefined 
-                      : Number(property.development.geo_long)
+                      : Number(dev.geo_long)
                     : isNaN(Number(property?.geo_long))
                       ? undefined
                       : Number(property?.geo_long)
@@ -1058,19 +1057,21 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                 )}
               </div>
             </section>
-            ) : property?.development && (() => <section className="unit-details-development">
-              <h4>Esta unidad pertenece al emprendimiento</h4>
-              <Link prefetch={false}  href={property?.development ? getPropertyDetailPath(property.development, devLocationLabels) : '#'} target="_blank" rel="noopener noreferrer">
-                <div className="unit-details-development-info">
-                  {property?.development?.images?.[0] ? <img src={setImagePath(property?.development?.images?.[0]?.url) ?? ''} alt="Imagen del emprendimiento" className="unit-details-development-image" /> : null}
-                  <div className="unit-details-development-text">
-                    <h5>{property?.development?.publication_title ?? ''}</h5>
-                    <p className="development-delivery">{property?.development?.development_delivery_date ? `Fecha de entrega: ${new Date(property?.development?.development_delivery_date).toLocaleDateString("es-ES")}` : ''}</p>
-                    <p className="development-rooms"><img src="/icons/door.svg" alt="Rooms" /> {getRoomsRange(property?.development?.units ?? [])}</p>
+            ) : dev && (
+              <section className="unit-details-development">
+                <h4>Esta unidad pertenece al emprendimiento</h4>
+                <Link prefetch={false}  href={dev ? getPropertyDetailPath(dev, devLocationLabels) : '#'} target="_blank" rel="noopener noreferrer">
+                  <div className="unit-details-development-info">
+                    {dev?.images?.[0] ? <img src={setImagePath(dev?.images?.[0]?.url) ?? ''} alt="Imagen del emprendimiento" className="unit-details-development-image" /> : null}
+                    <div className="unit-details-development-text">
+                      <h5>{dev?.publication_title ?? ''}</h5>
+                      <p className="development-delivery">{dev?.development_delivery_date ? `Fecha de entrega: ${new Date(dev.development_delivery_date).toLocaleDateString("es-ES")}` : ''}</p>
+                      <p className="development-rooms"><img src="/icons/door.svg" alt="Rooms" /> {getRoomsRange(dev?.units ?? [])}</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </section>)}
+                </Link>
+              </section>
+            )}
           </div>
 
           <aside className="property-detail-right">
@@ -1092,7 +1093,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                   </div>}
                 <div>
                   <h4>{agentName}</h4>
-                  <span>{property?.organization?.name ?? ''}</span>
+                  <span>{(property?.organization as any)?.name ?? ''}</span>
                 </div>
               </div>
               <div className="property-detail-agent-details">
@@ -1129,7 +1130,7 @@ export default function PropertyDetail({ propertyId }: PropertyDetailProps) {
                   cardType="home"
                   isLoggedIn={isLoggedIn}
                   onFavorite={() => handleToggleFavorite(property.id ?? 0)}
-                  isHighlighted={property.hired_plan_id && property.purchased_plan_id}
+                  isHighlighted={!!(property.hired_plan_id && property.purchased_plan_id)}
                 />)}
               </div>
               {similarCanScrollRight[index] && (

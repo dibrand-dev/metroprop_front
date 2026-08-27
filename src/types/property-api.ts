@@ -40,7 +40,7 @@ export interface PropertyFilterParams {
   northEastLng?: number;
   southWestLat?: number;
   southWestLng?: number;
-  [key: string]: string | number | undefined;
+  [key: string]: string | number | boolean | undefined;
 }
 
 // ─── API Response Types ───────────────────────────────────────────────────────

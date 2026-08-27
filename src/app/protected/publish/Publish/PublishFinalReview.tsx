@@ -48,7 +48,7 @@ export default function PublishFinalReview({
   const showSummaryToggle = (wizardData.description?.length ?? 0) > 300 || (wizardData.description?.split('\n').length ?? 0) > 2;
   const [isPriceInfoPopoverOpen, setIsPriceInfoPopoverOpen] = useState(false);
   
-  const { data: tagsData = [] } = useQuery({
+  const { data: tagsData = [] } = useQuery<any>({
     queryKey: ['tags'],
     queryFn: async () => apiFetch(`${API_BASE_URL}/tags`),
   });
@@ -261,7 +261,7 @@ export default function PublishFinalReview({
                       <span className='operacion'>{statusDisplay}</span>
                     </div>
                     {wizardData.price_square_meter! > 0 && (<div className="publish-review-preview-meta">                      
-                      <span>{formatCurrency(wizardData.currency)}/m<sup>2</sup> {formatNumbers((wizardData.price_square_meter))}</span>                      
+                      <span>{formatCurrency(wizardData.currency)}/m<sup>2</sup> {formatNumbers(wizardData.price_square_meter ?? 0)}</span>                      
                       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                         <button
                           type="button"
@@ -301,11 +301,11 @@ export default function PublishFinalReview({
                   </div>
                   <div className="publish-review-preview-price">
                     <strong>
-                      {formatCurrency(wizardData.currency)} {formatNumbers(wizardData?.price?.toString() ?? '')}
+                      {formatCurrency(wizardData.currency)} {formatNumbers(wizardData.price ?? 0)}
                     </strong>
                     {wizardData.expenses! > 0 && (
                       <span>
-                        {formatCurrency(wizardData.currency_expenses)} {formatNumbers(wizardData.expenses?.toString() ?? '')} expensas
+                        {formatCurrency(wizardData.currency_expenses)} {formatNumbers(wizardData.expenses ?? 0)} expensas
                       </span>
                     )}
                   </div>
@@ -447,7 +447,7 @@ export default function PublishFinalReview({
                   {sessionData?.user && <div className="publish-review-contact-info">
                     {agentName !== sessionData?.user?.email && <div className="publish-review-contact-name">{agentName}</div>}
                     <div style={{ padding: '0 8px' }}>{sessionData?.user?.email ?? ''}</div>
-                    <div style={{ padding: '0 8px' }}>{sessionData?.user?.phone ?? ''}</div>
+                    <div style={{ padding: '0 8px' }}>{(sessionData?.user as any)?.phone ?? ''}</div>
                   </div>}
                 </div>
               </div>

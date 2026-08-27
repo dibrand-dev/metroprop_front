@@ -178,11 +178,11 @@ export default function Collaborators() {
                     {collaborator.name} - {collaborator.email}
                   </p>
                   <p className="collaborators-card-subtitle">
-                    Sucursal: {collaborator.branches?.map(b => b.branch_name).join(', ') || '-'}
+                    Sucursal: {collaborator.branches?.map((b: any) => b.branch_name || b.name).join(', ') || '-'}
                   </p>
                 </div>
                 <div className="collaborators-card-actions">
-                  <span className="collaborators-role-chip">{ROLE[collaborator.role_id] ?? '-'}</span>
+                  <span className="collaborators-role-chip">{collaborator.role_id ? ROLE[collaborator.role_id] ?? '-' : '-'}</span>
                   <div className="collaborators-card-tools">
                     {String(collaborator.id) !== String((sessionData?.user as any)?.id) && collaborator.actions.map((action) => (
                       <button
@@ -230,7 +230,7 @@ export default function Collaborators() {
                 type="password"
                 placeholder="Nueva contraseña"
                 value={newPassword}
-                onChange={(e) => { setNewPassword(e.target.value); setPasswordError(''); }}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setNewPassword(e.target.value); setPasswordError(''); }}
               />
               <p className="form-help-text">Usa de 6 a 20 caracteres</p>
               <InputField2
@@ -238,7 +238,7 @@ export default function Collaborators() {
                 type="password"
                 placeholder="Repetir contraseña"
                 value={confirmPassword}
-                onChange={(e) => { setConfirmPassword(e.target.value); setPasswordError(''); }}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setConfirmPassword(e.target.value); setPasswordError(''); }}
               />
               {passwordError && <p style={{ color: '#d32f2f', fontSize: 13 }}>{passwordError}</p>}
             </div>

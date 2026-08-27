@@ -32,7 +32,7 @@ export default function Notifications() {
 
       await apiFetch(`${API_BASE_URL}/users/${userId}`, {
         method: 'GET',
-        }).then((data) => {
+        }).then((data: any) => {
           const acceptNewsletters = data?.accept_newsletters ?? false;
           setNotifications((prev) =>
             prev.map((n) => (n.id === '1' ? { ...n, active: acceptNewsletters } : n))

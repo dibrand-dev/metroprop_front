@@ -452,7 +452,7 @@ export default function ResultsMap({ properties, mapData, initialLocationQuery, 
                       property={selectedProperty}
                       cardType="gridList"
                       fromMap={true}
-                      isHighlighted={selectedProperty.hired_plan_id && selectedProperty.purchased_plan_id}
+                      isHighlighted={!!(selectedProperty.hired_plan_id && selectedProperty.purchased_plan_id)}
                     />
                   </Link>;
                 })() : null}
